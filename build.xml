@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+	name="ru.aplix.ltk"
+	default="package">
+
+	<target name="build-module-list">
+		<ivy:buildlist reference="build-path">
+			<fileset dir="${basedir}" includes="*/**/build.xml"/>
+		</ivy:buildlist>
+	</target>
+
+	<target name="compile" depends="build-module-list">
+		<subant target="compile" buildpathref="build-path"/>
+	</target>
+
+	<target name="package" depends="build-module-list">
+		<subant target="package" buildpathref="build-path"/>
+	</target>
+
+	<target name="clean" depends="build-module-list">
+		<subant target="clean" buildpathref="build-path"/>
+		<delete dir="${target.dir}" includeemptydirs="true"/>
+	</target>
+
+</project>

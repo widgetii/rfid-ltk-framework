@@ -1,0 +1,5 @@
+/build/ltk.properties
+/target/
+**/bin/
+**/deps/
+**/.settings/

@@ -1,0 +1,6 @@
+<ivy-module version="2.0">
+    <info
+        organisation="ru.aplix"
+        module="ltk.messages"
+        status="integration"/>
+</ivy-module>

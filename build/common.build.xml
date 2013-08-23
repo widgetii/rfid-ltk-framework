@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+	name="ru.aplix.ltk.build.common">
+	
+	<dirname file="${ant.file.ru.aplix.ltk.build.common}" property="build.dir"/>
+	<property name="root.dir" location="${build.dir}/.."/>
+	<property name="target.dir" location="${root.dir}/target"/>
+
+	<property file="${build.dir}/ltk.release"/>
+	<property file="build.properties"/>
+	<property file="${build.dir}/ltk.properties"/>
+	<property file="${build.dir}/ltk.default.properties"/>
+	
+	<property 
+		name="jar.file"
+		value="${target.dir}/${ant.project.name}-${ltk_version}.jar"/>
+
+	<path id="deps.path">
+		<fileset dir="${deps.dir}"/>
+	</path>
+	
+	<pathconvert property="source.path">
+		<path>
+			<filelist dir="." files="${source..}"/>
+		</path>
+		<regexpmapper from="${basedir}/(.*)$$" to="\1" handledirsep="true"/>
+	</pathconvert>
+
+	<target
+		name="resolve"
+		depends="clean-deps"
+		description="Resolve and retrieve dependencies with ivy">
+		<mkdir dir="${deps.dir}"/>
+		<ivy:retrieve pattern="${deps.dir}/[artifact].[ext]"/>
+	</target>
+
+	<target
+		name="compile"
+		depends="resolve"
+		description="Compile the project">
+		<mkdir dir="${output..}"/>
+		<javac
+			srcdir="${source.path}"
+			destdir="${output..}"
+			target="1.7"
+			source="1.7"
+			classpathref="deps.path"
+			debug="${compile.debug}"
+			debuglevel="${compile.debuglevel}"
+			encoding="UTF-8"
+			includeantruntime="false"
+			taskname="${ant.project.name}">
+		</javac>
+		<antcall target="copy-resources"/>
+	</target>
+
+	<extension-point name="copy-resources"/>
+
+	<target
+		name="package"
+		depends="compile"
+		description="Package the project JAR">
+		<mkdir taskname="${ant.project.name}" dir="${target.dir}"/>
+		<jar
+			destfile="${jar.file}" 
+			manifest="META-INF/MANIFEST.MF"
+			encoding="UTF-8"
+			taskname="${ant.project.name}">
+			<fileset dir="${output..}"/>
+		</jar>
+	</target>
+
+	<target
+		name="clean-deps"
+		description="Clean the project dependencies dir">
+		<delete
+			taskname="${ant.project.name}"
+			includeemptydirs="true"
+			dir="${deps.dir}"/>
+	</target>
+
+	<target name="clean-classes" unless="auto-build">
+		<delete
+			taskname="${ant.project.name}"
+			includeemptydirs="true"
+			dir="${output..}"/>
+	</target>
+
+	<target name="clean" depends="clean-deps,clean-classes">
+		<delete taskname="${ant.project.name}" file="${jar.file}"/>
+	</target>
+
+</project>

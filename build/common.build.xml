@@ -22,11 +22,11 @@
 	</pathconvert>
 
 	<ivy:settings file="${root.dir}/ivysettings.xml"/>
-	
+
 	<target
 		name="compile"
 		description="Compile the project">
-		<mkdir dir="${output..}"/>
+		<mkdir dir="${output..}" taskname="${ant.project.name}"/>
 		<javac
 			srcdir="${source.path}"
 			destdir="${output..}"
@@ -60,7 +60,7 @@
 		</jar>
 	</target>
 
-	<target name="test"/>
+	<target name="test" depends="package"/>
 
 	<target name="clean" description="Cleans everything">
 		<delete

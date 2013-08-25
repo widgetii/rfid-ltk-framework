@@ -2,6 +2,6 @@
 
 <project name="ru.aplix.ltk.message.test" default="package">
 	
-	<import file="../build/common.build.xml"/>
+	<import file="../build/test.build.xml"/>
 
 </project>

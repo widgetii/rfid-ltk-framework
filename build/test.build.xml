@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+	name="ru.aplix.ltk.build.test">
+	
+	<import file="common.build.xml"/>
+	
+	<target name="test" depends="package">
+		<junit
+			printsummary="withOutAndErr"
+			fork="true"
+			includeantruntime="true"
+			taskname="${ant.project.name}">
+			<classpath>
+				<ivy:resources file="${ivy.file}"/>
+				<pathelement path="${classes.dir}"/>
+			</classpath>
+			<batchtest>
+				<fileset dir="${classes.dir}" includes="**/*Test.class"/>
+			</batchtest>
+		</junit>
+	</target>
+	
+</project>

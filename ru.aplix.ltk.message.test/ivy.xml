@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.3">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.message.test"
+    status="integration"
+    revision="1.0.0"/>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.message"
+      rev="latest.integration"/>
+    <dependency
+      org="org.junit"
+      name="com.springsource.org.junit"
+      rev="4.11.0"/>
+  </dependencies>
+</ivy-module>

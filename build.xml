@@ -11,17 +11,21 @@
 		</ivy:buildlist>
 	</target>
 
-	<target name="compile" depends="build-module-list">
-		<subant target="compile" buildpathref="build-path"/>
+	<target name="ivy" depends="build-module-list">
+		<subant target="ivy" buildpathref="build-path"/>
 	</target>
 
 	<target name="package" depends="build-module-list">
 		<subant target="package" buildpathref="build-path"/>
 	</target>
 
+	<target name="clean-cache">
+		<delete dir="cache" includeemptydirs="true"/>
+	</target>
+	
 	<target name="clean" depends="build-module-list">
 		<subant target="clean" buildpathref="build-path"/>
-		<delete dir="${target.dir}" includeemptydirs="true"/>
+		<delete dir="target" includeemptydirs="true"/>
 	</target>
 
 </project>

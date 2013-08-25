@@ -23,8 +23,22 @@
 
 	<ivy:settings file="${root.dir}/ivysettings.xml"/>
 
+	<target name="build-deps" unless="without-deps">
+		<ivy:buildlist
+			reference="deps.path"
+			root="${ant.project.name}"
+			excluderoot="true"
+		 	taskname="${ant.project.name}">
+			<fileset dir="${root.dir}" includes="*/build.xml"/>
+		</ivy:buildlist>
+		<subant target="package" buildpathref="deps.path">
+			<property name="without-deps" location="on"/>
+		</subant>
+	</target>
+
 	<target
 		name="compile"
+		depends="build-deps"
 		description="Compile the project">
 		<mkdir dir="${output..}" taskname="${ant.project.name}"/>
 		<javac

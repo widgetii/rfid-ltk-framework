@@ -14,11 +14,15 @@
 	</target>
 
 	<target name="package" depends="build-module-list">
-		<subant target="package" buildpathref="modules.path"/>
+		<subant target="package" buildpathref="modules.path">
+			<property name="without-deps" location="on"/>
+		</subant>
 	</target>
 
 	<target name="test" depends="build-module-list">
-		<subant target="test" buildpathref="modules.path"/>
+		<subant target="test" buildpathref="modules.path">
+			<property name="without-deps" location="on"/>
+		</subant>
 	</target>
 
 	<target name="clean-cache">
@@ -29,7 +33,9 @@
 	</target>
 	
 	<target name="clean" depends="build-module-list">
-		<subant target="clean" buildpathref="modules.path"/>
+		<subant target="clean" buildpathref="modules.path">
+			<property name="without-deps" location="on"/>
+		</subant>
 		<delete
 			dir="${target.dir}"
 			includeemptydirs="true"

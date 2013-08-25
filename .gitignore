@@ -1,6 +1,5 @@
 /build/ltk.properties
+/cache/
 /target/
-**/bin/
-**/deps/
-**/.settings/
-/cache
+*/bin/
+*/.settings/

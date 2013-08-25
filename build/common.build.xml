@@ -4,18 +4,15 @@
 	xmlns:ivy="antlib:org.apache.ivy.ant"
 	name="ru.aplix.ltk.build.common">
 
-	<dirname file="${ant.file.ru.aplix.ltk.build.common}" property="build.dir"/>
-	<property name="root.dir" location="${build.dir}/.."/>
-	<property name="target.dir" location="${root.dir}/target"/>
-
-	<property file="${build.dir}/ltk.release"/>
+	<import file="setup.build.xml"/>
 	<property file="build.properties"/>
-	<property file="${build.dir}/ltk.properties"/>
-	<property file="${build.dir}/ltk.default.properties"/>
-	
+
+	<property name="ivy.file" value="${basedir}/ivy.xml"/>
+	<property name="module.version" value="${ltk_version}"/>
 	<property 
 		name="jar.file"
-		value="${target.dir}/${ant.project.name}-${ltk_version}.jar"/>
+		value="${target.dir}/${ant.project.name}-${module.version}.jar"/>
+	<property name="classes.dir" value="${basedir}/bin"/>
 
 	<pathconvert property="source.path">
 		<path>

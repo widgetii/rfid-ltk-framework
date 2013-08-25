@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ru.aplix.ltk.build.setup">
+  
+	<dirname file="${ant.file.ru.aplix.ltk.build.setup}" property="build.dir"/>
+	<property name="root.dir" location="${build.dir}/.."/>
+	<property name="target.dir" location="${root.dir}/target"/>
+	<property file="${build.dir}/ltk.release"/>
+	<property file="${build.dir}/ltk.properties"/>
+	<property file="${build.dir}/ltk.default.properties"/>
+
+</project>

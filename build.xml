@@ -5,6 +5,8 @@
 	name="ru.aplix.ltk"
 	default="package">
 
+	<import file="build/setup.build.xml"/>
+
 	<target name="build-module-list">
 		<ivy:buildlist reference="build-path">
 			<fileset dir="${basedir}" includes="*/**/build.xml"/>
@@ -25,7 +27,7 @@
 	
 	<target name="clean" depends="build-module-list">
 		<subant target="clean" buildpathref="build-path"/>
-		<delete dir="target" includeemptydirs="true"/>
+		<delete dir="${target.dir}" includeemptydirs="true"/>
 	</target>
 
 </project>

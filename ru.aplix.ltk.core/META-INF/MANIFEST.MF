@@ -6,4 +6,5 @@ Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: ru.aplix.ltk.message;bundle-version="1.0.0";visibility:=reexport
 Bundle-ActivationPolicy: lazy
-Export-Package: ru.aplix.ltk.core.reader
+Export-Package: ru.aplix.ltk.core.collector,
+ ru.aplix.ltk.core.reader

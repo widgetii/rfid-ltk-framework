@@ -29,7 +29,7 @@ public interface RfReadMessage {
 	 *
 	 * <p>This can be the same value if reading transactions not supported by
 	 * the reader. If this value changes, then it is assumed that the previous
-	 * transaction stopped.</p>
+	 * transaction ended.</p>
 	 *
 	 * @return transaction identifier.
 	 */

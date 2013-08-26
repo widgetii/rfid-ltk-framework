@@ -31,10 +31,30 @@ public class RfReader
 	 * RFID reader's port identifier.
 	 *
 	 * @return identifier string returned by
-	 * {@link RfReaderDriver#getRefPortId() driver}.
+	 * {@link RfReaderDriver#getRfPortId() driver}.
 	 */
 	public final String getRfPortId() {
-		return driver().getRefPortId();
+		return driver().getRfPortId();
+	}
+
+	/**
+	 * RFID driver used.
+	 *
+	 * @return driver instance passed to this service constructor.
+	 */
+	protected final RfReaderDriver driver() {
+		return this.driver;
+	}
+
+	/**
+	 * RFID tag messages subscriptions.
+	 *
+	 * @return subscriptions made through
+	 * {@link RfReaderHandle#read(MsgConsumer) reader subscription handle}.
+	 */
+	protected final
+	MsgSubscriptions<RfReadHandle, RfReadMessage> tagSubscriptions() {
+		return this.tagSubscriptions;
 	}
 
 	@Override
@@ -57,26 +77,6 @@ public class RfReader
 	@Override
 	protected void stopService() {
 		driver().stopRfReader();
-	}
-
-	/**
-	 * RFID driver to use.
-	 *
-	 * @return driver instance passed to this service constructor.
-	 */
-	protected final RfReaderDriver driver() {
-		return this.driver;
-	}
-
-	/**
-	 * RFID tag messages subscriptions.
-	 *
-	 * @return subscriptions made through
-	 * {@link RfReaderHandle#read(MsgConsumer) reader handle}.
-	 */
-	protected final
-	MsgSubscriptions<RfReadHandle, RfReadMessage> tagSubscriptions() {
-		return this.tagSubscriptions;
 	}
 
 	final MsgSubscriptions<RfReaderHandle, RfReaderStatusMessage>

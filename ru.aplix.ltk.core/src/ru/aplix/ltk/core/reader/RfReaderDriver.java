@@ -20,7 +20,7 @@ public interface RfReaderDriver {
 	 *
 	 * @return identifier string.
 	 */
-	String getRefPortId();
+	String getRfPortId();
 
 	/**
 	 * Initializes the driver.

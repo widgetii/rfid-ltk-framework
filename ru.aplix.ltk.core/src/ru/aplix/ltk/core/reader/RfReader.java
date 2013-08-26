@@ -72,10 +72,10 @@ public class RfReader
 	 * RFID tag messages subscriptions.
 	 *
 	 * @return subscriptions made through
-	 * {@link RfReaderHandle#requestTags(MsgConsumer) reader handle}.
+	 * {@link RfReaderHandle#read(MsgConsumer) reader handle}.
 	 */
 	protected final
-	MsgSubscriptions<RfTagHandle, RfTagMessage> tagSubscriptions() {
+	MsgSubscriptions<RfReadHandle, RfReadMessage> tagSubscriptions() {
 		return this.tagSubscriptions;
 	}
 
@@ -85,14 +85,14 @@ public class RfReader
 	}
 
 	private static final class RfTagSubscriptions
-			extends MsgSubscriptions<RfTagHandle, RfTagMessage> {
+			extends MsgSubscriptions<RfReadHandle, RfReadMessage> {
 
 		@Override
-		protected RfTagHandle createHandle(
+		protected RfReadHandle createHandle(
 				MsgConsumer<
-					? super RfTagHandle,
-					? super RfTagMessage> consumer) {
-			return new RfTagHandle(this, consumer);
+					? super RfReadHandle,
+					? super RfReadMessage> consumer) {
+			return new RfReadHandle(this, consumer);
 		}
 
 	}

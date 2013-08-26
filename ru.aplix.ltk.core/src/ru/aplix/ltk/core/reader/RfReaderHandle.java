@@ -7,8 +7,8 @@ import ru.aplix.ltk.message.MsgServiceHandle;
 /**
  * RFID reader service subscription handle.
  *
- * <p>It can be used to subscribe on other types of messages from the reader.
- * </p>
+ * <p>It can be used to subscribe on other types of messages originated from
+ * the reader.</p>
  */
 public final class RfReaderHandle
 		extends MsgServiceHandle<RfReaderHandle, RfReaderStatusMessage> {
@@ -25,14 +25,14 @@ public final class RfReaderHandle
 	}
 
 	/**
-	 * Subscribes the given consumer to receive RFID tag messages.
+	 * Subscribes the given consumer to receive RFID read messages.
 	 *
-	 * @param consumer RFID tags consumer to subscribe.
+	 * @param consumer RFID read operation results consumer to subscribe.
 	 *
-	 * @return RFID tags subscription handle.
+	 * @return RFID read operations subscription handle.
 	 */
-	public final RfTagHandle requestTags(
-			MsgConsumer<? super RfTagHandle, ? super RfTagMessage> consumer) {
+	public final RfReadHandle read(
+			MsgConsumer<? super RfReadHandle, ? super RfReadMessage> consumer) {
 		return addSubscription(
 				this.reader.tagSubscriptions().subscribe(consumer));
 	}

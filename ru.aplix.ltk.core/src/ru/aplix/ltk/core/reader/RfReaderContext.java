@@ -13,7 +13,7 @@ public final class RfReaderContext {
 		this.reader.readerSubscriptions().sendMessage(statusMessage);
 	}
 
-	public void sendTag(RfTagMessage tagMessage) {
+	public void sendTag(RfReadMessage tagMessage) {
 		this.reader.tagSubscriptions().sendMessage(tagMessage);
 	}
 

@@ -33,7 +33,8 @@ public final class RfReaderHandle
 	 */
 	public final RfTagHandle requestTags(
 			MsgConsumer<? super RfTagHandle, ? super RfTagMessage> consumer) {
-		return this.reader.tagSubscriptions().subscribe(consumer);
+		return addSubscription(
+				this.reader.tagSubscriptions().subscribe(consumer));
 	}
 
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.core"
+    status="integration"
+    revision="1.0.0"/>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.message"
+      rev="latest.integration"/>
+  </dependencies>
+</ivy-module>

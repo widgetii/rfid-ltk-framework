@@ -1,7 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Message Processing Library
-Bundle-SymbolicName: ru.aplix.ltk.message
+Bundle-SymbolicName: ru.aplix.ltk.message;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: ru.aplix.ltk.message
+Bundle-ActivationPolicy: lazy

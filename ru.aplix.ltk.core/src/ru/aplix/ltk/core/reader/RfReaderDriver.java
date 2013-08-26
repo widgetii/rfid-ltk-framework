@@ -14,6 +14,15 @@ package ru.aplix.ltk.core.reader;
 public interface RfReaderDriver {
 
 	/**
+	 * Returns RFID reader's port identifier.
+	 *
+	 * <p>This method can be called before the driver initialization.</p>
+	 *
+	 * @return identifier string.
+	 */
+	String getRefPortId();
+
+	/**
 	 * Initializes the driver.
 	 *
 	 * <p>Invoked by {@link RfReader} at most once prior to any other operation

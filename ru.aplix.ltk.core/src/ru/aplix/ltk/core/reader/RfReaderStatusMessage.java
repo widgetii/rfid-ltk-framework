@@ -12,9 +12,13 @@ import ru.aplix.ltk.message.MsgConsumer;
 public interface RfReaderStatusMessage {
 
 	/**
-	 * RFID device identifier.
+	 * RFID reader device identifier.
 	 *
-	 * @return string identifier.
+	 * <p>This is not necessarily the same as {@link RfReader#getRfPortId()
+	 * reader's port identifier}. It is expected that the device identifier
+	 * id obtained from the device itself upon successful connection.</p>
+	 *
+	 * @return string identifier, or <code>null</code> if unknown.
 	 */
 	String getRfReaderId();
 

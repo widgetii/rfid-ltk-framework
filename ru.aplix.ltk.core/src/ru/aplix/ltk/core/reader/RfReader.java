@@ -27,6 +27,16 @@ public class RfReader
 		this.driver = driver;
 	}
 
+	/**
+	 * RFID reader's port identifier.
+	 *
+	 * @return identifier string returned by
+	 * {@link RfReaderDriver#getRefPortId() driver}.
+	 */
+	public final String getRfPortId() {
+		return driver().getRefPortId();
+	}
+
 	@Override
 	protected RfReaderHandle createServiceHandle(
 			MsgConsumer<

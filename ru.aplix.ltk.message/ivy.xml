@@ -6,4 +6,8 @@
     module="ru.aplix.ltk.message"
     status="integration"
     revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="compile" extends="default"/>
+  </configurations>
 </ivy-module>

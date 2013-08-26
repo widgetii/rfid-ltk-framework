@@ -52,7 +52,7 @@
 			includeantruntime="false"
 			taskname="${ant.project.name}">
 			<classpath>
-				<ivy:resources file="${ivy.file}"/>
+				<ivy:resources file="${ivy.file}" conf="compile"/>
 			</classpath>
 		</javac>
 		<antcall target="copy-resources"/>

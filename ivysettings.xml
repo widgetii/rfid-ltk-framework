@@ -2,8 +2,6 @@
 
 <ivysettings>
 
-  <settings defaultResolver="default-resolver"/>
-
   <caches
     resolutionCacheDir="${ivy.settings.dir}/cache/resolution"
     useOrigin="true">
@@ -15,7 +13,7 @@
   <version-matchers usedefaults="true"/>
 
   <resolvers>
-    <chain name="default-resolver" dual="true" returnFirst="true">
+    <chain name="com.springsource" dual="true" returnFirst="true">
       <url
         name="com.springsource.repository.bundles.release">
         <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
@@ -26,6 +24,9 @@
         <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
       </url>
     </chain>
+    <updatesite
+      name="eclipse-updatesite"
+      url="http://download.eclipse.org/eclipse/updates/4.3"/>
     <filesystem name="ltk-bundles">
       <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
       <artifact
@@ -39,8 +40,11 @@
       name="ru.aplix.ltk.*"
       resolver="ltk-bundles"/>
     <module
+      organisation="bundle"
+      resolver="eclipse-updatesite"/>
+    <module
       name="com.springsource.*"
-      resolver="default-resolver"/>
+      resolver="com.springsource"/>
   </modules>
 
 </ivysettings>

@@ -13,7 +13,7 @@
 			includeantruntime="true"
 			taskname="${ant.project.name}">
 			<classpath>
-				<ivy:resources file="${ivy.file}"/>
+				<ivy:resources file="${ivy.file}" conf="test"/>
 				<pathelement path="${classes.dir}"/>
 			</classpath>
 			<batchtest>

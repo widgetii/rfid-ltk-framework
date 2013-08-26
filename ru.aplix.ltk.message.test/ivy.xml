@@ -6,16 +6,34 @@
     module="ru.aplix.ltk.message.test"
     status="integration"
     revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="compile" extends="default"/>
+    <conf name="runtime" extends="default"/>
+    <conf name="test" extends="compile"/>
+  </configurations>
   <dependencies>
     <dependency
       org="bundle"
       name="ru.aplix.ltk.message"
       rev="latest.integration"/>
     <dependency
+      org="bundle"
+      name="org.hamcrest.core"
+      rev="1.3.0+"
+      conf="runtime->*"/>
+    <dependency
+      org="bundle"
+      name="org.junit"
+      rev="4.11.0+"
+      transitive="false"
+      conf="runtime->*"/>
+    <dependency
       org="org.junit"
       name="com.springsource.org.junit"
-      rev="4.11.0">
-      <artifact name="com.springsource.org.junit"/>
+      rev="4.11.0"
+      conf="compile">
+      <artifact name="com.springsource.org.junit" type="jar"/>
     </dependency>
   </dependencies>
 </ivy-module>

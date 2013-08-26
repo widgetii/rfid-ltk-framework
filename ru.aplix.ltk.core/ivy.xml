@@ -6,6 +6,10 @@
     module="ru.aplix.ltk.core"
     status="integration"
     revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="compile" extends="default"/>
+  </configurations>
   <dependencies>
     <dependency
       org="bundle"

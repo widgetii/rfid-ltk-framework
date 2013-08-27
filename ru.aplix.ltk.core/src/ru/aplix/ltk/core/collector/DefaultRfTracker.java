@@ -172,7 +172,7 @@ public class DefaultRfTracker implements RfTracker {
 			return false;
 		}
 		// Tag is new?
-		return this.presentTags.put(tag, lastAppearance) != null;
+		return this.presentTags.put(tag, lastAppearance) == null;
 	}
 
 	private HashMap<RfTag, Long> endTransaction() {

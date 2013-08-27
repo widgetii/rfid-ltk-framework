@@ -31,10 +31,8 @@ public class ReaderTest {
 
 		this.driver.updateStatus(status);
 
-		final RfReaderStatusMessage received =
-				this.readerConsumer.nextMessage();
-
-		assertThat(received, sameInstance(status));
+		assertThat(this.readerConsumer.nextMessage(), sameInstance(status));
+		this.readerConsumer.noMoreMessages();
 	}
 
 	@Test
@@ -52,9 +50,8 @@ public class ReaderTest {
 
 		this.driver.sendData(data);
 
-		final RfDataMessage received = consumer.nextMessage();
-
-		assertThat(received, sameInstance(data));
+		assertThat(consumer.nextMessage(), sameInstance(data));
+		this.readerConsumer.noMoreMessages();
 	}
 
 }

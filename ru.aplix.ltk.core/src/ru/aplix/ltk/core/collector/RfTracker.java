@@ -27,10 +27,10 @@ public interface RfTracker {
 	/**
 	 * Updates the tracking information.
 	 *
-	 * <p>This method is invoked upon each reception of RFID read message.</p>
+	 * <p>This method is invoked upon each reception of RFID reader data.</p>
 	 *
-	 * @param readMessage RFID read operation message.
+	 * @param dataMessage RFID reader data message.
 	 */
-	void rfRead(RfDataMessage readMessage);
+	void rfData(RfDataMessage dataMessage);
 
 }

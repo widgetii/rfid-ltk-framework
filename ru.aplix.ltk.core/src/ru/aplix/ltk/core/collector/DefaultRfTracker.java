@@ -54,6 +54,7 @@ public class DefaultRfTracker implements RfTracker {
 
 	private long transactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
 	private long invalidationTimeout = DEFAULT_INVALIDATION_TIMEOUT;
+	boolean transactionStarted;
 	private long transactionStart;
 	private int transactionId;
 	private RfTracking invalidator;
@@ -107,26 +108,40 @@ public class DefaultRfTracker implements RfTracker {
 	}
 
 	@Override
-	public void rfRead(RfDataMessage readMessage) {
+	public void rfData(RfDataMessage dataMessage) {
 
-		final long timestamp = readMessage.getTimestamp();
+		final long timestamp = dataMessage.getTimestamp();
 		final Long lastAppearance = new Long(timestamp);
-		final RfTag tag = readMessage.getRfTag();
-		final boolean transactionEnd = readMessage.isRfTransactionEnd();
+		final RfTag tag = dataMessage.getRfTag();
 		final boolean transactionChanged =
-				!transactionEnd && transactionChanged(timestamp, readMessage);
+				this.transactionStarted
+				&& transactionChanged(timestamp, dataMessage);
+		final boolean transactionEnd =
+				this.transactionStarted
+				&& dataMessage.isRfTransactionEnd();
 		HashMap<RfTag, Long> pendingTags = null;
 		boolean tagAppeared = false;
 
 		synchronized (this) {
 			if (transactionChanged) {
-				pendingTags = updateTransaction(timestamp, readMessage);
+				pendingTags = endTransaction();
 			}
 			if (tag != null) {
 				tagAppeared = cacheTag(tag, lastAppearance);
 			}
 			if (transactionEnd) {
-				pendingTags = updateTransaction(timestamp, readMessage);
+				// No need to start a new transaction tracking after explicit
+				// transaction end.
+				if (!transactionChanged) {
+					// Data message can contain new transaction ID
+					// and explicitly end this transaction.
+					// In this case no pending tags left.
+					// Otherwise, end transaction tracking.
+					pendingTags = endTransaction();
+				}
+			} else if (tag != null && !this.transactionStarted) {
+				// Start a new transaction tracking if necessary.
+				startTransaction(timestamp, dataMessage);
 			}
 		}
 		if (tagAppeared) {
@@ -160,18 +175,21 @@ public class DefaultRfTracker implements RfTracker {
 		return this.presentTags.put(tag, lastAppearance) != null;
 	}
 
-	private HashMap<RfTag, Long> updateTransaction(
-			long timestamp,
-			RfDataMessage message) {
+	private HashMap<RfTag, Long> endTransaction() {
 
 		final HashMap<RfTag, Long> pendingTags = this.remainingTags;
 
 		this.remainingTags = this.presentTags;
 		this.presentTags = new HashMap<>();
-		this.transactionId = message.getRfTransactionId();
-		this.transactionStart = timestamp;
+		this.transactionStarted = false;
 
 		return pendingTags;
+	}
+
+	private void startTransaction(long timestamp, RfDataMessage message) {
+		this.transactionStarted = true;
+		this.transactionId = message.getRfTransactionId();
+		this.transactionStart = timestamp;
 	}
 
 	private void invalidatePendingTags(

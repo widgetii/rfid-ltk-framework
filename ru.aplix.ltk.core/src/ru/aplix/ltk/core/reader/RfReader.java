@@ -12,8 +12,8 @@ import ru.aplix.ltk.message.MsgSubscriptions;
 public class RfReader
 		extends MsgService<RfReaderHandle, RfReaderStatusMessage> {
 
-	private final RfTagSubscriptions tagSubscriptions =
-			new RfTagSubscriptions();
+	private final RfDataSubscriptions dataSubscriptions =
+			new RfDataSubscriptions();
 	private final RfReaderDriver driver;
 	private boolean driverInitialized;
 
@@ -47,14 +47,14 @@ public class RfReader
 	}
 
 	/**
-	 * RFID tag messages subscriptions.
+	 * RFID reader data subscriptions.
 	 *
-	 * @return subscriptions made through
-	 * {@link RfReaderHandle#read(MsgConsumer) reader subscription handle}.
+	 * @return subscriptions made through the {@link RfReaderHandle#requestData(
+	 * MsgConsumer) reader subscription handle}.
 	 */
 	protected final
-	MsgSubscriptions<RfReadHandle, RfReadMessage> tagSubscriptions() {
-		return this.tagSubscriptions;
+	MsgSubscriptions<RfDataHandle, RfDataMessage> dataSubscriptions() {
+		return this.dataSubscriptions;
 	}
 
 	@Override
@@ -84,15 +84,15 @@ public class RfReader
 		return serviceSubscriptions();
 	}
 
-	private static final class RfTagSubscriptions
-			extends MsgSubscriptions<RfReadHandle, RfReadMessage> {
+	private static final class RfDataSubscriptions
+			extends MsgSubscriptions<RfDataHandle, RfDataMessage> {
 
 		@Override
-		protected RfReadHandle createHandle(
+		protected RfDataHandle createHandle(
 				MsgConsumer<
-					? super RfReadHandle,
-					? super RfReadMessage> consumer) {
-			return new RfReadHandle(this, consumer);
+					? super RfDataHandle,
+					? super RfDataMessage> consumer) {
+			return new RfDataHandle(this, consumer);
 		}
 
 	}

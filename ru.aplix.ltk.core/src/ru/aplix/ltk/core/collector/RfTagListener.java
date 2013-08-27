@@ -1,16 +1,16 @@
 package ru.aplix.ltk.core.collector;
 
-import ru.aplix.ltk.core.reader.RfReadHandle;
-import ru.aplix.ltk.core.reader.RfReadMessage;
+import ru.aplix.ltk.core.reader.RfDataHandle;
+import ru.aplix.ltk.core.reader.RfDataMessage;
 import ru.aplix.ltk.message.MsgConsumer;
 
 
 final class RfTagListener
-		implements MsgConsumer<RfReadHandle, RfReadMessage> {
+		implements MsgConsumer<RfDataHandle, RfDataMessage> {
 
 	private final RfCollector collector;
 	private final RfTracker tracker;
-	private RfReadHandle handle;
+	private RfDataHandle handle;
 	private boolean cacheInitialized;
 
 	RfTagListener(RfCollector collector, RfTracker tracker) {
@@ -19,17 +19,17 @@ final class RfTagListener
 	}
 
 	@Override
-	public void consumerSubscribed(RfReadHandle handle) {
+	public void consumerSubscribed(RfDataHandle handle) {
 		this.handle = handle;
 	}
 
 	@Override
-	public void messageReceived(RfReadMessage message) {
+	public void messageReceived(RfDataMessage message) {
 		tracker().rfRead(message);
 	}
 
 	@Override
-	public void consumerUnsubscribed(RfReadHandle handle) {
+	public void consumerUnsubscribed(RfDataHandle handle) {
 	}
 
 	final RfTracker tracker() {
@@ -41,7 +41,7 @@ final class RfTagListener
 			tracker().initRfTracker(new RfTracking(this.collector));
 			this.cacheInitialized = true;
 		}
-		this.collector.readerHandle().read(this);
+		this.collector.readerHandle().requestData(this);
 	}
 
 	final void stop() {

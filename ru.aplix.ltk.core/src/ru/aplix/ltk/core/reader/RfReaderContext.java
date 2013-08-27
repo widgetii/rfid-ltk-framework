@@ -27,12 +27,12 @@ public final class RfReaderContext {
 	}
 
 	/**
-	 * Sends an RFID read result.
+	 * Sends RFID reader data.
 	 *
-	 * @param readMessage read result to report.
+	 * @param dataMessage reader data to send.
 	 */
-	public void sendRead(RfReadMessage readMessage) {
-		this.reader.tagSubscriptions().sendMessage(readMessage);
+	public void sendData(RfDataMessage dataMessage) {
+		this.reader.dataSubscriptions().sendMessage(dataMessage);
 	}
 
 }

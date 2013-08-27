@@ -4,18 +4,18 @@ import ru.aplix.ltk.message.MsgConsumer;
 
 
 /**
- * A message with RFID read operation results.
+ * A message containing data from RFID reader.
  *
- * <p>To receive such messages a {@link RfReaderHandle#read(MsgConsumer)
+ * <p>To receive such messages a {@link RfReaderHandle#requestData(MsgConsumer)
  * subscription} should be made.<p>
  *
  * <p>This message is sent when an RFID tag read. In addition, it can indicate
  * a start and stop of the tags reading transactions, if supported.</p>
  */
-public interface RfReadMessage {
+public interface RfDataMessage {
 
 	/**
-	 * RFID read operation time stamp.
+	 * RFID data read operation time stamp.
 	 *
 	 * @return UNIX time in milliseconds.
 	 */
@@ -43,7 +43,7 @@ public interface RfReadMessage {
 	int getRfTransactionId();
 
 	/**
-	 * Indicates the RFID reading transaction ended.
+	 * Indicates that the RFID reading transaction ended.
 	 *
 	 * @return <code>true</code> if all RFID tags read during the reading
 	 * transaction, or <code>false</code> otherwise.

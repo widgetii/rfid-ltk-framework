@@ -3,7 +3,7 @@ package ru.aplix.ltk.core.collector;
 import java.util.HashMap;
 import java.util.Map;
 
-import ru.aplix.ltk.core.reader.RfReadMessage;
+import ru.aplix.ltk.core.reader.RfDataMessage;
 import ru.aplix.ltk.core.reader.RfTag;
 
 
@@ -20,7 +20,7 @@ import ru.aplix.ltk.core.reader.RfTag;
  *
  * <p>The cache removal happens when the following conditions met:
  * <ul>
- * <li>a {@link RfReadMessage#getRfTransactionId() reading transaction} ended,
+ * <li>a {@link RfDataMessage#getRfTransactionId() reading transaction} ended,
  * </li>
  * <li>the tag have not read during this transaction, and</li>
  * <li>a time is {@link #getInvalidationTimeout() out} since the last time the
@@ -30,9 +30,9 @@ import ru.aplix.ltk.core.reader.RfTag;
  *
  * <p>A reading transaction considered ended when one of the following happens:
  * <ul>
- * <li>a transaction end {@link RfReadMessage#isRfTransactionEnd() explicitly
+ * <li>a transaction end {@link RfDataMessage#isRfTransactionEnd() explicitly
  * reported},</li>
- * <li>a {@link RfReadMessage#getRfTransactionId() transaction identifier}
+ * <li>a {@link RfDataMessage#getRfTransactionId() transaction identifier}
  * changed, or</li>
  * <li>a time since the transaction start is {@link #getTransactionTimeout()
  * out}.</li>
@@ -107,7 +107,7 @@ public class DefaultRfTracker implements RfTracker {
 	}
 
 	@Override
-	public void rfRead(RfReadMessage readMessage) {
+	public void rfRead(RfDataMessage readMessage) {
 
 		final long timestamp = readMessage.getTimestamp();
 		final Long lastAppearance = new Long(timestamp);
@@ -139,7 +139,7 @@ public class DefaultRfTracker implements RfTracker {
 
 	private boolean transactionChanged(
 			long timestamp,
-			RfReadMessage tagMessage) {
+			RfDataMessage tagMessage) {
 
 		final int transactionId = tagMessage.getRfTransactionId();
 
@@ -162,7 +162,7 @@ public class DefaultRfTracker implements RfTracker {
 
 	private HashMap<RfTag, Long> updateTransaction(
 			long timestamp,
-			RfReadMessage message) {
+			RfDataMessage message) {
 
 		final HashMap<RfTag, Long> pendingTags = this.remainingTags;
 

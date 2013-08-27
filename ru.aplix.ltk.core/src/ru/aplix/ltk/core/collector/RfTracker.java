@@ -1,6 +1,6 @@
 package ru.aplix.ltk.core.collector;
 
-import ru.aplix.ltk.core.reader.RfReadMessage;
+import ru.aplix.ltk.core.reader.RfDataMessage;
 
 
 /**
@@ -31,6 +31,6 @@ public interface RfTracker {
 	 *
 	 * @param readMessage RFID read operation message.
 	 */
-	void rfRead(RfReadMessage readMessage);
+	void rfRead(RfDataMessage readMessage);
 
 }

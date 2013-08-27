@@ -25,16 +25,16 @@ public final class RfReaderHandle
 	}
 
 	/**
-	 * Subscribes the given consumer to receive RFID read messages.
+	 * Subscribes the given consumer to receive RFID reader data.
 	 *
-	 * @param consumer RFID read operation results consumer to subscribe.
+	 * @param consumer RFID reader data consumer to subscribe.
 	 *
-	 * @return RFID read operations subscription handle.
+	 * @return subscription handle.
 	 */
-	public final RfReadHandle read(
-			MsgConsumer<? super RfReadHandle, ? super RfReadMessage> consumer) {
+	public final RfDataHandle requestData(
+			MsgConsumer<? super RfDataHandle, ? super RfDataMessage> consumer) {
 		return addSubscription(
-				this.reader.tagSubscriptions().subscribe(consumer));
+				this.reader.dataSubscriptions().subscribe(consumer));
 	}
 
 }

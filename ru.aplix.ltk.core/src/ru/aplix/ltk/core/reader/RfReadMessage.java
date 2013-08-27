@@ -15,6 +15,13 @@ import ru.aplix.ltk.message.MsgConsumer;
 public interface RfReadMessage {
 
 	/**
+	 * RFID read operation time stamp.
+	 *
+	 * @return UNIX time in milliseconds.
+	 */
+	long getTimestamp();
+
+	/**
 	 * RFID tag read by reader device.
 	 *
 	 * <p>This method can return <code>null</code>, e.g. to indicate

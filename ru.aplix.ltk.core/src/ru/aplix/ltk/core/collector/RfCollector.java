@@ -23,7 +23,7 @@ public class RfCollector
 			new RfTagAppearanceSubscriptions(this);
 	private final RfReader reader;
 	private final RfReaderListener readerListener;
-	private final RfTagListener tagListener;
+	private final RfDataListener dataListener;
 
 	/**
 	 * Constructs collector with a default RFID tags tracker.
@@ -45,7 +45,7 @@ public class RfCollector
 		requireNonNull(reader, "RFID reader not specified");
 		this.reader = reader;
 		this.readerListener = new RfReaderListener(this);
-		this.tagListener = new RfTagListener(this, tracker);
+		this.dataListener = new RfDataListener(this, tracker);
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class RfCollector
 	 * not specified.
 	 */
 	protected final RfTracker tracker() {
-		return this.tagListener.tracker();
+		return this.dataListener.tracker();
 	}
 
 	/**
@@ -139,12 +139,12 @@ public class RfCollector
 		@Override
 		protected void firstSubscribed(RfTagAppearanceHandle handle) {
 			super.firstSubscribed(handle);
-			this.collector.tagListener.start();
+			this.collector.dataListener.start();
 		}
 
 		@Override
 		protected void lastUnsubscribed(RfTagAppearanceHandle handle) {
-			this.collector.tagListener.stop();
+			this.collector.dataListener.stop();
 			super.lastUnsubscribed(handle);
 		}
 

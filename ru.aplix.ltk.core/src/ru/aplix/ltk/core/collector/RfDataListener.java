@@ -5,7 +5,7 @@ import ru.aplix.ltk.core.reader.RfDataMessage;
 import ru.aplix.ltk.message.MsgConsumer;
 
 
-final class RfTagListener
+final class RfDataListener
 		implements MsgConsumer<RfDataHandle, RfDataMessage> {
 
 	private final RfCollector collector;
@@ -13,7 +13,7 @@ final class RfTagListener
 	private RfDataHandle handle;
 	private boolean cacheInitialized;
 
-	RfTagListener(RfCollector collector, RfTracker tracker) {
+	RfDataListener(RfCollector collector, RfTracker tracker) {
 		this.collector = collector;
 		this.tracker = tracker != null ? tracker : new DefaultRfTracker();
 	}

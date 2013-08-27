@@ -7,13 +7,13 @@ import ru.aplix.ltk.core.reader.RfTag;
 public class TestDataMessage implements RfDataMessage {
 
 	private final long timestamp;
-	private final TestTag tag;
+	private final RfTag tag;
 	private final int transactionId;
 	private final boolean transactionEnd;
 
 	public TestDataMessage(
 			long timestamp,
-			TestTag tag,
+			RfTag tag,
 			int transactionId,
 			boolean transactionEnd) {
 		this.timestamp = timestamp;

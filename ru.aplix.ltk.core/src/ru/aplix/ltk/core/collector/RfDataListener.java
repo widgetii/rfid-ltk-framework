@@ -25,6 +25,7 @@ final class RfDataListener
 
 	@Override
 	public void messageReceived(RfDataMessage message) {
+		this.collector.noError();
 		tracker().rfData(message);
 	}
 

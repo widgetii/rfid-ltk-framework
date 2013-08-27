@@ -14,6 +14,16 @@ public enum RfReaderStatus {
 	/**
 	 * RFID reader error.
 	 */
-	RF_READER_ERROR
+	RF_READER_ERROR;
+
+	/**
+	 * Whether RFID error happened.
+	 *
+	 * @return <code>true</code> if this status is a reader error status,
+	 * or <code>false</code> otherwise.
+	 */
+	public boolean isError() {
+		return this == RF_READER_ERROR;
+	}
 
 }

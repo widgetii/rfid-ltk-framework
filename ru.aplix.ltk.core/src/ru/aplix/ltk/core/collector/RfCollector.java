@@ -104,6 +104,18 @@ public class RfCollector
 	}
 
 	@Override
+	protected void subscribed(RfCollectorHandle handle) {
+		super.subscribed(handle);
+
+		final RfReaderStatusMessage lastStatus =
+				this.readerListener.lastStatus();
+
+		if (lastStatus != null) {
+			handle.getConsumer().messageReceived(lastStatus);
+		}
+	}
+
+	@Override
 	protected void stopService() {
 		this.readerListener.stop();
 	}
@@ -115,6 +127,10 @@ public class RfCollector
 
 	final RfReaderHandle readerHandle() {
 		return this.readerListener.handle();
+	}
+
+	final void noError() {
+		this.readerListener.noError();
 	}
 
 	private static final class RfTagAppearanceSubscriptions

@@ -109,36 +109,36 @@ public class DefaultRfTracker implements RfTracker {
 	@Override
 	public void rfRead(RfReadMessage readMessage) {
 
-		final long now = System.currentTimeMillis();
-		final Long lastAppearance = new Long(now);
+		final long timestamp = readMessage.getTimestamp();
+		final Long lastAppearance = new Long(timestamp);
 		final RfTag tag = readMessage.getRfTag();
 		final boolean transactionEnd = readMessage.isRfTransactionEnd();
 		final boolean transactionChanged =
-				!transactionEnd && transactionChanged(now, readMessage);
+				!transactionEnd && transactionChanged(timestamp, readMessage);
 		HashMap<RfTag, Long> pendingTags = null;
 		boolean tagAppeared = false;
 
 		synchronized (this) {
 			if (transactionChanged) {
-				pendingTags = updateTransaction(now, readMessage);
+				pendingTags = updateTransaction(timestamp, readMessage);
 			}
 			if (tag != null) {
 				tagAppeared = cacheTag(tag, lastAppearance);
 			}
 			if (transactionEnd) {
-				pendingTags = updateTransaction(now, readMessage);
+				pendingTags = updateTransaction(timestamp, readMessage);
 			}
 		}
 		if (tagAppeared) {
 			this.invalidator.tagAppeared(tag);
 		}
 		if (pendingTags != null) {
-			invalidatePendingTags(now, pendingTags);
+			invalidatePendingTags(timestamp, pendingTags);
 		}
 	}
 
 	private boolean transactionChanged(
-			long now,
+			long timestamp,
 			RfReadMessage tagMessage) {
 
 		final int transactionId = tagMessage.getRfTransactionId();
@@ -147,7 +147,7 @@ public class DefaultRfTracker implements RfTracker {
 			return true;
 		}
 
-		return now - this.transactionStart >= getTransactionTimeout();
+		return timestamp - this.transactionStart >= getTransactionTimeout();
 	}
 
 	private boolean cacheTag(RfTag tag, Long lastAppearance) {
@@ -161,7 +161,7 @@ public class DefaultRfTracker implements RfTracker {
 	}
 
 	private HashMap<RfTag, Long> updateTransaction(
-			long now,
+			long timestamp,
 			RfReadMessage message) {
 
 		final HashMap<RfTag, Long> pendingTags = this.remainingTags;
@@ -169,13 +169,13 @@ public class DefaultRfTracker implements RfTracker {
 		this.remainingTags = this.presentTags;
 		this.presentTags = new HashMap<>();
 		this.transactionId = message.getRfTransactionId();
-		this.transactionStart = now;
+		this.transactionStart = timestamp;
 
 		return pendingTags;
 	}
 
 	private void invalidatePendingTags(
-			long now,
+			long timestamp,
 			HashMap<RfTag, Long> pendingTags) {
 
 		final long timeout = getInvalidationTimeout();
@@ -185,7 +185,7 @@ public class DefaultRfTracker implements RfTracker {
 			final RfTag tag = e.getKey();
 			final Long lastAppearance = e.getValue();
 
-			if (now - lastAppearance.longValue() >= timeout) {
+			if (timestamp - lastAppearance.longValue() >= timeout) {
 				this.invalidator.tagDisappeared(tag);
 			} else {
 				tagStillPresent(tag, lastAppearance);
@@ -193,7 +193,7 @@ public class DefaultRfTracker implements RfTracker {
 		}
 	}
 
-	private synchronized void  tagStillPresent(
+	private synchronized void tagStillPresent(
 			RfTag tag,
 			Long lastAppearance) {
 

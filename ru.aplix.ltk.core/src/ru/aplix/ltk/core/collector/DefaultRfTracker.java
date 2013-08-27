@@ -113,16 +113,16 @@ public class DefaultRfTracker implements RfTracker {
 		final long timestamp = dataMessage.getTimestamp();
 		final Long lastAppearance = new Long(timestamp);
 		final RfTag tag = dataMessage.getRfTag();
-		final boolean transactionChanged =
-				this.transactionStarted
-				&& transactionChanged(timestamp, dataMessage);
-		final boolean transactionEnd =
-				this.transactionStarted
-				&& dataMessage.isRfTransactionEnd();
+		final boolean transactionEnd = dataMessage.isRfTransactionEnd();
 		HashMap<RfTag, Long> pendingTags = null;
 		boolean tagAppeared = false;
 
 		synchronized (this) {
+
+			final boolean transactionChanged =
+					this.transactionStarted
+					&& transactionChanged(timestamp, dataMessage);
+
 			if (transactionChanged) {
 				pendingTags = endTransaction();
 			}
@@ -132,15 +132,16 @@ public class DefaultRfTracker implements RfTracker {
 			if (transactionEnd) {
 				// No need to start a new transaction tracking after explicit
 				// transaction end.
-				if (!transactionChanged) {
-					// Data message can contain new transaction ID
-					// and explicitly end this transaction.
-					// In this case no pending tags left.
-					// Otherwise, end transaction tracking.
-					pendingTags = endTransaction();
+
+				final HashMap<RfTag, Long> pending = endTransaction();
+
+				if (pendingTags == null) {
+					pendingTags = pending;
+				} else {
+					pendingTags.putAll(pending);
 				}
-			} else if (tag != null && !this.transactionStarted) {
-				// Start a new transaction tracking if necessary.
+			}
+			if (!this.transactionStarted) {
 				startTransaction(timestamp, dataMessage);
 			}
 		}
@@ -215,18 +216,18 @@ public class DefaultRfTracker implements RfTracker {
 			RfTag tag,
 			Long lastAppearance) {
 
-		final Long removedRemaining = this.remainingTags.remove(tag);
-
-		if (removedRemaining != null) {
-			this.remainingTags.put(tag, removedRemaining);
-			return;
-		}
-
-		final Long removedPresent =
-				this.presentTags.put(tag, lastAppearance);
+		final Long removedPresent = this.presentTags.remove(tag);
 
 		if (removedPresent != null) {
 			this.presentTags.put(tag, removedPresent);
+			return;
+		}
+
+		final Long replacedRemaining =
+				this.remainingTags.put(tag, lastAppearance);
+
+		if (replacedRemaining != null) {
+			this.remainingTags.put(tag, replacedRemaining);
 		}
 	}
 

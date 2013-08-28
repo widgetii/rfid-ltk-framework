@@ -10,11 +10,13 @@ import ru.aplix.ltk.core.reader.RfReaderDriver;
 /**
  * RFID reader connection.
  *
- * <p>It can opened by {@link RfConnector#open() RFID connector} after proper
- * configuration.</p>
+ * <p>It can be opened by {@link RfConnector#open() RFID connector} after proper
+ * configuration. This is generally a container of other services related to
+ * the connected reader device, such as {@link RfReader}, or
+ * {@link RfCollector}.</p>
  *
- * <p>Connections are not expected to be thread-safe, in contrast to services
- * they create.</p>
+ * <p>Connections are not expected to be thread-safe by themselves, while
+ * objects they contain may have their own thread safety constraints.</p>
  */
 public abstract class RfConnection {
 

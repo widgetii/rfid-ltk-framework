@@ -6,7 +6,7 @@ import ru.aplix.ltk.message.MsgServiceHandle;
 
 
 /**
- * RFID collector service subscription handle.
+ * RFID collector subscription handle.
  *
  * <p>Other types of collector messages can be subscribed for through this
  * handle.</p>

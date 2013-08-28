@@ -10,11 +10,11 @@ import ru.aplix.ltk.message.MsgSubscriptions;
 
 
 /**
- * RFID tags collector service.
+ * RFID tags collector.
  *
- * <p>This service collects RFID tags information from the given
- * {@link RfReader RFID reader}, and informs subscribers on tag appearance
- * and disappearance within that reader's field of view (FOV).</p>
+ * <p>Collects RFID tags information from the given {@link RfReader RFID
+ * reader}, and informs subscribers on tag appearance and disappearance within
+ * that reader's field of view (FOV).</p>
  */
 public class RfCollector
 		extends MsgService<RfCollectorHandle, RfReaderStatusMessage> {

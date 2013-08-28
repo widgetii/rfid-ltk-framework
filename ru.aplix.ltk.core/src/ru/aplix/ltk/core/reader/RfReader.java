@@ -7,7 +7,7 @@ import ru.aplix.ltk.message.MsgSubscriptions;
 
 
 /**
- * RFID reader service.
+ * RFID reader interface.
  */
 public class RfReader
 		extends MsgService<RfReaderHandle, RfReaderStatusMessage> {

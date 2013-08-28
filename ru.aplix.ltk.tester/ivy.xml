@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.tester"
+    status="integration"
+    revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="compile" extends="default"/>
+  </configurations>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.core"
+      rev="latest.integration"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.osgi"
+      rev="3.9.0+"
+      transitive="false"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.equinox.app"
+      rev="1.3.100+"
+      transitive="false"/>
+  </dependencies>
+</ivy-module>

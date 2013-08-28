@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: RFID Tester Application
+Bundle-SymbolicName: ru.aplix.ltk.tester;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/*.xml
+Import-Package: org.osgi.framework;version="1.3.0",
+ org.osgi.service.application;version="1.1.0",
+ org.osgi.util.tracker;version="1.3.1"

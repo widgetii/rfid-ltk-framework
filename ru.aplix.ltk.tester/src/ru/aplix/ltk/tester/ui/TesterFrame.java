@@ -6,26 +6,21 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.application.ApplicationHandle;
-import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.framework.BundleException;
 
 
 public class TesterFrame extends JFrame implements Runnable {
 
 	private static final long serialVersionUID = 4960622669104423471L;
 
-	private final ServiceTracker<
-			ApplicationHandle,
-			ApplicationHandle> appTracker;
+	private final BundleContext context;
 	private final TesterContent content;
 
 	public TesterFrame(BundleContext context) throws HeadlessException {
 		super("Тестирование RFID");
-		this.appTracker = new ServiceTracker<>(
-				context,
-				ApplicationHandle.class,
-				null);
+		this.context = context;
 		this.content = new TesterContent(this);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -50,10 +45,15 @@ public class TesterFrame extends JFrame implements Runnable {
 
 	private void stopApplication() {
 
-		final ApplicationHandle appHandle = this.appTracker.getService();
+		final Bundle systemBundle = this.context.getBundle(0);
 
-		if (appHandle != null) {
-			appHandle.destroy();
+		if (systemBundle != null) {
+			try {
+				systemBundle.stop();
+			} catch (BundleException e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
 		}
 	}
 

@@ -12,10 +12,7 @@ public class TesterActivator implements BundleActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-
-		final TesterFrame frame = new TesterFrame(context);
-
-		invokeLater(frame);
+		invokeLater(new TesterFrame(context));
 	}
 
 	@Override

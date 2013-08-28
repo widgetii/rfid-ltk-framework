@@ -1,6 +1,7 @@
 package ru.aplix.ltk.tester.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
@@ -14,6 +15,7 @@ class TesterContent extends JPanel {
 	TesterContent(TesterFrame frame) {
 		super(new BorderLayout());
 		this.frame = frame;
+		setPreferredSize(new Dimension(800, 600));
 	}
 
 	public final TesterFrame getFrame() {

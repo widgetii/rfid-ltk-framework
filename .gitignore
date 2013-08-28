@@ -1,3 +1,4 @@
+/app/*/target/
 /build/ltk.properties
 /cache/
 /target/

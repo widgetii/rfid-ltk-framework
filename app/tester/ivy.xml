@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.app.tester"
+    status="integration"
+    revision="1.0.0"/>
+  <configurations defaultconf="plugins">
+    <conf name="plugins"/>
+    <conf name="platform"/>
+  </configurations>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.tester"
+      rev="latest.integration"
+      conf="plugins->runtime;platform->platform;platform->main"/>
+  </dependencies>
+</ivy-module>

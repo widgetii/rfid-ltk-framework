@@ -16,5 +16,11 @@
       name="ru.aplix.ltk.tester"
       rev="latest.integration"
       conf="plugins->runtime;platform->platform;platform->main"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.update.configurator"
+      rev="3.3.200+"
+      transitive="false"
+      conf="platform->*"/>
   </dependencies>
 </ivy-module>

@@ -48,6 +48,13 @@ public abstract class RfServiceHandleSelector<H>
 		return null;
 	}
 
+	/**
+	 * Service class supported by the given handler.
+	 *
+	 * @param handler target handler.
+	 *
+	 * @return supported service class.
+	 */
 	public abstract Class<? extends RfService> supportedServiceClass(H handler);
 
 }

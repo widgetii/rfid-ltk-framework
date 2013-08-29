@@ -1,5 +1,7 @@
 package ru.aplix.ltk.ui;
 
+import ru.aplix.ltk.core.RfProvider;
+
 
 /**
  *
@@ -10,7 +12,7 @@ package ru.aplix.ltk.ui;
  *
  * @param <P> supported RFID provider interface.
  */
-public interface RfConnectorUIContext<P> {
+public interface RfConnectorUIContext<P extends RfProvider> {
 
 	/**
 	 * Returns an RFID provider the UI is created for.

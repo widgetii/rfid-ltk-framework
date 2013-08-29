@@ -17,7 +17,8 @@ public interface RfConnectorUI {
 	/**
 	 * An AWT component containing RFID connection settings.
 	 *
-	 * @return connection settings component to display to user.
+	 * @return connection settings component to display to the user, or
+	 * <code>null</code> if the settings UI is not required.
 	 */
 	Component getSettingsUI();
 

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: LTK API for Swing-Based UI
-Bundle-SymbolicName: ru.aplix.ltk.ui
+Bundle-SymbolicName: ru.aplix.ltk.ui;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: ru.aplix.ltk.core;bundle-version="1.0.0";visibility:=reexport

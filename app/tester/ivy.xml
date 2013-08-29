@@ -6,63 +6,50 @@
     module="ru.aplix.ltk.app.tester"
     status="integration"
     revision="1.0.0"/>
-  <configurations defaultconf="plugins">
-    <conf name="plugins"/>
-    <conf name="platform"/>
-  </configurations>
   <dependencies>
     <dependency
       org="bundle"
       name="ru.aplix.ltk.tester"
-      rev="latest.integration"
-      conf="plugins->runtime;platform->platform;platform->main"/>
+      rev="latest.integration"/>
     <dependency
       org="bundle"
       name="org.eclipse.update.configurator"
       rev="3.3.200+"
-      transitive="false"
-      conf="platform->*"/>
+      transitive="false"/>
     <dependency
       org="bundle"
       name="org.eclipse.equinox.launcher"
       rev="1.3.0+"
-      transitive="false"
-      conf="platform->*"/>
+      transitive="false"/>
     <dependency
       org="bundle"
       name="org.eclipse.equinox.registry"
       rev="3.5.300+"
-      transitive="false"
-      conf="platform->*"/>
+      transitive="false"/>
     <dependency
       org="bundle"
       name="org.eclipse.equinox.common"
       rev="3.6.200+"
-      transitive="false"
-      conf="platform->*"/>
+      transitive="false"/>
     <dependency
       org="bundle"
       name="org.eclipse.equinox.console"
       rev="1.0.100+"
-      transitive="false"
-      conf="platform->*"/>
+      transitive="false"/>
     <dependency
       org="bundle"
       name="org.apache.felix.gogo.runtime"
       rev="0.10.0+"
-      transitive="false"
-      conf="platform->*"/>
+      transitive="false"/>
     <dependency
       org="bundle"
       name="org.apache.felix.gogo.shell"
       rev="0.10.0+"
-      transitive="false"
-      conf="platform->*"/>
+      transitive="false"/>
     <dependency
       org="bundle"
       name="org.apache.felix.gogo.command"
       rev="0.10.0+"
-      transitive="false"
-      conf="platform->*"/>
+      transitive="false"/>
   </dependencies>
 </ivy-module>

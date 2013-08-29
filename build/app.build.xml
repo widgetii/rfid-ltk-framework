@@ -29,12 +29,8 @@
 		<mkdir taskname="${ant.project.name}" dir="${app.dir}"/>
 		<ivy:retrieve
 			taskname="${ant.project.name}"
-			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"
-			conf="platform"/>
-		<ivy:retrieve
-			taskname="${ant.project.name}"
-			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"
-			conf="plugins"/>
+			sync="true"
+			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"/>
 		<copy todir="${app.dir}">
 			<fileset dir=".">
 				<include name="configuration/**"/>

@@ -13,6 +13,15 @@
       rev="latest.integration"/>
     <dependency
       org="bundle"
+      name="ru.aplix.ltk.driver.dummy"
+      rev="latest.integration"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.osgi"
+      rev="3.9.0+"
+      transitive="false"/>
+    <dependency
+      org="bundle"
       name="org.eclipse.update.configurator"
       rev="3.3.200+"
       transitive="false"/>

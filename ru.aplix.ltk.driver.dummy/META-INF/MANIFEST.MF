@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dummy RFID Driver
+Bundle-SymbolicName: ru.aplix.ltk.driver.dummy;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: ru.aplix.ltk.core;bundle-version="1.0.0";visibility:=reexport
+Import-Package: org.osgi.framework;version="1.7.0"
+Export-Package: ru.aplix.ltk.driver.dummy
+Bundle-Activator: ru.aplix.ltk.driver.dummy.impl.DummyActivator

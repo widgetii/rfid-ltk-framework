@@ -1,6 +1,6 @@
 package ru.aplix.ltk.ui;
 
-import java.awt.Component;
+import javax.swing.JComponent;
 
 import ru.aplix.ltk.core.RfConnector;
 import ru.aplix.ltk.core.RfProvider;
@@ -15,12 +15,12 @@ import ru.aplix.ltk.core.RfProvider;
 public interface RfConnectorUI {
 
 	/**
-	 * An AWT component containing RFID connection settings.
+	 * A Swing component containing RFID connection settings.
 	 *
 	 * @return connection settings component to display to the user, or
 	 * <code>null</code> if the settings UI is not required.
 	 */
-	Component getSettingsUI();
+	JComponent getSettingsUI();
 
 	/**
 	 * Builds a new RFID connector.

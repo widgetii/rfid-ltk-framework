@@ -1,6 +1,6 @@
 package ru.aplix.ltk.ui.impl;
 
-import java.awt.Component;
+import javax.swing.JComponent;
 
 import ru.aplix.ltk.core.RfConnector;
 import ru.aplix.ltk.core.RfProvider;
@@ -17,7 +17,7 @@ final class DefaultRfConnectorUI implements RfConnectorUI {
 	}
 
 	@Override
-	public Component getSettingsUI() {
+	public JComponent getSettingsUI() {
 		return null;
 	}
 

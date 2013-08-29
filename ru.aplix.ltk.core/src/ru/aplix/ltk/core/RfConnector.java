@@ -26,6 +26,6 @@ public interface RfConnector {
 	 *
 	 * @return new connection.
 	 */
-	RfConnection open();
+	RfConnection connect();
 
 }

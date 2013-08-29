@@ -18,7 +18,7 @@
   <dependencies>
     <dependency
       org="bundle"
-      name="ru.aplix.ltk.core"
+      name="ru.aplix.ltk.ui"
       rev="latest.integration"/>
     <dependency
       org="bundle"

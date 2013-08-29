@@ -15,6 +15,13 @@ package ru.aplix.ltk.core;
 public interface RfProvider {
 
 	/**
+	 * Provider's name.
+	 *
+	 * @return human-readable provider name.
+	 */
+	String getName();
+
+	/**
 	 * Creates a new RFID reader connector.
 	 *
 	 * <p>Arbitrary number of connectors can be constructed by single provider.

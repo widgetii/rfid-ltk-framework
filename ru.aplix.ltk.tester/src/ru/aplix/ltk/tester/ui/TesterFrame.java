@@ -5,22 +5,23 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
 
-public class TesterFrame extends JFrame implements Runnable {
+public class TesterFrame extends JFrame {
 
 	private static final long serialVersionUID = 4960622669104423471L;
 
-	private final BundleContext context;
+	private final BundleContext bundleContext;
 	private final TesterContent content;
 
 	public TesterFrame(BundleContext context) throws HeadlessException {
 		super("Тестирование RFID");
-		this.context = context;
+		this.bundleContext = context;
 		this.content = new TesterContent(this);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -31,21 +32,37 @@ public class TesterFrame extends JFrame implements Runnable {
 			}
 		});
 		setContentPane(this.content);
+		pack();
+	}
+
+	public final BundleContext getBundleContext() {
+		return this.bundleContext;
 	}
 
 	public final TesterContent getContent() {
 		return this.content;
 	}
 
-	@Override
-	public void run() {
-		pack();
-		setVisible(true);
+	public void start() {
+		getContent().start();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				setVisible(true);
+			}
+		});
+	}
+
+	public void stop() {
+		getContent().stop();
+		if (isVisible()) {
+			dispose();
+		}
 	}
 
 	private void stopApplication() {
 
-		final Bundle systemBundle = this.context.getBundle(0);
+		final Bundle systemBundle = this.bundleContext.getBundle(0);
 
 		if (systemBundle != null) {
 			try {

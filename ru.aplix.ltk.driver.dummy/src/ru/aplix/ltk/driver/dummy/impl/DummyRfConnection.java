@@ -30,11 +30,11 @@ public class DummyRfConnection extends RfConnection implements RfReaderDriver {
 	@Override
 	public void initRfReader(RfReaderContext context) {
 		this.context = context;
-		this.context.updateStatus(new RfReaderConnected(this.rfDeviceId));
 	}
 
 	@Override
 	public void startRfReader() {
+		this.context.updateStatus(new RfReaderConnected(this.rfDeviceId));
 	}
 
 	@Override

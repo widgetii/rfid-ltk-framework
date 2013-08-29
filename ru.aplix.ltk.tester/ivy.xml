@@ -14,12 +14,13 @@
   <dependencies>
     <dependency
       org="bundle"
-      name="org.eclipse.osgi"
-      rev="3.9.0+"
-      transitive="false"/>
-    <dependency
-      org="bundle"
       name="ru.aplix.ltk.ui"
       rev="latest.integration"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.osgi"
+      rev="3.9.0+"
+      transitive="false"
+      conf="compile->*"/>
   </dependencies>
 </ivy-module>

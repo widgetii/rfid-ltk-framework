@@ -12,7 +12,7 @@ import ru.aplix.ltk.core.RfProvider;
  *
  * @param <H> handlers type.
  */
-public abstract class RfProviderHandleSelector<H>
+public abstract class RfProviderHandlerSelector<H>
 		extends HandlerSelector<RfProvider, H> {
 
 	@Override

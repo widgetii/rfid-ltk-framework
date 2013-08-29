@@ -94,8 +94,12 @@ public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
 
 		this.itemList = newItems;
 
-		fireIntervalRemoved(this, 0, oldItems.length - 1);
-		fireIntervalAdded(this, 0, newItems.length - 1);
+		if (oldItems.length > 0) {
+			fireIntervalRemoved(this, 0, oldItems.length - 1);
+		}
+		if (newItems.length > 0) {
+			fireIntervalAdded(this, 0, newItems.length - 1);
+		}
 	}
 
 	private RfProviderItem[] orderItems() {

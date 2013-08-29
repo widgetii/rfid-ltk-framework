@@ -30,7 +30,7 @@
     <filesystem name="ltk-bundles">
       <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
       <artifact
-        pattern="${ivy.settings.dir}/target/[artifact]-[revision].[ext]"/>
+        pattern="${ivy.settings.dir}/target/[artifact]_[revision].[ext]"/>
     </filesystem>
   </resolvers>
 

@@ -1,31 +1,117 @@
 package ru.aplix.ltk.tester.ui;
 
+import static javax.swing.BorderFactory.createTitledBorder;
+
+import java.awt.Component;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
 import ru.aplix.ltk.core.RfProvider;
+import ru.aplix.ltk.ui.RfConnectorUI;
+import ru.aplix.ltk.ui.RfConnectorUIContext;
+import ru.aplix.ltk.ui.RfProviderUI;
 
 
 public class RfProviderItem implements Comparable<RfProviderItem> {
 
+	private final ConnectionTab tab;
 	private final RfProvider provider;
 	private final String name;
 	private final int index;
-	private int itemIndex = -1;
+	private RfProviderUI<?> providerUI;
+	private RfConnectorUI connectorUI;
+	private JComponent settingsUI;
 
-	RfProviderItem(RfProvider provider, int index) {
+	RfProviderItem(
+			ConnectionTab tab,
+			RfProvider provider,
+			int index) {
+		this.tab = tab;
 		this.provider = provider;
 		this.name = providerName(provider, index);
 		this.index = index;
-	}
-
-	public final RfProvider getProvider() {
-		return this.provider;
 	}
 
 	public final String getName() {
 		return this.name;
 	}
 
-	public final int getItemIndex() {
-		return this.itemIndex;
+	public final RfProvider getProvider() {
+		return this.provider;
+	}
+
+	public final boolean isSelected() {
+		return this.tab.getSelected() == this;
+	}
+
+	public final RfProviderUI<?> getProviderUI() {
+		if (this.providerUI != null) {
+			return this.providerUI;
+		}
+		return this.providerUI = findProviderUI();
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public final RfConnectorUI getConnectorUI() {
+		if (this.connectorUI != null) {
+			return this.connectorUI;
+		}
+		return this.connectorUI =
+				getProviderUI().newConnectorUI(new UIContext());
+	}
+
+	public Component getSettingsUI() {
+		if (this.settingsUI != null) {
+			return this.settingsUI;
+		}
+
+		final JComponent settingsUI = getConnectorUI().getSettingsUI();
+
+		if (settingsUI == null) {
+			// Blank UI.
+			this.settingsUI = new JPanel();
+		} else {
+			this.settingsUI = settingsUI;
+		}
+		this.settingsUI.setBorder(
+				createTitledBorder("Настройки соединения через " + getName()));
+
+		final ConnectionSettings settings = this.tab.getSettings();
+		final String cardName = cardName();
+
+		settings.add(this.settingsUI, cardName);
+
+		return this.settingsUI;
+	}
+
+	public void updateUI() {
+		if (this.providerUI == null) {
+			return;
+		}
+
+		final RfProviderUI<?> providerUI = findProviderUI();
+
+		if (providerUI == this.providerUI) {
+			return;
+		}
+
+		disposeSettingsUI();
+		this.providerUI = providerUI;
+		this.connectorUI = null;
+		this.settingsUI = null;
+		if (isSelected()) {
+			select();
+		}
+	}
+
+	public void select() {
+		getSettingsUI();// Construct UI if not constructed yet.
+		this.tab.getSettings().showCard(cardName());
+	}
+
+	public void dispose() {
+		disposeSettingsUI();
 	}
 
 	@Override
@@ -94,8 +180,29 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 		return "#" + index;
 	}
 
-	final void setItemIndex(int itemIndex) {
-		this.itemIndex = itemIndex;
+	private final String cardName() {
+		return Integer.toString(this.index);
+	}
+
+	private RfProviderUI<?> findProviderUI() {
+		return this.tab.getProviders().providerUI(getProvider());
+	}
+
+	private void disposeSettingsUI() {
+		if (this.settingsUI != null) {
+			this.settingsUI.getParent().remove(this.settingsUI);
+		}
+	}
+
+	private final class UIContext<P extends RfProvider>
+			implements RfConnectorUIContext<P> {
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public P getRfProvider() {
+			return (P) getProvider();
+		}
+
 	}
 
 }

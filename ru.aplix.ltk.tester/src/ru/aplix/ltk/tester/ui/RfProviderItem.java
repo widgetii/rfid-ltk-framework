@@ -75,6 +75,14 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		if (this.name == null) {
+			return super.toString();
+		}
+		return this.name;
+	}
+
 	private static String providerName(RfProvider provider, int index) {
 
 		final String name = provider.getName();

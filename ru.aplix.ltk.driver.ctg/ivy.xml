@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.driver.ctg"
+    status="integration"
+    revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="compile" extends="default"/>
+  </configurations>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.core"
+      rev="latest.integration"/>
+    <dependency
+      org="bundle"
+      name="org.llrp.ltk"
+      rev="1.0.0.7aplix"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.osgi"
+      rev="3.9.0+"
+      transitive="false"
+      conf="compile->*"/>
+  </dependencies>
+</ivy-module>

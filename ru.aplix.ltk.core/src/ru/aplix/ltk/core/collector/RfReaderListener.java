@@ -21,13 +21,16 @@ final class RfReaderListener
 
 	@Override
 	public void consumerSubscribed(RfReaderHandle handle) {
-		this.handle = handle;
 	}
 
 	@Override
 	public void messageReceived(RfReaderStatusMessage message) {
 		if (!updateStatus(message)) {
 			// Do not report the same status twice.
+			return;
+		}
+		if (this.handle == null) {
+			// Not fully started yet. Do not propagate messages.
 			return;
 		}
 		this.collector.collectorSubscriptions().sendMessage(message);
@@ -40,7 +43,7 @@ final class RfReaderListener
 	final void start() {
 		this.lastError = null;
 		this.lastStatus = null;
-		this.collector.reader().subscribe(this);
+		this.handle = this.collector.reader().subscribe(this);
 	}
 
 	final RfReaderHandle handle() {

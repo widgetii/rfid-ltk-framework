@@ -2,7 +2,7 @@
 
 <project
 	xmlns:ivy="antlib:org.apache.ivy.ant"
-	name="ru.aplix.ltk.app.common">
+	name="ru.aplix.ltk.build.app">
 
 	<import file="setup.build.xml"/>
 
@@ -13,10 +13,10 @@
 	
 	<target name="build-deps">
 		<ivy:buildlist
+			 taskname="${ant.project.name}"
 			reference="deps.path"
 			root="${ant.project.name}"
-			excluderoot="true"
-		 	taskname="${ant.project.name}">
+			excluderoot="true">
 			<fileset dir="." includes="build.xml"/>
 			<fileset dir="${root.dir}" includes="*/build.xml"/>
 		</ivy:buildlist>
@@ -30,8 +30,9 @@
 		<ivy:retrieve
 			taskname="${ant.project.name}"
 			sync="true"
-			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"/>
-		<copy todir="${app.dir}">
+			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"
+			type="jar"/>
+		<copy taskname="${ant.project.name}" todir="${app.dir}">
 			<fileset dir=".">
 				<include name="configuration/**"/>
 			</fileset>
@@ -40,9 +41,9 @@
 
 	<target name="clean" description="Cleans everything">
 		<delete
-				taskname="${ant.project.name}"
-				includeemptydirs="true"
-				dir="${app.dir}"/>
+			taskname="${ant.project.name}"
+			includeemptydirs="true"
+			dir="${app.dir}"/>
 	</target>
 
 </project>

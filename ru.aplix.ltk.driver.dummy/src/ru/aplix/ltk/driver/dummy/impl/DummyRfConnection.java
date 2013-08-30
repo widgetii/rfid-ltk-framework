@@ -11,11 +11,13 @@ public class DummyRfConnection extends RfConnection implements RfReaderDriver {
 
 	private final String rfPortId;
 	private final String rfDeviceId;
+	private final DummyTagsGenerator generator;
 	private RfReaderContext context;
 
 	public DummyRfConnection(DummyRfConnector connector) {
 		this.rfPortId = connector.getPortId();
 		this.rfDeviceId = connector.getDeviceId();
+		this.generator = new DummyTagsGenerator(connector, this);
 	}
 
 	@Override
@@ -27,6 +29,10 @@ public class DummyRfConnection extends RfConnection implements RfReaderDriver {
 		return this.rfDeviceId;
 	}
 
+	public final RfReaderContext getContext() {
+		return this.context;
+	}
+
 	@Override
 	public void initRfReader(RfReaderContext context) {
 		this.context = context;
@@ -35,10 +41,12 @@ public class DummyRfConnection extends RfConnection implements RfReaderDriver {
 	@Override
 	public void startRfReader() {
 		this.context.updateStatus(new RfReaderConnected(this.rfDeviceId));
+		this.generator.start();
 	}
 
 	@Override
 	public void stopRfReader() {
+		this.generator.stop();
 	}
 
 	@Override

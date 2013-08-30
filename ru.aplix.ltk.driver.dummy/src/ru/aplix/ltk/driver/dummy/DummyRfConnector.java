@@ -9,6 +9,8 @@ public class DummyRfConnector implements RfConnector {
 
 	private String portId = "TEST Port";
 	private String deviceId = "TEST Reader";
+	private long generationPeriod = 10000L;
+	private long readPeriod = 1000L;
 
 	public String getPortId() {
 		return this.portId;
@@ -24,6 +26,22 @@ public class DummyRfConnector implements RfConnector {
 
 	public void setDeviceId(String deviceId) {
 		this.deviceId = deviceId;
+	}
+
+	public long getGenerationPeriod() {
+		return this.generationPeriod;
+	}
+
+	public void setGenerationPeriod(long generationPeriod) {
+		this.generationPeriod = generationPeriod;
+	}
+
+	public long getReadPeriod() {
+		return this.readPeriod;
+	}
+
+	public void setReadPeriod(long readPeriod) {
+		this.readPeriod = readPeriod;
 	}
 
 	@Override

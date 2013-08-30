@@ -1,6 +1,8 @@
 package ru.aplix.ltk.driver.dummy.impl;
 
 import ru.aplix.ltk.core.RfConnection;
+import ru.aplix.ltk.core.collector.DefaultRfTracker;
+import ru.aplix.ltk.core.collector.RfTracker;
 import ru.aplix.ltk.core.reader.RfReaderConnected;
 import ru.aplix.ltk.core.reader.RfReaderContext;
 import ru.aplix.ltk.core.reader.RfReaderDriver;
@@ -47,6 +49,18 @@ public class DummyRfConnection extends RfConnection implements RfReaderDriver {
 	@Override
 	public void stopRfReader() {
 		this.generator.stop();
+	}
+
+	@Override
+	protected RfTracker createTracker() {
+
+		final DefaultRfTracker tracker = new DefaultRfTracker();
+		final long readPeriod = this.generator.getReadPeriod();
+
+		tracker.setInvalidationTimeout(readPeriod + (readPeriod >> 1));
+		tracker.setTransactionTimeout(this.generator.getGenerationPeriod());
+
+		return tracker;
 	}
 
 	@Override

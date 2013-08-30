@@ -12,6 +12,7 @@ final class DummyTags {
 	private final HashSet<DummyTag> tags = new HashSet<>();
 	private boolean generation;
 	private int transactionId;
+	private long presenceEnd;
 	private long periodEnd;
 
 	DummyTags(DummyTagsGenerator generator) {
@@ -20,10 +21,22 @@ final class DummyTags {
 
 	public long checkPeriod() {
 
-		final long timeLeft = periodTimeLeft();
+		final long now = System.currentTimeMillis();
+		final long timeLeft = this.periodEnd - now;
 
 		if (timeLeft > 0) {
-			return timeLeft;
+			if (!this.generation) {
+				return timeLeft;
+			}
+
+			final long presenceLeft = this.presenceEnd - now;
+
+			if (presenceLeft <= 0) {
+				this.tags.clear();
+				return timeLeft;
+			}
+
+			return Math.min(timeLeft, presenceLeft);
 		}
 		if (this.generation) {
 			hide();
@@ -31,20 +44,21 @@ final class DummyTags {
 			generate();
 		}
 
-		return periodTimeLeft();
-	}
-
-	private long periodTimeLeft() {
-		return this.periodEnd - System.currentTimeMillis();
+		return System.currentTimeMillis() - now;
 	}
 
 	private void generate() {
 		startPeriod(true);
-		for (int numTags = 1 + (int) (Math.random() + 50);
-				numTags > 0;
-				--numTags) {
+		this.presenceEnd =
+				System.currentTimeMillis()
+				+ this.generator.getPresenceDuration();
+
+		int numTags = 1 + (int) (Math.random() * this.generator.getMaxTags());
+
+		do {
 			this.tags.add(new DummyTag());
-		}
+			--numTags;
+		} while (numTags > 0);
 	}
 
 	private void hide() {
@@ -72,6 +86,7 @@ final class DummyTags {
 
 			context.sendData(
 					new DummyRfDataMessage(tag, this.transactionId, last));
+
 			if (last) {
 				break;
 			}

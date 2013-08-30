@@ -46,12 +46,16 @@ class ProgressTab extends JPanel {
 			getContent().getLogTab().append("Тег появился вновь: " + tag);
 		} else {
 			label = new JLabel(tag.toString());
+			label.setBorder(
+					createLineBorder(getForeground().brighter(), 1, true));
 			getContent().getLogTab().append("Тег появился: " + tag);
 		}
 
-		label.setBorder(createLineBorder(getForeground().brighter(), 1, true));
 		this.tags.put(tag, label);
 		add(label);
+
+		validate();
+		repaint();
 	}
 
 	public void removeTag(final RfTag tag) {
@@ -65,6 +69,9 @@ class ProgressTab extends JPanel {
 
 		remove(label);
 		getContent().getLogTab().append("Тег исчез: " + tag);
+
+		validate();
+		repaint();
 	}
 
 }

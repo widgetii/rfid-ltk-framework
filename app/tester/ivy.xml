@@ -17,6 +17,10 @@
       rev="latest.integration"/>
     <dependency
       org="bundle"
+      name="ru.aplix.ltk.driver.ctg"
+      rev="latest.integration"/>
+    <dependency
+      org="bundle"
       name="org.eclipse.osgi"
       rev="3.9.0+"
       transitive="false"/>
@@ -60,5 +64,11 @@
       name="org.apache.felix.gogo.command"
       rev="0.10.0+"
       transitive="false"/>
+    <dependency
+      org="org.slf4j"
+      name="com.springsource.slf4j.nop"
+      rev="1.6.1">
+      <artifact name="com.springsource.slf4j.nop" type="jar"/>
+    </dependency>
   </dependencies>
 </ivy-module>

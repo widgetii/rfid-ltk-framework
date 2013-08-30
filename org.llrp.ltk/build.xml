@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="org.llrp.ltk" default="package">
+
+	<property name="module.version" value="1.0.0.7aplix"/>
+
+	<import file="../build/lib.build.xml"/>
+
+</project>

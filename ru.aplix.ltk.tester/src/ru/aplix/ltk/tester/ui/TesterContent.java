@@ -15,20 +15,21 @@ class TesterContent extends JPanel {
 	private final ProgressTab progressTab;
 	private final LogTab logTab;
 
+	private JTabbedPane tabs;
+
 	TesterContent(TesterFrame frame) {
 		super(new BorderLayout());
 		this.frame = frame;
+		this.tabs = new JTabbedPane();
 		this.connectionTab = new ConnectionTab(this);
 		this.progressTab = new ProgressTab(this);
 		this.logTab = new LogTab();
 
-		final JTabbedPane tabs = new JTabbedPane();
+		this.tabs.addTab("Соединение", this.connectionTab);
+		this.tabs.addTab("Состояние", this.progressTab);
+		this.tabs.addTab("Лог", this.logTab);
 
-		tabs.addTab("Соединение", this.connectionTab);
-		tabs.addTab("Состояние", this.progressTab);
-		tabs.addTab("Лог", this.logTab);
-
-		add(tabs, BorderLayout.CENTER);
+		add(this.tabs, BorderLayout.CENTER);
 	}
 
 	public final TesterFrame getFrame() {
@@ -45,6 +46,10 @@ class TesterContent extends JPanel {
 
 	public final LogTab getLogTab() {
 		return this.logTab;
+	}
+
+	public final void openProgressTab() {
+		this.tabs.setSelectedComponent(getProgressTab());
 	}
 
 	public void start() {

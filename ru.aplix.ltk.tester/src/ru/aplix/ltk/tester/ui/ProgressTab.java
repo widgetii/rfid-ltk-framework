@@ -27,6 +27,13 @@ class ProgressTab extends JPanel {
 		return this.content;
 	}
 
+	public void clear() {
+		for (JLabel label : this.tags.values()) {
+			remove(label);
+		}
+		this.tags.clear();
+	}
+
 	public void addTag(final RfTag tag) {
 
 		final JLabel existingLabel = this.tags.get(tag);

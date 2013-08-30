@@ -52,6 +52,10 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 		return this.settings;
 	}
 
+	public final TesterContent getContent() {
+		return getSettings().getConnectionTab().getContent();
+	}
+
 	public final LogTab getLogTab() {
 		return getSettings().getLogTab();
 	}
@@ -84,6 +88,7 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 	}
 
 	private void startRead() {
+		getContent().getProgressTab().clear();
 		this.collectorHandle = null;
 		this.running = null;
 		try {
@@ -106,6 +111,7 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 		} finally {
 			updateButton();
 		}
+		getContent().openProgressTab();
 	}
 
 	private void stopRead() {
@@ -158,9 +164,7 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 
 	private void tagAppearanceChanged(RfTagAppearanceMessage message) {
 
-		final TesterContent content =
-				getSettings().getConnectionTab().getContent();
-		final ProgressTab progressTab = content.getProgressTab();
+		final ProgressTab progressTab = getContent().getProgressTab();
 
 		if (message.getAppearance().isPresent()) {
 			progressTab.addTag(message.getRfTag());

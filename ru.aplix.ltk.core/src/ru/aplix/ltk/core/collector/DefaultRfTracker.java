@@ -1,7 +1,7 @@
 package ru.aplix.ltk.core.collector;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 
 import ru.aplix.ltk.core.reader.RfDataMessage;
 import ru.aplix.ltk.core.reader.RfTag;
@@ -57,9 +57,8 @@ public class DefaultRfTracker implements RfTracker {
 	boolean transactionStarted;
 	private long transactionStart;
 	private int transactionId;
-	private RfTracking invalidator;
-	private HashMap<RfTag, Long> remainingTags = new HashMap<>();
-	private HashMap<RfTag, Long> presentTags = new HashMap<>();
+	private RfTracking tracking;
+	private HashMap<RfTag, Long> tags = new HashMap<>();
 
 	/**
 	 * Transaction timeout.
@@ -103,8 +102,8 @@ public class DefaultRfTracker implements RfTracker {
 	}
 
 	@Override
-	public void initRfTracker(RfTracking invalidator) {
-		this.invalidator = invalidator;
+	public void initRfTracker(RfTracking tracking) {
+		this.tracking = tracking;
 	}
 
 	@Override
@@ -114,7 +113,7 @@ public class DefaultRfTracker implements RfTracker {
 		final Long lastAppearance = new Long(timestamp);
 		final RfTag tag = dataMessage.getRfTag();
 		final boolean transactionEnd = dataMessage.isRfTransactionEnd();
-		HashMap<RfTag, Long> pendingTags = null;
+		HashSet<RfTag> obsoleteTags = null;
 		boolean tagAppeared = false;
 
 		synchronized (this) {
@@ -124,21 +123,26 @@ public class DefaultRfTracker implements RfTracker {
 					&& transactionChanged(timestamp, dataMessage);
 
 			if (transactionChanged) {
-				pendingTags = endTransaction();
+				obsoleteTags = endTransaction(timestamp);
 			}
 			if (tag != null) {
+				if (obsoleteTags != null) {
+					obsoleteTags.remove(tag);
+				}
 				tagAppeared = cacheTag(tag, lastAppearance);
 			}
 			if (transactionEnd) {
 				// No need to start a new transaction tracking after explicit
 				// transaction end.
 
-				final HashMap<RfTag, Long> pending = endTransaction();
+				final HashSet<RfTag> obsolete = endTransaction(timestamp);
 
-				if (pendingTags == null) {
-					pendingTags = pending;
-				} else {
-					pendingTags.putAll(pending);
+				if (obsolete != null) {
+					if (obsoleteTags == null) {
+						obsoleteTags = obsolete;
+					} else {
+						obsoleteTags.addAll(obsolete);
+					}
 				}
 			}
 			if (!this.transactionStarted) {
@@ -146,10 +150,10 @@ public class DefaultRfTracker implements RfTracker {
 			}
 		}
 		if (tagAppeared) {
-			this.invalidator.tagAppeared(tag);
+			this.tracking.tagAppeared(tag);
 		}
-		if (pendingTags != null) {
-			invalidatePendingTags(timestamp, pendingTags);
+		if (obsoleteTags != null) {
+			tagsDisappeared(obsoleteTags);
 		}
 	}
 
@@ -167,24 +171,13 @@ public class DefaultRfTracker implements RfTracker {
 	}
 
 	private boolean cacheTag(RfTag tag, Long lastAppearance) {
-		if (this.remainingTags.remove(tag) != null) {
-			// Tag is among remaining. Not new.
-			this.presentTags.put(tag, lastAppearance);
-			return false;
-		}
 		// Tag is new?
-		return this.presentTags.put(tag, lastAppearance) == null;
+		return this.tags.put(tag, lastAppearance) == null;
 	}
 
-	private HashMap<RfTag, Long> endTransaction() {
-
-		final HashMap<RfTag, Long> pendingTags = this.remainingTags;
-
-		this.remainingTags = this.presentTags;
-		this.presentTags = new HashMap<>();
+	private HashSet<RfTag> endTransaction(long timestamp) {
 		this.transactionStarted = false;
-
-		return pendingTags;
+		return removeObsoleteTags(timestamp);
 	}
 
 	private void startTransaction(long timestamp, RfDataMessage message) {
@@ -193,41 +186,44 @@ public class DefaultRfTracker implements RfTracker {
 		this.transactionStart = timestamp;
 	}
 
-	private void invalidatePendingTags(
-			long timestamp,
-			HashMap<RfTag, Long> pendingTags) {
+	private HashSet<RfTag> removeObsoleteTags(long timestamp) {
 
+		final int size = this.tags.size();
+
+		if (size == 0) {
+			return null;
+		}
+
+		int index = 0;
+		HashSet<RfTag> obsoleteTags = null;
 		final long timeout = getInvalidationTimeout();
+		final Iterator<Entry<RfTag, Long>> it =
+				this.tags.entrySet().iterator();
 
-		for (Map.Entry<RfTag, Long> e : pendingTags.entrySet()) {
+		while (it.hasNext()) {
 
+			final Map.Entry<RfTag, Long> e = it.next();
 			final RfTag tag = e.getKey();
 			final Long lastAppearance = e.getValue();
 
-			if (timestamp - lastAppearance.longValue() >= timeout) {
-				this.invalidator.tagDisappeared(tag);
-			} else {
-				tagStillPresent(tag, lastAppearance);
+			if (timestamp - lastAppearance.longValue() < timeout) {
+				++index;
+				continue;
 			}
+
+			it.remove();
+			if (obsoleteTags == null) {
+				obsoleteTags = new HashSet<>(size - index);
+			}
+			obsoleteTags.add(tag);
 		}
+
+		return obsoleteTags;
 	}
 
-	private synchronized void tagStillPresent(
-			RfTag tag,
-			Long lastAppearance) {
-
-		final Long removedPresent = this.presentTags.remove(tag);
-
-		if (removedPresent != null) {
-			this.presentTags.put(tag, removedPresent);
-			return;
-		}
-
-		final Long replacedRemaining =
-				this.remainingTags.put(tag, lastAppearance);
-
-		if (replacedRemaining != null) {
-			this.remainingTags.put(tag, replacedRemaining);
+	private void tagsDisappeared(HashSet<RfTag> obsoleteTags) {
+		for (RfTag tag : obsoleteTags) {
+			this.tracking.tagDisappeared(tag);
 		}
 	}
 

@@ -75,12 +75,12 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 			this.settingsUI = settingsUI;
 		}
 		this.settingsUI.setBorder(
-				createTitledBorder("Настройки соединения через " + getName()));
+				createTitledBorder(getName() + ": настройки соединения"));
 
 		final ConnectionSettings settings = this.tab.getSettings();
 		final String cardName = cardName();
 
-		settings.add(this.settingsUI, cardName);
+		settings.addCard(cardName, this.settingsUI);
 
 		return this.settingsUI;
 	}

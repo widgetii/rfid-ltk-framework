@@ -1,7 +1,9 @@
 package ru.aplix.ltk.tester.ui;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 
@@ -12,27 +14,50 @@ class ConnectionSettings extends JPanel implements RfProviderItemListener {
 	private static final String BLANK_CARD = "blank";
 
 	private final ConnectionTab connectionTab;
+	private final JPanel settingsPanel;
+	private final ConnectionControls connectionControls;
 	private final CardLayout cardLayout;
-	private final JPanel blank;
 
 	ConnectionSettings(ConnectionTab connectionTab) {
+		super(new BorderLayout());
 		this.connectionTab = connectionTab;
 		this.cardLayout = new CardLayout();
-		this.blank = new JPanel();
+		this.settingsPanel = new JPanel(this.cardLayout);
+		this.connectionControls = new ConnectionControls(this);
 
-		setLayout(this.cardLayout);
-		add(this.blank, BLANK_CARD);
+		add(this.settingsPanel, BorderLayout.CENTER);
+		add(this.connectionControls, BorderLayout.SOUTH);
+
+		addCard(BLANK_CARD, new JPanel());
+	}
+
+	public final ConnectionTab getConnectionTab() {
+		return this.connectionTab;
+	}
+
+	public final LogTab getLogTab() {
+		return getConnectionTab().getContent().getLogTab();
+	}
+
+	public final ConnectionControls getConnectionControls() {
+		return this.connectionControls;
 	}
 
 	public void start() {
-		this.connectionTab.addProviderItemListener(this);
+		getConnectionTab().addProviderItemListener(this);
+		getConnectionControls().start();
 	}
 
 	public void stop() {
+		getConnectionControls().stop();
+	}
+
+	public void addCard(String cardName, JComponent component) {
+		this.settingsPanel.add(component, cardName);
 	}
 
 	public void showCard(String cardName) {
-		this.cardLayout.show(this, cardName);
+		this.cardLayout.show(this.settingsPanel, cardName);
 	}
 
 	@Override

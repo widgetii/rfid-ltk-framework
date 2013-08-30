@@ -23,7 +23,6 @@ class ConnectionTab extends JSplitPane {
 	private final EventListenerList providerListeners = new EventListenerList();
 	private RfProviderItem selected;
 
-
 	ConnectionTab(TesterContent content) {
 		this.content = content;
 		this.providers = new RfProvidersModel(this);

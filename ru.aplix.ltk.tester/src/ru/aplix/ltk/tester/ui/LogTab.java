@@ -4,6 +4,8 @@ import static ru.aplix.ltk.tester.ui.UIUtil.invokeInUI;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -32,13 +34,32 @@ class LogTab extends JPanel {
 		invokeInUI(new Runnable() {
 			@Override
 			public void run() {
-				appendMessage(message);
+				append(message);
 			}
 		});
 	}
 
-	public void appendMessage(String message) {
+	public void log(Throwable error) {
+		log(errorToString(error));
+	}
+
+	public void append(String message) {
 		this.log.append(message + "\n");
+	}
+
+	public void append(Throwable error) {
+		append(errorToString(error));
+	}
+
+	private static String errorToString(Throwable error) {
+
+		final StringWriter result = new StringWriter();
+
+		try (PrintWriter out = new PrintWriter(result)) {
+			error.printStackTrace(out);
+		}
+
+		return result.toString();
 	}
 
 }

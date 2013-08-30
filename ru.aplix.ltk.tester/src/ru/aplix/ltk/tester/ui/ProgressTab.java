@@ -44,7 +44,7 @@ class ProgressTab extends JPanel {
 
 		label.setBorder(createLineBorder(getForeground().brighter(), 1, true));
 		this.tags.put(tag, label);
-		add(label, FlowLayout.TRAILING);
+		add(label);
 	}
 
 	public void removeTag(final RfTag tag) {

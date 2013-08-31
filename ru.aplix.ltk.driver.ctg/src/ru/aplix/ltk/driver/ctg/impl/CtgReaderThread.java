@@ -123,7 +123,7 @@ final class CtgReaderThread
 				if (this.stopped) {
 					return false;
 				}
-				if (end <= 0) {
+				if (left <= 0) {
 					return true;
 				}
 				try {

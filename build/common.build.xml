@@ -12,14 +12,9 @@
 	<property 
 		name="jar.file"
 		value="${target.dir}/${ant.project.name}_${module.version}.jar"/>
+	<property name="source.path" value="src"/>
 	<property name="classes.dir" value="${basedir}/bin"/>
 
-	<pathconvert property="source.path">
-		<path>
-			<filelist dir="." files="${source..}"/>
-		</path>
-		<regexpmapper from="${basedir}/(.*)$$" to="\1" handledirsep="true"/>
-	</pathconvert>
 
 	<ivy:settings file="${root.dir}/ivysettings.xml"/>
 

@@ -27,9 +27,9 @@
     </dependency>
     <dependency
       org="org.apache.mina"
-      name="com.springsource.org.apache.mina.core"
-      rev="2.0.2">
-      <artifact name="com.springsource.org.apache.mina.core" type="jar"/>
+      name="com.springsource.org.apache.mina"
+      rev="1.1.0">
+      <artifact name="com.springsource.org.apache.mina" type="jar"/>
     </dependency>
     <dependency
       org="org.apache.xmlcommons"

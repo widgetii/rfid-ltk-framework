@@ -22,7 +22,7 @@
     <dependency
       org="org.jdom"
       name="com.springsource.org.jdom"
-      rev="2.0.1">
+      rev="1.1.0">
       <artifact name="com.springsource.org.jdom" type="jar"/>
     </dependency>
     <dependency

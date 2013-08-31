@@ -34,7 +34,9 @@ class ConnectionTab extends JSplitPane {
 				new ListSelectionListener() {
 					@Override
 					public void valueChanged(ListSelectionEvent e) {
-						setSelection(e.getFirstIndex());
+						if (!e.getValueIsAdjusting()) {
+							updateSelection();
+						}
 					}
 				});
 
@@ -86,17 +88,9 @@ class ConnectionTab extends JSplitPane {
 		this.providerListeners.remove(RfProviderItemListener.class, listener);
 	}
 
-	private void setSelection(int index) {
+	private void updateSelection() {
 
-		final RfProviderItem selected;
-		final int size = getProviders().getSize();
-
-		if (index >= size || size == 0) {
-			selected = null;
-		} else {
-			selected = this.providers.getElementAt(index);
-		}
-
+		final RfProviderItem selected = this.providersList.getSelectedValue();
 		final RfProviderItem deselected = this.selected;
 
 		if (deselected == selected) {

@@ -4,10 +4,12 @@
 
   <caches
     resolutionCacheDir="${ivy.settings.dir}/cache/resolution"
+    repositoryCacheDir="${ivy.settings.dir}/cache/repository"
     useOrigin="true">
     <cache
-      name="osgi-bundles"
-      basedir="${ivy.settings.dir}/cache/osgi-bundles"/>
+      name="ltk-bundles"
+      basedir="${ivy.settings.dir}/cache/ltk-bundles"
+      defaultTTL="0ms"/>
   </caches>
 
   <version-matchers usedefaults="true"/>
@@ -27,7 +29,7 @@
     <updatesite
       name="eclipse-updatesite"
       url="http://download.eclipse.org/eclipse/updates/4.3"/>
-    <filesystem name="ltk-bundles">
+    <filesystem name="ltk-bundles" checkmodified="true" cache="ltk-bundles">
       <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
       <artifact
         pattern="${ivy.settings.dir}/target/[artifact]_[revision].[ext]"/>

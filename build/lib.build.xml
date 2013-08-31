@@ -29,6 +29,7 @@
 				<exclude name="*-src.jar"/>
 				<exclude name="*-javadoc.jar"/>
 			</fileset>
+			<fileset dir="${output..}"/>
 		</jar>
 	</target>
 

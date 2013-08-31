@@ -25,10 +25,8 @@ public class CtgActivator implements BundleActivator {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		if (this.providerRegistration != null) {
-			this.providerRegistration.unregister();
-			this.providerRegistration = null;
-		}
+		this.providerRegistration.unregister();
+		this.providerRegistration = null;
 	}
 
 }

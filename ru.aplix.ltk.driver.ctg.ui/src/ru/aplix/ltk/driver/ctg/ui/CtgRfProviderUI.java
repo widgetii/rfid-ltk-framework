@@ -16,8 +16,7 @@ public class CtgRfProviderUI implements RfProviderUI<CtgRfProvider> {
 	@Override
 	public RfConnectorUI newConnectorUI(
 			RfConnectorUIContext<CtgRfProvider> context) {
-		// TODO Auto-generated method stub
-		return null;
+		return new CtgRfConnectorUI(context);
 	}
 
 }

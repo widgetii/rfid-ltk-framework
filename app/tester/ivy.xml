@@ -17,7 +17,7 @@
       rev="latest.integration"/>
     <dependency
       org="bundle"
-      name="ru.aplix.ltk.driver.ctg"
+      name="ru.aplix.ltk.driver.ctg.ui"
       rev="latest.integration"/>
     <dependency
       org="bundle"

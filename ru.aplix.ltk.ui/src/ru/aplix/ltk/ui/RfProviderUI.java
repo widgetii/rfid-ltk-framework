@@ -23,6 +23,12 @@ public interface RfProviderUI<P extends RfProvider> {
 			new DefaultRfProviderUI();
 
 	/**
+	 * RFID UI provider class.
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	Class<RfProviderUI<?>> RF_PROVIDER_UI_CLASS = (Class) RfProviderUI.class;
+
+	/**
 	 * User interface selector for UI provider.
 	 *
 	 * <p>Can be used to select the most specific UI for the given RFID

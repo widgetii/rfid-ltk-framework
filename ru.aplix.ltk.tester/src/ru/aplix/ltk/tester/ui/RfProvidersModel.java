@@ -1,6 +1,7 @@
 package ru.aplix.ltk.tester.ui;
 
 import static javax.swing.SwingUtilities.invokeLater;
+import static ru.aplix.ltk.ui.RfProviderUI.RF_PROVIDER_UI_CLASS;
 import static ru.aplix.ltk.ui.RfProviderUI.RF_PROVIDER_UI_SELECTOR;
 
 import java.util.IdentityHashMap;
@@ -20,10 +21,6 @@ import ru.aplix.ltk.ui.RfProviderUI;
 public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
 
 	private static final long serialVersionUID = -5122285392607147264L;
-
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	private static final Class<RfProviderUI<?>> PROVIDER_UI_CLASS =
-			(Class) RfProviderUI.class;
 
 	private final ConnectionTab tab;
 	private final BundleContext context;
@@ -45,7 +42,7 @@ public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
 				new RfProvidersTracker(this));
 		this.uiTracker = new ServiceTracker<>(
 				this.context,
-				PROVIDER_UI_CLASS,
+				RF_PROVIDER_UI_CLASS,
 				new RfProviderUITracker(this));
 	}
 

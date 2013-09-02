@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -169,6 +170,11 @@ public class CollectorTest {
 
 		assertThat(consumer.nextMessage(), sameInstance(status));
 		consumer.noMoreMessages();
+	}
+
+	@After
+	public void stop() {
+		this.collectorConsumer.handle().unsubscribe();
 	}
 
 }

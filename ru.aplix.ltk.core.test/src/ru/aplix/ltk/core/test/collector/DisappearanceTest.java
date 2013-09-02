@@ -8,6 +8,7 @@ import static ru.aplix.ltk.core.collector.DefaultRfTracker.DEFAULT_INVALIDATION_
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -106,6 +107,11 @@ public class DisappearanceTest {
 		assertThat(message1.getRfTag(), sameInstance(tag));
 
 		this.tagConsumer.noMoreMessages();
+	}
+
+	@After
+	public void stop() {
+		this.collectorConsumer.handle().unsubscribe();
 	}
 
 }

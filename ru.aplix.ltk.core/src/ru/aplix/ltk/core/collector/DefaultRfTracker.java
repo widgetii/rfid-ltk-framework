@@ -1,5 +1,6 @@
 package ru.aplix.ltk.core.collector;
 
+import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 import java.util.*;
@@ -66,6 +67,7 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 	private long invalidationTimeout = DEFAULT_INVALIDATION_TIMEOUT;
 	private long transactionStart;
 	private long lastTimestamp;
+	private long localTimeDiff;
 	private int transactionId;
 	private RfTracking tracking;
 
@@ -86,7 +88,7 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 	 */
 	public final void setTransactionTimeout(long transactionTimeout) {
 		this.transactionTimeout =
-				transactionTimeout <= 0
+				transactionTimeout > 0
 				? transactionTimeout : DEFAULT_TRANSACTION_TIMEOUT;
 	}
 
@@ -131,7 +133,10 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 		boolean tagAppeared = false;
 
 		synchronized (this) {
-			this.lastTimestamp = Math.max(this.lastTimestamp, timestamp);
+			if (timestamp > this.lastTimestamp) {
+				this.lastTimestamp = timestamp;
+				this.localTimeDiff = currentTimeMillis() - timestamp;
+			}
 
 			final boolean transactionChanged =
 					isTransactionStarted()
@@ -179,10 +184,11 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 	public void run() {
 		try {
 
+			final long timestamp = currentTimeMillis() - this.localTimeDiff;
 			final HashSet<RfTag> obsoleteTags;
 
 			synchronized (this) {
-				obsoleteTags = endTransaction(this.lastTimestamp);
+				obsoleteTags = removeObsoleteTags(timestamp);
 			}
 			if (obsoleteTags != null) {
 				tagsDisappeared(obsoleteTags);

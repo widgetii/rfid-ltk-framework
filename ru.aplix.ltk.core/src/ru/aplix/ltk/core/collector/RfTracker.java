@@ -1,6 +1,7 @@
 package ru.aplix.ltk.core.collector;
 
 import ru.aplix.ltk.core.reader.RfDataMessage;
+import ru.aplix.ltk.message.MsgConsumer;
 
 
 /**
@@ -25,6 +26,15 @@ public interface RfTracker {
 	void initRfTracker(RfTracking tracking);
 
 	/**
+	 * Starts RFID tags tracking.
+	 *
+	 * <p>This is called by collector on the first
+	 * {@link RfCollectorHandle#requestTagAppearance(MsgConsumer) RFID tags
+	 * appearance subscription}.</p>
+	 */
+	void startRfTracking();
+
+	/**
 	 * Updates the tracking information.
 	 *
 	 * <p>This method is invoked upon each reception of RFID reader data.</p>
@@ -32,5 +42,13 @@ public interface RfTracker {
 	 * @param dataMessage RFID reader data message.
 	 */
 	void rfData(RfDataMessage dataMessage);
+
+	/**
+	 * Stops RIFD tags tracking.
+	 *
+	 * <p>This is called by collector when the last RFID tags appearance
+	 * subscription revoked.</p>
+	 */
+	void stopRfTracking();
 
 }

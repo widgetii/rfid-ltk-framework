@@ -1,9 +1,15 @@
 package ru.aplix.ltk.core.collector;
 
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import ru.aplix.ltk.core.reader.RfDataMessage;
+import ru.aplix.ltk.core.reader.RfReaderError;
 import ru.aplix.ltk.core.reader.RfTag;
 
 
@@ -39,26 +45,30 @@ import ru.aplix.ltk.core.reader.RfTag;
  * </ul>
  * </p>
  */
-public class DefaultRfTracker implements RfTracker {
+public class DefaultRfTracker implements RfTracker, Runnable {
 
 	/**
 	 * Default {@link #getTransactionTimeout() transaction timeout} value.
 	 */
-	public static final long DEFAULT_TRANSACTION_TIMEOUT = 5000L;
+	public static final long DEFAULT_TRANSACTION_TIMEOUT = 4000L;
 
 	/**
 	 * Default {@link #getInvalidationTimeout() cache invalidation timeout}
 	 * value.
 	 */
-	public static final long DEFAULT_INVALIDATION_TIMEOUT = 15000L;
+	public static final long DEFAULT_INVALIDATION_TIMEOUT = 8000L;
 
+	private final ScheduledExecutorService executorService =
+			newSingleThreadScheduledExecutor();
+	private final HashMap<RfTag, Long> tags = new HashMap<>();
+	private ScheduledFuture<?> transactionChecker;
 	private long transactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
 	private long invalidationTimeout = DEFAULT_INVALIDATION_TIMEOUT;
-	boolean transactionStarted;
 	private long transactionStart;
+	private long lastTimestamp;
 	private int transactionId;
 	private RfTracking tracking;
-	private HashMap<RfTag, Long> tags = new HashMap<>();
+
 
 	/**
 	 * Transaction timeout.
@@ -102,6 +112,10 @@ public class DefaultRfTracker implements RfTracker {
 	}
 
 	@Override
+	public void startRfTracking() {
+	}
+
+	@Override
 	public void initRfTracker(RfTracking tracking) {
 		this.tracking = tracking;
 	}
@@ -117,9 +131,10 @@ public class DefaultRfTracker implements RfTracker {
 		boolean tagAppeared = false;
 
 		synchronized (this) {
+			this.lastTimestamp = Math.max(this.lastTimestamp, timestamp);
 
 			final boolean transactionChanged =
-					this.transactionStarted
+					isTransactionStarted()
 					&& transactionChanged(timestamp, dataMessage);
 
 			if (transactionChanged) {
@@ -132,8 +147,6 @@ public class DefaultRfTracker implements RfTracker {
 				tagAppeared = cacheTag(tag, lastAppearance);
 			}
 			if (transactionEnd) {
-				// No need to start a new transaction tracking after explicit
-				// transaction end.
 
 				final HashSet<RfTag> obsolete = endTransaction(timestamp);
 
@@ -145,7 +158,7 @@ public class DefaultRfTracker implements RfTracker {
 					}
 				}
 			}
-			if (!this.transactionStarted) {
+			if (!isTransactionStarted()) {
 				startTransaction(timestamp, dataMessage);
 			}
 		}
@@ -155,6 +168,32 @@ public class DefaultRfTracker implements RfTracker {
 		if (obsoleteTags != null) {
 			tagsDisappeared(obsoleteTags);
 		}
+	}
+
+	@Override
+	public synchronized void stopRfTracking() {
+		stopTransaction();
+	}
+
+	@Override
+	public void run() {
+		try {
+
+			final HashSet<RfTag> obsoleteTags;
+
+			synchronized (this) {
+				obsoleteTags = endTransaction(this.lastTimestamp);
+			}
+			if (obsoleteTags != null) {
+				tagsDisappeared(obsoleteTags);
+			}
+		} catch (Throwable e) {
+			this.tracking.updateStatus(new RfReaderError(null, e));
+		}
+	}
+
+	private final boolean isTransactionStarted() {
+		return this.transactionChecker != null;
 	}
 
 	private boolean transactionChanged(
@@ -176,14 +215,25 @@ public class DefaultRfTracker implements RfTracker {
 	}
 
 	private HashSet<RfTag> endTransaction(long timestamp) {
-		this.transactionStarted = false;
+		stopTransaction();
 		return removeObsoleteTags(timestamp);
 	}
 
+	private void stopTransaction() {
+		if (this.transactionChecker != null) {
+			this.transactionChecker.cancel(false);
+			this.transactionChecker = null;
+		}
+	}
+
 	private void startTransaction(long timestamp, RfDataMessage message) {
-		this.transactionStarted = true;
 		this.transactionId = message.getRfTransactionId();
 		this.transactionStart = timestamp;
+		this.transactionChecker = this.executorService.scheduleAtFixedRate(
+				this,
+				getTransactionTimeout(),
+				getTransactionTimeout(),
+				TimeUnit.MILLISECONDS);
 	}
 
 	private HashSet<RfTag> removeObsoleteTags(long timestamp) {

@@ -2,6 +2,7 @@ package ru.aplix.ltk.core.collector;
 
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
+import ru.aplix.ltk.core.reader.RfReaderError;
 import ru.aplix.ltk.core.reader.RfTag;
 
 
@@ -18,6 +19,18 @@ public final class RfTracking {
 
 	RfTracking(RfCollector collector) {
 		this.collector = collector;
+	}
+
+	/**
+	 * Reports unexpected reader status update.
+	 *
+	 * <p>May be used to report errors occurred in tracker to all subscribers.
+	 * </p>
+	 *
+	 * @param status status to report.
+	 */
+	public final void updateStatus(RfReaderError status) {
+		this.collector.collectorSubscriptions().sendMessage(status);
 	}
 
 	/**

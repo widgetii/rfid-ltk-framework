@@ -42,10 +42,12 @@ final class RfDataListener
 			tracker().initRfTracker(new RfTracking(this.collector));
 			this.cacheInitialized = true;
 		}
+		tracker().startRfTracking();
 		this.collector.readerHandle().requestData(this);
 	}
 
 	final void stop() {
+		tracker().stopRfTracking();
 		this.handle.unsubscribe();
 		this.handle = null;
 	}

@@ -6,6 +6,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -13,6 +15,9 @@ import javax.swing.JTextArea;
 
 
 class LogTab extends JPanel {
+
+	private static final SimpleDateFormat TIME_FORMAT =
+			new SimpleDateFormat("[HH:mm:ss] ");
 
 	private static final long serialVersionUID = 434922263480668561L;
 
@@ -44,7 +49,14 @@ class LogTab extends JPanel {
 	}
 
 	public void append(String message) {
-		this.log.append(message + "\n");
+
+		final StringBuilder out = new StringBuilder(message.length() + 12);
+
+		out.append(TIME_FORMAT.format(new Date()));
+		out.append(message);
+		out.append('\n');
+
+		this.log.append(out.toString());
 	}
 
 	public void append(Throwable error) {

@@ -52,8 +52,8 @@ final class CtgReaderThread
 		this.reader = new LLRPConnector(
 				this,
 				getConfig().getReaderHost(),
-				getConfig().getReaderPort(),
-				new LLRPHandler());
+				getConfig().getReaderPort());
+		this.reader.setHandler(new LLRPHandler(this.reader));
 		for (;;) {
 			if (this.connected) {
 				if (!waitForInput()) {
@@ -423,7 +423,8 @@ final class CtgReaderThread
 
 	private final class LLRPHandler extends LLRPIoHandlerAdapterImpl {
 
-		LLRPHandler() {
+		LLRPHandler(LLRPConnector reader) {
+			super(reader);
 			setKeepAliveAck(true);
 			setKeepAliveForward(true);
 		}

@@ -1,5 +1,7 @@
 package ru.aplix.ltk.driver.ctg.impl;
 
+import static java.lang.System.currentTimeMillis;
+
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -20,9 +22,10 @@ final class CtgReaderThread
 		implements UncaughtExceptionHandler, LLRPEndpoint {
 
 	private final CtgRfReaderDriver driver;
-	private volatile boolean connected;
-	private volatile boolean stopped;
 	private LLRPConnector reader;
+	private volatile long lastUpdate;
+	private boolean connected;
+	private volatile boolean stopped;
 
 	public CtgReaderThread(CtgRfReaderDriver driver) {
 		super("CtgRfReader");
@@ -50,12 +53,13 @@ final class CtgReaderThread
 				getConfig().getReaderPort());
 		for (;;) {
 			if (this.connected) {
-				if (waitForTermination()) {
+				if (!waitForInput()) {
 					break;
 				}
 				continue;
 			}
 			if (connect()) {
+				update();
 				this.connected = true;
 				continue;
 			}
@@ -64,7 +68,6 @@ final class CtgReaderThread
 			}
 		}
 
-		interrupt();
 		disconnect();
 	}
 
@@ -76,6 +79,7 @@ final class CtgReaderThread
 	@Override
 	public void messageReceived(LLRPMessage message) {
 		try {
+			update();
 
 			final short messageType = message.getTypeNum().toShort();
 
@@ -103,7 +107,8 @@ final class CtgReaderThread
 			if (this.stopped) {
 				return false;
 			}
-			return (deleteROSpecs()
+			return (setReaderConfig()
+					&& deleteROSpecs()
 					&& addROSpec()
 					&& enableROSpec()
 					&& startROSpec());
@@ -113,10 +118,37 @@ final class CtgReaderThread
 		return false;
 	}
 
-	private boolean reconnectionDelay() {
+	private synchronized boolean waitForInput() {
 
-		long left = getConfig().getReconnectionDelay();
-		final long end = System.currentTimeMillis() + left;
+		final long lastUpdate = this.lastUpdate;
+		final int keepAliveTimeout =
+				getConfig().getKeepAliveRequestPeriod() * 3;
+		final long delay =
+				keepAliveTimeout - (currentTimeMillis() - lastUpdate);
+
+		synchronized (this) {
+			if (!delay(delay)) {
+				return false;
+			}
+		}
+
+		if (this.lastUpdate == lastUpdate) {
+			// Keep alive time out.
+			this.reader.disconnect();
+			this.connected = false;
+		}
+
+		return !this.stopped;
+	}
+
+	private boolean reconnectionDelay() {
+		return delay(getConfig().getReconnectionDelay());
+	}
+
+	private boolean delay(long delay) {
+
+		long left = delay;
+		final long end = currentTimeMillis() + left;
 
 		for (;;) {
 			synchronized (this) {
@@ -132,17 +164,12 @@ final class CtgReaderThread
 					return false;
 				}
 			}
-			left = end - System.currentTimeMillis();
+			left = end - currentTimeMillis();
 		}
 	}
 
-	private synchronized boolean waitForTermination() {
-		try {
-			wait();
-		} catch (InterruptedException e) {
-			return true;
-		}
-		return this.stopped;
+	private final void update() {
+		this.lastUpdate = currentTimeMillis();
 	}
 
 	private boolean deleteROSpecs() throws TimeoutException {
@@ -252,6 +279,29 @@ final class CtgReaderThread
 		return roSpec;
 	}
 
+	private boolean setReaderConfig() throws TimeoutException {
+
+		final int keepAlivePeriod =
+				getConfig().getKeepAliveRequestPeriod();
+
+		final SET_READER_CONFIG request = new SET_READER_CONFIG();
+		final KeepaliveSpec keepaliveSpec = new KeepaliveSpec();
+
+		keepaliveSpec.setKeepaliveTriggerType(
+				new KeepaliveTriggerType(KeepaliveTriggerType.Periodic));
+		keepaliveSpec.setPeriodicTriggerValue(
+				new UnsignedInteger(keepAlivePeriod));
+
+		request.setKeepaliveSpec(keepaliveSpec);
+
+		final SET_READER_CONFIG_RESPONSE response =
+				(SET_READER_CONFIG_RESPONSE) this.reader.transact(
+						request,
+						getConfig().getTransactionTimeout());
+
+		return checkStatus(response.getLLRPStatus());
+	}
+
 	// Add the ROSpec to the reader.
 	private boolean addROSpec() throws TimeoutException {
 
@@ -264,7 +314,6 @@ final class CtgReaderThread
 						request,
 						getConfig().getTransactionTimeout());
 
-		// Check if the we successfully added the ROSpec.
 		return checkStatus(response.getLLRPStatus());
 	}
 
@@ -345,10 +394,28 @@ final class CtgReaderThread
 	}
 
 	private void disconnect() {
-		if (this.reader != null) {
+		if (this.reader == null) {
+			return;
+		}
+		try {
+			closeConnection();
+		} catch (TimeoutException e) {
+			sendError(e);
+		} finally {
 			this.reader.disconnect();
 			this.reader = null;
 		}
+	}
+
+	private void closeConnection() throws TimeoutException {
+
+		final CLOSE_CONNECTION request = new CLOSE_CONNECTION();
+		final CLOSE_CONNECTION_RESPONSE response =
+				(CLOSE_CONNECTION_RESPONSE) this.reader.transact(
+				request,
+				getConfig().getTransactionTimeout());
+
+		checkStatus(response.getLLRPStatus());
 	}
 
 }

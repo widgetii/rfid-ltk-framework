@@ -59,6 +59,16 @@ public class CtgRfConnectorImpl implements CtgRfConnector {
 	}
 
 	@Override
+	public int getKeepAliveRequestPeriod() {
+		return this.config.getKeepAliveRequestPeriod();
+	}
+
+	@Override
+	public void setKeepAliveRequestPeriod(int period) {
+		this.config.setKeepAliveRequestPeriod(period);
+	}
+
+	@Override
 	public RfConnection connect() {
 		return new CtgRfConnection(this.config.clone());
 	}

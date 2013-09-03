@@ -10,6 +10,7 @@ public final class CtgRfConfig implements Cloneable {
 	private int roSpecId = CTG_RF_DEFAULT_ROSPEC_ID;
 	private long transactionTimeout = CTG_RF_DEFAULT_TRANSACTION_TIMEOUT;
 	private long reconnectionDelay = CTG_RF_DEFAULT_RECONNECTION_DELAY;
+	private int keepAliveRequestPeriod;
 
 	public String getReaderHost() {
 		return this.readerHost;
@@ -50,6 +51,16 @@ public final class CtgRfConfig implements Cloneable {
 	public void setReconnectionDelay(long delay) {
 		this.reconnectionDelay =
 				delay <= 0 ? CTG_RF_DEFAULT_RECONNECTION_DELAY : delay;
+	}
+
+	public int getKeepAliveRequestPeriod() {
+		return this.keepAliveRequestPeriod;
+	}
+
+	public void setKeepAliveRequestPeriod(int period) {
+		this.keepAliveRequestPeriod =
+				period < 0 || period > Integer.MAX_VALUE
+				? CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD : period;
 	}
 
 	@Override

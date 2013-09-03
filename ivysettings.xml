@@ -47,6 +47,10 @@
       resolver="ltk-bundles"/>
     <module
       organisation="bundle"
+      name="org.apache.mina"
+      resolver="ltk-bundles"/>
+    <module
+      organisation="bundle"
       resolver="eclipse-updatesite"/>
     <module
       name="com.springsource.*"

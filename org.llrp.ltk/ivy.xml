@@ -17,6 +17,11 @@
   </publications>
   <dependencies>
     <dependency
+      org="bundle"
+      name="org.apache.mina"
+      rev="1.1.7.aplix"
+      conf="compile->compile;runtime->runtime"/>
+    <dependency
       org="org.apache.log4j"
       name="com.springsource.org.apache.log4j"
       rev="1.2.16">
@@ -33,12 +38,6 @@
       name="com.springsource.org.jdom"
       rev="1.1.0">
       <artifact name="com.springsource.org.jdom" type="jar"/>
-    </dependency>
-    <dependency
-      org="org.apache.mina"
-      name="com.springsource.org.apache.mina"
-      rev="1.1.0">
-      <artifact name="com.springsource.org.apache.mina" type="jar"/>
     </dependency>
     <dependency
       org="org.apache.xmlcommons"

@@ -296,6 +296,7 @@ final class CtgReaderThread
 				new UnsignedInteger(keepAlivePeriod));
 
 		request.setKeepaliveSpec(keepaliveSpec);
+		request.setResetToFactoryDefault(new Bit(0));
 
 		final SET_READER_CONFIG_RESPONSE response =
 				(SET_READER_CONFIG_RESPONSE) this.reader.transact(

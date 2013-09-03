@@ -6,11 +6,13 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.mina.common.IoSession;
 import org.llrp.ltk.generated.enumerations.*;
 import org.llrp.ltk.generated.messages.*;
 import org.llrp.ltk.generated.parameters.*;
 import org.llrp.ltk.net.LLRPConnector;
 import org.llrp.ltk.net.LLRPEndpoint;
+import org.llrp.ltk.net.LLRPIoHandlerAdapterImpl;
 import org.llrp.ltk.types.*;
 
 import ru.aplix.ltk.core.reader.RfReaderContext;
@@ -50,7 +52,8 @@ final class CtgReaderThread
 		this.reader = new LLRPConnector(
 				this,
 				getConfig().getReaderHost(),
-				getConfig().getReaderPort());
+				getConfig().getReaderPort(),
+				new LLRPHandler());
 		for (;;) {
 			if (this.connected) {
 				if (!waitForInput()) {
@@ -416,6 +419,23 @@ final class CtgReaderThread
 				getConfig().getTransactionTimeout());
 
 		checkStatus(response.getLLRPStatus());
+	}
+
+	private final class LLRPHandler extends LLRPIoHandlerAdapterImpl {
+
+		LLRPHandler() {
+			setKeepAliveAck(true);
+			setKeepAliveForward(true);
+		}
+
+		@Override
+		public void exceptionCaught(
+				IoSession session,
+				Throwable cause)
+		throws Exception {
+			sendError(cause);
+		}
+
 	}
 
 }

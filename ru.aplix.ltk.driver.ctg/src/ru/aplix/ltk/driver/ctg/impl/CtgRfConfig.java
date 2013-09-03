@@ -10,7 +10,8 @@ public final class CtgRfConfig implements Cloneable {
 	private int roSpecId = CTG_RF_DEFAULT_ROSPEC_ID;
 	private long transactionTimeout = CTG_RF_DEFAULT_TRANSACTION_TIMEOUT;
 	private long reconnectionDelay = CTG_RF_DEFAULT_RECONNECTION_DELAY;
-	private int keepAliveRequestPeriod;
+	private int keepAliveRequestPeriod =
+			CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD;
 
 	public String getReaderHost() {
 		return this.readerHost;

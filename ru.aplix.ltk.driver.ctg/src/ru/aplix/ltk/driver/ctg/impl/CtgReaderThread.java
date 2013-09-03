@@ -15,6 +15,7 @@ import org.llrp.ltk.net.LLRPEndpoint;
 import org.llrp.ltk.net.LLRPIoHandlerAdapterImpl;
 import org.llrp.ltk.types.*;
 
+import ru.aplix.ltk.core.reader.RfReaderConnected;
 import ru.aplix.ltk.core.reader.RfReaderContext;
 import ru.aplix.ltk.core.reader.RfReaderError;
 
@@ -64,6 +65,8 @@ final class CtgReaderThread
 			if (connect()) {
 				update();
 				this.connected = true;
+				getContext().updateStatus(
+						new RfReaderConnected(getDriver().getRfPortId()));
 				continue;
 			}
 			if (!reconnectionDelay()) {

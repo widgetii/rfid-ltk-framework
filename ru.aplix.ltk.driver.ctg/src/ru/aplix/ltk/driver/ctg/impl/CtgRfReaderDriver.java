@@ -1,8 +1,8 @@
 package ru.aplix.ltk.driver.ctg.impl;
 
+import static ru.aplix.ltk.driver.ctg.CtgRfConnector.CTG_RF_DEFAULT_READER_PORT;
 import ru.aplix.ltk.core.reader.RfReaderContext;
 import ru.aplix.ltk.core.reader.RfReaderDriver;
-import ru.aplix.ltk.driver.ctg.CtgRfConnector;
 
 
 final class CtgRfReaderDriver implements RfReaderDriver {
@@ -21,7 +21,7 @@ final class CtgRfReaderDriver implements RfReaderDriver {
 		final int readerPort = this.config.getReaderPort();
 		final String readerHost = this.config.getReaderHost();
 
-		if (readerPort == CtgRfConnector.CTG_RF_DEFAULT_READER_PORT) {
+		if (readerPort == CTG_RF_DEFAULT_READER_PORT) {
 			return readerHost;
 		}
 

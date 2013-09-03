@@ -31,6 +31,11 @@ public class CtgRfSettingsUI extends JPanel {
 		Long.toString(CTG_RF_DEFAULT_RECONNECTION_DELAY / 2),
 		Long.toString(CTG_RF_DEFAULT_RECONNECTION_DELAY)
 	};
+	private static final String[] KEEP_ALIVE_REQUEST_PERIODS = {
+		Long.toString(CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD / 2),
+		Long.toString(CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD),
+		Long.toString(CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD * 2),
+	};
 
 	private final CtgRfConnectorUI connectorUI;
 
@@ -39,6 +44,7 @@ public class CtgRfSettingsUI extends JPanel {
 	private final JComboBox<String> roSpecId;
 	private final JComboBox<String> transactionTimeout;
 	private final JComboBox<String> reconnectionDelay;
+	private final JComboBox<String> keepAliveRequestPeriod;
 
 	private int line;
 
@@ -55,12 +61,18 @@ public class CtgRfSettingsUI extends JPanel {
 		this.transactionTimeout.setEditable(true);
 		this.reconnectionDelay = new JComboBox<>(RECONNECTION_DELAYS);
 		this.reconnectionDelay.setEditable(true);
+		this.keepAliveRequestPeriod =
+				new JComboBox<>(KEEP_ALIVE_REQUEST_PERIODS);
+		this.keepAliveRequestPeriod.setEditable(true);
 
 		addOption("Адрес ридера", this.readerHost);
 		addOption("Порт ридера", this.readerPort);
 		addOption("Идентификатор клиента (число)", this.roSpecId);
 		addOption("Время ожидания ответа, мс", this.transactionTimeout);
 		addOption("Задержка переподключения, мс", this.reconnectionDelay);
+		addOption(
+				"Периодичность запросов поддержки соединения, мс",
+				this.keepAliveRequestPeriod);
 
 		applyConnector();
 	}
@@ -86,6 +98,9 @@ public class CtgRfSettingsUI extends JPanel {
 		connector.setReconnectionDelay(longOption(
 				this.reconnectionDelay,
 				CTG_RF_DEFAULT_RECONNECTION_DELAY));
+		connector.setKeepAliveRequestPeriod(intOption(
+				this.keepAliveRequestPeriod,
+				CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD));
 	}
 
 	private void applyConnector() {
@@ -101,6 +116,8 @@ public class CtgRfSettingsUI extends JPanel {
 				Long.toString(connector.getTransactionTimeout()));
 		this.reconnectionDelay.setSelectedItem(
 				Long.toString(connector.getReconnectionDelay()));
+		this.keepAliveRequestPeriod.setSelectedItem(
+				Integer.toString(connector.getKeepAliveRequestPeriod()));
 	}
 
 	private void addOption(String label, JComponent component) {

@@ -137,6 +137,8 @@ final class CtgReaderThread
 
 		if (this.lastUpdate == lastUpdate) {
 			// Keep alive time out.
+			getContext().updateStatus(
+					new RfReaderError(null, "Connection lost"));
 			this.reader.disconnect();
 			this.connected = false;
 		}

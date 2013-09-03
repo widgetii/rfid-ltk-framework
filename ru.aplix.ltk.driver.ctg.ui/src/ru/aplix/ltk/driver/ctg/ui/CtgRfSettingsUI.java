@@ -21,6 +21,11 @@ public class CtgRfSettingsUI extends JPanel {
 	private static final String[] RO_SPEC_IDS = {
 		Integer.toString(CTG_RF_DEFAULT_ROSPEC_ID)
 	};
+	private static final String[] CONNECTION_TIMEOUTS = {
+		Long.toString(CTG_RF_DEFAULT_CONNECTION_TIMEOUT / 2),
+		Long.toString(CTG_RF_DEFAULT_CONNECTION_TIMEOUT),
+		Long.toString(CTG_RF_DEFAULT_CONNECTION_TIMEOUT * 2)
+	};
 	private static final String[] TRANSACTION_TIMEOUTS = {
 		Long.toString(CTG_RF_DEFAULT_TRANSACTION_TIMEOUT / 4),
 		Long.toString(CTG_RF_DEFAULT_TRANSACTION_TIMEOUT / 2),
@@ -42,6 +47,7 @@ public class CtgRfSettingsUI extends JPanel {
 	private final JTextField readerHost;
 	private final JComboBox<String> readerPort;
 	private final JComboBox<String> roSpecId;
+	private final JComboBox<String> connectionTimeout;
 	private final JComboBox<String> transactionTimeout;
 	private final JComboBox<String> reconnectionDelay;
 	private final JComboBox<String> keepAliveRequestPeriod;
@@ -57,6 +63,8 @@ public class CtgRfSettingsUI extends JPanel {
 		this.readerPort.setEditable(true);
 		this.roSpecId = new JComboBox<>(RO_SPEC_IDS);
 		this.roSpecId.setEditable(true);
+		this.connectionTimeout = new JComboBox<>(CONNECTION_TIMEOUTS);
+		this.connectionTimeout.setEditable(true);
 		this.transactionTimeout = new JComboBox<>(TRANSACTION_TIMEOUTS);
 		this.transactionTimeout.setEditable(true);
 		this.reconnectionDelay = new JComboBox<>(RECONNECTION_DELAYS);
@@ -68,6 +76,7 @@ public class CtgRfSettingsUI extends JPanel {
 		addOption("Адрес ридера", this.readerHost);
 		addOption("Порт ридера", this.readerPort);
 		addOption("Идентификатор клиента (число)", this.roSpecId);
+		addOption("Время ожидания соединения, мс", this.connectionTimeout);
 		addOption("Время ожидания ответа, мс", this.transactionTimeout);
 		addOption("Задержка переподключения, мс", this.reconnectionDelay);
 		addOption(
@@ -92,6 +101,9 @@ public class CtgRfSettingsUI extends JPanel {
 		connector.setROSpecId(intOption(
 				this.roSpecId,
 				CTG_RF_DEFAULT_ROSPEC_ID));
+		connector.setConnectionTimeout(longOption(
+				this.connectionTimeout,
+				CTG_RF_DEFAULT_CONNECTION_TIMEOUT));
 		connector.setTransactionTimeout(longOption(
 				this.transactionTimeout,
 				CTG_RF_DEFAULT_TRANSACTION_TIMEOUT));
@@ -112,6 +124,8 @@ public class CtgRfSettingsUI extends JPanel {
 				Integer.toString(connector.getReaderPort()));
 		this.roSpecId.setSelectedItem(
 				Integer.toString(connector.getROSpecId()));
+		this.connectionTimeout.setSelectedItem(
+				Long.toString(connector.getConnectionTimeout()));
 		this.transactionTimeout.setSelectedItem(
 				Long.toString(connector.getTransactionTimeout()));
 		this.reconnectionDelay.setSelectedItem(

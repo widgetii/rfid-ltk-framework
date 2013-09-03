@@ -39,6 +39,16 @@ public class CtgRfConnectorImpl implements CtgRfConnector {
 	}
 
 	@Override
+	public long getConnectionTimeout() {
+		return this.config.getConnectionTimeout();
+	}
+
+	@Override
+	public void setConnectionTimeout(long timeout) {
+		this.config.setConnectionTimeout(timeout);
+	}
+
+	@Override
 	public long getTransactionTimeout() {
 		return this.config.getTransactionTimeout();
 	}

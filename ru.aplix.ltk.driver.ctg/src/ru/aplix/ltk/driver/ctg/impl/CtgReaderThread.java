@@ -109,7 +109,7 @@ final class CtgReaderThread
 
 	private boolean connect() {
 		try {
-			this.reader.connect();
+			this.reader.connect(getConfig().getConnectionTimeout());
 			if (this.stopped) {
 				return false;
 			}

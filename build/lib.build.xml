@@ -11,7 +11,16 @@
 	<property 
 		name="jar.file"
 		value="${target.dir}/${ant.project.name}_${module.version}.jar"/>
+	<property 
+		name="compile.jar.file"
+		value="${target.dir}/${ant.project.name}-compile_${module.version}.jar"/>
 	<property name="classes.dir" value="${basedir}/bin"/>
+
+	<fileset id="lib.jars" dir="${basedir}">
+		<include name="*.jar"/>
+		<exclude name="*-src.jar"/>
+		<exclude name="*-javadoc.jar"/>
+	</fileset>
 
 	<ivy:settings file="${root.dir}/ivysettings.xml"/>
 
@@ -20,23 +29,22 @@
 		description="Package the project JAR">
 		<mkdir taskname="${ant.project.name}" dir="${target.dir}"/>
 		<jar
+			taskname="${ant.project.name}"
 			destfile="${jar.file}" 
 			manifest="META-INF/MANIFEST.MF"
-			encoding="UTF-8"
-			taskname="${ant.project.name}">
-			<fileset dir="${basedir}">
-				<include name="*.jar"/>
-				<exclude name="*-src.jar"/>
-				<exclude name="*-javadoc.jar"/>
-			</fileset>
-			<fileset dir="${output..}"/>
+			encoding="UTF-8">
+			<fileset refid="lib.jars"/>
 		</jar>
+		<copy taskname="${ant.project.name}" tofile="${compile.jar.file}">
+			<fileset refid="lib.jars"/>
+		</copy>
 	</target>
 
 	<target name="test" depends="package"/>
 
 	<target name="clean" description="Cleans everything">
 		<delete taskname="${ant.project.name}" file="${jar.file}"/>
+		<delete taskname="${ant.project.name}" file="${compile.jar.file}"/>
 	</target>
 
 </project>

@@ -8,13 +8,15 @@
     revision="1.0.0"/>
   <configurations defaultconf="default">
     <conf name="default"/>
+    <conf name="runtime" extends="default"/>
     <conf name="compile" extends="default"/>
   </configurations>
   <dependencies>
     <dependency
       org="bundle"
       name="ru.aplix.ltk.driver.ctg"
-      rev="latest.integration"/>
+      rev="latest.integration"
+      conf="compile->compile;runtime->runtime"/>
     <dependency
       org="bundle"
       name="ru.aplix.ltk.ui"

@@ -6,6 +6,15 @@
     module="org.llrp.ltk"
     status="integration"
     revision="1.0.0.7aplix"/>
+  <configurations defaultconf="default" defaultconfmapping="default->*">
+    <conf name="default"/>
+    <conf name="runtime" extends="default"/>
+    <conf name="compile" extends="default"/>
+  </configurations>
+  <publications>
+    <artifact type="jar"/>
+    <artifact name="org.llrp.ltk-compile" type="jar" conf="compile"/>
+  </publications>
   <dependencies>
     <dependency
       org="org.apache.log4j"

@@ -6,6 +6,9 @@
     module="ru.aplix.ltk.app.tester"
     status="integration"
     revision="1.0.0"/>
+  <configurations defaultconf="runtime" defaultconfmapping="runtime->*">
+    <conf name="runtime"/>
+  </configurations>
   <dependencies>
     <dependency
       org="bundle"
@@ -18,7 +21,8 @@
     <dependency
       org="bundle"
       name="ru.aplix.ltk.driver.ctg.ui"
-      rev="latest.integration"/>
+      rev="latest.integration"
+      conf="runtime->runtime"/>
     <dependency
       org="bundle"
       name="org.eclipse.osgi"

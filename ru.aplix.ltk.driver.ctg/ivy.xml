@@ -8,6 +8,7 @@
     revision="1.0.0"/>
   <configurations defaultconf="default">
     <conf name="default"/>
+    <conf name="runtime" extends="default"/>
     <conf name="compile" extends="default"/>
   </configurations>
   <dependencies>
@@ -18,7 +19,8 @@
     <dependency
       org="bundle"
       name="org.llrp.ltk"
-      rev="1.0.0.7aplix"/>
+      rev="1.0.0.7aplix"
+      conf="compile->compile;runtime->runtime"/>
     <dependency
       org="bundle"
       name="org.eclipse.osgi"

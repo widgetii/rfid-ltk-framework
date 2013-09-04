@@ -1,6 +1,6 @@
 package ru.aplix.ltk.core.collector;
 
-import ru.aplix.ltk.core.reader.RfDataMessage;
+import ru.aplix.ltk.core.source.RfDataMessage;
 import ru.aplix.ltk.message.MsgConsumer;
 
 

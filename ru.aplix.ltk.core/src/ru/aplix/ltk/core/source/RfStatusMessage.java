@@ -1,15 +1,18 @@
-package ru.aplix.ltk.core.reader;
+package ru.aplix.ltk.core.source;
 
+import ru.aplix.ltk.core.collector.RfCollector;
+import ru.aplix.ltk.core.reader.RfReader;
 import ru.aplix.ltk.message.MsgConsumer;
 
 
 /**
- * A message indicating the status of RFID reader.
+ * A message indicating the status of the RFID source.
  *
- * <p>To receive such messages a {@link RfReader#subscribe(MsgConsumer)
- * subscription} should be made.<p>
+ * <p>Such messages can be received e.g. after
+ * {@link RfReader#subscribe(MsgConsumer) reader}, or
+ * {@link RfCollector#subscribe(MsgConsumer) collector} subscription.</p>
  */
-public interface RfReaderStatusMessage {
+public interface RfStatusMessage {
 
 	/**
 	 * RFID reader device identifier.
@@ -23,11 +26,11 @@ public interface RfReaderStatusMessage {
 	String getRfReaderId();
 
 	/**
-	 * RFID reader status.
+	 * RFID source status.
 	 *
-	 * @return reader status.
+	 * @return source status.
 	 */
-	RfReaderStatus getRfReaderStatus();
+	RfStatus getRfStatus();
 
 	/**
 	 * RFID reader error message.

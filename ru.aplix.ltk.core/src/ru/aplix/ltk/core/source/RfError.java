@@ -1,12 +1,12 @@
-package ru.aplix.ltk.core.reader;
+package ru.aplix.ltk.core.source;
 
-import static ru.aplix.ltk.core.reader.RfReaderStatus.RF_READER_ERROR;
+import static ru.aplix.ltk.core.source.RfStatus.RF_ERROR;
 
 
 /**
- * RFID reader error message.
+ * RFID error message.
  */
-public class RfReaderError implements RfReaderStatusMessage {
+public class RfError implements RfStatusMessage {
 
 	private final String readerId;
 	private final String errorMessage;
@@ -18,7 +18,7 @@ public class RfReaderError implements RfReaderStatusMessage {
 	 * @param readerId reader device identifier.
 	 * @param errorMessage error message to report, or <code>null</code>.
 	 */
-	public RfReaderError(String readerId, String errorMessage) {
+	public RfError(String readerId, String errorMessage) {
 		this.readerId = readerId;
 		this.errorMessage = errorMessage;
 		this.cause = null;
@@ -30,7 +30,7 @@ public class RfReaderError implements RfReaderStatusMessage {
 	 * @param readerId reader device identifier.
 	 * @param cause a throwable caused this error, or <code>null</code>.
 	 */
-	public RfReaderError(String readerId, Throwable cause) {
+	public RfError(String readerId, Throwable cause) {
 		this.readerId = readerId;
 		if (cause != null) {
 			this.errorMessage = cause.getMessage();
@@ -47,8 +47,8 @@ public class RfReaderError implements RfReaderStatusMessage {
 	}
 
 	@Override
-	public RfReaderStatus getRfReaderStatus() {
-		return RF_READER_ERROR;
+	public RfStatus getRfStatus() {
+		return RF_ERROR;
 	}
 
 	@Override

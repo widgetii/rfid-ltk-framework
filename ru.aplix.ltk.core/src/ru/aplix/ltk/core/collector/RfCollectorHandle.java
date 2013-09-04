@@ -1,6 +1,6 @@
 package ru.aplix.ltk.core.collector;
 
-import ru.aplix.ltk.core.reader.RfReaderStatusMessage;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.message.MsgServiceHandle;
 
@@ -12,7 +12,7 @@ import ru.aplix.ltk.message.MsgServiceHandle;
  * handle.</p>
  */
 public final class RfCollectorHandle
-		extends MsgServiceHandle<RfCollectorHandle, RfReaderStatusMessage> {
+		extends MsgServiceHandle<RfCollectorHandle, RfStatusMessage> {
 
 	private final RfCollector collector;
 
@@ -20,7 +20,7 @@ public final class RfCollectorHandle
 			RfCollector collector,
 			MsgConsumer<
 				? super RfCollectorHandle,
-				? super RfReaderStatusMessage> consumer) {
+				? super RfStatusMessage> consumer) {
 		super(collector, consumer);
 		this.collector = collector;
 	}

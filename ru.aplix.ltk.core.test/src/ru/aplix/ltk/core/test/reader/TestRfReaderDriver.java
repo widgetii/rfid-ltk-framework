@@ -1,6 +1,8 @@
 package ru.aplix.ltk.core.test.reader;
 
 import ru.aplix.ltk.core.reader.*;
+import ru.aplix.ltk.core.source.RfDataMessage;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 
 
 public class TestRfReaderDriver implements RfReaderDriver {
@@ -25,12 +27,12 @@ public class TestRfReaderDriver implements RfReaderDriver {
 	public void stopRfReader() {
 	}
 
-	public void updateStatus(RfReaderStatusMessage status) {
+	public void updateStatus(RfStatusMessage status) {
 		this.context.updateStatus(status);
 	}
 
 	public void sendData(RfDataMessage data) {
-		this.context.sendData(data);
+		this.context.sendRfData(data);
 	}
 
 }

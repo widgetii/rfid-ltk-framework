@@ -3,8 +3,8 @@ package ru.aplix.ltk.driver.ctg.impl;
 import org.llrp.ltk.generated.parameters.TagReportData;
 import org.llrp.ltk.types.UnsignedLong_DATETIME;
 
-import ru.aplix.ltk.core.reader.RfDataMessage;
-import ru.aplix.ltk.core.reader.RfTag;
+import ru.aplix.ltk.core.source.RfDataMessage;
+import ru.aplix.ltk.core.source.RfTag;
 
 
 public class LLRPDataMessage implements RfDataMessage {

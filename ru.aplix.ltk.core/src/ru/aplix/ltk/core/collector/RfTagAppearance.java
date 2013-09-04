@@ -1,6 +1,6 @@
 package ru.aplix.ltk.core.collector;
 
-import ru.aplix.ltk.core.reader.RfTag;
+import ru.aplix.ltk.core.source.RfTag;
 
 
 /**

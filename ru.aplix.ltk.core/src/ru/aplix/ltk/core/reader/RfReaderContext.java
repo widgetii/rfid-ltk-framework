@@ -1,5 +1,7 @@
 package ru.aplix.ltk.core.reader;
 
+import ru.aplix.ltk.core.source.*;
+
 
 /**
  * RFID reader context.
@@ -9,7 +11,7 @@ package ru.aplix.ltk.core.reader;
  * events. The messages sent though this context will be reported to all
  * subscribed consumers.</p>
  */
-public final class RfReaderContext {
+public final class RfReaderContext implements RfStatusUpdater, RfDataReceiver {
 
 	private final RfReader reader;
 
@@ -22,7 +24,8 @@ public final class RfReaderContext {
 	 *
 	 * @param statusMessage status update to report.
 	 */
-	public void updateStatus(RfReaderStatusMessage statusMessage) {
+	@Override
+	public void updateStatus(RfStatusMessage statusMessage) {
 		this.reader.readerSubscriptions().sendMessage(statusMessage);
 	}
 
@@ -31,7 +34,8 @@ public final class RfReaderContext {
 	 *
 	 * @param dataMessage reader data to send.
 	 */
-	public void sendData(RfDataMessage dataMessage) {
+	@Override
+	public void sendRfData(RfDataMessage dataMessage) {
 		this.reader.dataSubscriptions().sendMessage(dataMessage);
 	}
 

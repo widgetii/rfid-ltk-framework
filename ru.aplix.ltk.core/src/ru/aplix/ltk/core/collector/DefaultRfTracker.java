@@ -9,9 +9,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import ru.aplix.ltk.core.reader.RfDataMessage;
-import ru.aplix.ltk.core.reader.RfReaderError;
-import ru.aplix.ltk.core.reader.RfTag;
+import ru.aplix.ltk.core.source.RfDataMessage;
+import ru.aplix.ltk.core.source.RfError;
+import ru.aplix.ltk.core.source.RfTag;
 
 
 /**
@@ -194,7 +194,7 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 				tagsDisappeared(obsoleteTags);
 			}
 		} catch (Throwable e) {
-			this.tracking.updateStatus(new RfReaderError(null, e));
+			this.tracking.updateStatus(new RfError(null, e));
 		}
 	}
 

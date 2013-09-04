@@ -2,8 +2,8 @@ package ru.aplix.ltk.core.collector;
 
 import static java.util.Objects.requireNonNull;
 import ru.aplix.ltk.core.reader.RfReader;
-import ru.aplix.ltk.core.reader.RfReaderHandle;
-import ru.aplix.ltk.core.reader.RfReaderStatusMessage;
+import ru.aplix.ltk.core.source.RfSource;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.message.MsgService;
 import ru.aplix.ltk.message.MsgSubscriptions;
@@ -12,18 +12,40 @@ import ru.aplix.ltk.message.MsgSubscriptions;
 /**
  * RFID tags collector.
  *
- * <p>Collects RFID tags information from the given {@link RfReader RFID
- * reader}, and informs subscribers on tag appearance and disappearance within
- * that reader's field of view (FOV).</p>
+ * <p>Collects RFID tags information from the given {@link RfSource RFID data
+ * source}, and informs subscribers on tag visibility by that source, such as
+ * tag appearance and disappearance within RFID reader's field of view (FOV).
+ * </p>
  */
 public class RfCollector
-		extends MsgService<RfCollectorHandle, RfReaderStatusMessage> {
+		extends MsgService<RfCollectorHandle, RfStatusMessage> {
 
 	private final RfTagAppearanceSubscriptions tagAppearanceSubscriptions =
 			new RfTagAppearanceSubscriptions(this);
-	private final RfReader reader;
-	private final RfReaderListener readerListener;
-	private final RfDataListener dataListener;
+	private final RfSource source;
+	private final RfSourceListener sourceListener;
+
+	/**
+	 * Constructs collector with a default RFID tags tracker.
+	 *
+	 * @param source RFID data source to collect data from.
+	 */
+	public RfCollector(RfSource source) {
+		this(source, null);
+	}
+
+	/**
+	 * Constructs collector.
+	 *
+	 * @param source RFID data source to collect data from.
+	 * @param tracker RFID tags tracker, or <code>null</code> to construct a
+	 * {@link DefaultRfTracker default one}.
+	 */
+	public RfCollector(RfSource source, RfTracker tracker) {
+		requireNonNull(source, "RFID data source not specified");
+		this.source = source;
+		this.sourceListener = new RfSourceListener(this, tracker);
+	}
 
 	/**
 	 * Constructs collector with a default RFID tags tracker.
@@ -43,28 +65,17 @@ public class RfCollector
 	 */
 	public RfCollector(RfReader reader, RfTracker tracker) {
 		requireNonNull(reader, "RFID reader not specified");
-		this.reader = reader;
-		this.readerListener = new RfReaderListener(this);
-		this.dataListener = new RfDataListener(this, tracker);
+		this.source = reader.toRfSource();
+		this.sourceListener = new RfSourceListener(this, tracker);
 	}
 
 	/**
-	 * RFID reader's port identifier.
+	 * RFID source the data is collected from.
 	 *
-	 * @return identifier string returned by
-	 * {@link RfReader#getRfPortId() RFID reader}.
+	 * @return the source passed to constructor.
 	 */
-	public final String getRfPortId() {
-		return reader().getRfPortId();
-	}
-
-	/**
-	 * RFID reader the data is collected from.
-	 *
-	 * @return the reader passed to constructor.
-	 */
-	protected final RfReader reader() {
-		return this.reader;
+	protected final RfSource source() {
+		return this.source;
 	}
 
 	/**
@@ -74,7 +85,7 @@ public class RfCollector
 	 * not specified.
 	 */
 	protected final RfTracker tracker() {
-		return this.dataListener.tracker();
+		return this.sourceListener.tracker();
 	}
 
 	/**
@@ -94,21 +105,20 @@ public class RfCollector
 	protected RfCollectorHandle createServiceHandle(
 			MsgConsumer<
 					? super RfCollectorHandle,
-					? super RfReaderStatusMessage> consumer) {
+					? super RfStatusMessage> consumer) {
 		return new RfCollectorHandle(this, consumer);
 	}
 
 	@Override
 	protected void startService() {
-		this.readerListener.start();
+		this.sourceListener.requestStatus();
 	}
 
 	@Override
 	protected void subscribed(RfCollectorHandle handle) {
 		super.subscribed(handle);
 
-		final RfReaderStatusMessage lastStatus =
-				this.readerListener.lastStatus();
+		final RfStatusMessage lastStatus = this.sourceListener.lastStatus();
 
 		if (lastStatus != null) {
 			handle.getConsumer().messageReceived(lastStatus);
@@ -117,20 +127,16 @@ public class RfCollector
 
 	@Override
 	protected void stopService() {
-		this.readerListener.stop();
+		this.sourceListener.rejectStatus();
 	}
 
-	final MsgSubscriptions<RfCollectorHandle, RfReaderStatusMessage>
+	final MsgSubscriptions<RfCollectorHandle, RfStatusMessage>
 	collectorSubscriptions() {
 		return serviceSubscriptions();
 	}
 
-	final RfReaderHandle readerHandle() {
-		return this.readerListener.handle();
-	}
-
 	final void noError() {
-		this.readerListener.noError();
+		this.sourceListener.noError();
 	}
 
 	private static final class RfTagAppearanceSubscriptions
@@ -155,12 +161,12 @@ public class RfCollector
 		@Override
 		protected void firstSubscribed(RfTagAppearanceHandle handle) {
 			super.firstSubscribed(handle);
-			this.collector.dataListener.start();
+			this.collector.sourceListener.requestData();
 		}
 
 		@Override
 		protected void lastUnsubscribed(RfTagAppearanceHandle handle) {
-			this.collector.dataListener.stop();
+			this.collector.sourceListener.rejectData();
 			super.lastUnsubscribed(handle);
 		}
 

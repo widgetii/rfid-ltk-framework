@@ -1,5 +1,7 @@
 package ru.aplix.ltk.core.reader;
 
+import ru.aplix.ltk.core.source.RfDataMessage;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.message.MsgServiceHandle;
 
@@ -11,7 +13,7 @@ import ru.aplix.ltk.message.MsgServiceHandle;
  * the reader.</p>
  */
 public final class RfReaderHandle
-		extends MsgServiceHandle<RfReaderHandle, RfReaderStatusMessage> {
+		extends MsgServiceHandle<RfReaderHandle, RfStatusMessage> {
 
 	private final RfReader reader;
 
@@ -19,7 +21,7 @@ public final class RfReaderHandle
 			RfReader reader,
 			MsgConsumer<
 				? super RfReaderHandle,
-				? super RfReaderStatusMessage> consumer) {
+				? super RfStatusMessage> consumer) {
 		super(reader, consumer);
 		this.reader = reader;
 	}
@@ -31,7 +33,7 @@ public final class RfReaderHandle
 	 *
 	 * @return subscription handle.
 	 */
-	public final RfDataHandle requestData(
+	public final RfDataHandle requestRfData(
 			MsgConsumer<? super RfDataHandle, ? super RfDataMessage> consumer) {
 		return addSubscription(
 				this.reader.dataSubscriptions().subscribe(consumer));

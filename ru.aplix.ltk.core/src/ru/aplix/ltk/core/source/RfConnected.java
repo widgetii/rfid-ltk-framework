@@ -1,12 +1,12 @@
-package ru.aplix.ltk.core.reader;
+package ru.aplix.ltk.core.source;
 
-import static ru.aplix.ltk.core.reader.RfReaderStatus.RF_READER_CONNECTED;
+import static ru.aplix.ltk.core.source.RfStatus.RF_READY;
 
 
 /**
- * RFID reader connected status message.
+ * RFID source connection status message.
  */
-public class RfReaderConnected implements RfReaderStatusMessage {
+public class RfConnected implements RfStatusMessage {
 
 	private final String readerId;
 
@@ -15,7 +15,7 @@ public class RfReaderConnected implements RfReaderStatusMessage {
 	 *
 	 * @param readerId reader device identifier.
 	 */
-	public RfReaderConnected(String readerId) {
+	public RfConnected(String readerId) {
 		this.readerId = readerId;
 	}
 
@@ -25,8 +25,8 @@ public class RfReaderConnected implements RfReaderStatusMessage {
 	}
 
 	@Override
-	public RfReaderStatus getRfReaderStatus() {
-		return RF_READER_CONNECTED;
+	public RfStatus getRfStatus() {
+		return RF_READY;
 	}
 
 	@Override

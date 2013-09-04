@@ -8,7 +8,7 @@ import java.util.HashMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import ru.aplix.ltk.core.reader.RfTag;
+import ru.aplix.ltk.core.source.RfTag;
 
 
 class ProgressTab extends JPanel {

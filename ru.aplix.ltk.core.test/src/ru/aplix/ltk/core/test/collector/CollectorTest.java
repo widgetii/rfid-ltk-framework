@@ -11,6 +11,9 @@ import org.junit.Test;
 
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.reader.*;
+import ru.aplix.ltk.core.source.RfConnected;
+import ru.aplix.ltk.core.source.RfError;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.core.test.reader.TestDataMessage;
 import ru.aplix.ltk.core.test.reader.TestRfReaderDriver;
 import ru.aplix.ltk.core.test.reader.TestTag;
@@ -35,8 +38,8 @@ public class CollectorTest {
 	@Test
 	public void status() {
 
-		final RfReaderStatusMessage status =
-				new RfReaderConnected("test reader");
+		final RfStatusMessage status =
+				new RfConnected("test reader");
 
 		this.driver.updateStatus(status);
 
@@ -47,8 +50,8 @@ public class CollectorTest {
 	@Test
 	public void sameStatus() {
 
-		final RfReaderStatusMessage status =
-				new RfReaderConnected("test reader");
+		final RfStatusMessage status =
+				new RfConnected("test reader");
 
 		this.driver.updateStatus(status);
 		this.driver.updateStatus(status);
@@ -60,8 +63,8 @@ public class CollectorTest {
 	@Test
 	public void sameError() {
 
-		final RfReaderStatusMessage error =
-				new RfReaderError("test reader", "error");
+		final RfStatusMessage error =
+				new RfError("test reader", "error");
 
 		this.driver.updateStatus(error);
 		this.driver.updateStatus(error);
@@ -73,10 +76,10 @@ public class CollectorTest {
 	@Test
 	public void reportStatusAfterError() {
 
-		final RfReaderStatusMessage status =
-				new RfReaderConnected("test reader");
-		final RfReaderStatusMessage error =
-				new RfReaderError("test reader", "error");
+		final RfStatusMessage status =
+				new RfConnected("test reader");
+		final RfStatusMessage error =
+				new RfError("test reader", "error");
 
 		this.driver.updateStatus(status);
 		this.driver.updateStatus(error);
@@ -91,8 +94,8 @@ public class CollectorTest {
 	@Test
 	public void lastStatus() {
 
-		final RfReaderStatusMessage status =
-				new RfReaderConnected("test reader");
+		final RfStatusMessage status =
+				new RfConnected("test reader");
 
 		this.driver.updateStatus(status);
 
@@ -107,10 +110,10 @@ public class CollectorTest {
 	@Test
 	public void lastError() {
 
-		final RfReaderStatusMessage status =
-				new RfReaderConnected("test reader");
-		final RfReaderStatusMessage error =
-				new RfReaderError("test reader", "error");
+		final RfStatusMessage status =
+				new RfConnected("test reader");
+		final RfStatusMessage error =
+				new RfError("test reader", "error");
 
 		this.driver.updateStatus(status);
 		this.driver.updateStatus(error);
@@ -126,10 +129,10 @@ public class CollectorTest {
 	@Test
 	public void lastStatusAfterError() {
 
-		final RfReaderStatusMessage status =
-				new RfReaderConnected("test reader");
-		final RfReaderStatusMessage error =
-				new RfReaderError("test reader", "error");
+		final RfStatusMessage status =
+				new RfConnected("test reader");
+		final RfStatusMessage error =
+				new RfError("test reader", "error");
 
 		this.driver.updateStatus(status);
 		this.driver.updateStatus(error);
@@ -146,10 +149,10 @@ public class CollectorTest {
 	@Test
 	public void lastStatusAfterData() {
 
-		final RfReaderStatusMessage status =
-				new RfReaderConnected("test reader");
-		final RfReaderStatusMessage error =
-				new RfReaderError("test reader", "error");
+		final RfStatusMessage status =
+				new RfConnected("test reader");
+		final RfStatusMessage error =
+				new RfError("test reader", "error");
 
 		final TagConsumer tagConsumer = new TagConsumer();
 

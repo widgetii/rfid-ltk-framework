@@ -1,7 +1,7 @@
 package ru.aplix.ltk.core.collector;
 
 import static java.util.Objects.requireNonNull;
-import ru.aplix.ltk.core.reader.RfTag;
+import ru.aplix.ltk.core.source.RfTag;
 
 
 /**

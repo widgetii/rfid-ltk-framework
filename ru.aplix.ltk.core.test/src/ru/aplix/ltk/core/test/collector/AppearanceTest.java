@@ -13,7 +13,7 @@ import org.junit.Test;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.core.reader.RfReader;
-import ru.aplix.ltk.core.reader.RfTag;
+import ru.aplix.ltk.core.source.RfTag;
 import ru.aplix.ltk.core.test.reader.TestDataMessage;
 import ru.aplix.ltk.core.test.reader.TestRfReaderDriver;
 import ru.aplix.ltk.core.test.reader.TestTag;

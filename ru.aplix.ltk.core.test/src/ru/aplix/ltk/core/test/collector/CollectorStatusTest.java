@@ -8,8 +8,8 @@ import org.junit.Test;
 
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.reader.RfReader;
-import ru.aplix.ltk.core.reader.RfReaderConnected;
-import ru.aplix.ltk.core.reader.RfReaderStatusMessage;
+import ru.aplix.ltk.core.source.RfConnected;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.core.test.reader.TestRfReaderDriver;
 
 
@@ -18,11 +18,11 @@ public class CollectorStatusTest {
 	private TestRfReaderDriver driver;
 	private RfReader reader;
 	private RfCollector collector;
-	private RfReaderStatusMessage firstStatus;
+	private RfStatusMessage firstStatus;
 
 	@Before
 	public void setup() {
-		this.firstStatus = new RfReaderConnected("test reader");
+		this.firstStatus = new RfConnected("test reader");
 		this.driver = new TestRfReaderDriver() {
 			@Override
 			public void startRfReader() {

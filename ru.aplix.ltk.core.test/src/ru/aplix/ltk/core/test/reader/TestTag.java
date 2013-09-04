@@ -1,6 +1,6 @@
 package ru.aplix.ltk.core.test.reader;
 
-import ru.aplix.ltk.core.reader.RfTag;
+import ru.aplix.ltk.core.source.RfTag;
 
 
 public class TestTag implements RfTag {

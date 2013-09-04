@@ -7,6 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ru.aplix.ltk.core.reader.*;
+import ru.aplix.ltk.core.source.RfConnected;
+import ru.aplix.ltk.core.source.RfDataMessage;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 
 
 public class ReaderTest {
@@ -26,8 +29,8 @@ public class ReaderTest {
 	@Test
 	public void status() {
 
-		final RfReaderStatusMessage status =
-				new RfReaderConnected("test reader");
+		final RfStatusMessage status =
+				new RfConnected("test reader");
 
 		this.driver.updateStatus(status);
 
@@ -40,7 +43,7 @@ public class ReaderTest {
 
 		final ReadConsumer consumer = new ReadConsumer();
 
-		this.readerConsumer.handle().requestData(consumer);
+		this.readerConsumer.handle().requestRfData(consumer);
 
 		final RfDataMessage data = new TestDataMessage(
 				System.currentTimeMillis(),

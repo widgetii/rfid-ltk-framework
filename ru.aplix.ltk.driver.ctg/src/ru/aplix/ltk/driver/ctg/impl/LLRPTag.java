@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.llrp.ltk.generated.interfaces.EPCParameter;
 
-import ru.aplix.ltk.core.reader.RfTag;
+import ru.aplix.ltk.core.source.RfTag;
 
 
 public class LLRPTag implements RfTag {

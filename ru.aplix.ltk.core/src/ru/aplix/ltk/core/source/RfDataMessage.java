@@ -1,12 +1,13 @@
-package ru.aplix.ltk.core.reader;
+package ru.aplix.ltk.core.source;
 
+import ru.aplix.ltk.core.reader.RfReaderHandle;
 import ru.aplix.ltk.message.MsgConsumer;
 
 
 /**
- * A message containing data from RFID reader.
+ * A message containing RFID data.
  *
- * <p>To receive such messages a {@link RfReaderHandle#requestData(MsgConsumer)
+ * <p>To receive such messages a {@link RfReaderHandle#requestRfData(MsgConsumer)
  * subscription} should be made.<p>
  *
  * <p>This message is sent when an RFID tag read. In addition, it can indicate

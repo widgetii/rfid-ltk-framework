@@ -9,4 +9,5 @@ Bundle-ActivationPolicy: lazy
 Export-Package: ru.aplix.ltk.core,
  ru.aplix.ltk.core.collector,
  ru.aplix.ltk.core.reader,
+ ru.aplix.ltk.core.source,
  ru.aplix.ltk.core.util

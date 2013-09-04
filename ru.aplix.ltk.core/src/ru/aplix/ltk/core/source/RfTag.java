@@ -1,4 +1,4 @@
-package ru.aplix.ltk.core.reader;
+package ru.aplix.ltk.core.source;
 
 
 /**

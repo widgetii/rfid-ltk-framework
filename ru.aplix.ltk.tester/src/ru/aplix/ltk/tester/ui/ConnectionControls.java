@@ -11,7 +11,7 @@ import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.collector.RfCollectorHandle;
 import ru.aplix.ltk.core.collector.RfTagAppearanceHandle;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
-import ru.aplix.ltk.core.reader.RfReaderStatusMessage;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.message.MsgConsumer;
 
 
@@ -139,8 +139,8 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 				getSettings().getConnectionTab().getSelected() != null);
 	}
 
-	private void statusUpdated(RfReaderStatusMessage status) {
-		if (!status.getRfReaderStatus().isError()) {
+	private void statusUpdated(RfStatusMessage status) {
+		if (!status.getRfStatus().isError()) {
 			getLogTab().append("Соединено с " + status.getRfReaderId());
 			return;
 		}
@@ -174,7 +174,7 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 	}
 
 	private final class StatusConsumer
-			implements MsgConsumer<RfCollectorHandle, RfReaderStatusMessage> {
+			implements MsgConsumer<RfCollectorHandle, RfStatusMessage> {
 
 		@Override
 		public void consumerSubscribed(RfCollectorHandle handle) {
@@ -182,7 +182,7 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 		}
 
 		@Override
-		public void messageReceived(final RfReaderStatusMessage message) {
+		public void messageReceived(final RfStatusMessage message) {
 			invokeInUI(new Runnable() {
 				@Override
 				public void run() {

@@ -15,9 +15,9 @@ import org.llrp.ltk.net.LLRPEndpoint;
 import org.llrp.ltk.net.LLRPIoHandlerAdapterImpl;
 import org.llrp.ltk.types.*;
 
-import ru.aplix.ltk.core.reader.RfReaderConnected;
 import ru.aplix.ltk.core.reader.RfReaderContext;
-import ru.aplix.ltk.core.reader.RfReaderError;
+import ru.aplix.ltk.core.source.RfConnected;
+import ru.aplix.ltk.core.source.RfError;
 
 
 final class CtgReaderThread
@@ -66,7 +66,7 @@ final class CtgReaderThread
 				update();
 				this.connected = true;
 				getContext().updateStatus(
-						new RfReaderConnected(getDriver().getRfPortId()));
+						new RfConnected(getDriver().getRfPortId()));
 				continue;
 			}
 			if (!reconnectionDelay()) {
@@ -99,7 +99,7 @@ final class CtgReaderThread
 
 	@Override
 	public void errorOccured(String message) {
-		getContext().updateStatus(new RfReaderError(null, message));
+		getContext().updateStatus(new RfError(null, message));
 	}
 
 	public synchronized void stopReader() {
@@ -141,7 +141,7 @@ final class CtgReaderThread
 		if (this.lastUpdate == lastUpdate) {
 			// Keep alive time out.
 			getContext().updateStatus(
-					new RfReaderError(null, "Connection lost"));
+					new RfError(null, "Connection lost"));
 			this.reader.disconnect();
 			this.connected = false;
 		}
@@ -377,7 +377,7 @@ final class CtgReaderThread
 			errorMessage = statusCode.toString();
 		}
 
-		getContext().updateStatus(new RfReaderError(null, errorMessage));
+		getContext().updateStatus(new RfError(null, errorMessage));
 
 		return false;
 	}
@@ -391,7 +391,7 @@ final class CtgReaderThread
 		// Loop through the list and get the EPC of each tag.
 		for (TagReportData tag : tags) {
 			try {
-				getContext().sendData(new LLRPDataMessage(tag));
+				getContext().sendRfData(new LLRPDataMessage(tag));
 			} catch (Throwable e) {
 				sendError(e);
 			}
@@ -399,7 +399,7 @@ final class CtgReaderThread
 	}
 
 	private void sendError(Throwable cause) {
-		getContext().updateStatus(new RfReaderError(null, cause));
+		getContext().updateStatus(new RfError(null, cause));
 	}
 
 	private void disconnect() {

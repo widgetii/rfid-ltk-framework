@@ -1,7 +1,7 @@
 package ru.aplix.ltk.core.test.reader;
 
-import ru.aplix.ltk.core.reader.RfDataMessage;
-import ru.aplix.ltk.core.reader.RfTag;
+import ru.aplix.ltk.core.source.RfDataMessage;
+import ru.aplix.ltk.core.source.RfTag;
 
 
 public class TestDataMessage implements RfDataMessage {

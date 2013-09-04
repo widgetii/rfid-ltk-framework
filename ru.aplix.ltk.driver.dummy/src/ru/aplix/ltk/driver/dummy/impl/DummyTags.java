@@ -72,7 +72,7 @@ final class DummyTags {
 		final RfReaderContext context = this.generator.getContext();
 
 		if (this.tags.isEmpty()) {
-			context.sendData(
+			context.sendRfData(
 					new DummyRfDataMessage(null, this.transactionId, true));
 			return;
 		}
@@ -84,7 +84,7 @@ final class DummyTags {
 			final DummyTag tag = it.next();
 			final boolean last = !it.hasNext();
 
-			context.sendData(
+			context.sendRfData(
 					new DummyRfDataMessage(tag, this.transactionId, last));
 
 			if (last) {

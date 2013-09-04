@@ -3,9 +3,9 @@ package ru.aplix.ltk.driver.dummy.impl;
 import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.collector.DefaultRfTracker;
 import ru.aplix.ltk.core.collector.RfTracker;
-import ru.aplix.ltk.core.reader.RfReaderConnected;
 import ru.aplix.ltk.core.reader.RfReaderContext;
 import ru.aplix.ltk.core.reader.RfReaderDriver;
+import ru.aplix.ltk.core.source.RfConnected;
 import ru.aplix.ltk.driver.dummy.DummyRfConnector;
 
 
@@ -42,7 +42,7 @@ public class DummyRfConnection extends RfConnection implements RfReaderDriver {
 
 	@Override
 	public void startRfReader() {
-		this.context.updateStatus(new RfReaderConnected(this.rfDeviceId));
+		this.context.updateStatus(new RfConnected(this.rfDeviceId));
 		this.generator.start();
 	}
 

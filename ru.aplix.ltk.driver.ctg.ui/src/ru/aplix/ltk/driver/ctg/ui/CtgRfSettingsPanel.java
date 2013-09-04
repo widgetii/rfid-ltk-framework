@@ -1,5 +1,7 @@
 package ru.aplix.ltk.driver.ctg.ui;
 
+import static ru.aplix.ltk.core.collector.DefaultRfTracker.DEFAULT_INVALIDATION_TIMEOUT;
+import static ru.aplix.ltk.core.collector.DefaultRfTracker.DEFAULT_TRANSACTION_TIMEOUT;
 import static ru.aplix.ltk.driver.ctg.CtgRfSettings.*;
 
 import java.awt.GridBagConstraints;
@@ -41,8 +43,18 @@ public class CtgRfSettingsPanel extends JPanel {
 		Long.toString(CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD),
 		Long.toString(CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD * 2),
 	};
+	private static final String[] TRANSACTION_PERIODS = {
+		Long.toString(DEFAULT_TRANSACTION_TIMEOUT / 2),
+		Long.toString(DEFAULT_TRANSACTION_TIMEOUT),
+		Long.toString(DEFAULT_TRANSACTION_TIMEOUT * 2),
+	};
+	private static final String[] INVALIDATION_PERIODS = {
+		Long.toString(DEFAULT_INVALIDATION_TIMEOUT / 2),
+		Long.toString(DEFAULT_INVALIDATION_TIMEOUT),
+		Long.toString(DEFAULT_INVALIDATION_TIMEOUT * 2),
+	};
 
-	private final CtgRfSettingsUI connectorUI;
+	private final CtgRfSettingsUI settingsUI;
 
 	private final JComboBox<String> readerHost;
 	private final JComboBox<String> readerPort;
@@ -51,12 +63,14 @@ public class CtgRfSettingsPanel extends JPanel {
 	private final JComboBox<String> transactionTimeout;
 	private final JComboBox<String> reconnectionDelay;
 	private final JComboBox<String> keepAliveRequestPeriod;
+	private final JComboBox<String> tagTransactionTimeout;
+	private final JComboBox<String> tagInvalidationTimeout;
 
 	private int line;
 
-	public CtgRfSettingsPanel(CtgRfSettingsUI connectorUI) {
+	public CtgRfSettingsPanel(CtgRfSettingsUI settingsUI) {
 		super(new GridBagLayout());
-		this.connectorUI = connectorUI;
+		this.settingsUI = settingsUI;
 
 		this.readerHost = new JComboBox<>();
 		this.readerHost.setEditable(true);
@@ -73,6 +87,10 @@ public class CtgRfSettingsPanel extends JPanel {
 		this.keepAliveRequestPeriod =
 				new JComboBox<>(KEEP_ALIVE_REQUEST_PERIODS);
 		this.keepAliveRequestPeriod.setEditable(true);
+		this.tagTransactionTimeout = new JComboBox<>(TRANSACTION_PERIODS);
+		this.tagTransactionTimeout.setEditable(true);
+		this.tagInvalidationTimeout = new JComboBox<>(INVALIDATION_PERIODS);
+		this.tagInvalidationTimeout.setEditable(true);
 
 		addOption("Адрес ридера", this.readerHost);
 		addOption("Порт ридера", this.readerPort);
@@ -81,59 +99,81 @@ public class CtgRfSettingsPanel extends JPanel {
 		addOption("Время ожидания ответа, мс", this.transactionTimeout);
 		addOption("Задержка переподключения, мс", this.reconnectionDelay);
 		addOption(
-				"Периодичность запросов поддержки соединения, мс",
+				"Период запросов поддержки соединения, мс",
 				this.keepAliveRequestPeriod);
+		addOption(
+				"Период проверки исчезновения тегов, мс",
+				this.tagTransactionTimeout);
+		addOption(
+				"Задержка исчезновения тега, мс",
+				this.tagInvalidationTimeout);
 
-		applyConnector();
+		applySettings();
 	}
 
-	public final CtgRfSettings getConnector() {
-		return this.connectorUI.getSettings();
+	public final CtgRfSettings getSettings() {
+		return this.settingsUI.getSettings();
 	}
 
-	public void configureConnector() {
+	public void fillSettings() {
 
-		final CtgRfSettings connector = getConnector();
+		final CtgRfSettings settings = getSettings();
 
-		connector.setReaderHost((String) this.readerHost.getSelectedItem());
-		connector.setReaderPort(intOption(
+		settings.setReaderHost((String) this.readerHost.getSelectedItem());
+		settings.setReaderPort(intOption(
 				this.readerPort,
 				CTG_RF_DEFAULT_READER_PORT));
-		connector.setROSpecId(intOption(
+		settings.setROSpecId(intOption(
 				this.roSpecId,
 				CTG_RF_DEFAULT_ROSPEC_ID));
-		connector.setConnectionTimeout(longOption(
+		settings.setConnectionTimeout(longOption(
 				this.connectionTimeout,
 				CTG_RF_DEFAULT_CONNECTION_TIMEOUT));
-		connector.setTransactionTimeout(longOption(
+		settings.setTransactionTimeout(longOption(
 				this.transactionTimeout,
 				CTG_RF_DEFAULT_TRANSACTION_TIMEOUT));
-		connector.setReconnectionDelay(longOption(
+		settings.setReconnectionDelay(longOption(
 				this.reconnectionDelay,
 				CTG_RF_DEFAULT_RECONNECTION_DELAY));
-		connector.setKeepAliveRequestPeriod(intOption(
+		settings.setKeepAliveRequestPeriod(intOption(
 				this.keepAliveRequestPeriod,
 				CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD));
+
+		final CtgRfSettingsUI ui = this.settingsUI;
+
+		ui.setTagTransactionTimeout(longOption(
+				this.tagTransactionTimeout,
+				DEFAULT_TRANSACTION_TIMEOUT));
+		ui.setTagInvalidationTimeout(longOption(
+				this.tagInvalidationTimeout,
+				DEFAULT_INVALIDATION_TIMEOUT));
 	}
 
-	private void applyConnector() {
+	private void applySettings() {
 
-		final CtgRfSettings connector = getConnector();
+		final CtgRfSettings settings = getSettings();
 
 		this.readerHost.setSelectedItem(
-				optionValue(connector.getReaderHost()));
+				optionValue(settings.getReaderHost()));
 		this.readerPort.setSelectedItem(
-				Integer.toString(connector.getReaderPort()));
+				Integer.toString(settings.getReaderPort()));
 		this.roSpecId.setSelectedItem(
-				Integer.toString(connector.getROSpecId()));
+				Integer.toString(settings.getROSpecId()));
 		this.connectionTimeout.setSelectedItem(
-				Long.toString(connector.getConnectionTimeout()));
+				Long.toString(settings.getConnectionTimeout()));
 		this.transactionTimeout.setSelectedItem(
-				Long.toString(connector.getTransactionTimeout()));
+				Long.toString(settings.getTransactionTimeout()));
 		this.reconnectionDelay.setSelectedItem(
-				Long.toString(connector.getReconnectionDelay()));
+				Long.toString(settings.getReconnectionDelay()));
 		this.keepAliveRequestPeriod.setSelectedItem(
-				Integer.toString(connector.getKeepAliveRequestPeriod()));
+				Integer.toString(settings.getKeepAliveRequestPeriod()));
+
+		final CtgRfSettingsUI ui = this.settingsUI;
+
+		this.tagTransactionTimeout.setSelectedItem(
+				Long.toString(ui.getTagTransactionTimeout()));
+		this.tagInvalidationTimeout.setSelectedItem(
+				Long.toString(ui.getTagInvalidationTimeout()));
 	}
 
 	private void addOption(String label, JComponent component) {

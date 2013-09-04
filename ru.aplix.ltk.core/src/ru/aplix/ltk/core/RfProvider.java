@@ -4,15 +4,19 @@ package ru.aplix.ltk.core;
 /**
  * RFID provider.
  *
- * <p>Provider instance cane be used to construct RFID reader connectors.</p>
+ * <p>Provider instance can be used to configure and open RFID connections.</p>
  *
- * <p>Multiple such providers could be registered in OSGi. It is expected that
- * a concrete provider implement its own specific interface, and export it along
- * with a generic {@code RfProvider} one. This way providers consumers can
- * distinguish between different providers e.g. to construct an UI specific to
- * each provider.</p>
+ * <p>Multiple such providers could be registered in OSGi.</p>
+ *
+ * @param <S> RFID settings type.
  */
-public interface RfProvider {
+public interface RfProvider<S extends RfSettings> {
+
+	/**
+	 * {@code RfProvider} class instance.
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	Class<RfProvider<?>> RF_PROVIDER_CLASS = (Class) RfProvider.class;
 
 	/**
 	 * Provider's name.
@@ -22,16 +26,29 @@ public interface RfProvider {
 	String getName();
 
 	/**
-	 * Creates a new RFID reader connector.
+	 * Supported RFID settings.
 	 *
-	 * <p>Arbitrary number of connectors can be constructed by single provider.
-	 * </p>
-	 *
-	 * <p>A reader connector interface could be specific to concrete provider
-	 * interface.</p>
-	 *
-	 * @return new reader connector.
+	 * @return supported RFID settings class.
 	 */
-	RfConnector newConnector();
+	Class<? extends S> getSettingsType();
+
+	/**
+	 * Creates a new RFID settings.
+	 *
+	 * @return new settings instance.
+	 */
+	S newSettings();
+
+	/**
+	 * Opens RFID connection with the given settings.
+	 *
+	 * <p>RFID connection interface could be specific to the provider, but this
+	 * is not generally required.</p>
+	 *
+	 * @param settings RFID settings.
+	 *
+	 * @return new connection.
+	 */
+	RfConnection connect(S settings);
 
 }

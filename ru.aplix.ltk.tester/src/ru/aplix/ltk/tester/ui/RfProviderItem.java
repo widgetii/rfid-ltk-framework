@@ -7,25 +7,28 @@ import java.awt.Component;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.RfProvider;
-import ru.aplix.ltk.ui.RfConnectorUI;
-import ru.aplix.ltk.ui.RfConnectorUIContext;
+import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.ui.RfProviderUI;
+import ru.aplix.ltk.ui.RfSettingsUI;
+import ru.aplix.ltk.ui.RfSettingsUIContext;
 
 
-public class RfProviderItem implements Comparable<RfProviderItem> {
+public class RfProviderItem<S extends RfSettings>
+		implements Comparable<RfProviderItem<?>> {
 
 	private final ConnectionTab tab;
-	private final RfProvider provider;
+	private final RfProvider<S> provider;
 	private final String name;
 	private final int index;
-	private RfProviderUI<?> providerUI;
-	private RfConnectorUI connectorUI;
-	private JComponent settingsUI;
+	private RfProviderUI<S> providerUI;
+	private RfSettingsUI<S> settingsUI;
+	private JComponent uiComponent;
 
 	RfProviderItem(
 			ConnectionTab tab,
-			RfProvider provider,
+			RfProvider<S> provider,
 			int index) {
 		this.tab = tab;
 		this.provider = provider;
@@ -37,7 +40,7 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 		return this.name;
 	}
 
-	public final RfProvider getProvider() {
+	public final RfProvider<S> getProvider() {
 		return this.provider;
 	}
 
@@ -45,44 +48,44 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 		return this.tab.getSelected() == this;
 	}
 
-	public final RfProviderUI<?> getProviderUI() {
+	public final RfProviderUI<S> getProviderUI() {
 		if (this.providerUI != null) {
 			return this.providerUI;
 		}
 		return this.providerUI = findProviderUI();
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public final RfConnectorUI getConnectorUI() {
-		if (this.connectorUI != null) {
-			return this.connectorUI;
-		}
-		return this.connectorUI =
-				getProviderUI().newConnectorUI(new UIContext());
-	}
-
-	public Component getSettingsUI() {
+	public final RfSettingsUI<S> getSettingsUI() {
 		if (this.settingsUI != null) {
 			return this.settingsUI;
 		}
+		return this.settingsUI =
+				getProviderUI().newSettingsUI(new UIContext());
+	}
 
-		final JComponent settingsUI = getConnectorUI().getSettingsUI();
+	public Component getUIComponent() {
+		if (this.settingsUI != null) {
+			return this.uiComponent;
+		}
+
+		final JComponent settingsUI = getSettingsUI().getUIComponent();
 
 		if (settingsUI == null) {
 			// Blank UI.
-			this.settingsUI = new JPanel();
+			this.uiComponent = new JPanel();
 		} else {
-			this.settingsUI = settingsUI;
+			this.uiComponent = settingsUI;
 		}
-		this.settingsUI.setBorder(
+
+		this.uiComponent.setBorder(
 				createTitledBorder(getName() + ": настройки соединения"));
 
 		final ConnectionSettings settings = this.tab.getSettings();
 		final String cardName = cardName();
 
-		settings.addCard(cardName, this.settingsUI);
+		settings.addCard(cardName, this.uiComponent);
 
-		return this.settingsUI;
+		return this.uiComponent;
 	}
 
 	public void updateUI() {
@@ -90,15 +93,15 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 			return;
 		}
 
-		final RfProviderUI<?> providerUI = findProviderUI();
+		final RfProviderUI<S> providerUI = findProviderUI();
 
 		if (providerUI == this.providerUI) {
 			return;
 		}
 
-		disposeSettingsUI();
+		disposeUI();
 		this.providerUI = providerUI;
-		this.connectorUI = null;
+		this.settingsUI = null;
 		this.settingsUI = null;
 		if (isSelected()) {
 			select();
@@ -106,16 +109,23 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 	}
 
 	public void select() {
-		getSettingsUI();// Construct UI if not constructed yet.
+		getUIComponent();// Construct UI if not constructed yet.
 		this.tab.getSettings().showCard(cardName());
 	}
 
+	public RfConnection connect() {
+
+		final S settings = getSettingsUI().buildSettings();
+
+		return getProvider().connect(settings);
+	}
+
 	public void dispose() {
-		disposeSettingsUI();
+		disposeUI();
 	}
 
 	@Override
-	public int compareTo(RfProviderItem o) {
+	public int compareTo(RfProviderItem<?> o) {
 
 		final int cmp = this.name.compareTo(o.name);
 
@@ -149,7 +159,7 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 			return false;
 		}
 
-		final RfProviderItem other = (RfProviderItem) obj;
+		final RfProviderItem<?> other = (RfProviderItem<?>) obj;
 
 		if (this.index != other.index) {
 			return false;
@@ -169,7 +179,7 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 		return this.name;
 	}
 
-	private static String providerName(RfProvider provider, int index) {
+	private static String providerName(RfProvider<?> provider, int index) {
 
 		final String name = provider.getName();
 
@@ -184,23 +194,21 @@ public class RfProviderItem implements Comparable<RfProviderItem> {
 		return Integer.toString(this.index);
 	}
 
-	private RfProviderUI<?> findProviderUI() {
+	private RfProviderUI<S> findProviderUI() {
 		return this.tab.getProviders().providerUI(getProvider());
 	}
 
-	private void disposeSettingsUI() {
-		if (this.settingsUI != null) {
-			this.settingsUI.getParent().remove(this.settingsUI);
+	private void disposeUI() {
+		if (this.uiComponent != null) {
+			this.uiComponent.getParent().remove(this.uiComponent);
 		}
 	}
 
-	private final class UIContext<P extends RfProvider>
-			implements RfConnectorUIContext<P> {
+	private final class UIContext implements RfSettingsUIContext<S> {
 
-		@SuppressWarnings("unchecked")
 		@Override
-		public P getRfProvider() {
-			return (P) getProvider();
+		public RfProvider<S> getRfProvider() {
+			return getProvider();
 		}
 
 	}

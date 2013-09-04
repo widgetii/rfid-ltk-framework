@@ -19,9 +19,9 @@ class ConnectionTab extends JSplitPane {
 	private final TesterContent content;
 	private final RfProvidersModel providers;
 	private final ConnectionSettings settings;
-	private final JList<RfProviderItem> providersList;
+	private final JList<RfProviderItem<?>> providersList;
 	private final EventListenerList providerListeners = new EventListenerList();
-	private RfProviderItem selected;
+	private RfProviderItem<?> selected;
 
 	ConnectionTab(TesterContent content) {
 		this.content = content;
@@ -57,7 +57,7 @@ class ConnectionTab extends JSplitPane {
 		return this.providers;
 	}
 
-	public final JList<RfProviderItem> getProvidersList() {
+	public final JList<RfProviderItem<?>> getProvidersList() {
 		return this.providersList;
 	}
 
@@ -65,7 +65,7 @@ class ConnectionTab extends JSplitPane {
 		return this.settings;
 	}
 
-	public final RfProviderItem getSelected() {
+	public final RfProviderItem<?> getSelected() {
 		return this.selected;
 	}
 
@@ -90,8 +90,9 @@ class ConnectionTab extends JSplitPane {
 
 	private void updateSelection() {
 
-		final RfProviderItem selected = this.providersList.getSelectedValue();
-		final RfProviderItem deselected = this.selected;
+		final RfProviderItem<?> deselected = this.selected;
+		final RfProviderItem<?> selected =
+				this.providersList.getSelectedValue();
 
 		if (deselected == selected) {
 			return;

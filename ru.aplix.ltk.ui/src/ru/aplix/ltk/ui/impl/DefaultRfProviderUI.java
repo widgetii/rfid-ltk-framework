@@ -1,21 +1,21 @@
 package ru.aplix.ltk.ui.impl;
 
-import ru.aplix.ltk.core.RfProvider;
-import ru.aplix.ltk.ui.RfConnectorUI;
-import ru.aplix.ltk.ui.RfConnectorUIContext;
+import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.ui.RfProviderUI;
+import ru.aplix.ltk.ui.RfSettingsUI;
+import ru.aplix.ltk.ui.RfSettingsUIContext;
 
 
-public final class DefaultRfProviderUI implements RfProviderUI<RfProvider> {
+public final class DefaultRfProviderUI implements RfProviderUI<RfSettings> {
 
 	@Override
-	public Class<? extends RfProvider> getProviderInterface() {
-		return RfProvider.class;
+	public Class<? extends RfSettings> getSettingsType() {
+		return RfSettings.class;
 	}
 
 	@Override
-	public RfConnectorUI newConnectorUI(
-			RfConnectorUIContext<RfProvider> context) {
+	public RfSettingsUI<RfSettings> newSettingsUI(
+			RfSettingsUIContext<RfSettings> context) {
 		return new DefaultRfConnectorUI(context);
 	}
 

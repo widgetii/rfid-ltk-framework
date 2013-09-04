@@ -1,38 +1,37 @@
 package ru.aplix.ltk.driver.dummy.impl;
 
 import ru.aplix.ltk.core.RfConnection;
-import ru.aplix.ltk.core.collector.DefaultRfTracker;
-import ru.aplix.ltk.core.collector.RfTracker;
+import ru.aplix.ltk.core.reader.RfReader;
 import ru.aplix.ltk.core.reader.RfReaderContext;
 import ru.aplix.ltk.core.reader.RfReaderDriver;
 import ru.aplix.ltk.core.source.RfConnected;
-import ru.aplix.ltk.driver.dummy.DummyRfConnector;
+import ru.aplix.ltk.core.source.RfSource;
+import ru.aplix.ltk.driver.dummy.DummyRfSettings;
 
 
 public class DummyRfConnection extends RfConnection implements RfReaderDriver {
 
-	private final String rfPortId;
-	private final String rfDeviceId;
+	private final DummyRfSettings settings;
 	private final DummyTagsGenerator generator;
 	private RfReaderContext context;
 
-	public DummyRfConnection(DummyRfConnector connector) {
-		this.rfPortId = connector.getPortId();
-		this.rfDeviceId = connector.getDeviceId();
-		this.generator = new DummyTagsGenerator(connector, this);
+	public DummyRfConnection(DummyRfSettings settings) {
+		super(settings);
+		this.settings = settings;
+		this.generator = new DummyTagsGenerator(this);
 	}
 
-	@Override
-	public final String getRfPortId() {
-		return this.rfPortId;
-	}
-
-	public final String getRfDeviceId() {
-		return this.rfDeviceId;
+	public final DummyRfSettings getSettings() {
+		return this.settings;
 	}
 
 	public final RfReaderContext getContext() {
 		return this.context;
+	}
+
+	@Override
+	public final String getRfPortId() {
+		return getSettings().getPortId();
 	}
 
 	@Override
@@ -42,7 +41,8 @@ public class DummyRfConnection extends RfConnection implements RfReaderDriver {
 
 	@Override
 	public void startRfReader() {
-		this.context.updateStatus(new RfConnected(this.rfDeviceId));
+		this.context.updateStatus(
+				new RfConnected(getSettings().getDeviceId()));
 		this.generator.start();
 	}
 
@@ -52,20 +52,8 @@ public class DummyRfConnection extends RfConnection implements RfReaderDriver {
 	}
 
 	@Override
-	protected RfTracker createTracker() {
-
-		final DefaultRfTracker tracker = new DefaultRfTracker();
-		final long readPeriod = this.generator.getReadPeriod();
-
-		tracker.setInvalidationTimeout(readPeriod + (readPeriod >> 1));
-		tracker.setTransactionTimeout(this.generator.getGenerationPeriod());
-
-		return tracker;
-	}
-
-	@Override
-	protected RfReaderDriver createReaderDriver() {
-		return this;
+	protected RfSource createSource() {
+		return new RfReader(this).toRfSource();
 	}
 
 }

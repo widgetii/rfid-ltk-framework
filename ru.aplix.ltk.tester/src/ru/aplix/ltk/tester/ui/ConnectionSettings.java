@@ -61,12 +61,12 @@ class ConnectionSettings extends JPanel implements RfProviderItemListener {
 	}
 
 	@Override
-	public void itemSelected(RfProviderItem item) {
+	public void itemSelected(RfProviderItem<?> item) {
 		item.select();
 	}
 
 	@Override
-	public void itemDeselected(RfProviderItem item) {
+	public void itemDeselected(RfProviderItem<?> item) {
 		showCard(BLANK_CARD);
 	}
 

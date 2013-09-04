@@ -1,11 +1,10 @@
 package ru.aplix.ltk.driver.dummy.impl;
 
+import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_CLASS;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-
-import ru.aplix.ltk.core.RfProvider;
-import ru.aplix.ltk.driver.dummy.DummyRfProvider;
 
 
 public class DummyActivator implements BundleActivator {
@@ -15,10 +14,7 @@ public class DummyActivator implements BundleActivator {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		this.providerReg = context.registerService(
-				new String[] {
-						RfProvider.class.getName(),
-						DummyRfProvider.class.getName(),
-				},
+				RF_PROVIDER_CLASS,
 				new DummyRfProvider(),
 				null);
 	}

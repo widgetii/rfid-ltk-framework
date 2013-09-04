@@ -2,28 +2,27 @@ package ru.aplix.ltk.ui.impl;
 
 import javax.swing.JComponent;
 
-import ru.aplix.ltk.core.RfConnector;
-import ru.aplix.ltk.core.RfProvider;
-import ru.aplix.ltk.ui.RfConnectorUI;
-import ru.aplix.ltk.ui.RfConnectorUIContext;
+import ru.aplix.ltk.core.RfSettings;
+import ru.aplix.ltk.ui.RfSettingsUI;
+import ru.aplix.ltk.ui.RfSettingsUIContext;
 
 
-final class DefaultRfConnectorUI implements RfConnectorUI {
+final class DefaultRfConnectorUI implements RfSettingsUI<RfSettings> {
 
-	private final RfConnectorUIContext<RfProvider> context;
+	private final RfSettingsUIContext<RfSettings> context;
 
-	DefaultRfConnectorUI(RfConnectorUIContext<RfProvider> context) {
+	DefaultRfConnectorUI(RfSettingsUIContext<RfSettings> context) {
 		this.context = context;
 	}
 
 	@Override
-	public JComponent getSettingsUI() {
+	public JComponent getUIComponent() {
 		return null;
 	}
 
 	@Override
-	public RfConnector buildConnector() {
-		return this.context.getRfProvider().newConnector();
+	public RfSettings buildSettings() {
+		return this.context.getRfProvider().newSettings();
 	}
 
 }

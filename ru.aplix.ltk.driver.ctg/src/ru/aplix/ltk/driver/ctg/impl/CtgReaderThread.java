@@ -18,6 +18,7 @@ import org.llrp.ltk.types.*;
 import ru.aplix.ltk.core.reader.RfReaderContext;
 import ru.aplix.ltk.core.source.RfConnected;
 import ru.aplix.ltk.core.source.RfError;
+import ru.aplix.ltk.driver.ctg.CtgRfSettings;
 
 
 final class CtgReaderThread
@@ -44,16 +45,16 @@ final class CtgReaderThread
 		return getDriver().getContext();
 	}
 
-	public final CtgRfConfig getConfig() {
-		return getDriver().getConfig();
+	public final CtgRfSettings getSettings() {
+		return getDriver().getSettings();
 	}
 
 	@Override
 	public void run() {
 		this.reader = new LLRPConnector(
 				this,
-				getConfig().getReaderHost(),
-				getConfig().getReaderPort());
+				getSettings().getReaderHost(),
+				getSettings().getReaderPort());
 		this.reader.setHandler(new LLRPHandler(this.reader));
 		for (;;) {
 			if (this.connected) {
@@ -109,7 +110,7 @@ final class CtgReaderThread
 
 	private boolean connect() {
 		try {
-			this.reader.connect(getConfig().getConnectionTimeout());
+			this.reader.connect(getSettings().getConnectionTimeout());
 			if (this.stopped) {
 				return false;
 			}
@@ -128,7 +129,7 @@ final class CtgReaderThread
 
 		final long lastUpdate = this.lastUpdate;
 		final int keepAliveTimeout =
-				getConfig().getKeepAliveRequestPeriod() * 3;
+				getSettings().getKeepAliveRequestPeriod() * 3;
 		final long delay =
 				keepAliveTimeout - (currentTimeMillis() - lastUpdate);
 
@@ -150,7 +151,7 @@ final class CtgReaderThread
 	}
 
 	private boolean reconnectionDelay() {
-		return delay(getConfig().getReconnectionDelay());
+		return delay(getSettings().getReconnectionDelay());
 	}
 
 	private boolean delay(long delay) {
@@ -190,7 +191,7 @@ final class CtgReaderThread
 		final DELETE_ROSPEC_RESPONSE response =
 				(DELETE_ROSPEC_RESPONSE) this.reader.transact(
 						request,
-						getConfig().getTransactionTimeout());
+						getSettings().getTransactionTimeout());
 
 		return checkStatus(response.getLLRPStatus());
 	}
@@ -204,7 +205,7 @@ final class CtgReaderThread
 
 		roSpec.setPriority(new UnsignedByte(0));
 		roSpec.setCurrentState(new ROSpecState(ROSpecState.Disabled));
-		roSpec.setROSpecID(new UnsignedInteger(getConfig().getROSpecId()));
+		roSpec.setROSpecID(new UnsignedInteger(getSettings().getROSpecId()));
 
 		// Set up the ROBoundarySpec
 		// This defines the start and stop triggers.
@@ -290,7 +291,7 @@ final class CtgReaderThread
 	private boolean setReaderConfig() throws TimeoutException {
 
 		final int keepAlivePeriod =
-				getConfig().getKeepAliveRequestPeriod();
+				getSettings().getKeepAliveRequestPeriod();
 
 		final SET_READER_CONFIG request = new SET_READER_CONFIG();
 		final KeepaliveSpec keepaliveSpec = new KeepaliveSpec();
@@ -306,7 +307,7 @@ final class CtgReaderThread
 		final SET_READER_CONFIG_RESPONSE response =
 				(SET_READER_CONFIG_RESPONSE) this.reader.transact(
 						request,
-						getConfig().getTransactionTimeout());
+						getSettings().getTransactionTimeout());
 
 		return checkStatus(response.getLLRPStatus());
 	}
@@ -321,7 +322,7 @@ final class CtgReaderThread
 		final ADD_ROSPEC_RESPONSE response =
 				(ADD_ROSPEC_RESPONSE) this.reader.transact(
 						request,
-						getConfig().getTransactionTimeout());
+						getSettings().getTransactionTimeout());
 
 		return checkStatus(response.getLLRPStatus());
 	}
@@ -331,12 +332,12 @@ final class CtgReaderThread
 
 		final ENABLE_ROSPEC request = new ENABLE_ROSPEC();
 
-		request.setROSpecID(new UnsignedInteger(getConfig().getROSpecId()));
+		request.setROSpecID(new UnsignedInteger(getSettings().getROSpecId()));
 
 		final ENABLE_ROSPEC_RESPONSE response =
 				(ENABLE_ROSPEC_RESPONSE) this.reader.transact(
 						request,
-						getConfig().getTransactionTimeout());
+						getSettings().getTransactionTimeout());
 
 		return checkStatus(response.getLLRPStatus());
 	}
@@ -346,12 +347,12 @@ final class CtgReaderThread
 
 		final START_ROSPEC request = new START_ROSPEC();
 
-		request.setROSpecID(new UnsignedInteger(getConfig().getROSpecId()));
+		request.setROSpecID(new UnsignedInteger(getSettings().getROSpecId()));
 
 		final START_ROSPEC_RESPONSE response =
 				(START_ROSPEC_RESPONSE) this.reader.transact(
 						request,
-						getConfig().getTransactionTimeout());
+						getSettings().getTransactionTimeout());
 
 		return checkStatus(response.getLLRPStatus());
 	}
@@ -422,7 +423,7 @@ final class CtgReaderThread
 		final CLOSE_CONNECTION_RESPONSE response =
 				(CLOSE_CONNECTION_RESPONSE) this.reader.transact(
 				request,
-				getConfig().getTransactionTimeout());
+				getSettings().getTransactionTimeout());
 
 		checkStatus(response.getLLRPStatus());
 	}

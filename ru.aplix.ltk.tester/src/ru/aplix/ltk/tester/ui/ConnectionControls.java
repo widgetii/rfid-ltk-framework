@@ -23,7 +23,7 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 	private final JButton startButton;
 	private final Action startAction;
 	private final Action stopAction;
-	private RfProviderItem running;
+	private RfProviderItem<?> running;
 	private RfCollectorHandle collectorHandle;
 
 	ConnectionControls(ConnectionSettings settings) {
@@ -78,12 +78,12 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 	}
 
 	@Override
-	public void itemSelected(RfProviderItem item) {
+	public void itemSelected(RfProviderItem<?> item) {
 		updateButton();
 	}
 
 	@Override
-	public void itemDeselected(RfProviderItem item) {
+	public void itemDeselected(RfProviderItem<?> item) {
 		updateButton();
 	}
 
@@ -93,18 +93,17 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 		this.running = null;
 		try {
 
-			final RfProviderItem selected =
+			final RfProviderItem<?> selected =
 					getSettings().getConnectionTab().getSelected();
 
 			if (selected == null) {
 				return;
 			}
 
-			final RfConnection connection =
-					selected.getConnectorUI().buildConnector().connect();
+			final RfConnection connection = selected.connect();
 
 			this.collectorHandle =
-					connection.collector().subscribe(new StatusConsumer());
+					connection.getCollector().subscribe(new StatusConsumer());
 			this.running = selected;
 		} catch (Throwable e) {
 			getLogTab().log(e);

@@ -1,9 +1,16 @@
-package ru.aplix.ltk.driver.ctg.impl;
+package ru.aplix.ltk.driver.ctg;
 
-import static ru.aplix.ltk.driver.ctg.CtgRfConnector.*;
+import ru.aplix.ltk.core.SimpleRfSettings;
 
 
-public final class CtgRfConfig implements Cloneable {
+public class CtgRfSettings extends SimpleRfSettings {
+
+	public static final int CTG_RF_DEFAULT_READER_PORT = 5084;
+	public static final int CTG_RF_DEFAULT_ROSPEC_ID = 123;
+	public static final long CTG_RF_DEFAULT_CONNECTION_TIMEOUT = 10000L;
+	public static final long CTG_RF_DEFAULT_TRANSACTION_TIMEOUT = 10000L;
+	public static final long CTG_RF_DEFAULT_RECONNECTION_DELAY = 10000L;
+	public static final int CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD = 10000;
 
 	private String readerHost;
 	private int readerPort = CTG_RF_DEFAULT_READER_PORT;
@@ -75,12 +82,8 @@ public final class CtgRfConfig implements Cloneable {
 	}
 
 	@Override
-	public CtgRfConfig clone() {
-		try {
-			return (CtgRfConfig) super.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new IllegalStateException();
-		}
+	public CtgRfSettings clone() {
+		return (CtgRfSettings) super.clone();
 	}
 
 }

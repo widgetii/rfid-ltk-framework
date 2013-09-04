@@ -31,11 +31,11 @@ public class RfCollector
 	 * @param source RFID data source to collect data from.
 	 */
 	public RfCollector(RfSource source) {
-		this(source, null);
+		this(source, (RfTracker) null);
 	}
 
 	/**
-	 * Constructs collector.
+	 * Constructs collector with the given tracker.
 	 *
 	 * @param source RFID data source to collect data from.
 	 * @param tracker RFID tags tracker, or <code>null</code> to construct a
@@ -48,12 +48,16 @@ public class RfCollector
 	}
 
 	/**
-	 * Constructs collector with a default RFID tags tracker.
+	 * Constructs collector with the given tracking policy.
 	 *
-	 * @param reader RFID reader to collect data from.
+	 * @param source RFID data source to collect data from.
+	 * @param trackingPolicy RFID tracking policy, or <code>null</code> to use
+	 * the {@link RfTrackingPolicy#DEFAULT_TRACKING_POLICY default one}.
 	 */
-	public RfCollector(RfReader reader) {
-		this(reader, null);
+	public RfCollector(RfSource source, RfTrackingPolicy trackingPolicy) {
+		requireNonNull(source, "RFID data source not specified");
+		this.source = source;
+		this.sourceListener = new RfSourceListener(this, trackingPolicy);
 	}
 
 	/**

@@ -19,6 +19,14 @@ final class RfSourceListener implements RfStatusUpdater, RfDataReceiver {
 		this.tracker = tracker != null ? tracker : new DefaultRfTracker();
 	}
 
+	RfSourceListener(RfCollector collector, RfTrackingPolicy trackingPolicy) {
+		this.collector = collector;
+		this.tracker =
+				trackingPolicy != null
+				? trackingPolicy.newTracker(collector)
+				: new DefaultRfTracker();
+	}
+
 	@Override
 	public void updateStatus(RfStatusMessage status) {
 		if (!setStatus(status)) {

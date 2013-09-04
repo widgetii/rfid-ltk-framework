@@ -1,36 +1,38 @@
 package ru.aplix.ltk.core.util;
 
 import ru.aplix.ltk.core.RfProvider;
+import ru.aplix.ltk.core.RfSettings;
 
 
 /**
  * A most specific handler selector for the given RFID provider.
  *
- * <p>A selection is made based on provider classes
- * {@link #supportedProviderClass(Object) supported} by handlers. The more
- * specific handler is the one supporting the most specific provider class.</p>
+ * <p>A selection is made based on the {@link RfProvider#getSettingsType() RFID
+ * settings} classes supported by {@link #supportedSettingsClass(Object)
+ * supported} by handlers. The more specific handler is the one supporting the
+ * most specific settings class.</p>
  *
  * @param <H> handlers type.
  */
 public abstract class RfProviderHandlerSelector<H>
-		extends HandlerSelector<RfProvider, H> {
+		extends HandlerSelector<RfProvider<?>, H> {
 
 	@Override
-	public boolean matchingHandler(RfProvider target, H handler) {
+	public boolean matchingHandler(RfProvider<?> target, H handler) {
 
-		final Class<? extends RfProvider> supported =
-				supportedProviderClass(handler);
+		final Class<? extends RfSettings> supported =
+				supportedSettingsClass(handler);
 
-		return supported.isInstance(target);
+		return supported.isAssignableFrom(target.getSettingsType());
 	}
 
 	@Override
-	public H mostSpecificHandler(RfProvider target, H handler1, H handler2) {
+	public H mostSpecificHandler(RfProvider<?> target, H handler1, H handler2) {
 
-		final Class<? extends RfProvider> supported1 =
-				supportedProviderClass(handler1);
-		final Class<? extends RfProvider> supported2 =
-				supportedProviderClass(handler2);
+		final Class<? extends RfSettings> supported1 =
+				supportedSettingsClass(handler1);
+		final Class<? extends RfSettings> supported2 =
+				supportedSettingsClass(handler2);
 
 		final boolean h1 = supported2.isAssignableFrom(supported1);
 		final boolean h2 = supported1.isAssignableFrom(supported2);
@@ -49,13 +51,13 @@ public abstract class RfProviderHandlerSelector<H>
 	}
 
 	/**
-	 * Provider class supported by the given handler.
+	 * RFID settings class supported by the given handler.
 	 *
 	 * @param handler target handler.
 	 *
-	 * @return supported provider class.
+	 * @return supported settings class.
 	 */
-	public abstract Class<? extends RfProvider> supportedProviderClass(
+	public abstract Class<? extends RfSettings> supportedSettingsClass(
 			H handler);
 
 }

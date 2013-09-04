@@ -30,7 +30,7 @@ public class CollectorStatusTest {
 			}
 		};
 		this.reader = new RfReader(this.driver);
-		this.collector = new RfCollector(this.reader);
+		this.collector = new RfCollector(this.reader.toRfSource());
 	}
 
 	@Test

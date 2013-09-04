@@ -1,25 +1,26 @@
 package ru.aplix.ltk.driver.ctg.impl;
 
-import static ru.aplix.ltk.driver.ctg.CtgRfConnector.CTG_RF_DEFAULT_READER_PORT;
+import static ru.aplix.ltk.driver.ctg.CtgRfSettings.CTG_RF_DEFAULT_READER_PORT;
 import ru.aplix.ltk.core.reader.RfReaderContext;
 import ru.aplix.ltk.core.reader.RfReaderDriver;
+import ru.aplix.ltk.driver.ctg.CtgRfSettings;
 
 
 final class CtgRfReaderDriver implements RfReaderDriver {
 
-	private final CtgRfConfig config;
+	private final CtgRfSettings settings;
 	private RfReaderContext context;
 	private volatile CtgReaderThread thread;
 
-	CtgRfReaderDriver(CtgRfConfig config) {
-		this.config = config;
+	CtgRfReaderDriver(CtgRfSettings settings) {
+		this.settings = settings;
 	}
 
 	@Override
 	public final String getRfPortId() {
 
-		final int readerPort = this.config.getReaderPort();
-		final String readerHost = this.config.getReaderHost();
+		final int readerPort = this.settings.getReaderPort();
+		final String readerHost = this.settings.getReaderHost();
 
 		if (readerPort == CTG_RF_DEFAULT_READER_PORT) {
 			return readerHost;
@@ -28,8 +29,8 @@ final class CtgRfReaderDriver implements RfReaderDriver {
 		return readerHost + ':' + readerPort;
 	}
 
-	public final CtgRfConfig getConfig() {
-		return this.config;
+	public final CtgRfSettings getSettings() {
+		return this.settings;
 	}
 
 	public final RfReaderContext getContext() {

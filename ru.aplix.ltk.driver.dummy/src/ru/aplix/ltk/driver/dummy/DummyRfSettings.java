@@ -1,18 +1,31 @@
 package ru.aplix.ltk.driver.dummy;
 
-import ru.aplix.ltk.core.RfConnection;
-import ru.aplix.ltk.core.RfConnector;
-import ru.aplix.ltk.driver.dummy.impl.DummyRfConnection;
+import ru.aplix.ltk.core.RfSettings;
+import ru.aplix.ltk.core.collector.RfTrackingPolicy;
+import ru.aplix.ltk.driver.dummy.impl.DummyTrackingPolicy;
 
 
-public class DummyRfConnector implements RfConnector {
+public class DummyRfSettings implements RfSettings, Cloneable {
 
+	private RfTrackingPolicy trackingPolicy = new DummyTrackingPolicy(this);
 	private String portId = "TEST Port";
 	private String deviceId = "TEST Reader";
 	private long generationPeriod = 5000L;
 	private long presenceDuration = 3000L;
 	private long readPeriod = 1000L;
 	private int maxTags = 5;
+
+	@Override
+	public RfTrackingPolicy getTrackingPolicy() {
+		return this.trackingPolicy;
+	}
+
+	@Override
+	public void setTrackingPolicy(RfTrackingPolicy trackingPolicy) {
+		this.trackingPolicy =
+				trackingPolicy != null
+				? trackingPolicy : new DummyTrackingPolicy(this);
+	}
 
 	public String getPortId() {
 		return this.portId;
@@ -63,8 +76,12 @@ public class DummyRfConnector implements RfConnector {
 	}
 
 	@Override
-	public RfConnection connect() {
-		return new DummyRfConnection(this);
+	public DummyRfSettings clone() {
+		try {
+			return (DummyRfSettings) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 }

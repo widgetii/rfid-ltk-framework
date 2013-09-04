@@ -5,8 +5,8 @@ import java.util.EventListener;
 
 public interface RfProviderItemListener extends EventListener {
 
-	void itemSelected(RfProviderItem item);
+	void itemSelected(RfProviderItem<?> item);
 
-	void itemDeselected(RfProviderItem item);
+	void itemDeselected(RfProviderItem<?> item);
 
 }

@@ -1,6 +1,7 @@
 package ru.aplix.ltk.tester.ui;
 
 import static javax.swing.SwingUtilities.invokeLater;
+import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_CLASS;
 import static ru.aplix.ltk.ui.RfProviderUI.RF_PROVIDER_UI_CLASS;
 import static ru.aplix.ltk.ui.RfProviderUI.RF_PROVIDER_UI_SELECTOR;
 
@@ -15,21 +16,24 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import ru.aplix.ltk.core.RfProvider;
+import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.ui.RfProviderUI;
 
 
-public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
+public class RfProvidersModel extends AbstractListModel<RfProviderItem<?>> {
 
 	private static final long serialVersionUID = -5122285392607147264L;
 
 	private final ConnectionTab tab;
 	private final BundleContext context;
-	private final ServiceTracker<RfProvider, RfProvider> providersTracker;
+	private final
+	ServiceTracker<RfProvider<?>, RfProvider<?>> providersTracker;
 	private final ServiceTracker<RfProviderUI<?>, RfProviderUI<?>> uiTracker;
-	private final IdentityHashMap<RfProvider, RfProviderItem> itemsByProvider =
+	private final
+	IdentityHashMap<RfProvider<?>, RfProviderItem<?>> itemsByProvider =
 			new IdentityHashMap<>();
-	private final TreeSet<RfProviderItem> itemSet = new TreeSet<>();
-	private RfProviderItem[] itemList = new RfProviderItem[0];
+	private final TreeSet<RfProviderItem<?>> itemSet = new TreeSet<>();
+	private RfProviderItem<?>[] itemList = new RfProviderItem[0];
 	private int lastIndex;
 
 
@@ -38,7 +42,7 @@ public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
 		this.context = tab.getContent().getFrame().getBundleContext();
 		this.providersTracker = new ServiceTracker<>(
 				this.context,
-				RfProvider.class,
+				RF_PROVIDER_CLASS,
 				new RfProvidersTracker(this));
 		this.uiTracker = new ServiceTracker<>(
 				this.context,
@@ -62,32 +66,33 @@ public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
 	}
 
 	@Override
-	public RfProviderItem getElementAt(int index) {
+	public RfProviderItem<?> getElementAt(int index) {
 		return this.itemList[index];
 	}
 
-	RfProviderUI<?> providerUI(RfProvider provider) {
-		return RF_PROVIDER_UI_SELECTOR.selectHandlerFor(
+	@SuppressWarnings("unchecked")
+	<S extends RfSettings> RfProviderUI<S> providerUI(RfProvider<S> provider) {
+		return (RfProviderUI<S>) RF_PROVIDER_UI_SELECTOR.selectHandlerFor(
 				provider,
 				this.uiTracker.getServices(new RfProviderUI<?>[0]));
 	}
 
-	private synchronized void addProvider(RfProvider provider) {
+	private synchronized void addProvider(RfProvider<?> provider) {
 		if (this.itemsByProvider.containsKey(provider)) {
 			return;
 		}
 
-		final RfProviderItem item =
-				new RfProviderItem(this.tab, provider, ++this.lastIndex);
+		final RfProviderItem<?> item =
+				new RfProviderItem<>(this.tab, provider, ++this.lastIndex);
 
 		this.itemsByProvider.put(provider, item);
 		this.itemSet.add(item);
 		refreshItems();
 	}
 
-	private synchronized void removeProvider(RfProvider provider) {
+	private synchronized void removeProvider(RfProvider<?> provider) {
 
-		final RfProviderItem item = this.itemsByProvider.remove(provider);
+		final RfProviderItem<?> item = this.itemsByProvider.remove(provider);
 
 		if (item == null) {
 			return;
@@ -117,16 +122,16 @@ public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
 	}
 
 	private synchronized void updateUI() {
-		for (RfProviderItem item : this.itemList) {
+		for (RfProviderItem<?> item : this.itemList) {
 			item.updateUI();
 		}
 	}
 
 	private synchronized void reorderItems() {
 
-		final RfProviderItem[] newItems =
+		final RfProviderItem<?>[] newItems =
 				this.itemSet.toArray(new RfProviderItem[this.itemSet.size()]);
-		final RfProviderItem[] oldItems = this.itemList;
+		final RfProviderItem<?>[] oldItems = this.itemList;
 
 		this.itemList = newItems;
 
@@ -139,7 +144,7 @@ public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
 	}
 
 	private static final class RfProvidersTracker
-			implements ServiceTrackerCustomizer<RfProvider, RfProvider> {
+			implements ServiceTrackerCustomizer<RfProvider<?>, RfProvider<?>> {
 
 		private final RfProvidersModel model;
 
@@ -148,10 +153,10 @@ public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
 		}
 
 		@Override
-		public RfProvider addingService(
-				ServiceReference<RfProvider> reference) {
+		public RfProvider<?> addingService(
+				ServiceReference<RfProvider<?>> reference) {
 
-			final RfProvider provider =
+			final RfProvider<?> provider =
 					this.model.context.getService(reference);
 
 			this.model.addProvider(provider);
@@ -161,14 +166,14 @@ public class RfProvidersModel extends AbstractListModel<RfProviderItem> {
 
 		@Override
 		public void modifiedService(
-				ServiceReference<RfProvider> reference,
-				RfProvider service) {
+				ServiceReference<RfProvider<?>> reference,
+				RfProvider<?> service) {
 		}
 
 		@Override
 		public void removedService(
-				ServiceReference<RfProvider> reference,
-				RfProvider service) {
+				ServiceReference<RfProvider<?>> reference,
+				RfProvider<?> service) {
 			this.model.context.ungetService(reference);
 			this.model.removeProvider(service);
 		}

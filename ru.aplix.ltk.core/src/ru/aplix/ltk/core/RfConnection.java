@@ -1,29 +1,35 @@
 package ru.aplix.ltk.core;
 
-import ru.aplix.ltk.core.collector.DefaultRfTracker;
 import ru.aplix.ltk.core.collector.RfCollector;
-import ru.aplix.ltk.core.collector.RfTracker;
-import ru.aplix.ltk.core.reader.RfReader;
-import ru.aplix.ltk.core.reader.RfReaderDriver;
+import ru.aplix.ltk.core.collector.RfTrackingPolicy;
+import ru.aplix.ltk.core.source.RfSource;
 
 
 /**
- * RFID reader connection.
+ * RFID connection.
  *
- * <p>It can be opened by {@link RfConnector#connect() RFID connector} after proper
- * configuration. This is generally a container of other services related to
- * the connected reader device, such as {@link RfReader}, or
- * {@link RfCollector}.</p>
+ * <p>It can be opened by {@link RfProvider#connect(RfSettings) RFID provider}
+ * after proper {@link RfSettings configuration}. This is generally a container
+ * of other RFID services, such as {@link RfSource}, and {@link RfCollector}.
+ * </p>
  *
- * <p>Connections are not expected to be thread-safe by themselves, while
+ * <p>Connections are not expected to be thread-safe by themselves, while the
  * objects they contain may have their own thread safety constraints.</p>
  */
 public abstract class RfConnection {
 
 	private RfCollector collector;
-	private RfTracker tracker;
-	private RfReader reader;
-	private RfReaderDriver readerDriver;
+	private RfSource source;
+	private RfTrackingPolicy trackingPolicy;
+
+	/**
+	 * Constructs RFID connection instance.
+	 *
+	 * @param settings RFID settings of this connection.
+	 */
+	public RfConnection(RfSettings settings) {
+		this.trackingPolicy = settings.getTrackingPolicy();
+	}
 
 	/**
 	 * RFID tags collector.
@@ -33,7 +39,7 @@ public abstract class RfConnection {
 	 *
 	 * @return collector instance.
 	 */
-	public final RfCollector collector() {
+	public final RfCollector getCollector() {
 		if (this.collector != null) {
 			return this.collector;
 		}
@@ -41,104 +47,55 @@ public abstract class RfConnection {
 	}
 
 	/**
-	 * RFID tags tracker.
+	 * RFID tracking policy.
 	 *
-	 * <p>Construct the tracker by calling {@link #createTracker()} method if
-	 * not constructed yet.</p>
-	 *
-	 * @return tracker instance.
+	 * @return tracking policy instance from the
+	 * {@link RfSettings#getTrackingPolicy() settings} passed to the
+	 * constructor.
 	 */
-	public final RfTracker tracker() {
-		if (this.tracker != null) {
-			return this.tracker;
-		}
-		return this.tracker = createTracker();
+	public final RfTrackingPolicy getTrackingPolicy() {
+		return this.trackingPolicy;
 	}
 
 	/**
-	 * RFID reader.
+	 * RFID data source.
 	 *
-	 * <p>Construct the reader by calling {@link #createReader()} method if not
+	 * <p>Construct the data source by calling {@link #createSource()} method if not
 	 * constructed yet.</p>
 	 *
 	 * @return reader instance.
 	 */
-	public final RfReader reader() {
-		if (this.reader != null) {
-			return this.reader;
+	public final RfSource getSource() {
+		if (this.source != null) {
+			return this.source;
 		}
-		return this.reader = createReader();
-	}
-
-	/**
-	 * RFID reader driver.
-	 *
-	 * <p>Constructs the driver by calling {@link #createReaderDriver()} method
-	 * if not constructed yet.</p>
-	 *
-	 * @return reader driver instance.
-	 */
-	public final RfReaderDriver readerDriver() {
-		if (this.readerDriver != null) {
-			return this.readerDriver;
-		}
-		return this.readerDriver = createReaderDriver();
+		return this.source = createSource();
 	}
 
 	/**
 	 * Creates new RFID collector.
 	 *
-	 * <p>This method is called at most once from {@link #collector()}
+	 * <p>This method is called at most once from {@link #getCollector()}
 	 * method.</p>
 	 *
-	 * <p>By default, creates standard collector for the given
-	 * {@link #reader() reader} using the given {@link #tracker()}
-	 * tracker.</p>
+	 * <p>By default, creates standard collector for the connection's
+	 * {@link #getSource() data source}, and using the connection's
+	 * {@link #getTrackingPolicy() tracking policy}.</p>
 	 *
 	 * @return new collector instance.
 	 */
 	protected RfCollector createCollector() {
-		return new RfCollector(reader(), tracker());
+		return new RfCollector(getSource(), getTrackingPolicy());
 	}
 
 	/**
-	 * Creates new RFID tags tracker to use by collector.
+	 * Creates RFID data source.
 	 *
-	 * <p>This method is called at most once from {@link #tracker()} method.
+	 * <p>This method is called at most once from {@link #getSource()} method.
 	 * </p>
 	 *
-	 * <p>By default, constructs a {@link DefaultRfTracker default tracker}
-	 * instance with default settings.</p>
-	 *
-	 * @return new tracker instance.
+	 * @return new RFID data source instance.
 	 */
-	protected RfTracker createTracker() {
-		return new DefaultRfTracker();
-	}
-
-	/**
-	 * Creates new RFID reader.
-	 *
-	 * <p>This method is called at most once from {@link #reader()} method.
-	 * </p>
-	 *
-	 * <p>By default, creates standard reader with the given
-	 * {@link #readerDriver() driver}.</p>
-	 *
-	 * @return new reader instance.
-	 */
-	protected RfReader createReader() {
-		return new RfReader(readerDriver());
-	}
-
-	/**
-	 * Constructs new RFID reader driver.
-	 *
-	 * <p>This method is called at most once from {@link #readerDriver()}
-	 * method.</p>
-	 *
-	 * @return new driver.
-	 */
-	protected abstract RfReaderDriver createReaderDriver();
+	protected abstract RfSource createSource();
 
 }

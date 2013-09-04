@@ -1,42 +1,20 @@
 package ru.aplix.ltk.driver.dummy.impl;
 
 import ru.aplix.ltk.core.reader.RfReaderContext;
-import ru.aplix.ltk.driver.dummy.DummyRfConnector;
+import ru.aplix.ltk.driver.dummy.DummyRfSettings;
 
 
 public class DummyTagsGenerator implements Runnable {
 
 	private final DummyRfConnection connection;
-	private final long generationPeriod;
-	private final long presenceDuration;
-	private final long readPeriod;
-	private final int maxTags;
 	private Thread thread;
 
-	public DummyTagsGenerator(
-			DummyRfConnector connector,
-			DummyRfConnection connection) {
+	public DummyTagsGenerator(DummyRfConnection connection) {
 		this.connection = connection;
-		this.generationPeriod = connector.getGenerationPeriod();
-		this.presenceDuration = connector.getPresenceDuration();
-		this.readPeriod = connector.getReadPeriod();
-		this.maxTags = connector.getMaxTags();
 	}
 
-	public final long getGenerationPeriod() {
-		return this.generationPeriod;
-	}
-
-	public final long getPresenceDuration() {
-		return this.presenceDuration;
-	}
-
-	public final long getReadPeriod() {
-		return this.readPeriod;
-	}
-
-	public final int getMaxTags() {
-		return this.maxTags;
+	public final DummyRfSettings getSettings() {
+		return this.connection.getSettings();
 	}
 
 	public final RfReaderContext getContext() {
@@ -69,7 +47,9 @@ public class DummyTagsGenerator implements Runnable {
 			final long periodTimeLeft = tags.checkPeriod();
 
 			tags.report();
-			if (!delay(Math.min(getReadPeriod(), periodTimeLeft))) {
+			if (!delay(Math.min(
+					getSettings().getReadPeriod(),
+					periodTimeLeft))) {
 				return;
 			}
 		}

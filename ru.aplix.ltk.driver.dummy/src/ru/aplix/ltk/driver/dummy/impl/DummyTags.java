@@ -1,9 +1,12 @@
 package ru.aplix.ltk.driver.dummy.impl;
 
+import static java.lang.System.currentTimeMillis;
+
 import java.util.HashSet;
 import java.util.Iterator;
 
 import ru.aplix.ltk.core.reader.RfReaderContext;
+import ru.aplix.ltk.driver.dummy.DummyRfSettings;
 
 
 final class DummyTags {
@@ -17,6 +20,10 @@ final class DummyTags {
 
 	DummyTags(DummyTagsGenerator generator) {
 		this.generator = generator;
+	}
+
+	public final DummyRfSettings getSettings() {
+		return this.generator.getSettings();
 	}
 
 	public long checkPeriod() {
@@ -50,10 +57,9 @@ final class DummyTags {
 	private void generate() {
 		startPeriod(true);
 		this.presenceEnd =
-				System.currentTimeMillis()
-				+ this.generator.getPresenceDuration();
+				currentTimeMillis() + getSettings().getPresenceDuration();
 
-		int numTags = 1 + (int) (Math.random() * this.generator.getMaxTags());
+		int numTags = 1 + (int) (Math.random() * getSettings().getMaxTags());
 
 		do {
 			this.tags.add(new DummyTag());
@@ -96,8 +102,7 @@ final class DummyTags {
 	private void startPeriod(boolean generate) {
 		this.generation = generate;
 		this.periodEnd =
-				System.currentTimeMillis()
-				+ this.generator.getGenerationPeriod();
+				currentTimeMillis() + getSettings().getGenerationPeriod();
 	}
 
 }

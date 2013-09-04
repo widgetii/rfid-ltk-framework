@@ -1,6 +1,6 @@
 package ru.aplix.ltk.ui;
 
-import ru.aplix.ltk.core.RfProvider;
+import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.util.RfProviderHandlerSelector;
 import ru.aplix.ltk.ui.impl.DefaultRfProviderUI;
 import ru.aplix.ltk.ui.impl.RfProviderUISelector;
@@ -12,15 +12,14 @@ import ru.aplix.ltk.ui.impl.RfProviderUISelector;
  * <p>Implementations expected to be registered as OSGi services. The UI most
  * specific for any given RFID provider will be used by GUI applications.</p>
  *
- * @param <P> supported RFID provider interface.
+ * @param <S> supported RFID settings interface.
  */
-public interface RfProviderUI<P extends RfProvider> {
+public interface RfProviderUI<S extends RfSettings> {
 
 	/**
 	 * Default RFID provider user interface.
 	 */
-	RfProviderUI<RfProvider> DEFAULT_RF_PROVIDER_UI =
-			new DefaultRfProviderUI();
+	RfProviderUI<RfSettings> DEFAULT_RF_PROVIDER_UI = new DefaultRfProviderUI();
 
 	/**
 	 * RFID UI provider class.
@@ -38,11 +37,11 @@ public interface RfProviderUI<P extends RfProvider> {
 			new RfProviderUISelector();
 
 	/**
-	 * Returns RFID provider interface supported by this UI.
+	 * RFID settings type supported by this UI.
 	 *
-	 * @return provider interface class.
+	 * @return settings class.
 	 */
-	Class<? extends P> getProviderInterface();
+	Class<? extends S> getSettingsType();
 
 	/**
 	 * Creates an RFID connector UI.
@@ -54,6 +53,6 @@ public interface RfProviderUI<P extends RfProvider> {
 	 *
 	 * @return new connector UI placed to the given container.
 	 */
-	RfConnectorUI newConnectorUI(RfConnectorUIContext<P> context);
+	RfSettingsUI<S> newSettingsUI(RfSettingsUIContext<S> context);
 
 }

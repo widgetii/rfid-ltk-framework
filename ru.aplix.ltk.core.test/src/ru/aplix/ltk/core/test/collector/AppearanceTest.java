@@ -31,7 +31,7 @@ public class AppearanceTest {
 	public void setup() {
 		this.driver = new TestRfReaderDriver();
 		this.reader = new RfReader(this.driver);
-		this.collector = new RfCollector(this.reader);
+		this.collector = new RfCollector(this.reader.toRfSource());
 		this.collectorConsumer = new CollectorConsumer();
 		this.collector.subscribe(this.collectorConsumer);
 		this.tagConsumer = new TagConsumer();

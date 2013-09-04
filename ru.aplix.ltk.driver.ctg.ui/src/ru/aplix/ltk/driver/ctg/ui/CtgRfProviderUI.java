@@ -1,22 +1,22 @@
 package ru.aplix.ltk.driver.ctg.ui;
 
-import ru.aplix.ltk.driver.ctg.CtgRfProvider;
-import ru.aplix.ltk.ui.RfConnectorUI;
-import ru.aplix.ltk.ui.RfConnectorUIContext;
+import ru.aplix.ltk.driver.ctg.CtgRfSettings;
 import ru.aplix.ltk.ui.RfProviderUI;
+import ru.aplix.ltk.ui.RfSettingsUI;
+import ru.aplix.ltk.ui.RfSettingsUIContext;
 
 
-public class CtgRfProviderUI implements RfProviderUI<CtgRfProvider> {
+public class CtgRfProviderUI implements RfProviderUI<CtgRfSettings> {
 
 	@Override
-	public Class<? extends CtgRfProvider> getProviderInterface() {
-		return CtgRfProvider.class;
+	public Class<? extends CtgRfSettings> getSettingsType() {
+		return CtgRfSettings.class;
 	}
 
 	@Override
-	public RfConnectorUI newConnectorUI(
-			RfConnectorUIContext<CtgRfProvider> context) {
-		return new CtgRfConnectorUI(context);
+	public RfSettingsUI<CtgRfSettings> newSettingsUI(
+			RfSettingsUIContext<CtgRfSettings> context) {
+		return new CtgRfSettingsUI(context);
 	}
 
 }

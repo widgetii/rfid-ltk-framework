@@ -76,7 +76,7 @@ final class RfSourceListener implements RfStatusUpdater, RfDataReceiver {
 		final RfStatusMessage error = this.lastError;
 
 		if (error != null) {
-			return error;
+			return null;
 		}
 
 		return this.lastStatus;

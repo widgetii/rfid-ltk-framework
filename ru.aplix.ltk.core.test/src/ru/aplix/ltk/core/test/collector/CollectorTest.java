@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ru.aplix.ltk.core.collector.RfCollector;
-import ru.aplix.ltk.core.reader.*;
+import ru.aplix.ltk.core.reader.RfReader;
 import ru.aplix.ltk.core.source.RfConnected;
 import ru.aplix.ltk.core.source.RfError;
 import ru.aplix.ltk.core.source.RfStatusMessage;
@@ -108,7 +108,7 @@ public class CollectorTest {
 	}
 
 	@Test
-	public void lastError() {
+	public void lastErrorNotReported() {
 
 		final RfStatusMessage status =
 				new RfConnected("test reader");
@@ -122,7 +122,6 @@ public class CollectorTest {
 
 		this.collector.subscribe(consumer);
 
-		assertThat(consumer.nextMessage(), sameInstance(error));
 		consumer.noMoreMessages();
 	}
 

@@ -16,7 +16,7 @@
       org="bundle"
       name="ru.aplix.ltk.collector.http"
       rev="latest.integration"
-      conf="compile->compile;runtime->runtime"/>
+      conf="compile->@;runtime->@"/>
     <dependency
       org="bundle"
       name="javax.servlet"

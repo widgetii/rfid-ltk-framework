@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.collector.http.jetty"
+    status="integration"
+    revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="runtime" extends="default"/>
+    <conf name="compile" extends="default"/>
+  </configurations>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.collector.http"
+      rev="latest.integration"
+      conf="compile->compile;runtime->runtime"/>
+    <dependency
+      org="bundle"
+      name="javax.servlet"
+      rev="3.0.0+"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.equinox.http.jetty"
+      rev="3.0.100+"
+      transitive="false"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.equinox.transforms.hook"
+      rev="1.0.401+"
+      transitive="false"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.equinox.weaving.hook"
+      rev="1.0.200+"
+      transitive="false"/>
+  </dependencies>
+</ivy-module>

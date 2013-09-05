@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Collector HTTP Server Implementation
+Bundle-SymbolicName: ru.aplix.ltk.collector.http.server
+Bundle-Version: 1.0.0
+Bundle-Activator: ru.aplix.ltk.collector.http.server.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: javax.servlet;version="2.6.0",
+ javax.servlet.http;version="2.6.0",
+ org.osgi.framework;version="1.3.0",
+ org.osgi.service.http;version="1.2.1",
+ org.osgi.service.log;version="1.3.0",
+ org.osgi.util.tracker;version="1.5.1"
+Require-Bundle: ru.aplix.ltk.collector.http;bundle-version="1.0.0"

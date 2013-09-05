@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.collector.http.server"
+    status="integration"
+    revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="runtime" extends="default"/>
+    <conf name="compile" extends="default"/>
+  </configurations>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.collector.http"
+      rev="latest.integration"
+      conf="compile->@;runtime->@"/>
+    <dependency
+      org="bundle"
+      name="javax.servlet"
+      rev="3.0.0+"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.osgi.services"
+      rev="3.3.100+"
+      transitive="false"
+      conf="compile->*"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.osgi"
+      rev="3.9.0+"
+      transitive="false"
+      conf="compile->*"/>
+  </dependencies>
+</ivy-module>

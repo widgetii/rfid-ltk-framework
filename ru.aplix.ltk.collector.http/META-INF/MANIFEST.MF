@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Collector HTTP Service API
+Bundle-SymbolicName: ru.aplix.ltk.collector.http
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: ru.aplix.ltk.collector.http
+Import-Package: org.osgi.service.http;version="1.2.0"

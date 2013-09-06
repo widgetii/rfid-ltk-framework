@@ -4,11 +4,11 @@ import ru.aplix.ltk.core.util.Parameterized;
 import ru.aplix.ltk.core.util.Parameters;
 
 
-public class CollectorClientRequest implements Parameterized {
+public class ClrClientRequest implements Parameterized {
 
 	private String clientURL;
 
-	public CollectorClientRequest(Parameters params) {
+	public ClrClientRequest(Parameters params) {
 		read(params);
 	}
 

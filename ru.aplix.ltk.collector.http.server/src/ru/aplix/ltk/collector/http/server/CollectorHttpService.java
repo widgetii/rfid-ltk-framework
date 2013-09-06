@@ -10,6 +10,8 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
 
+import ru.aplix.ltk.osgi.Logger;
+
 
 public class CollectorHttpService implements BundleActivator {
 

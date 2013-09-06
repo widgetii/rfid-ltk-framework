@@ -3,7 +3,7 @@
 <ivy-module version="2.0">
   <info
     organisation="bundle"
-    module="ru.aplix.ltk.collector.http.server"
+    module="ru.aplix.ltk.osgi"
     status="integration"
     revision="1.0.0"/>
   <configurations defaultconf="default">
@@ -12,20 +12,6 @@
     <conf name="compile" extends="default"/>
   </configurations>
   <dependencies>
-    <dependency
-      org="bundle"
-      name="ru.aplix.ltk.osgi"
-      rev="latest.integration"
-      conf="compile->@;runtime->@"/>
-    <dependency
-      org="bundle"
-      name="ru.aplix.ltk.collector.http"
-      rev="latest.integration"
-      conf="compile->@;runtime->@"/>
-    <dependency
-      org="bundle"
-      name="javax.servlet"
-      rev="3.0.0+"/>
     <dependency
       org="bundle"
       name="org.eclipse.osgi.services"

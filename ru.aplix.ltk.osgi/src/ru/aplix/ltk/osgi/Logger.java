@@ -1,4 +1,4 @@
-package ru.aplix.ltk.collector.http.server;
+package ru.aplix.ltk.osgi;
 
 import static org.osgi.framework.Constants.SERVICE_ID;
 import static org.osgi.service.log.LogService.*;

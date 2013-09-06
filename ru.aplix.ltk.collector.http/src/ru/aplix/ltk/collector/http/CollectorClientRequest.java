@@ -1,12 +1,15 @@
 package ru.aplix.ltk.collector.http;
 
+import ru.aplix.ltk.core.util.HttpObject;
+import ru.aplix.ltk.core.util.HttpParams;
 
-public class CollectorClientRequest implements HttpRequest {
+
+public class CollectorClientRequest implements HttpObject {
 
 	private String clientURL;
 
 	public CollectorClientRequest(HttpParams params) {
-		decode(params);
+		httpDecode(params);
 	}
 
 	public String getClientURL() {
@@ -18,13 +21,13 @@ public class CollectorClientRequest implements HttpRequest {
 	}
 
 	@Override
-	public void decode(HttpParams params) {
+	public void httpDecode(HttpParams params) {
 		setClientURL(params.valueOf("clientURL"));
 	}
 
 	@Override
-	public HttpParams encode() {
-		return new HttpParams(1).set("clientURL", getClientURL());
+	public void httpEncode(HttpParams params) {
+		params.set("clientURL", getClientURL());
 	}
 
 }

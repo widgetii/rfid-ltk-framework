@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.osgi.framework.BundleContext;
 
 import ru.aplix.ltk.collector.http.CollectorClientRequest;
-import ru.aplix.ltk.collector.http.HttpParams;
+import ru.aplix.ltk.core.util.HttpParams;
 
 
 public class ClrClientServlet extends HttpServlet {

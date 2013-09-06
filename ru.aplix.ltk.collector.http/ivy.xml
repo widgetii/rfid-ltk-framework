@@ -10,4 +10,10 @@
     <conf name="default"/>
     <conf name="compile" extends="default"/>
   </configurations>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.core"
+      rev="latest.integration"/>
+  </dependencies>
 </ivy-module>

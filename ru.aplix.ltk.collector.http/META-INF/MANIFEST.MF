@@ -5,3 +5,4 @@ Bundle-SymbolicName: ru.aplix.ltk.collector.http
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: ru.aplix.ltk.collector.http
+Require-Bundle: ru.aplix.ltk.core;bundle-version="1.0.0";visibility:=reexport

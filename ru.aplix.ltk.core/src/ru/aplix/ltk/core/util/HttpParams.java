@@ -1,10 +1,9 @@
-package ru.aplix.ltk.collector.http;
+package ru.aplix.ltk.core.util;
 
 import static java.lang.System.arraycopy;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -14,14 +13,6 @@ public final class HttpParams {
 
 	public HttpParams(Map<String, String[]> params) {
 		this.params = params;
-	}
-
-	public HttpParams(int capacity) {
-		this.params = new HashMap<>(capacity);
-	}
-
-	public final Map<String, String[]> map() {
-		return this.params;
 	}
 
 	public final HttpParams set(String name, String... values) {
@@ -77,11 +68,11 @@ public final class HttpParams {
 		return this;
 	}
 
-	public void encode(Appendable out, String encoding) throws IOException {
+	public void urlEncode(Appendable out, String encoding) throws IOException {
 
 		boolean notFirst = false;
 
-		for (Map.Entry<String, String[]> e : map().entrySet()) {
+		for (Map.Entry<String, String[]> e : this.params.entrySet()) {
 
 			final String[] values = e.getValue();
 			final int numVals = values.length;
@@ -111,6 +102,6 @@ public final class HttpParams {
 				}
 			}
 		}
-
 	}
+
 }

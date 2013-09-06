@@ -19,6 +19,13 @@ public interface RfProvider<S extends RfSettings> {
 	Class<RfProvider<?>> RF_PROVIDER_CLASS = (Class) RfProvider.class;
 
 	/**
+	 * Provider's identifier.
+	 *
+	 * @return unique ASCII provider identifier.
+	 */
+	String getId();
+
+	/**
 	 * Provider's name.
 	 *
 	 * @return human-readable provider name.

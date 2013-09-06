@@ -8,6 +8,11 @@ import ru.aplix.ltk.driver.ctg.CtgRfSettings;
 public class CtgRfProvider implements RfProvider<CtgRfSettings> {
 
 	@Override
+	public String getId() {
+		return "ctg";
+	}
+
+	@Override
 	public String getName() {
 		return "Contiguous RFID Reader";
 	}

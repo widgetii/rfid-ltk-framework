@@ -8,6 +8,11 @@ import ru.aplix.ltk.driver.dummy.DummyRfSettings;
 public class DummyRfProvider implements RfProvider<DummyRfSettings> {
 
 	@Override
+	public String getId() {
+		return "dummy";
+	}
+
+	@Override
 	public String getName() {
 		return "Dummy RFID";
 	}

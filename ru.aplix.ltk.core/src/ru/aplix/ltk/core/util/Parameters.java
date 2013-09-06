@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -13,13 +14,21 @@ public final class Parameters {
 
 	private final ParametersStore store;
 
-	public Parameters(ParametersStore store) {
-		requireNonNull(store, "Parameters store not specified");
-		this.store = store;
+	public Parameters() {
+		this(new HashMap<String, String[]>());
+	}
+
+	public Parameters(int capacity) {
+		this(new HashMap<String, String[]>(capacity));
 	}
 
 	public Parameters(Map<String, String[]> map) {
 		this.store = new ParametersMap(map);
+	}
+
+	public Parameters(ParametersStore store) {
+		requireNonNull(store, "Parameters store not specified");
+		this.store = store;
 	}
 
 	public final ParametersStore store() {
@@ -182,6 +191,10 @@ public final class Parameters {
 		this.store.setParam(name, newValues);
 
 		return this;
+	}
+
+	public final void urlEncode(Appendable out) throws IOException {
+		urlEncode(out, "UTF-8");
 	}
 
 	public void urlEncode(Appendable out, String encoding) throws IOException {

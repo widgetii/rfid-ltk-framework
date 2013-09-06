@@ -9,4 +9,6 @@ public interface ParametersStore extends Iterable<Map.Entry<String, String[]>> {
 
 	String[] setParam(String name, String[] values);
 
+	ParametersStore nestedStore(String prefix);
+
 }

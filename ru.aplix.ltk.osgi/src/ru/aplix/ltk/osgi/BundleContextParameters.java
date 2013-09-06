@@ -40,4 +40,9 @@ final class BundleContextParameters implements ParametersStore {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public ParametersStore nestedStore(String prefix) {
+		return null;
+	}
+
 }

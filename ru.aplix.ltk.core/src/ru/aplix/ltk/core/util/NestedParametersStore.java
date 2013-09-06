@@ -37,6 +37,11 @@ class NestedParametersStore implements ParametersStore {
 		return getParent().setParam(getPrefix() + name, values);
 	}
 
+	@Override
+	public ParametersStore nestedStore(String prefix) {
+		return new NestedParametersStore(this, '.' + prefix + '.');
+	}
+
 	private static final class PrefixedIt
 			implements Iterator<Map.Entry<String, String[]>> {
 

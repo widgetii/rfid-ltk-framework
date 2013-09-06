@@ -140,14 +140,13 @@ public final class Parameters {
 		}
 
 		final ParametersStore store = store();
+		final ParametersStore nested = store.nestedStore(prefix);
 
-		if (store.getClass() != NestedParametersStore.class) {
-			return new Parameters(new NestedParametersStore(store, prefix));
+		if (nested != null) {
+			return new Parameters(nested);
 		}
 
-		final NestedParametersStore parent = (NestedParametersStore) store;
-
-		return new Parameters(new NestedParametersStore(parent, '.' + prefix));
+		return new Parameters(new NestedParametersStore(store, prefix + '.'));
 	}
 
 	public final Parameters set(String name, String... values) {

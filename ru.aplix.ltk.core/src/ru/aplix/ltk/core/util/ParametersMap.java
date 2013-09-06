@@ -31,4 +31,9 @@ final class ParametersMap implements ParametersStore {
 		return this.map.put(name, values);
 	}
 
+	@Override
+	public ParametersStore nestedStore(String prefix) {
+		return null;
+	}
+
 }

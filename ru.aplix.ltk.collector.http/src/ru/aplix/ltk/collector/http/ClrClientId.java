@@ -1,5 +1,6 @@
 package ru.aplix.ltk.collector.http;
 
+import static java.util.Objects.requireNonNull;
 import static ru.aplix.ltk.collector.http.ClrProfileId.clrProfileId;
 
 import java.util.UUID;
@@ -54,6 +55,7 @@ public class ClrClientId {
 	private final UUID uuid;
 
 	public ClrClientId(ClrProfileId profileId, UUID uuid) {
+		requireNonNull(profileId, "RFID profile identifier not specified");
 		this.profileId = profileId;
 		this.uuid = uuid;
 	}
@@ -68,6 +70,48 @@ public class ClrClientId {
 
 	public final UUID getUUID() {
 		return this.uuid;
+	}
+
+	@Override
+	public int hashCode() {
+
+		final int prime = 31;
+		int result = 1;
+
+		result = prime * result + this.profileId.hashCode();
+		result =
+				prime * result
+				+ ((this.uuid == null) ? 0 : this.uuid.hashCode());
+
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		final ClrClientId other = (ClrClientId) obj;
+
+		if (!this.profileId.equals(other.profileId)) {
+			return false;
+		}
+		if (this.uuid == null) {
+			if (other.uuid != null) {
+				return false;
+			}
+		} else if (!this.uuid.equals(other.uuid)) {
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override

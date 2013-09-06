@@ -8,7 +8,7 @@ import ru.aplix.ltk.core.util.Parameters;
 
 public class ClrClientResponse implements Parameterized {
 
-	private UUID clientId;
+	private UUID clientUUID;
 
 	public ClrClientResponse() {
 	}
@@ -17,22 +17,22 @@ public class ClrClientResponse implements Parameterized {
 		read(parameters);
 	}
 
-	public final UUID getClientId() {
-		return this.clientId;
+	public final UUID getClientUUID() {
+		return this.clientUUID;
 	}
 
-	public final void setClientId(UUID clientId) {
-		this.clientId = clientId;
+	public final void setClientUUID(UUID uuid) {
+		this.clientUUID = uuid;
 	}
 
 	@Override
 	public void read(Parameters params) {
-		setClientId(UUID.fromString(params.valueOf("clientId")));
+		setClientUUID(UUID.fromString(params.valueOf("clientUUID")));
 	}
 
 	@Override
 	public void write(Parameters params) {
-		params.set("clientId", getClientId());
+		params.set("clientUUID", getClientUUID());
 	}
 
 }

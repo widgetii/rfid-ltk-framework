@@ -89,13 +89,13 @@ public class ClrClientServlet extends HttpServlet {
 			return;
 		}
 
-		final ClrClient client = profile.createClient(request);
+		final ClrClient client = profile.connectClient(request);
 
 		resp.setStatus(SC_CREATED);
 
 		final ClrClientResponse result = new ClrClientResponse();
 
-		result.setClientId(client.getId());
+		result.setClientUUID(client.getId().getUUID());
 
 		writeResult(resp, result);
 	}
@@ -115,7 +115,7 @@ public class ClrClientServlet extends HttpServlet {
 					+ " does not exist");
 			return;
 		}
-		if (profile.updateClient(clientId.getUUID(), request) == null) {
+		if (profile.reconnectClient(clientId.getUUID(), request) == null) {
 			resp.sendError(SC_NOT_FOUND, "Unknown client: " + clientId);
 			return;
 		}
@@ -149,7 +149,7 @@ public class ClrClientServlet extends HttpServlet {
 			return;
 		}
 
-		if (!profile.deleteClient(clientId.getUUID())) {
+		if (!profile.disconnectClient(clientId.getUUID())) {
 			resp.sendError(SC_NOT_FOUND, "Unknown client: " + clientId);
 			return;
 		}
@@ -199,7 +199,9 @@ public class ClrClientServlet extends HttpServlet {
 			RfProvider<?> provider,
 			ClrProfileId profileId,
 			Parameters params) {
-		this.profiles.put(profileId, new ClrProfile(provider, params));
+		this.profiles.put(
+				profileId,
+				new ClrProfile(provider, profileId, params));
 	}
 
 	private void removeProvider(RfProvider<?> provider) {

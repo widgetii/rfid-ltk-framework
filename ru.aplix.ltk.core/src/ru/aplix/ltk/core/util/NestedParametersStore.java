@@ -4,29 +4,37 @@ import java.util.*;
 import java.util.Map.Entry;
 
 
-class NestedHttpParams implements HttpParamsStore {
+class NestedParametersStore implements ParametersStore {
 
-	private final HttpParamsStore parent;
+	private final ParametersStore parent;
 	private final String prefix;
 
-	NestedHttpParams(HttpParamsStore parent, String prefix) {
+	NestedParametersStore(ParametersStore parent, String prefix) {
 		this.parent = parent;
 		this.prefix = prefix;
 	}
 
+	public final ParametersStore getParent() {
+		return this.parent;
+	}
+
+	public final String getPrefix() {
+		return this.prefix;
+	}
+
 	@Override
 	public Iterator<Entry<String, String[]>> iterator() {
-		return new PrefixedIt(this.prefix, this.parent.iterator());
+		return new PrefixedIt(getPrefix(), getParent().iterator());
 	}
 
 	@Override
-	public String[] getHttpParam(String name) {
-		return this.parent.getHttpParam(this.prefix + name);
+	public String[] getParam(String name) {
+		return getParent().getParam(getPrefix() + name);
 	}
 
 	@Override
-	public String[] putHttpParam(String name, String[] values) {
-		return this.parent.putHttpParam(this.prefix + name, values);
+	public String[] setParam(String name, String[] values) {
+		return getParent().setParam(getPrefix() + name, values);
 	}
 
 	private static final class PrefixedIt

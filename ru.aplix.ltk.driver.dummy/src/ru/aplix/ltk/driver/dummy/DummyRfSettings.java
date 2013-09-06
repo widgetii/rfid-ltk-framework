@@ -2,7 +2,7 @@ package ru.aplix.ltk.driver.dummy;
 
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfTrackingPolicy;
-import ru.aplix.ltk.core.util.HttpParams;
+import ru.aplix.ltk.core.util.Parameters;
 import ru.aplix.ltk.driver.dummy.impl.DummyTrackingPolicy;
 
 
@@ -83,7 +83,7 @@ public class DummyRfSettings implements RfSettings, Cloneable {
 	}
 
 	@Override
-	public void httpDecode(HttpParams params) {
+	public void read(Parameters params) {
 		setDeviceId(params.valueOf("deviceId", getDeviceId()));
 		setGenerationPeriod(params.longValueOf(
 				"generationPeriod",
@@ -104,7 +104,7 @@ public class DummyRfSettings implements RfSettings, Cloneable {
 	}
 
 	@Override
-	public void httpEncode(HttpParams params) {
+	public void write(Parameters params) {
 		params.set("deviceId", getDeviceId())
 		.set("generationPeriod", getGenerationPeriod())
 		.set("presenceDuration", getPresenceDuration())

@@ -2,7 +2,7 @@ package ru.aplix.ltk.core.collector;
 
 import static ru.aplix.ltk.core.collector.DefaultRfTracker.DEFAULT_INVALIDATION_TIMEOUT;
 import static ru.aplix.ltk.core.collector.DefaultRfTracker.DEFAULT_TRANSACTION_TIMEOUT;
-import ru.aplix.ltk.core.util.HttpParams;
+import ru.aplix.ltk.core.util.Parameters;
 
 
 /**
@@ -11,7 +11,7 @@ import ru.aplix.ltk.core.util.HttpParams;
  * <p>It provides trackers of type {@link DefaultRfTracker} with specified
  * settings.</p>
  */
-public final class DefaultRfTrackingPolicy implements RfTrackingPolicy {
+public class DefaultRfTrackingPolicy implements RfTrackingPolicy {
 
 	private long transactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
 	private long invalidationTimeout = DEFAULT_INVALIDATION_TIMEOUT;
@@ -46,7 +46,7 @@ public final class DefaultRfTrackingPolicy implements RfTrackingPolicy {
 	}
 
 	@Override
-	public void httpDecode(HttpParams params) {
+	public void read(Parameters params) {
 		setTransactionTimeout(params.longValueOf(
 				"transactionTimeout",
 				DEFAULT_TRANSACTION_TIMEOUT,
@@ -58,7 +58,7 @@ public final class DefaultRfTrackingPolicy implements RfTrackingPolicy {
 	}
 
 	@Override
-	public void httpEncode(HttpParams params) {
+	public void write(Parameters params) {
 		params.set("transactionTimeout", getTransactionTimeout());
 		params.set("invalidationTimeout", getInvalidationTimeout());
 	}

@@ -2,7 +2,8 @@ package ru.aplix.ltk.core.collector;
 
 import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.RfSettings;
-import ru.aplix.ltk.core.util.HttpObject;
+import ru.aplix.ltk.core.util.Parameterized;
+import ru.aplix.ltk.core.util.Parameters;
 
 
 /**
@@ -15,7 +16,7 @@ import ru.aplix.ltk.core.util.HttpObject;
  * RfTrackingPolicy) RFID settings} to configure {@link RfConnection RFID
  * connections}.</p>
  */
-public interface RfTrackingPolicy extends HttpObject {
+public interface RfTrackingPolicy extends Parameterized {
 
 	/**
 	 * Default RFID tracking policy.
@@ -23,7 +24,14 @@ public interface RfTrackingPolicy extends HttpObject {
 	 * <p>It provides trackers of type {@link DefaultRfTracker} with default
 	 * settings.</p>
 	 */
-	RfTrackingPolicy DEFAULT_TRACKING_POLICY = new DefaultRfTrackingPolicy();
+	RfTrackingPolicy DEFAULT_TRACKING_POLICY = new DefaultRfTrackingPolicy() {
+		@Override
+		public void read(Parameters params) {
+		}
+		@Override
+		public void write(Parameters params) {
+		}
+	};
 
 	/**
 	 * Creates RFID tracker for the given collector.

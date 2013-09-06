@@ -2,7 +2,7 @@ package ru.aplix.ltk.core;
 
 import static ru.aplix.ltk.core.collector.RfTrackingPolicy.DEFAULT_TRACKING_POLICY;
 import ru.aplix.ltk.core.collector.RfTrackingPolicy;
-import ru.aplix.ltk.core.util.HttpParams;
+import ru.aplix.ltk.core.util.Parameters;
 
 
 /**
@@ -36,17 +36,16 @@ public abstract class AbstractRfSettings implements RfSettings, Cloneable {
 	}
 
 	@Override
-	public final void httpDecode(HttpParams params) {
-		httpDecodeTrackingPolicy(params);
-		httpDecodeSettings(params);
+	public final void read(Parameters params) {
+		readTrackingPolicy(params);
+		readSettings(params);
 	}
 
 	@Override
-	public final void httpEncode(HttpParams params) {
-		httpEncodeTrackingPolicy(params);
-		httpEncodeSettings(params);
+	public final void write(Parameters params) {
+		writeTrackingPolicy(params);
+		writeSettings(params);
 	}
-
 
 	@Override
 	public AbstractRfSettings clone() {
@@ -57,49 +56,56 @@ public abstract class AbstractRfSettings implements RfSettings, Cloneable {
 		}
 	}
 
-	protected abstract void httpDecodeSettings(HttpParams params);
+	protected abstract void readSettings(Parameters params);
 
-	protected void httpEncodeTrackingPolicy(HttpParams params) {
+	protected abstract void writeSettings(Parameters params);
 
-		final HttpParams tcParams = params.sub("trackingPolicy");
-		final RfTrackingPolicy tp = getTrackingPolicy();
+	protected void readTrackingPolicy(Parameters params) {
 
-		tcParams.set("class", tp.getClass().getName());
-		tp.httpEncode(tcParams);
+		final Parameters tpParams = params.sub("trackingPolicy");
+		final String tpClassName = tpParams.valueOf("", "", null);
+
+		if (tpClassName != null) {
+			if (tpClassName.isEmpty()) {
+				setTrackingPolicy(defaultTrackingPolicy());
+			} else if ("default".equals(tpClassName)) {
+				setTrackingPolicy(DEFAULT_TRACKING_POLICY);
+				return;// Default tracking policy has no parameters.
+			} else {
+				setTrackingPolicy(createTrackingPolicy(tpClassName));
+			}
+		}
+
+		getTrackingPolicy().read(tpParams);
 	}
 
-	protected void httpDecodeTrackingPolicy(HttpParams params) {
+	protected void writeTrackingPolicy(Parameters params) {
 
-		final HttpParams tpParams = params.sub("trackingPolicy");
-		final String tpClassName = tpParams.valueOf("class", "", null);
+		final Parameters tcParams = params.sub("trackingPolicy");
+		final RfTrackingPolicy tp = getTrackingPolicy();
 
-		if (tpClassName == null) {
-			return;
-		}
-		if (tpClassName.isEmpty()) {
-			setTrackingPolicy(DEFAULT_TRACKING_POLICY);
+		if (tp == DEFAULT_TRACKING_POLICY) {
+			tcParams.set("", "default");
 			return;
 		}
 
-		final RfTrackingPolicy tp;
+		tcParams.set("class", tp.getClass().getName());
+		tp.write(tcParams);
+	}
 
+	private RfTrackingPolicy createTrackingPolicy(String className) {
 		try {
 
 			@SuppressWarnings("unchecked")
 			final Class<RfTrackingPolicy> tpClass =
-					(Class<RfTrackingPolicy>) Class.forName(tpClassName);
+					(Class<RfTrackingPolicy>) Class.forName(className);
 
-			tp = tpClass.newInstance();
+			return tpClass.newInstance();
 		} catch (ClassNotFoundException
 				| InstantiationException
 				| IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
-
-		setTrackingPolicy(tp);
-		tp.httpDecode(tpParams);
 	}
-
-	protected abstract void httpEncodeSettings(HttpParams params);
 
 }

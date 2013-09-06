@@ -1,7 +1,7 @@
 package ru.aplix.ltk.driver.dummy.impl;
 
 import ru.aplix.ltk.core.collector.*;
-import ru.aplix.ltk.core.util.HttpParams;
+import ru.aplix.ltk.core.util.Parameters;
 import ru.aplix.ltk.driver.dummy.DummyRfSettings;
 
 
@@ -26,11 +26,11 @@ public class DummyTrackingPolicy implements RfTrackingPolicy {
 	}
 
 	@Override
-	public void httpDecode(HttpParams params) {
+	public void read(Parameters params) {
 	}
 
 	@Override
-	public void httpEncode(HttpParams params) {
+	public void write(Parameters params) {
 	}
 
 }

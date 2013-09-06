@@ -1,7 +1,7 @@
 package ru.aplix.ltk.driver.ctg;
 
 import ru.aplix.ltk.core.AbstractRfSettings;
-import ru.aplix.ltk.core.util.HttpParams;
+import ru.aplix.ltk.core.util.Parameters;
 
 
 public class CtgRfSettings extends AbstractRfSettings {
@@ -83,7 +83,7 @@ public class CtgRfSettings extends AbstractRfSettings {
 	}
 
 	@Override
-	protected void httpDecodeSettings(HttpParams params) {
+	protected void readSettings(Parameters params) {
 		setReaderHost(params.valueOf(
 				"readerHost",
 				null,
@@ -115,7 +115,7 @@ public class CtgRfSettings extends AbstractRfSettings {
 	}
 
 	@Override
-	protected void httpEncodeSettings(HttpParams params) {
+	protected void writeSettings(Parameters params) {
 		params.set("readerHost", getReaderHost())
 		.set("readerPort", getReaderPort())
 		.set("roSpecId", getROSpecId())

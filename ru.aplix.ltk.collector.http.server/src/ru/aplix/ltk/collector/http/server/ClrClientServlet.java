@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import ru.aplix.ltk.collector.http.CollectorClientRequest;
-import ru.aplix.ltk.core.util.HttpParams;
+import ru.aplix.ltk.core.util.Parameters;
 
 
 public class ClrClientServlet extends HttpServlet {
@@ -46,7 +46,7 @@ public class ClrClientServlet extends HttpServlet {
 		final UUID id = id(req);
 
 		final CollectorClientRequest request = new CollectorClientRequest(
-				new HttpParams(req.getParameterMap()));
+				new Parameters(req.getParameterMap()));
 
 		if (id == null) {
 			createClient(resp, request);

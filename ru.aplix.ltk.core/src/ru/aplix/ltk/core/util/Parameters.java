@@ -9,30 +9,30 @@ import java.util.Map;
 import java.util.Objects;
 
 
-public final class HttpParams {
+public final class Parameters {
 
-	private final HttpParamsStore store;
+	private final ParametersStore store;
 
-	public HttpParams(HttpParamsStore store) {
-		requireNonNull(store, "HTTP parameters store not specified");
+	public Parameters(ParametersStore store) {
+		requireNonNull(store, "Parameters store not specified");
 		this.store = store;
 	}
 
-	public HttpParams(Map<String, String[]> map) {
-		this.store = new HttpParamsMap(map);
+	public Parameters(Map<String, String[]> map) {
+		this.store = new ParametersMap(map);
 	}
 
-	public final HttpParamsStore store() {
+	public final ParametersStore store() {
 		return this.store;
 	}
 
 	public final boolean have(String name) {
-		return this.store.getHttpParam(name) != null;
+		return this.store.getParam(name) != null;
 	}
 
 	public final String[] valuesOf(String name, String... defaultValues) {
 
-		final String[] values = this.store.getHttpParam(name);
+		final String[] values = this.store.getParam(name);
 
 		return values != null ? values : defaultValues;
 	}
@@ -42,7 +42,7 @@ public final class HttpParams {
 			String[] noValues,
 			String... defaultValues) {
 
-		final String[] values = this.store.getHttpParam(name);
+		final String[] values = this.store.getParam(name);
 
 		if (values == null) {
 			return defaultValues;
@@ -67,7 +67,7 @@ public final class HttpParams {
 			String noValue,
 			String defaultValue) {
 
-		final String[] values = this.store.getHttpParam(name);
+		final String[] values = this.store.getParam(name);
 
 		if (values == null) {
 			return defaultValue;
@@ -132,33 +132,46 @@ public final class HttpParams {
 		}
 	}
 
-	public final HttpParams sub(String prefix) {
+	public final Parameters sub(String prefix) {
 		requireNonNull(prefix, "HTTP params prefix not specified");
-		return new HttpParams(new NestedHttpParams(store(), prefix));
+
+		if (prefix.isEmpty()) {
+			return this;
+		}
+
+		final ParametersStore store = store();
+
+		if (store.getClass() != NestedParametersStore.class) {
+			return new Parameters(new NestedParametersStore(store, prefix));
+		}
+
+		final NestedParametersStore parent = (NestedParametersStore) store;
+
+		return new Parameters(new NestedParametersStore(parent, '.' + prefix));
 	}
 
-	public final HttpParams set(String name, String... values) {
-		this.store.putHttpParam(name, values);
+	public final Parameters set(String name, String... values) {
+		this.store.setParam(name, values);
 		return this;
 	}
 
-	public final HttpParams set(String name, Object... values) {
+	public final Parameters set(String name, Object... values) {
 		return set(name, strValues(values));
 	}
 
-	public final HttpParams add(String name, Object... values) {
+	public final Parameters add(String name, Object... values) {
 		return add(name, strValues(values));
 	}
 
-	public HttpParams add(String name, String... values) {
+	public Parameters add(String name, String... values) {
 
-		final String[] existing = this.store.putHttpParam(name, values);
+		final String[] existing = this.store.setParam(name, values);
 
 		if (existing == null) {
 			return this;
 		}
 		if (values.length == 0) {
-			this.store.putHttpParam(name, existing);
+			this.store.setParam(name, existing);
 			return this;
 		}
 
@@ -167,7 +180,7 @@ public final class HttpParams {
 		arraycopy(existing, 0, newValues, 0, existing.length);
 		arraycopy(values, 0, newValues, existing.length, values.length);
 
-		this.store.putHttpParam(name, newValues);
+		this.store.setParam(name, newValues);
 
 		return this;
 	}

@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 
-final class HttpParamsMap implements HttpParamsStore {
+final class ParametersMap implements ParametersStore {
 
 	private final Map<String, String[]> map;
 
-	HttpParamsMap(Map<String, String[]> map) {
-		requireNonNull(map, "HTTP parameters map not speicifed");
+	ParametersMap(Map<String, String[]> map) {
+		requireNonNull(map, "Parameters map not speicifed");
 		this.map = map;
 	}
 
@@ -22,12 +22,12 @@ final class HttpParamsMap implements HttpParamsStore {
 	}
 
 	@Override
-	public String[] getHttpParam(String name) {
+	public String[] getParam(String name) {
 		return this.map.get(name);
 	}
 
 	@Override
-	public String[] putHttpParam(String name, String[] values) {
+	public String[] setParam(String name, String[] values) {
 		return this.map.put(name, values);
 	}
 

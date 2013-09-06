@@ -12,24 +12,29 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.osgi.framework.BundleContext;
-
 import ru.aplix.ltk.collector.http.CollectorClientRequest;
 import ru.aplix.ltk.core.util.HttpParams;
 
 
 public class ClrClientServlet extends HttpServlet {
 
-	private final BundleContext context;
+	private static final long serialVersionUID = 2040846601507741882L;
+
+	private final CollectorHttpService collectorService;
 	private ClrClients clients;
 
-	public ClrClientServlet(BundleContext context) {
-		this.context = context;
+	public ClrClientServlet(CollectorHttpService collectorService) {
+		this.collectorService = collectorService;
+	}
+
+	public final CollectorHttpService getCollectorService() {
+		return this.collectorService;
 	}
 
 	@Override
 	public void init() throws ServletException {
-		this.clients = new ClrClients(this.context, getServletContext());
+		this.clients =
+				new ClrClients(getCollectorService(), getServletContext());
 	}
 
 	@Override

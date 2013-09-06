@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Collector HTTP Server Implementation
 Bundle-SymbolicName: ru.aplix.ltk.collector.http.server
 Bundle-Version: 1.0.0
-Bundle-Activator: ru.aplix.ltk.collector.http.server.Activator
+Bundle-Activator: ru.aplix.ltk.collector.http.server.CollectorHttpService
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: javax.servlet;version="2.6.0",
  javax.servlet.http;version="2.6.0",

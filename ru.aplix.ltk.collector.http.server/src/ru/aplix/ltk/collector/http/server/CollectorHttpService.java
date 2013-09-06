@@ -11,7 +11,7 @@ import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
 
 
-public class Activator implements BundleActivator {
+public class CollectorHttpService implements BundleActivator {
 
 	private Logger log;
 	private HttpTracker httpTracker;
@@ -52,7 +52,7 @@ public class Activator implements BundleActivator {
 		try {
 			service.registerServlet(
 					"/client",
-					new ClrClientServlet(getContext()),
+					new ClrClientServlet(this),
 					null,
 					null);
 		} catch (ServletException | NamespaceException e) {

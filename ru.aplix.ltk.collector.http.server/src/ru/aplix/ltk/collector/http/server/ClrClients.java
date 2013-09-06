@@ -4,16 +4,27 @@ import java.util.UUID;
 
 import javax.servlet.ServletContext;
 
-import org.osgi.framework.BundleContext;
-
 import ru.aplix.ltk.collector.http.CollectorClientRequest;
 
 
 public class ClrClients {
 
+	private final CollectorHttpService collectorService;
+	private final ServletContext serlvetContext;
+
 	public ClrClients(
-			BundleContext bundleContext,
-			ServletContext servletContext) {
+			CollectorHttpService collectorService,
+			ServletContext serlvetContext) {
+		this.collectorService = collectorService;
+		this.serlvetContext = serlvetContext;
+	}
+
+	public final CollectorHttpService getCollectorService() {
+		return this.collectorService;
+	}
+
+	public final ServletContext getSerlvetContext() {
+		return this.serlvetContext;
 	}
 
 	public ClrClient create(CollectorClientRequest request) {

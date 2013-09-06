@@ -25,11 +25,6 @@ public final class HttpParams {
 		return this.store;
 	}
 
-	public final HttpParams set(String name, String... values) {
-		this.store.putHttpParam(name, values);
-		return this;
-	}
-
 	public final boolean have(String name) {
 		return this.store.getHttpParam(name) != null;
 	}
@@ -81,6 +76,16 @@ public final class HttpParams {
 		}
 
 		return values[0];
+	}
+
+	public final HttpParams sub(String prefix) {
+		requireNonNull(prefix, "HTTP params prefix not specified");
+		return new HttpParams(new NestedHttpParams(store(), prefix));
+	}
+
+	public final HttpParams set(String name, String... values) {
+		this.store.putHttpParam(name, values);
+		return this;
 	}
 
 	public HttpParams add(String name, String... values) {

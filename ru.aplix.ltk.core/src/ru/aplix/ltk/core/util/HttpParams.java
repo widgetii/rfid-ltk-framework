@@ -6,6 +6,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Map;
+import java.util.Objects;
 
 
 public final class HttpParams {
@@ -78,6 +79,59 @@ public final class HttpParams {
 		return values[0];
 	}
 
+	public final int intValueOf(String name) {
+		return intValueOf(name, 0, 0);
+	}
+
+	public final int intValueOf(String name, int defaultValue) {
+		return intValueOf(name, defaultValue, defaultValue);
+	}
+
+	public final int intValueOf(String name, int noValue, int defaultValue) {
+
+		final String value = valueOf(
+				name,
+				Long.toString(noValue),
+				Long.toString(defaultValue));
+
+		if (value == null) {
+			return noValue;
+		}
+		try {
+			return Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			return noValue;
+		}
+	}
+
+	public final long longValueOf(String name) {
+		return longValueOf(name, 0, 0);
+	}
+
+	public final long longValueOf(String name, long defaultValue) {
+		return longValueOf(name, defaultValue, defaultValue);
+	}
+
+	public final long longValueOf(
+			String name,
+			long noValue,
+			long defaultValue) {
+
+		final String value = valueOf(
+				name,
+				Long.toString(noValue),
+				Long.toString(defaultValue));
+
+		if (value == null) {
+			return noValue;
+		}
+		try {
+			return Long.parseLong(value);
+		} catch (NumberFormatException e) {
+			return noValue;
+		}
+	}
+
 	public final HttpParams sub(String prefix) {
 		requireNonNull(prefix, "HTTP params prefix not specified");
 		return new HttpParams(new NestedHttpParams(store(), prefix));
@@ -86,6 +140,14 @@ public final class HttpParams {
 	public final HttpParams set(String name, String... values) {
 		this.store.putHttpParam(name, values);
 		return this;
+	}
+
+	public final HttpParams set(String name, Object... values) {
+		return set(name, strValues(values));
+	}
+
+	public final HttpParams add(String name, Object... values) {
+		return add(name, strValues(values));
 	}
 
 	public HttpParams add(String name, String... values) {
@@ -140,6 +202,17 @@ public final class HttpParams {
 				}
 			}
 		}
+	}
+
+	private static String[] strValues(Object... values) {
+
+		final String[] strValues = new String[values.length];
+
+		for (int i = 0; i < values.length; ++i) {
+			strValues[i] = Objects.toString(values[i], null);
+		}
+
+		return strValues;
 	}
 
 }

@@ -141,10 +141,10 @@ public class CtgRfSettingsPanel extends JPanel {
 
 		final CtgRfSettingsUI ui = this.settingsUI;
 
-		ui.setTagTransactionTimeout(longOption(
+		ui.getTrackingPolicy().setTransactionTimeout(longOption(
 				this.tagTransactionTimeout,
 				DEFAULT_TRANSACTION_TIMEOUT));
-		ui.setTagInvalidationTimeout(longOption(
+		ui.getTrackingPolicy().setInvalidationTimeout(longOption(
 				this.tagInvalidationTimeout,
 				DEFAULT_INVALIDATION_TIMEOUT));
 	}
@@ -171,9 +171,9 @@ public class CtgRfSettingsPanel extends JPanel {
 		final CtgRfSettingsUI ui = this.settingsUI;
 
 		this.tagTransactionTimeout.setSelectedItem(
-				Long.toString(ui.getTagTransactionTimeout()));
+				Long.toString(ui.getTrackingPolicy().getTransactionTimeout()));
 		this.tagInvalidationTimeout.setSelectedItem(
-				Long.toString(ui.getTagInvalidationTimeout()));
+				Long.toString(ui.getTrackingPolicy().getInvalidationTimeout()));
 	}
 
 	private void addOption(String label, JComponent component) {

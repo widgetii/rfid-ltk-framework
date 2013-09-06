@@ -1,6 +1,7 @@
 package ru.aplix.ltk.driver.dummy.impl;
 
 import ru.aplix.ltk.core.collector.*;
+import ru.aplix.ltk.core.util.HttpParams;
 import ru.aplix.ltk.driver.dummy.DummyRfSettings;
 
 
@@ -22,6 +23,14 @@ public class DummyTrackingPolicy implements RfTrackingPolicy {
 		tracker.setTransactionTimeout(this.settings.getGenerationPeriod());
 
 		return tracker;
+	}
+
+	@Override
+	public void httpDecode(HttpParams params) {
+	}
+
+	@Override
+	public void httpEncode(HttpParams params) {
 	}
 
 }

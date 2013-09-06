@@ -1,6 +1,7 @@
 package ru.aplix.ltk.core;
 
 import ru.aplix.ltk.core.collector.RfTrackingPolicy;
+import ru.aplix.ltk.core.util.HttpObject;
 
 
 /**
@@ -18,7 +19,7 @@ import ru.aplix.ltk.core.collector.RfTrackingPolicy;
  * {@link RfProvider#connect(RfSettings) opened} should not affect the this
  * connection, but can be reused to open another connection.</p>
  */
-public interface RfSettings {
+public interface RfSettings extends HttpObject {
 
 	/**
 	 * RFID tracking policy.

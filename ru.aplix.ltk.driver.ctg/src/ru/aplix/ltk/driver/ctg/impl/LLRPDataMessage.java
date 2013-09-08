@@ -10,7 +10,7 @@ import ru.aplix.ltk.core.source.RfTag;
 public class LLRPDataMessage implements RfDataMessage {
 
 	private final long timestamp;
-	private final LLRPTag tag;
+	private final RfTag tag;
 
 	public LLRPDataMessage(TagReportData tag) {
 
@@ -18,7 +18,8 @@ public class LLRPDataMessage implements RfDataMessage {
 				tag.getLastSeenTimestampUTC().getMicroseconds();
 
 		this.timestamp = lastSeenTimestamp.toLong() / 1000L;
-		this.tag = new LLRPTag(tag.getEPCParameter());
+		this.tag =
+				new RfTag(tag.getEPCParameter().encodeBinary().toByteArray());
 	}
 
 	@Override

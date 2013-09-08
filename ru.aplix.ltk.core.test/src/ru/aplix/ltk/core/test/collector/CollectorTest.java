@@ -4,6 +4,7 @@ import static java.lang.System.currentTimeMillis;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static ru.aplix.ltk.core.test.reader.TestTags.randomTag;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,7 +17,6 @@ import ru.aplix.ltk.core.source.RfError;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.core.test.reader.TestDataMessage;
 import ru.aplix.ltk.core.test.reader.TestRfReaderDriver;
-import ru.aplix.ltk.core.test.reader.TestTag;
 
 
 public class CollectorTest {
@@ -160,7 +160,7 @@ public class CollectorTest {
 		this.driver.updateStatus(error);
 		this.driver.sendData(new TestDataMessage(
 				currentTimeMillis(),
-				new TestTag(),
+				randomTag(),
 				0,
 				false));
 

@@ -7,12 +7,12 @@ import ru.aplix.ltk.core.source.RfTag;
 public class DummyRfDataMessage implements RfDataMessage {
 
 	private final long timestamp;
-	private final DummyTag tag;
+	private final RfTag tag;
 	private final int transactionId;
 	private final boolean transactionEnd;
 
 	public DummyRfDataMessage(
-			DummyTag tag,
+			RfTag tag,
 			int transactionId,
 			boolean transactionEnd) {
 		this.timestamp = System.currentTimeMillis();

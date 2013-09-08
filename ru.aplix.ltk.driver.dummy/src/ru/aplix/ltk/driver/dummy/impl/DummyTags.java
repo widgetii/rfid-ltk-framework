@@ -6,13 +6,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import ru.aplix.ltk.core.reader.RfReaderContext;
+import ru.aplix.ltk.core.source.RfTag;
 import ru.aplix.ltk.driver.dummy.DummyRfSettings;
 
 
 final class DummyTags {
 
 	private final DummyTagsGenerator generator;
-	private final HashSet<DummyTag> tags = new HashSet<>();
+	private final HashSet<RfTag> tags = new HashSet<>();
 	private boolean generation;
 	private int transactionId;
 	private long presenceEnd;
@@ -62,7 +63,7 @@ final class DummyTags {
 		int numTags = 1 + (int) (Math.random() * getSettings().getMaxTags());
 
 		do {
-			this.tags.add(new DummyTag());
+			this.tags.add(randomTag());
 			--numTags;
 		} while (numTags > 0);
 	}
@@ -83,11 +84,11 @@ final class DummyTags {
 			return;
 		}
 
-		final Iterator<DummyTag> it = this.tags.iterator();
+		final Iterator<RfTag> it = this.tags.iterator();
 
 		for (;;) {
 
-			final DummyTag tag = it.next();
+			final RfTag tag = it.next();
 			final boolean last = !it.hasNext();
 
 			context.sendRfData(
@@ -103,6 +104,23 @@ final class DummyTags {
 		this.generation = generate;
 		this.periodEnd =
 				currentTimeMillis() + getSettings().getGenerationPeriod();
+	}
+
+	private static RfTag randomTag() {
+		return dummyTag(0x100000000L + (long) (Math.random() * 0xffffffffL));
+	}
+
+	private static RfTag dummyTag(long value) {
+		return new RfTag(new byte[] {
+			(byte) (value & 0xff),
+			(byte) ((value >>> 8) & 0xff),
+			(byte) ((value >>> 16) & 0xff),
+			(byte) ((value >>> 24) & 0xff),
+			(byte) ((value >>> 32) & 0xff),
+			(byte) ((value >>> 40) & 0xff),
+			(byte) ((value >>> 48) & 0xff),
+			(byte) ((value >>> 56) & 0xff),
+		});
 	}
 
 }

@@ -1,12 +1,14 @@
 package ru.aplix.ltk.core.test.reader;
 
+import static java.lang.System.currentTimeMillis;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static ru.aplix.ltk.core.test.reader.TestTags.randomTag;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import ru.aplix.ltk.core.reader.*;
+import ru.aplix.ltk.core.reader.RfReader;
 import ru.aplix.ltk.core.source.RfConnected;
 import ru.aplix.ltk.core.source.RfDataMessage;
 import ru.aplix.ltk.core.source.RfStatusMessage;
@@ -46,8 +48,8 @@ public class ReaderTest {
 		this.readerConsumer.handle().requestRfData(consumer);
 
 		final RfDataMessage data = new TestDataMessage(
-				System.currentTimeMillis(),
-				new TestTag(),
+				currentTimeMillis(),
+				randomTag(),
 				0,
 				false);
 

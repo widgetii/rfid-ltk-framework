@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import static ru.aplix.ltk.core.collector.DefaultRfTracker.DEFAULT_INVALIDATION_TIMEOUT;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
+import static ru.aplix.ltk.core.test.reader.TestTags.randomTag;
 
 import org.junit.After;
 import org.junit.Before;
@@ -18,7 +19,6 @@ import ru.aplix.ltk.core.reader.RfReader;
 import ru.aplix.ltk.core.source.RfTag;
 import ru.aplix.ltk.core.test.reader.TestDataMessage;
 import ru.aplix.ltk.core.test.reader.TestRfReaderDriver;
-import ru.aplix.ltk.core.test.reader.TestTag;
 
 
 public class DisappearanceTest {
@@ -43,7 +43,7 @@ public class DisappearanceTest {
 	@Test
 	public void tagDisappeared() {
 
-		final RfTag tag = new TestTag();
+		final RfTag tag = randomTag();
 		final TestDataMessage data1 = new TestDataMessage(
 				currentTimeMillis(),
 				tag,
@@ -80,7 +80,7 @@ public class DisappearanceTest {
 	@Test
 	public void tagNotDisappeared() {
 
-		final RfTag tag = new TestTag();
+		final RfTag tag = randomTag();
 		final TestDataMessage data1 = new TestDataMessage(
 				currentTimeMillis(),
 				tag,

@@ -5,6 +5,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
+import static ru.aplix.ltk.core.test.reader.TestTags.randomTag;
+import static ru.aplix.ltk.core.test.reader.TestTags.testTag;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,7 +18,6 @@ import ru.aplix.ltk.core.reader.RfReader;
 import ru.aplix.ltk.core.source.RfTag;
 import ru.aplix.ltk.core.test.reader.TestDataMessage;
 import ru.aplix.ltk.core.test.reader.TestRfReaderDriver;
-import ru.aplix.ltk.core.test.reader.TestTag;
 
 
 public class AppearanceTest {
@@ -41,7 +42,7 @@ public class AppearanceTest {
 	@Test
 	public void tagAppeared() {
 
-		final RfTag tag = new TestTag();
+		final RfTag tag = randomTag();
 		final TestDataMessage data = new TestDataMessage(
 				currentTimeMillis(),
 				tag,
@@ -60,8 +61,8 @@ public class AppearanceTest {
 	@Test
 	public void secondTagAppeared() {
 
-		final RfTag tag1 = new TestTag(1);
-		final RfTag tag2 = new TestTag(2);
+		final RfTag tag1 = testTag(1);
+		final RfTag tag2 = testTag(2);
 		final TestDataMessage data1 = new TestDataMessage(
 				currentTimeMillis(),
 				tag1,
@@ -92,7 +93,7 @@ public class AppearanceTest {
 	@Test
 	public void tagReadSecondTime() {
 
-		final RfTag tag = new TestTag();
+		final RfTag tag = randomTag();
 		final TestDataMessage data = new TestDataMessage(
 				currentTimeMillis(),
 				tag,

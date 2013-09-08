@@ -1,5 +1,6 @@
 package ru.aplix.ltk.collector.http.server.sender;
 
+import static ru.aplix.ltk.collector.http.CollectorHttpConstants.CLR_HTTP_CLIENT_STATUS_PATH;
 import ru.aplix.ltk.collector.http.RfStatusRequest;
 import ru.aplix.ltk.collector.http.server.ClrClient;
 import ru.aplix.ltk.core.source.RfStatusMessage;
@@ -16,7 +17,9 @@ public class StatusSender extends NoResponseMessageSender {
 
 	@Override
 	public Boolean call() throws Exception {
-		return post("status", new RfStatusRequest(this.status));
+		return post(
+				CLR_HTTP_CLIENT_STATUS_PATH,
+				new RfStatusRequest(this.status));
 	}
 
 }

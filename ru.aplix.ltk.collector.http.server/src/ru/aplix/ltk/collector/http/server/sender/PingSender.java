@@ -1,5 +1,7 @@
 package ru.aplix.ltk.collector.http.server.sender;
 
+import static ru.aplix.ltk.collector.http.CollectorHttpConstants.CLR_HTTP_CLIENT_PING_PATH;
+
 import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -46,7 +48,7 @@ public class PingSender extends NoResponseMessageSender implements Runnable {
 
 	@Override
 	public Boolean call() {
-		return get("ping");
+		return get(CLR_HTTP_CLIENT_PING_PATH);
 	}
 
 	@Override

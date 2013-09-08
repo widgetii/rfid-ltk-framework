@@ -1,26 +1,19 @@
 package ru.aplix.ltk.collector.http.server;
 
-import static java.util.Collections.synchronizedMap;
 import static javax.servlet.http.HttpServletResponse.*;
+import static org.apache.http.client.utils.URLEncodedUtils.CONTENT_TYPE;
 import static ru.aplix.ltk.collector.http.ClrClientId.clrClientId;
-import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_CLASS;
-import static ru.aplix.ltk.osgi.OSGiUtils.bundleParameters;
+import static ru.aplix.ltk.core.util.Parameters.UTF_8;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-
 import ru.aplix.ltk.collector.http.*;
-import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.util.Parameterized;
 import ru.aplix.ltk.core.util.Parameters;
 
@@ -29,25 +22,19 @@ public class ClrClientServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -4825927568800965736L;
 
-	private static final String CONFIG_PREFIX = "ru.aplix.ltk.rf";
-
-	private final CollectorHttpService collectorService;
-	private final Map<ClrProfileId, ClrProfile> profiles =
-			synchronizedMap(new HashMap<ClrProfileId, ClrProfile>());
-	private RfProviders rfProviders;
+	private final AllClrProfiles allProfiles;
 
 	public ClrClientServlet(CollectorHttpService collectorService) {
-		this.collectorService = collectorService;
+		this.allProfiles = new AllClrProfiles(collectorService);
 	}
 
-	public final CollectorHttpService getCollectorService() {
-		return this.collectorService;
+	public final AllClrProfiles allProfiles() {
+		return this.allProfiles;
 	}
 
 	@Override
 	public void init() throws ServletException {
-		this.rfProviders = new RfProviders();
-		this.rfProviders.open();
+		allProfiles().init();
 	}
 
 	@Override
@@ -80,7 +67,7 @@ public class ClrClientServlet extends HttpServlet {
 			ClrClientRequest request)
 	throws IOException {
 
-		final ClrProfile profile = this.profiles.get(profileId);
+		final ClrProfile<?> profile = allProfiles().get(profileId);
 
 		if (profile == null) {
 			resp.sendError(
@@ -89,7 +76,7 @@ public class ClrClientServlet extends HttpServlet {
 			return;
 		}
 
-		final ClrClient client = profile.connectClient(request);
+		final ClrClient<?> client = profile.connectClient(request);
 
 		resp.setStatus(SC_CREATED);
 
@@ -106,7 +93,8 @@ public class ClrClientServlet extends HttpServlet {
 			ClrClientRequest request)
 	throws IOException {
 
-		final ClrProfile profile = this.profiles.get(clientId.getProfileId());
+		final ClrProfile<?> profile =
+				allProfiles().get(clientId.getProfileId());
 
 		if (profile == null) {
 			resp.sendError(
@@ -139,7 +127,8 @@ public class ClrClientServlet extends HttpServlet {
 			return;
 		}
 
-		final ClrProfile profile = this.profiles.get(clientId.getProfileId());
+		final ClrProfile<?> profile =
+				allProfiles().get(clientId.getProfileId());
 
 		if (profile == null) {
 			resp.sendError(
@@ -160,7 +149,7 @@ public class ClrClientServlet extends HttpServlet {
 
 	@Override
 	public void destroy() {
-		this.rfProviders.close();
+		allProfiles().destroy();
 	}
 
 	private void writeResult(
@@ -168,99 +157,17 @@ public class ClrClientServlet extends HttpServlet {
 			Parameterized result)
 	throws IOException {
 
+		final String response = new Parameters().setBy(result).urlEncode();
+
+		resp.setContentType(CONTENT_TYPE);
+		resp.setCharacterEncoding(UTF_8);
+		resp.setContentLength(response.length());
+
 		@SuppressWarnings("resource")
-		final PrintWriter out = resp.getWriter();
-		final Parameters parameters = new Parameters();
+		final ServletOutputStream out = resp.getOutputStream();
 
-		result.write(parameters);
-		parameters.urlEncode(out);
-
+		out.print(response);
 		out.flush();
-	}
-
-	private void addProvider(RfProvider<?> provider) {
-
-		final Parameters params = providerParameters(provider);
-		final String[] configs = params.valuesOf("");
-
-		if (configs == null) {
-			addProfile(provider, new ClrProfileId(provider.getId()), params);
-		} else {
-			for (String config : configs) {
-				addProfile(
-						provider,
-						new ClrProfileId(provider.getId(), config),
-						params.sub(config));
-			}
-		}
-	}
-
-	private void addProfile(
-			RfProvider<?> provider,
-			ClrProfileId profileId,
-			Parameters params) {
-		this.profiles.put(
-				profileId,
-				new ClrProfile(provider, profileId, params));
-	}
-
-	private void removeProvider(RfProvider<?> provider) {
-
-		final Parameters params = providerParameters(provider);
-		final String[] configs = params.valuesOf("");
-
-		if (configs == null) {
-			removeProfile(new ClrProfileId(provider.getId()));
-		} else {
-			for (String config : configs) {
-				removeProfile(new ClrProfileId(provider.getId(), config));
-			}
-		}
-	}
-
-	private void removeProfile(ClrProfileId profileId) {
-
-		final ClrProfile profile = this.profiles.remove(profileId);
-
-		if (profile != null) {
-			profile.dispose();
-		}
-	}
-
-	private Parameters providerParameters(RfProvider<?> provider) {
-		return bundleParameters(getCollectorService().getContext())
-				.sub(CONFIG_PREFIX + '.' + provider.getId());
-	}
-
-	private final class RfProviders
-			extends ServiceTracker<RfProvider<?>, RfProvider<?>> {
-
-		RfProviders() {
-			super(
-					getCollectorService().getContext(),
-					RF_PROVIDER_CLASS,
-					null);
-		}
-
-		@Override
-		public RfProvider<?> addingService(
-				ServiceReference<RfProvider<?>> reference) {
-
-			final RfProvider<?> provider = super.addingService(reference);
-
-			addProvider(provider);
-
-			return provider;
-		}
-
-		@Override
-		public void removedService(
-				ServiceReference<RfProvider<?>> reference,
-				RfProvider<?> service) {
-			removeProvider(service);
-			super.removedService(reference, service);
-		}
-
 	}
 
 }

@@ -10,28 +10,37 @@ import java.util.UUID;
 import ru.aplix.ltk.collector.http.ClrClientId;
 import ru.aplix.ltk.collector.http.ClrClientRequest;
 import ru.aplix.ltk.collector.http.ClrProfileId;
+import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.RfProvider;
+import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.util.Parameters;
 
 
-public class ClrProfile {
+public class ClrProfile<S extends RfSettings> {
 
-	private final RfProvider<?> provider;
+	private final AllClrProfiles allProfiles;
+	private final RfProvider<S> provider;
 	private final ClrProfileId profileId;
 	private final Parameters parameters;
-	private final Map<UUID, ClrClient> clients =
-			synchronizedMap(new HashMap<UUID, ClrClient>(1));
+	private final Map<UUID, ClrClient<S>> clients =
+			synchronizedMap(new HashMap<UUID, ClrClient<S>>(1));
 
 	public ClrProfile(
-			RfProvider<?> provider,
+			AllClrProfiles allProfiles,
+			RfProvider<S> provider,
 			ClrProfileId profileId,
 			Parameters parameters) {
+		this.allProfiles = allProfiles;
 		this.provider = provider;
 		this.profileId = profileId;
 		this.parameters = parameters;
 	}
 
-	public final RfProvider<?> getProvider() {
+	public final AllClrProfiles allProfiles() {
+		return this.allProfiles;
+	}
+
+	public final RfProvider<S> getProvider() {
 		return this.provider;
 	}
 
@@ -43,15 +52,17 @@ public class ClrProfile {
 		return this.parameters;
 	}
 
-	public ClrClient connectClient(ClrClientRequest request) {
+	public final ClrClient<S> connectClient(ClrClientRequest request) {
 		return addClient(
 				new ClrClientId(getProfileId(), randomUUID()),
 				request);
 	}
 
-	public ClrClient reconnectClient(UUID id, ClrClientRequest request) {
+	public final ClrClient<S> reconnectClient(
+			UUID id,
+			ClrClientRequest request) {
 
-		final ClrClient removed = removeClient(id);
+		final ClrClient<S> removed = removeClient(id);
 
 		if (removed == null) {
 			return null;
@@ -60,24 +71,34 @@ public class ClrProfile {
 		return addClient(removed.getId(), request);
 	}
 
-	public boolean disconnectClient(UUID id) {
+	public final boolean disconnectClient(UUID id) {
 		return removeClient(id) != null;
 	}
 
 	public void dispose() {
 		synchronized (this.clients) {
-			for (ClrClient client : this.clients.values()) {
+			for (ClrClient<S> client : this.clients.values()) {
 				client.stop();
 			}
 			this.clients.clear();
 		}
 	}
 
-	private ClrClient addClient(
+	public RfConnection connect() {
+
+		final RfProvider<S> provider = getProvider();
+		final S settings = provider.newSettings();
+
+		settings.read(getParameters());
+
+		return provider.connect(settings);
+	}
+
+	private ClrClient<S> addClient(
 			ClrClientId clientId,
 			ClrClientRequest request) {
 
-		final ClrClient client = new ClrClient(this, clientId);
+		final ClrClient<S> client = new ClrClient<>(this, clientId);
 
 		this.clients.put(clientId.getUUID(), client);
 		client.start(request);
@@ -85,9 +106,9 @@ public class ClrProfile {
 		return client;
 	}
 
-	private ClrClient removeClient(UUID id) {
+	private ClrClient<S> removeClient(UUID id) {
 
-		final ClrClient oldClient = this.clients.remove(id);
+		final ClrClient<S> oldClient = this.clients.remove(id);
 
 		if (oldClient == null) {
 			return null;

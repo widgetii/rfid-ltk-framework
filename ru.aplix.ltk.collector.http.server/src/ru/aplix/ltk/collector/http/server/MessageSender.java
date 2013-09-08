@@ -9,7 +9,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.*;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
 
 import ru.aplix.ltk.collector.http.ParametersEntity;
@@ -27,6 +29,10 @@ public abstract class MessageSender<T>
 
 	public final ClrClient<?> getClient() {
 		return this.client;
+	}
+
+	public final HttpClient httpClient() {
+		return getClient().allProfiles().httpClient();
 	}
 
 	@Override
@@ -53,6 +59,22 @@ public abstract class MessageSender<T>
 			HttpEntity entity)
 	throws ClientProtocolException, IOException;
 
+	protected T get(String path) {
+
+		final URL requestURL = requestURL(path);
+
+		if (requestURL == null) {
+			return null;
+		}
+		try {
+			return sendRequest(new HttpGet(requestURL.toURI()));
+		} catch (Throwable e) {
+			requestFailed(requestURL, e);
+		}
+
+		return null;
+	}
+
 	protected T post(String path, Parameterized request) {
 
 		final URL requestURL = requestURL(path);
@@ -66,20 +88,19 @@ public abstract class MessageSender<T>
 
 			post.setEntity(new ParametersEntity(request));
 
-			return httpClient().execute(post, this);
-		} catch (HttpResponseException e) {
-			getClient().requestFailed(
-					"Wrong response from " + requestURL
-					+ " [" + e.getStatusCode() + "]: "
-					+ e.getMessage(),
-					null);
+			return sendRequest(post);
 		} catch (Throwable e) {
-			getClient().requestFailed(
-					"Request to " + requestURL + " failed",
-					e);
+			requestFailed(requestURL, e);
 		}
 
 		return null;
+	}
+
+	protected T sendRequest(
+			HttpUriRequest request)
+	throws IOException, ClientProtocolException {
+		getClient().requestSent();
+		return httpClient().execute(request, this);
 	}
 
 	private URL requestURL(String path) {
@@ -95,8 +116,22 @@ public abstract class MessageSender<T>
 		return null;
 	}
 
-	private final HttpClient httpClient() {
-		return getClient().allProfiles().httpClient();
+	private void requestFailed(URL requestURL, Throwable e) {
+		if (e instanceof HttpResponseException) {
+
+			final HttpResponseException http = (HttpResponseException) e;
+
+			getClient().requestFailed(
+					"Wrong response from " + requestURL
+					+ " [" + http.getStatusCode() + "]: "
+					+ http.getMessage(),
+					null);
+		}
+
+		getClient().requestFailed(
+				"Request to " + requestURL + " failed",
+				e);
 	}
+
 
 }

@@ -7,6 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import ru.aplix.ltk.collector.http.ClrClientId;
 import ru.aplix.ltk.collector.http.ClrClientRequest;
+import ru.aplix.ltk.collector.http.server.sender.PingSender;
 import ru.aplix.ltk.collector.http.server.sender.StatusSender;
 import ru.aplix.ltk.collector.http.server.sender.TagAppearanceSender;
 import ru.aplix.ltk.core.RfSettings;
@@ -23,6 +24,7 @@ public class ClrClient<S extends RfSettings>
 
 	private final ClrProfile<S> profile;
 	private final ClrClientId clientId;
+	private PingSender ping;
 	private ClrClientRequest clientRequest;
 	private RfCollectorHandle collectorHandle;
 	private ScheduledExecutorService executor;
@@ -72,6 +74,8 @@ public class ClrClient<S extends RfSettings>
 		this.collectorHandle = handle;
 		this.executor = newSingleThreadScheduledExecutor();
 		handle.requestTagAppearance(new TagListener());
+		this.ping = new PingSender(this, this.executor);
+		this.ping.schedule();
 	}
 
 	@Override
@@ -90,7 +94,11 @@ public class ClrClient<S extends RfSettings>
 		}
 	}
 
-	protected final void requestFailed(String message, Throwable e) {
+	final void requestSent() {
+		this.ping.reschedule();
+	}
+
+	final void requestFailed(String message, Throwable e) {
 		log().error(
 				getId() + ": " + message + ". Disconnecting",
 				e);

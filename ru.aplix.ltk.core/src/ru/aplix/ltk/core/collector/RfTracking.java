@@ -42,7 +42,7 @@ public final class RfTracking implements RfStatusUpdater {
 	 */
 	public final void tagAppeared(RfTag tag) {
 		this.collector.tagAppearanceSubscriptions().sendMessage(
-				new RfTagAppearanceMessage(tag, RF_TAG_APPEARED));
+				new RfTagAppearanceMessageImpl(tag, RF_TAG_APPEARED));
 	}
 
 	/**
@@ -52,7 +52,7 @@ public final class RfTracking implements RfStatusUpdater {
 	 */
 	public final void tagDisappeared(RfTag tag) {
 		this.collector.tagAppearanceSubscriptions().sendMessage(
-				new RfTagAppearanceMessage(tag, RF_TAG_DISAPPEARED));
+				new RfTagAppearanceMessageImpl(tag, RF_TAG_DISAPPEARED));
 	}
 
 }

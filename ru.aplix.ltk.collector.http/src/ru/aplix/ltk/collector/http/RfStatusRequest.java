@@ -19,6 +19,10 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 		this.errorMessage = status.getErrorMessage();
 	}
 
+	public RfStatusRequest(Parameters parameters) {
+		read(parameters);
+	}
+
 	@Override
 	public String getRfReaderId() {
 		return this.rfReaderId;

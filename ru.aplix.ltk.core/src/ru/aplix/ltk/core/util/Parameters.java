@@ -144,6 +144,35 @@ public final class Parameters implements Parameterized {
 		}
 	}
 
+	public final byte[] binaryValueOf(String name) {
+		return binaryValueOf(name, null, null);
+	}
+
+	public final byte[] binaryValueOf(String name, byte[] defaultValue) {
+		return binaryValueOf(name, defaultValue, defaultValue);
+	}
+
+	public final byte[] binaryValueOf(
+			String name,
+			byte[] noValue,
+			byte[] defaultValue) {
+
+		final String[] values = store().getParam(name);
+
+		if (values == null) {
+			return defaultValue;
+		}
+		if (values.length == 0) {
+			return noValue;
+		}
+
+		try {
+			return binaryFromString(values[0]);
+		} catch (NumberFormatException e) {
+			return noValue;
+		}
+	}
+
 	public final <E extends Enum<E>> E enumValueOf(
 			Class<E> enumType,
 			String name) {
@@ -210,8 +239,15 @@ public final class Parameters implements Parameterized {
 		return set(name, strValues(values));
 	}
 
-	public final Parameters add(String name, Object... values) {
-		return add(name, strValues(values));
+	@SafeVarargs
+	public final <E extends Enum<E>> Parameters set(
+			String name,
+			E... values) {
+		return set(name, strValues(values));
+	}
+
+	public final Parameters set(String name, byte[]... values) {
+		return set(name, strValues(values));
 	}
 
 	public Parameters add(String name, String... values) {
@@ -234,6 +270,21 @@ public final class Parameters implements Parameterized {
 		this.store.setParam(name, newValues);
 
 		return this;
+	}
+
+	public final Parameters add(String name, Object... values) {
+		return add(name, strValues(values));
+	}
+
+	@SafeVarargs
+	public final <E extends Enum<E>> Parameters add(
+			String name,
+			E... values) {
+		return add(name, strValues(values));
+	}
+
+	public final Parameters add(String name, byte[]... values) {
+		return add(name, strValues(values));
 	}
 
 	public final String urlEncode() throws UnsupportedEncodingException {
@@ -305,7 +356,10 @@ public final class Parameters implements Parameterized {
 		params.read(this);
 	}
 
-	private static String[] strValues(Object... values) {
+	private static String[] strValues(Object[] values) {
+		if (values == null) {
+			return null;
+		}
 
 		final String[] strValues = new String[values.length];
 
@@ -314,6 +368,74 @@ public final class Parameters implements Parameterized {
 		}
 
 		return strValues;
+	}
+
+	private static <E extends Enum<E>> String[] strValues(E[] values) {
+		if (values == null) {
+			return null;
+		}
+
+		final String[] strValues = new String[values.length];
+
+		for (int i = 0; i < values.length; ++i) {
+
+			final E value = values[i];
+
+			strValues[i] = value != null ? value.name() : null;
+		}
+
+		return strValues;
+	}
+
+	private static String[] strValues(byte[][] values) {
+		if (values == null) {
+			return null;
+		}
+
+		final String[] strValues = new String[values.length];
+
+		for (int i = 0; i < values.length; ++i) {
+			strValues[i] = toString(values[i]);
+		}
+
+		return strValues;
+	}
+
+	private static String toString(byte[] values) {
+		if (values == null) {
+			return null;
+		}
+
+		final StringBuilder out = new StringBuilder(values.length << 1);
+
+		for (int i = 0; i < values.length; ++i) {
+
+			final String str = Integer.toHexString(values[i] & 0xff);
+
+			if (str.length() < 2) {
+				out.append('0');
+			}
+			out.append(str);
+		}
+
+		return out.toString();
+	}
+
+	private static byte[] binaryFromString(String string) {
+
+		final int len = string.length();
+		final byte[] value = new byte[(len + 1) >> 1];
+
+		for (int i = 0; i < len; i += 2) {
+
+			final int intValue = Integer.parseInt(
+					string.substring(i, Math.min(i + 2, len)),
+					16);
+
+			value[i >> 1] = (byte) (intValue & 0xff);
+		}
+
+		return value;
 	}
 
 }

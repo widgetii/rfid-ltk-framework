@@ -4,13 +4,16 @@ import static java.lang.System.arraycopy;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 
-public final class Parameters {
+public final class Parameters implements Parameterized {
+
+	public static final String UTF_8 = "UTF-8";
 
 	private final ParametersStore store;
 
@@ -41,7 +44,7 @@ public final class Parameters {
 
 	public final String[] valuesOf(String name, String... defaultValues) {
 
-		final String[] values = this.store.getParam(name);
+		final String[] values = store().getParam(name);
 
 		return values != null ? values : defaultValues;
 	}
@@ -51,7 +54,7 @@ public final class Parameters {
 			String[] noValues,
 			String... defaultValues) {
 
-		final String[] values = this.store.getParam(name);
+		final String[] values = store().getParam(name);
 
 		if (values == null) {
 			return defaultValues;
@@ -76,7 +79,7 @@ public final class Parameters {
 			String noValue,
 			String defaultValue) {
 
-		final String[] values = this.store.getParam(name);
+		final String[] values = store().getParam(name);
 
 		if (values == null) {
 			return defaultValue;
@@ -141,6 +144,41 @@ public final class Parameters {
 		}
 	}
 
+	public final <E extends Enum<E>> E enumValueOf(
+			Class<E> enumType,
+			String name) {
+		return enumValueOf(enumType, name, null, null);
+	}
+
+	public final <E extends Enum<E>> E enumValueOf(
+			Class<E> enumType,
+			String name,
+			E defaultValue) {
+		return enumValueOf(enumType, name, defaultValue, defaultValue);
+	}
+
+	public <E extends Enum<E>> E enumValueOf(
+			Class<E> enumType,
+			String name,
+			E noValue,
+			E defaultValue) {
+
+		final String[] values = store().getParam(name);
+
+		if (values == null) {
+			return defaultValue;
+		}
+		if (values.length == 0) {
+			return noValue;
+		}
+
+		try {
+			return Enum.valueOf(enumType, name);
+		} catch (IllegalArgumentException e) {
+			return noValue;
+		}
+	}
+
 	public final Parameters sub(String prefix) {
 		requireNonNull(prefix, "HTTP params prefix not specified");
 
@@ -156,6 +194,11 @@ public final class Parameters {
 		}
 
 		return new Parameters(new NestedParametersStore(store, prefix + '.'));
+	}
+
+	public final Parameters setBy(Parameterized parameterized) {
+		parameterized.write(this);
+		return this;
 	}
 
 	public final Parameters set(String name, String... values) {
@@ -193,8 +236,29 @@ public final class Parameters {
 		return this;
 	}
 
+	public final String urlEncode() throws UnsupportedEncodingException {
+		return urlEncode(UTF_8);
+	}
+
+	public final String urlEncode(
+			String encoding)
+	throws UnsupportedEncodingException {
+
+		final StringBuilder out = new StringBuilder();
+
+		try {
+			urlEncode(out, encoding);
+		} catch (UnsupportedEncodingException e) {
+			throw e;
+		} catch (IOException e) {
+			new IllegalStateException(e);// Should never be thrown.
+		}
+
+		return out.toString();
+	}
+
 	public final void urlEncode(Appendable out) throws IOException {
-		urlEncode(out, "UTF-8");
+		urlEncode(out, UTF_8);
 	}
 
 	public void urlEncode(Appendable out, String encoding) throws IOException {
@@ -227,6 +291,18 @@ public final class Parameters {
 				}
 			}
 		}
+	}
+
+	@Override
+	public final void read(Parameters params) {
+		for (Map.Entry<String, String[]> e : params.store()) {
+			set(e.getKey(), e.getValue());
+		}
+	}
+
+	@Override
+	public final void write(Parameters params) {
+		params.read(this);
 	}
 
 	private static String[] strValues(Object... values) {

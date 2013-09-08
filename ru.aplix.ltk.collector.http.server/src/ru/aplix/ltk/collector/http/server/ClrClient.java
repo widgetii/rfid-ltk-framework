@@ -8,8 +8,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import ru.aplix.ltk.collector.http.ClrClientId;
 import ru.aplix.ltk.collector.http.ClrClientRequest;
 import ru.aplix.ltk.collector.http.server.sender.StatusSender;
+import ru.aplix.ltk.collector.http.server.sender.TagAppearanceSender;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollectorHandle;
+import ru.aplix.ltk.core.collector.RfTagAppearanceHandle;
+import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.osgi.Logger;
@@ -68,6 +71,7 @@ public class ClrClient<S extends RfSettings>
 	public void consumerSubscribed(RfCollectorHandle handle) {
 		this.collectorHandle = handle;
 		this.executor = newSingleThreadScheduledExecutor();
+		handle.requestTagAppearance(new TagListener());
 	}
 
 	@Override
@@ -91,6 +95,29 @@ public class ClrClient<S extends RfSettings>
 				getId() + ": " + message + ". Disconnecting",
 				e);
 		getProfile().disconnectClient(getId().getUUID());
+	}
+
+	private void sendTag(RfTagAppearanceMessage message) {
+		this.executor.submit(new TagAppearanceSender(this, message));
+	}
+
+	private final class TagListener implements MsgConsumer<
+			RfTagAppearanceHandle,
+			RfTagAppearanceMessage> {
+
+		@Override
+		public void consumerSubscribed(RfTagAppearanceHandle handle) {
+		}
+
+		@Override
+		public void messageReceived(RfTagAppearanceMessage message) {
+			sendTag(message);
+		}
+
+		@Override
+		public void consumerUnsubscribed(RfTagAppearanceHandle handle) {
+		}
+
 	}
 
 }

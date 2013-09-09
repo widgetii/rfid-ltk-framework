@@ -41,6 +41,22 @@ public class RfError implements RfStatusMessage {
 		}
 	}
 
+	/**
+	 * Constructs an error message with the given message and cause.
+	 *
+	 * @param readerId reader device identifier.
+	 * @param errorMessage error message to report, or <code>null</code>.
+	 * @param cause a throwable caused this error, or <code>null</code>.
+	 */
+	public RfError(String readerId, String errorMessage, Throwable cause) {
+		this.readerId = readerId;
+		this.errorMessage =
+				errorMessage != null
+				? errorMessage
+				: (cause != null ? cause.getMessage() : null);
+		this.cause = cause;
+	}
+
 	@Override
 	public String getRfReaderId() {
 		return this.readerId;

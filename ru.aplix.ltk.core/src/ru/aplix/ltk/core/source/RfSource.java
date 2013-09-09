@@ -25,10 +25,10 @@ public interface RfSource {
 	 * <p>This method is called by {@link RfCollector} on the first
 	 * {@link RfCollector#subscribe(MsgConsumer) subscription}.</p>
 	 *
-	 * @param context RFID data source context, which can be used to report
-	 * RFID events.
+	 * @param updater RFID status updater, which can be used to report
+	 * RFID status updates.
 	 */
-	void requestRfStatus(RfStatusUpdater context);
+	void requestRfStatus(RfStatusUpdater updater);
 
 	/**
 	 * Requests RFID data input.

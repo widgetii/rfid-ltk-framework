@@ -54,8 +54,6 @@ public final class AllClrProfiles {
 		final ThreadSafeClientConnManager conman =
 				new ThreadSafeClientConnManager();
 
-		conman.setDefaultMaxPerRoute(conman.getMaxTotal());
-
 		return this.httpClient = new DefaultHttpClient(conman);
 	}
 

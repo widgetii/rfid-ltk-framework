@@ -4,6 +4,7 @@ import static java.lang.System.arraycopy;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -285,6 +286,57 @@ public final class Parameters implements Parameterized {
 
 	public final Parameters add(String name, byte[]... values) {
 		return add(name, strValues(values));
+	}
+
+	public Parameters urlDecode(Reader in) throws IOException {
+
+		final StringBuilder name = new StringBuilder();
+		final StringBuilder value = new StringBuilder();
+		boolean hasValue = false;
+		StringBuilder data = name;
+
+		for (;;) {
+
+			final int c = in.read();
+
+			if (c < 0) {
+				break;
+			}
+
+			switch (c) {
+			case '&':
+				addDecodedParam(name, value, hasValue);
+				name.setLength(0);
+				value.setLength(0);
+				data = name;
+				hasValue = false;
+				break;
+			case '=':
+				hasValue = true;
+				data = value;
+				break;
+			default:
+				data.appendCodePoint(c);
+			}
+		}
+
+		addDecodedParam(name, value, hasValue);
+
+		return this;
+	}
+
+	private void addDecodedParam(
+			StringBuilder name,
+			StringBuilder value,
+			boolean hasValue) {
+		if (name.length() == 0 && !hasValue) {
+			return;
+		}
+		if (!hasValue) {
+			add(name.toString(), new String[0]);
+			return;
+		}
+		add(name.toString(), value.toString());
 	}
 
 	public final String urlEncode() throws UnsupportedEncodingException {

@@ -12,6 +12,9 @@ public class ClrClientRequest implements Parameterized {
 
 	private URL clientURL;
 
+	public ClrClientRequest() {
+	}
+
 	public ClrClientRequest(Parameters params) {
 		read(params);
 	}
@@ -21,16 +24,7 @@ public class ClrClientRequest implements Parameterized {
 	}
 
 	public void setClientURL(URL clientURL) {
-		if (clientURL != null) {
-
-			final String protocol = clientURL.getProtocol();
-
-			if (!"http".equals(protocol) && !"https".equals(protocol)) {
-				throw new IllegalArgumentException(
-						"HTTP/HTTPS client URL expected: " + clientURL);
-			}
-		}
-
+		ensureHttpURL(clientURL);
 		this.clientURL = clientURL;
 	}
 
@@ -42,6 +36,18 @@ public class ClrClientRequest implements Parameterized {
 	@Override
 	public void write(Parameters params) {
 		params.set("clientURL", getClientURL());
+	}
+
+	private void ensureHttpURL(URL clientURL) {
+		if (clientURL != null) {
+
+			final String protocol = clientURL.getProtocol();
+
+			if (!"http".equals(protocol) && !"https".equals(protocol)) {
+				throw new IllegalArgumentException(
+						"HTTP/HTTPS client URL expected: " + clientURL);
+			}
+		}
 	}
 
 	private URL clientURLFromParams(Parameters params) {

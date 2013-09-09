@@ -18,6 +18,7 @@ public class HttpRfConnection extends RfConnection implements RfSource {
 	private ScheduledExecutorService executor;
 	private final HttpRfClient client;
 	private final HttpRfSettings settings;
+	private final HttpReconnector reconnector = new HttpReconnector(this);
 	private UUID clientUUID;
 	private String clientPath;
 	private volatile RfStatusUpdater statusUpdater;
@@ -58,6 +59,7 @@ public class HttpRfConnection extends RfConnection implements RfSource {
 		this.statusUpdater = updater;
 		this.executor = newSingleThreadScheduledExecutor();
 		new ConnectRequest(this).send();
+		this.reconnector.schedule();
 	}
 
 	@Override
@@ -75,10 +77,10 @@ public class HttpRfConnection extends RfConnection implements RfSource {
 		this.statusUpdater = null;
 		new DisconnectRequest(this).send();
 		this.executor.shutdown();
-		this.executor = null;
 	}
 
 	public void updateStatus(RfStatusMessage status) {
+		ping();
 
 		final RfStatusUpdater statusUpdater = this.statusUpdater;
 
@@ -88,6 +90,7 @@ public class HttpRfConnection extends RfConnection implements RfSource {
 	}
 
 	public void updateTagAppearance(RfTagAppearanceRequest tagAppearance) {
+		ping();
 
 		final RfDataReceiver dataReceiver = this.dataReceiver;
 
@@ -97,6 +100,10 @@ public class HttpRfConnection extends RfConnection implements RfSource {
 
 			collector.updateTagAppearance(tagAppearance);
 		}
+	}
+
+	public void ping() {
+		this.reconnector.reschedule();
 	}
 
 	@Override

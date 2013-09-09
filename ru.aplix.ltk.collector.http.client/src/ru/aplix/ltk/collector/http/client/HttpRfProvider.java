@@ -42,10 +42,10 @@ public class HttpRfProvider implements RfProvider<HttpRfSettings> {
 	}
 
 	public void updateStatus(
-			String path,
+			String clientPath,
 			RfStatusRequest status) {
 
-		final HttpRfConnection con = this.client.getConnection(path);
+		final HttpRfConnection con = this.client.getConnection(clientPath);
 
 		if (con != null) {
 			con.updateStatus(status);
@@ -53,13 +53,22 @@ public class HttpRfProvider implements RfProvider<HttpRfSettings> {
 	}
 
 	public void updateTagAppearance(
-			String path,
+			String clientPath,
 			RfTagAppearanceRequest data) {
 
-		final HttpRfConnection con = this.client.getConnection(path);
+		final HttpRfConnection con = this.client.getConnection(clientPath);
 
 		if (con != null) {
 			con.updateTagAppearance(data);
+		}
+	}
+
+	public void ping(String clientPath) {
+
+		final HttpRfConnection con = this.client.getConnection(clientPath);
+
+		if (con != null) {
+			con.ping();
 		}
 	}
 

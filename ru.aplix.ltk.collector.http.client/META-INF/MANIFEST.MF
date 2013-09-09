@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: RFID Collector HTTP Client
+Bundle-SymbolicName: ru.aplix.ltk.collector.http.client
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Vendor: Aplix LLC
+Bundle-ActivationPolicy: lazy
+Require-Bundle: ru.aplix.ltk.collector.http;bundle-version="1.0.0";visibility:=reexport

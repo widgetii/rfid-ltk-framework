@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Collector HTTP Server Implementation
+Bundle-Name: RFID Collector HTTP Server
 Bundle-SymbolicName: ru.aplix.ltk.collector.http.server
 Bundle-Version: 1.0.0
 Bundle-Activator: ru.aplix.ltk.collector.http.server.CollectorHttpService
@@ -13,3 +13,4 @@ Import-Package: javax.servlet;version="2.6.0",
  org.osgi.util.tracker;version="1.5.1"
 Require-Bundle: ru.aplix.ltk.collector.http;bundle-version="1.0.0",
  ru.aplix.ltk.osgi;bundle-version="1.0.0"
+Bundle-Vendor: Aplix LLC

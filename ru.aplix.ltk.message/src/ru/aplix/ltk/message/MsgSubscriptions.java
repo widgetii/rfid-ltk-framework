@@ -1,5 +1,6 @@
 package ru.aplix.ltk.message;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
@@ -55,6 +56,28 @@ public abstract class MsgSubscriptions<H extends MsgHandle<H, M>, M> {
 		}
 
 		return handle;
+	}
+
+	/**
+	 * Subscribes the given consumer to receive messages asynchronously.
+	 *
+	 * <p>To unsubscribe, use the returned handle.</p>
+	 *
+	 * @param consumer consumer to subscribe.
+	 * @param executor executor to use to process the received messages, or
+	 * <code>null</code> to process them immediately upon reception. In the
+	 * latter case the call to this method is the same as the call to
+	 * {@link #subscribe(MsgConsumer)}.
+	 *
+	 * @return subscription handle.
+	 */
+	public final H subscribe(
+			MsgConsumer<? super H, ? super M> consumer,
+			Executor executor) {
+		if (executor == null) {
+			return subscribe(consumer);
+		}
+		return subscribe(new AsyncMsgProcessor<>(consumer, executor));
 	}
 
 	/**

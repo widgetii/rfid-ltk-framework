@@ -10,10 +10,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import ru.aplix.ltk.collector.http.RfTagAppearanceRequest;
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.RfConnection;
+import ru.aplix.ltk.core.collector.RfCollector;
+import ru.aplix.ltk.core.collector.RfTracker;
+import ru.aplix.ltk.core.collector.RfTracking;
 import ru.aplix.ltk.core.source.*;
 
 
-public class HttpRfConnection extends RfConnection implements RfSource {
+public class HttpRfConnection
+		extends RfConnection
+		implements RfSource, RfTracker {
 
 	private ScheduledExecutorService executor;
 	private final HttpRfClient client;
@@ -22,7 +27,7 @@ public class HttpRfConnection extends RfConnection implements RfSource {
 	private UUID clientUUID;
 	private String clientPath;
 	private volatile RfStatusUpdater statusUpdater;
-	private volatile RfDataReceiver dataReceiver;
+	private volatile RfTracking tracking;
 
 	public HttpRfConnection(HttpRfClient client, HttpRfSettings settings) {
 		super(settings);
@@ -64,12 +69,28 @@ public class HttpRfConnection extends RfConnection implements RfSource {
 
 	@Override
 	public void requestRfData(RfDataReceiver receiver) {
-		this.dataReceiver = receiver;
+	}
+
+	@Override
+	public void initRfTracker(RfTracking tracking) {
+		this.tracking = tracking;
+	}
+
+	@Override
+	public void startRfTracking() {
+	}
+
+	@Override
+	public void rfData(RfDataMessage dataMessage) {
+	}
+
+	@Override
+	public void stopRfTracking() {
+		this.tracking = null;
 	}
 
 	@Override
 	public void rejectRfData() {
-		this.dataReceiver = null;
 	}
 
 	@Override
@@ -92,13 +113,10 @@ public class HttpRfConnection extends RfConnection implements RfSource {
 	public void updateTagAppearance(RfTagAppearanceRequest tagAppearance) {
 		ping();
 
-		final RfDataReceiver dataReceiver = this.dataReceiver;
+		final RfTracking tracking = this.tracking;
 
-		if (dataReceiver != null) {
-
-			final HttpRfCollector collector = (HttpRfCollector) getCollector();
-
-			collector.updateTagAppearance(tagAppearance);
+		if (tracking != null) {
+			tracking.updateTagAppearance(tagAppearance);
 		}
 	}
 
@@ -107,8 +125,8 @@ public class HttpRfConnection extends RfConnection implements RfSource {
 	}
 
 	@Override
-	protected HttpRfCollector createCollector() {
-		return new HttpRfCollector(this);
+	protected RfCollector createCollector() {
+		return new RfCollector(this, this);
 	}
 
 	@Override

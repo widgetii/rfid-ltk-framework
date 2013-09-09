@@ -41,8 +41,18 @@ public final class RfTracking implements RfStatusUpdater {
 	 * @param tag appeared RFID tag.
 	 */
 	public final void tagAppeared(RfTag tag) {
-		this.collector.tagAppearanceSubscriptions().sendMessage(
+		updateTagAppearance(
 				new RfTagAppearanceMessageImpl(tag, RF_TAG_APPEARED));
+	}
+
+	/**
+	 * Reports a change in RFID tag appearance.
+	 *
+	 * @param tagAppearance tag appearance change to report.
+	 */
+	public final void updateTagAppearance(
+			RfTagAppearanceMessage tagAppearance) {
+		this.collector.tagAppearanceSubscriptions().sendMessage(tagAppearance);
 	}
 
 	/**
@@ -51,7 +61,7 @@ public final class RfTracking implements RfStatusUpdater {
 	 * @param tag disappeared RFID tag.
 	 */
 	public final void tagDisappeared(RfTag tag) {
-		this.collector.tagAppearanceSubscriptions().sendMessage(
+		updateTagAppearance(
 				new RfTagAppearanceMessageImpl(tag, RF_TAG_DISAPPEARED));
 	}
 

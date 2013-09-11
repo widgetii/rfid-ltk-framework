@@ -55,6 +55,9 @@
     <module
       name="com.springsource.*"
       resolver="com.springsource"/>
+    <module
+      name="org.springframework.*"
+      resolver="com.springsource.repository.bundles.release"/>
   </modules>
 
 </ivysettings>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.app.store"
+    status="integration"
+    revision="1.0.0"/>
+  <configurations defaultconf="runtime" defaultconfmapping="runtime->*">
+    <conf name="runtime"/>
+  </configurations>
+  <publications>
+    <artifact ext="par"/>
+  </publications>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.store.web"
+      rev="latest.integration"
+      conf="runtime->@"/>
+  </dependencies>
+</ivy-module>

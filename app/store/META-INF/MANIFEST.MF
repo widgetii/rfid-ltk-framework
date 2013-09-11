@@ -1,0 +1,4 @@
+Application-SymbolicName: ru.aplix.ltk.app.store
+Application-Name: RFID Tags Store
+Application-Version: 1.0.0
+Application-Description: RFID tags store web application

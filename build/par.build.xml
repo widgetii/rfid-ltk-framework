@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+	name="ru.aplix.ltk.build.par">
+
+	<import file="app.build.xml"/>
+
+	<property name="par.name" value="${ant.project.name}"/>
+	<property name="par.file" value="${app.dir}/${par.name}.par"/>
+
+	<target name="build" depends="build-deps">
+		<mkdir taskname="${ant.project.name}" dir="${app.dir}"/>
+		<jar
+			taskname="${ant.project.name}"
+			destfile="${par.file}"
+			manifest="META-INF/MANIFEST.MF"
+			encoding="UTF-8">
+			<ivy:resources file="${ivy.file}" conf="runtime" type="jar"/>
+		</jar>
+	</target>
+
+</project>

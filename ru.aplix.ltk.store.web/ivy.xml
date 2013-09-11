@@ -11,6 +11,9 @@
     <conf name="compile" extends="default"/>
     <conf name="runtime" extends="default"/>
   </configurations>
+  <publications>
+    <artifact ext="war"/>
+  </publications>
   <dependencies>
     <dependency
       org="bundle"

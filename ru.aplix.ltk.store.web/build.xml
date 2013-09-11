@@ -2,10 +2,6 @@
 
 <project name="ru.aplix.ltk.store.web" default="package">
 
-	<import file="../build/common.build.xml"/>
-
-	<augment id="jar.resources" dir="content">
-		<include name="**"/>
-	</augment>
+	<import file="../build/war.build.xml"/>
 
 </project>

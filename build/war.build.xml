@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ru.aplix.ltk.build.war">
+
+	<property name="jar.ext" value="war"/>
+
+	<import file="common.build.xml"/>
+
+	<augment id="jar.resources" dir="content">
+		<include name="**"/>
+	</augment>
+
+</project>

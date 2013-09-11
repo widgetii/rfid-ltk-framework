@@ -9,9 +9,10 @@
 
 	<property name="ivy.file" value="${basedir}/ivy.xml"/>
 	<property name="module.version" value="${ltk_version}"/>
+	<property name="jar.ext" value="jar"/>
 	<property 
 		name="jar.file"
-		value="${target.dir}/${ant.project.name}_${module.version}.jar"/>
+		value="${target.dir}/${ant.project.name}_${module.version}.${jar.ext}"/>
 	<property name="source.path" value="src"/>
 	<property name="classes.dir" value="${basedir}/bin"/>
 	

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ru.aplix.ltk.store.web" default="package">
+
+	<import file="../build/common.build.xml"/>
+
+	<augment id="jar.resources" dir="content">
+		<include name="**"/>
+	</augment>
+
+</project>

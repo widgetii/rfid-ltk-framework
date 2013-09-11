@@ -14,7 +14,10 @@
 		value="${target.dir}/${ant.project.name}_${module.version}.jar"/>
 	<property name="source.path" value="src"/>
 	<property name="classes.dir" value="${basedir}/bin"/>
-
+	
+	<fileset id="jar.resources" dir=".">
+		<include name=".empty"/>
+	</fileset>
 
 	<ivy:settings file="${root.dir}/ivysettings.xml"/>
 
@@ -50,10 +53,7 @@
 				<ivy:resources file="${ivy.file}" conf="compile"/>
 			</classpath>
 		</javac>
-		<antcall target="copy-resources"/>
 	</target>
-
-	<extension-point name="copy-resources"/>
 
 	<target
 		name="package"
@@ -66,6 +66,11 @@
 			encoding="UTF-8"
 			taskname="${ant.project.name}">
 			<fileset dir="${output..}"/>
+			<fileset
+				dir="."
+				includes="META-INF/**"
+				excludes="META-INF/MANIFEST.MF"/>
+			<fileset refid="jar.resources"/>
 		</jar>
 	</target>
 

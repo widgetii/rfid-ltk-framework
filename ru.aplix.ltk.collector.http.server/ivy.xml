@@ -24,7 +24,8 @@
     <dependency
       org="bundle"
       name="javax.servlet"
-      rev="3.0.0+"/>
+      rev="3.0.0+"
+      conf="compile->*"/>
     <dependency
       org="bundle"
       name="org.eclipse.osgi.services"

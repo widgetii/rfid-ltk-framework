@@ -21,9 +21,16 @@
       rev="latest.integration"
       conf="compile->@;runtime->@"/>
     <dependency
+      org="bundle"
+      name="ru.aplix.ltk.store"
+      rev="latest.integration"
+      conf="compile->@;runtime->@"/>
+    <dependency
       org="org.springframework"
-      name="org.springframework.spring-library"
-      rev="3.1.0+"
-      conf="compile->*"/>
+      name="org.springframework.context"
+      rev="3.1.0.RELEASE"
+      conf="compile->*">
+      <artifact name="org.springframework.context" type="jar"/>
+    </dependency>
   </dependencies>
 </ivy-module>

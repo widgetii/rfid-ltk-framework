@@ -1,39 +1,39 @@
-<div class="container-fluid" ng-controller="RfReadersCtrl">
-  <h1>Устройства чтения</h1>
+<div class="container-fluid" ng-controller="RfCollectorsCtrl">
+  <h1>Накопители тегов</h1>
 
   <accordion close-others="true">
     <accordion-group
-      ng-repeat="reader in readers.list"
-      heading="{{reader.getName()}}">
+      ng-repeat="collector in collectors.list"
+      heading="{{collector.getName()}}">
     </accordion-group>
   </accordion>
 
   <form
     class="form-horizontal"
-    ng-controller="NewRfReaderCtrl"
-    name="newReaderForm"
-    ng-submit="createReader()">
+    ng-controller="NewRfCollectorCtrl"
+    name="newCollectorForm"
+    ng-submit="create()">
     <fieldset>
-      <legend>Новое устройство</legend>
+      <legend>Новый накопитель</legend>
 
       <div
         class="control-group"
-        ng-class="{error: !newReaderForm.collectorURL.$valid}">
-        <label class="control-label" for="collectorURL">
+        ng-class="{error: !newCollectorForm.remoteURL.$valid}">
+        <label class="control-label" for="remoteURL">
           Адрес накопителя
         </label>
         <div class="controls">
           <input
             type="text"
-            name="collectorURL"
+            name="remoteURL"
             placeholder="Адрес накопителя"
-            ng-model="newReader.collectorURL"
+            ng-model="newCollector.remoteURL"
             required
             ng-trim="true"
-            ng-change="correctCollectorURL()">
+            ng-change="correctRemoteURL()">
           <span
             class="help-inline"
-            ng-show="newReaderForm.collectorURL.$error.required">
+            ng-show="newCollectorForm.remoteURL.$error.required">
             адрес обязателен
           </span>
         </div>

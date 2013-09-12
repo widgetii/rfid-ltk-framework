@@ -4,35 +4,35 @@ angular.module("rfid-tag-store", ["ui.bootstrap", "notifier"])
 })
 .config(function($routeProvider) {
 	$routeProvider.when(
-			'/readers',
+			'/collectors',
 			{
-				templateUrl: 'readers/readers.html'
+				templateUrl: 'collectors/collectors.html'
 			})
-	.otherwise({redirectTo: '/readers'});
+	.otherwise({redirectTo: '/collectors'});
 })
-.factory('$rfReaders', function() {
-	function RfReader(readers) {
-		this.readers = readers;
-		this.collectorURL = null;
+.factory('$rfCollectors', function() {
+	function RfCollector(collectors) {
+		this.collectors = collectors;
+		this.remoteURL = null;
 	}
 
-	RfReader.prototype.getName = function() {
-		return this.collectorURL;
+	RfCollector.prototype.getName = function() {
+		return this.remoteURL;
 	};
 
-	RfReader.prototype.create = function() {
-		this.readers.list.push(this);
+	RfCollector.prototype.create = function() {
+		this.collectors.list.push(this);
 	};
 
-	function RfReaders() {
+	function RfCollectors() {
 		this.list = [];
 	}
 
-	RfReaders.prototype.newReader = function() {
-		return new RfReader(this);
+	RfCollectors.prototype.newCollector = function() {
+		return new RfCollector(this);
 	};
 
-	return new RfReaders();
+	return new RfCollectors();
 });
 
 function NavCtrl($scope, $location) {

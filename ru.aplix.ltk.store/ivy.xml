@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.store"
+    status="integration"
+    revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="compile" extends="default"/>
+    <conf name="runtime" extends="default"/>
+  </configurations>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.core"
+      rev="latest.integration"/>
+    <dependency
+      org="org.springframework"
+      name="org.springframework.context"
+      rev="3.1.0.RELEASE"
+      conf="compile->*">
+      <artifact name="org.springframework.context" type="jar"/>
+    </dependency>
+  </dependencies>
+</ivy-module>

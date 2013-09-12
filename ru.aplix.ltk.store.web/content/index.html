@@ -7,18 +7,58 @@
 <link rel="stylesheet" href="css/style.css"/>
 <script type="text/javascript" src="js/angular.js"></script>
 <script type="text/javascript" src="js/ui-bootstrap-tpls.js"></script>
+<script type="text/javascript" src="js/notifier.js"></script>
 <script type="text/javascript" src="js/app.js"></script>
+<script type="text/javascript" src="readers/readers.js"></script>
 </head>
 <body>
-  <div class="navbar navbar-fixed-top">
+  <div class="navbar navbar-fixed-top" ng-controller="NavCtrl">
     <a class="brand" href="#">Хранилище тегов RFID</a>
     <div class="navbar-inner">
       <ul class="nav">
-        <li ng-class="navClass('/jobs/search')">
-          <a href="#!/readers">Search</a>
+        <li ng-class="navClass('/readers')">
+          <a href="#!/readers">Устройства</a>
         </li>
       </ul>
     </div>
   </div>
+  <div
+    id="notifier"
+    ng-controller="NotifierCtrl"
+    ng-class="cssClass()">
+    <div
+      ng-repeat="message in notifier.visibleMessages()"
+      ng-show="message.condition()"
+      ng-class="message.cssClass()"
+      ng-include
+      src="message.url">
+    </div>
+  </div>
+  <div ng-view></div>
+  
+<script type="text/ng-template" id="/info.msg">
+<h4 ng-show="message.title" ng-bind="message.title"></h4>
+{{message.text}}
+</script>
+  
+<script type="text/ng-template" id="/error.msg">
+<button class="close" ng-click="message.close()">&#4030;</button>
+<h4 ng-bind="message.title"></h4>
+{{message.text}}
+</script>
+  
+<script type="text/ng-template" id="/done.msg">
+<button class="close" ng-click="message.close()">&#4030;</button>
+<h4 ng-show="message.title" ng-bind="message.title"></h4>
+<p>{{message.text}}</p>
+<p>
+  <button class="btn-link" ng-click="message.close()">Ok</button>
+  <button
+    ng-show="message.canUndo"
+    class="btn-link"
+    ng-click="message.undo()">Undo</button>
+</p>
+</script>
+
 </body>
 </html>

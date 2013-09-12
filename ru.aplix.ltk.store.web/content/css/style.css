@@ -4,3 +4,13 @@ body {
 .navbar .brand {
   float: right;
 }
+
+#notifier {
+  position: fixed;
+  top: 48px;
+  right: 28px;
+  background: transparent;
+  width: auto;
+  height: auto;
+  z-index: 1;
+}

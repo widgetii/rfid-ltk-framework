@@ -1,2 +1,51 @@
-<div class="container-fluid">
+<div class="container-fluid" ng-controller="RfReadersCtrl">
+  <h1>Устройства чтения</h1>
+
+  <accordion close-others="true">
+    <accordion-group
+      ng-repeat="reader in readers.list"
+      heading="{{reader.getName()}}">
+    </accordion-group>
+  </accordion>
+
+  <form
+    class="form-horizontal"
+    ng-controller="NewRfReaderCtrl"
+    name="newReaderForm"
+    ng-submit="createReader()">
+    <fieldset>
+      <legend>Новое устройство</legend>
+
+      <div
+        class="control-group"
+        ng-class="{error: !newReaderForm.collectorURL.$valid}">
+        <label class="control-label" for="collectorURL">
+          Адрес накопителя
+        </label>
+        <div class="controls">
+          <input
+            type="text"
+            name="collectorURL"
+            placeholder="Адрес накопителя"
+            ng-model="newReader.collectorURL"
+            required
+            ng-trim="true"
+            ng-change="correctCollectorURL()">
+          <span
+            class="help-inline"
+            ng-show="newReaderForm.collectorURL.$error.required">
+            адрес обязателен
+          </span>
+        </div>
+      </div>
+
+    </fieldset>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" type="submit">
+        Добавить
+      </button>
+    </div>
+  </form>
+
 </div>

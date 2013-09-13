@@ -2,6 +2,8 @@
 
 <ivysettings>
 
+  <settings defaultResolver="com.springsource"/>
+
   <caches
     resolutionCacheDir="${ivy.settings.dir}/cache/resolution"
     repositoryCacheDir="${ivy.settings.dir}/cache/repository"

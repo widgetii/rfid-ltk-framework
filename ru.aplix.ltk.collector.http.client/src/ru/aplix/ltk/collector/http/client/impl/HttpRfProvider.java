@@ -1,5 +1,10 @@
 package ru.aplix.ltk.collector.http.client.impl;
 
+import static org.osgi.framework.Constants.SERVICE_ID;
+import static ru.aplix.ltk.collector.http.client.HttpRfSettings.HTTP_RF_PROVIDER_ID;
+
+import java.util.Hashtable;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -86,13 +91,18 @@ final class HttpRfProvider
 	}
 
 	void register(BundleContext context) {
+
+		final Hashtable<String, String> properties = new Hashtable<>(1);
+
+		properties.put(SERVICE_ID, HTTP_RF_PROVIDER_ID);
+
 		this.registration = context.registerService(
 				new String[] {
 					RfProvider.class.getName(),
 					HttpRfProcessor.class.getName(),
 				},
 				this,
-				null);
+				properties);
 	}
 
 	void unregister() {

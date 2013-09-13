@@ -28,6 +28,11 @@ public class CtgRfProvider implements RfProvider<CtgRfSettings> {
 	}
 
 	@Override
+	public CtgRfSettings copySettings(CtgRfSettings settings) {
+		return settings.clone();
+	}
+
+	@Override
 	public RfConnection connect(CtgRfSettings settings) {
 		return new CtgRfConnection(settings.clone());
 	}

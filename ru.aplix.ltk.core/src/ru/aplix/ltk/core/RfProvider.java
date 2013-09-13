@@ -47,6 +47,15 @@ public interface RfProvider<S extends RfSettings> {
 	S newSettings();
 
 	/**
+	 * Copies RFID settings.
+	 *
+	 * @param settings settings to copy.
+	 *
+	 * @return new settings instance with values copied from {@code settings}.
+	 */
+	S copySettings(S settings);
+
+	/**
 	 * Opens RFID connection with the given settings.
 	 *
 	 * <p>RFID connection interface could be specific to the provider, but this

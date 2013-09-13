@@ -28,6 +28,11 @@ public class DummyRfProvider implements RfProvider<DummyRfSettings> {
 	}
 
 	@Override
+	public DummyRfSettings copySettings(DummyRfSettings settings) {
+		return settings.clone();
+	}
+
+	@Override
 	public RfConnection connect(DummyRfSettings settings) {
 		return new DummyRfConnection(settings.clone());
 	}

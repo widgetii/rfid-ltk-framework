@@ -37,6 +37,11 @@ public class HttpRfProvider implements RfProvider<HttpRfSettings> {
 	}
 
 	@Override
+	public HttpRfSettings copySettings(HttpRfSettings settings) {
+		return settings.clone();
+	}
+
+	@Override
 	public RfConnection connect(HttpRfSettings settings) {
 		return this.client.connect(settings);
 	}

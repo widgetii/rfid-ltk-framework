@@ -12,6 +12,6 @@ public interface RfStoreService {
 
 	RfStore<?> rfStoreById(int id);
 
-	<S extends RfSettings> RfStore<S> newRfStore(RfProvider<S> provider);
+	<S extends RfSettings> RfStoreEditor<S> newRfStore(RfProvider<S> provider);
 
 }

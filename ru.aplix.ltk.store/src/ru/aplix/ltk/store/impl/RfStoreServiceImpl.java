@@ -30,13 +30,33 @@ public class RfStoreServiceImpl implements RfStoreService {
 	}
 
 	@Override
-	public <S extends RfSettings> RfStore<S> newRfStore(
+	public <S extends RfSettings> RfStoreEditorImpl<S> newRfStore(
 			RfProvider<S> provider) {
-		return new RfStoreImpl<>(this, this.idSeq.incrementAndGet(), provider);
+		return new RfStoreEditorImpl<>(this, provider);
 	}
 
-	void saveStore(RfStoreImpl<?> store) {
-		this.stores.put(store.getId(), store);
+	<S extends RfSettings> RfStoreImpl<S> saveStore(
+			RfStoreEditorImpl<S> editor) {
+
+		final RfStoreImpl<S> editedStore = editor.getStore();
+		final RfStoreImpl<S> store;
+
+		if (editedStore != null) {
+			store = editedStore;
+		} else {
+			store = new RfStoreImpl<>(
+					this,
+					this.idSeq.incrementAndGet(),
+					editor.getRfProvider());
+		}
+
+		store.update(editor);
+
+		if (editedStore == null) {
+			this.stores.put(store.getId(), store);
+		}
+
+		return store;
 	}
 
 	void deleteStore(RfStoreImpl<?> store) {

@@ -2,6 +2,7 @@ package ru.aplix.ltk.store;
 
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
+import ru.aplix.ltk.core.collector.RfCollector;
 
 
 public interface RfStore<S extends RfSettings> {
@@ -10,11 +11,11 @@ public interface RfStore<S extends RfSettings> {
 
 	RfProvider<S> getRfProvider();
 
-	S getRfSettings();
+	boolean isActive();
 
-	void setRfSettings(S settings);
+	RfCollector getRfCollector();
 
-	void save();
+	RfStoreEditor<S> modify();
 
 	void delete();
 

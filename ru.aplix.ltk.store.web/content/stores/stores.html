@@ -1,24 +1,24 @@
-<div class="container-fluid" ng-controller="RfCollectorsCtrl">
-  <h1>Накопители тегов</h1>
+<div class="container-fluid" ng-controller="RfStoresCtrl">
+  <h1>Хранилища тегов</h1>
 
   <accordion close-others="true">
     <accordion-group
-      ng-repeat="collector in collectors.list"
-      heading="{{collector.getName()}}">
+      ng-repeat="store in stores.list"
+      heading="{{store.getName()}}">
     </accordion-group>
   </accordion>
 
   <form
     class="form-horizontal"
-    ng-controller="NewRfCollectorCtrl"
-    name="newCollectorForm"
+    ng-controller="NewRfStoreCtrl"
+    name="newStoreForm"
     ng-submit="create()">
     <fieldset>
-      <legend>Новый накопитель</legend>
+      <legend>Новое хранилище</legend>
 
       <div
         class="control-group"
-        ng-class="{error: !newCollectorForm.remoteURL.$valid}">
+        ng-class="{error: !newStoreForm.remoteURL.$valid}">
         <label class="control-label" for="remoteURL">
           Адрес накопителя
         </label>
@@ -27,13 +27,13 @@
             type="text"
             name="remoteURL"
             placeholder="Адрес накопителя"
-            ng-model="newCollector.remoteURL"
+            ng-model="newStore.remoteURL"
             required
             ng-trim="true"
             ng-change="correctRemoteURL()">
           <span
             class="help-inline"
-            ng-show="newCollectorForm.remoteURL.$error.required">
+            ng-show="newCStoreForm.remoteURL.$error.required">
             адрес обязателен
           </span>
         </div>

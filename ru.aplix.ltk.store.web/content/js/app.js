@@ -48,6 +48,7 @@ angular.module("rfid-tag-store", ["ngResource", "ui.bootstrap", "notifier"])
 	}
 
 	RfStores.prototype.newStore = function() {
+		var RfStore = this.RfStore;
 		return new RfStore();
 	};
 

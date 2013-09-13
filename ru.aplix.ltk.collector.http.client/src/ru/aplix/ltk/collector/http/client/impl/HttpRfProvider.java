@@ -1,18 +1,23 @@
-package ru.aplix.ltk.collector.http.client;
+package ru.aplix.ltk.collector.http.client.impl;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 import ru.aplix.ltk.collector.http.RfStatusRequest;
 import ru.aplix.ltk.collector.http.RfTagAppearanceRequest;
-import ru.aplix.ltk.collector.http.client.impl.HttpRfClient;
-import ru.aplix.ltk.collector.http.client.impl.HttpRfConnection;
+import ru.aplix.ltk.collector.http.client.HttpRfProcessor;
+import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.RfProvider;
 
 
-public class HttpRfProvider implements RfProvider<HttpRfSettings> {
+final class HttpRfProvider
+		implements RfProvider<HttpRfSettings>, HttpRfProcessor {
 
 	private final HttpRfClient client;
+	private ServiceRegistration<?> registration;
 
-	public HttpRfProvider() {
+	HttpRfProvider() {
 		this.client = new HttpRfClient();
 	}
 
@@ -46,6 +51,7 @@ public class HttpRfProvider implements RfProvider<HttpRfSettings> {
 		return this.client.connect(settings);
 	}
 
+	@Override
 	public void updateStatus(
 			String clientPath,
 			RfStatusRequest status) {
@@ -57,6 +63,7 @@ public class HttpRfProvider implements RfProvider<HttpRfSettings> {
 		}
 	}
 
+	@Override
 	public void updateTagAppearance(
 			String clientPath,
 			RfTagAppearanceRequest data) {
@@ -68,6 +75,7 @@ public class HttpRfProvider implements RfProvider<HttpRfSettings> {
 		}
 	}
 
+	@Override
 	public void ping(String clientPath) {
 
 		final HttpRfConnection con = this.client.getConnection(clientPath);
@@ -77,8 +85,23 @@ public class HttpRfProvider implements RfProvider<HttpRfSettings> {
 		}
 	}
 
-	public void dispose() {
-		this.client.shutdown();
+	void register(BundleContext context) {
+		this.registration = context.registerService(
+				new String[] {
+					RfProvider.class.getName(),
+					HttpRfProcessor.class.getName(),
+				},
+				this,
+				null);
+	}
+
+	void unregister() {
+		try {
+			this.client.shutdown();
+		} finally {
+			this.registration.unregister();
+			this.registration = null;
+		}
 	}
 
 }

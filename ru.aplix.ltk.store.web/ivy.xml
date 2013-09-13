@@ -32,5 +32,12 @@
       conf="compile->*">
       <artifact name="org.springframework.context" type="jar"/>
     </dependency>
+    <dependency
+      org="org.springframework"
+      name="org.springframework.web"
+      rev="3.1.0.RELEASE"
+      conf="compile->*">
+      <artifact name="org.springframework.web" type="jar"/>
+    </dependency>
   </dependencies>
 </ivy-module>

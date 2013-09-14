@@ -10,9 +10,6 @@ import ru.aplix.ltk.core.util.Parameters;
 
 public class HttpRfSettings extends AbstractRfSettings {
 
-	public static final String HTTP_RF_PROVIDER_ID =
-			HttpRfSettings.class.getPackage().getName() + ".RfProvider";
-
 	private URL collectorURL;
 	private URL clientURL;
 

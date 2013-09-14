@@ -19,6 +19,11 @@ public interface RfProvider<S extends RfSettings> {
 	Class<RfProvider<?>> RF_PROVIDER_CLASS = (Class) RfProvider.class;
 
 	/**
+	 * OSGi property name containing RFID provider identifier.
+	 */
+	String RF_PROVIDER_ID = "ru.aplix.ltk.provider.id";
+
+	/**
 	 * Provider's identifier.
 	 *
 	 * @return unique ASCII provider identifier.

@@ -17,6 +17,7 @@
 
   <reference
     id="httpRfProvider"
-    interface="ru.aplix.ltk.core.RfProvider"/>
+    interface="ru.aplix.ltk.core.RfProvider"
+    filter="(ru.aplix.ltk.provider.id=http)"/>
 
 </blueprint>

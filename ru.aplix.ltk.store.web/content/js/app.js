@@ -16,19 +16,19 @@ angular.module("rfid-tag-store", ["ngResource", "ui.bootstrap", "notifier"])
 		var self = this;
 
 		this.RfStore = $resource(
-				"stores/:storeId.do",
+				"stores/:storeId.json",
 				{
 					storeId: '@id'
 				},
 				{
-					list: {
+					all: {
 						method: 'GET',
-						url: "stores/list.do",
+						url: "stores/all.json",
 						isArray: true,
 					},
 					create: {
 						method: 'PUT',
-						url: 'stores/create.do',
+						url: 'stores/create.json',
 						transformResponse: function (store) {
 							self.list.push(store);
 							return store;

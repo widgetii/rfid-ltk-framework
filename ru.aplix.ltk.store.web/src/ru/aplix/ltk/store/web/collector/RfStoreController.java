@@ -4,6 +4,9 @@ import static java.util.Objects.requireNonNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,15 +41,30 @@ public class RfStoreController {
 	}
 
 	@RequestMapping(
-			value = "/stores/all.do",
+			value = "/stores/all.json",
 			method = {RequestMethod.GET, RequestMethod.HEAD})
 	@ResponseBody
-	public RfStoreListBean allStores() {
-		return new RfStoreListBean(getStoreService().allRfStores());
+	public List<RfStoreBean> allStores() {
+
+		final Collection<? extends RfStore<?>> srores =
+				getStoreService().allRfStores();
+		final ArrayList<RfStoreBean> beans =
+				new ArrayList<>(srores.size());
+
+		for (RfStore<?> store : srores) {
+
+			@SuppressWarnings("unchecked")
+			final RfStoreBean bean =
+					new RfStoreBean((RfStore<HttpRfSettings>) store);
+
+			beans.add(bean);
+		}
+
+		return beans;
 	}
 
 	@RequestMapping(
-			value = "/stores/create.do",
+			value = "/stores/create.json",
 			method = RequestMethod.PUT)
 	@ResponseBody
 	public RfStoreBean createStore(
@@ -69,7 +87,7 @@ public class RfStoreController {
 	}
 
 	@RequestMapping(
-			value = "/stores/{id:\\d+}.do",
+			value = "/stores/{id:\\d+}.json",
 			method = RequestMethod.PUT)
 	@ResponseBody
 	public RfStoreBean updateStore(
@@ -91,7 +109,7 @@ public class RfStoreController {
 	}
 
 	@RequestMapping(
-			value = "/stores/{id:\\d+}.do",
+			value = "/stores/{id:\\d+}.json",
 			method = RequestMethod.DELETE)
 	public void deleteStore(@PathVariable("id") int id) {
 

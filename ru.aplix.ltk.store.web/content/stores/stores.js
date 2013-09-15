@@ -31,6 +31,20 @@ angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
 			return this.remoteURL;
 		};
 
+		this.RfStore.prototype.getStatus = function() {
+			switch (this.status) {
+			case "inactive":
+				return "Отключено";
+			case "active":
+				return "Подключено";
+			case "ready":
+				return "Работает";
+			case "error":
+				return "Ошибка";
+			}
+			return "???";
+		};
+
 		this.RfStore.prototype.create = function(success, error) {
 			this.$create(
 					{

@@ -1,17 +1,28 @@
 package ru.aplix.ltk.store.web.collector;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.store.RfStore;
 import ru.aplix.ltk.store.RfStoreEditor;
 
 
 public class RfStoreBean {
 
+	private static final String INACTIVE_STATUS = "inactive";
+	private static final String ACTIVE_STATUS = "active";
+	private static final String READY_STATUS = "ready";
+	private static final String ERROR_STATUS = "ready";
+
 	private int id;
 	private String remoteURL;
+	private String status = INACTIVE_STATUS;
+	private String error;
+	private String cause;
 	private boolean active;
 
 	public RfStoreBean() {
@@ -48,6 +59,19 @@ public class RfStoreBean {
 
 	public void setActive(boolean active) {
 		this.active = active;
+		this.status = active ? ACTIVE_STATUS : INACTIVE_STATUS;
+	}
+
+	public String getStatus() {
+		return this.status;
+	}
+
+	public String getError() {
+		return this.error;
+	}
+
+	public String getCause() {
+		return this.cause;
 	}
 
 	public void edit(
@@ -62,7 +86,56 @@ public class RfStoreBean {
 
 	public RfStoreBean update(RfStore<HttpRfSettings> store) {
 		setActive(store.isActive());
+		updateStatus(store);
 		return this;
+	}
+
+	private void updateStatus(RfStore<HttpRfSettings> store) {
+		this.error = null;
+		this.cause = null;
+		if (!isActive()) {
+			this.status = INACTIVE_STATUS;
+			return;
+		}
+		this.status = ACTIVE_STATUS;
+
+		final RfStatusMessage lastStatus = store.getLastStatus();
+
+		if (lastStatus == null) {
+			return;
+		}
+
+		switch (lastStatus.getRfStatus()) {
+		case RF_READY:
+			this.status = READY_STATUS;
+			return;
+		case RF_ERROR:
+			this.status = ERROR_STATUS;
+			updateError(lastStatus);
+			return;
+		}
+	}
+
+	private void updateError(final RfStatusMessage lastStatus) {
+
+		final String errorMessage = lastStatus.getErrorMessage();
+
+		if (errorMessage != null) {
+			this.error = errorMessage;
+		}
+
+		final Throwable cause = lastStatus.getCause();
+
+		if (cause != null) {
+
+			final StringWriter trace = new StringWriter();
+
+			try (PrintWriter out = new PrintWriter(trace)) {
+				cause.printStackTrace(out);
+			}
+
+			this.cause = trace.toString();
+		}
 	}
 
 }

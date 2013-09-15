@@ -3,6 +3,7 @@ package ru.aplix.ltk.store.impl;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.store.RfStore;
 import ru.aplix.ltk.store.RfStoreEditor;
 
@@ -46,6 +47,11 @@ final class RfStoreImpl<S extends RfSettings> implements RfStore<S> {
 	@Override
 	public RfCollector getRfCollector() {
 		return this.state.getRfCollector();
+	}
+
+	@Override
+	public RfStatusMessage getLastStatus() {
+		return this.state.getLastStatus();
 	}
 
 	@Override

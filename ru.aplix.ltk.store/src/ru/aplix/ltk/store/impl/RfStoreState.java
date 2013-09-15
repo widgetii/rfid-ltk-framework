@@ -16,6 +16,7 @@ final class RfStoreState<S extends RfSettings>
 	private S settings;
 	private volatile RfCollector collector;
 	private RfCollectorHandle handle;
+	private volatile RfStatusMessage lastStatus;
 
 	RfStoreState(RfStoreImpl<S> store) {
 		this.store = store;
@@ -42,6 +43,10 @@ final class RfStoreState<S extends RfSettings>
 		return this.collector;
 	}
 
+	public final RfStatusMessage getLastStatus() {
+		return isActive() ? this.lastStatus : null;
+	}
+
 	@Override
 	public void consumerSubscribed(RfCollectorHandle handle) {
 		this.handle = handle;
@@ -50,7 +55,7 @@ final class RfStoreState<S extends RfSettings>
 
 	@Override
 	public void messageReceived(RfStatusMessage message) {
-		// TODO handle messages
+		this.lastStatus = message;
 	}
 
 	@Override

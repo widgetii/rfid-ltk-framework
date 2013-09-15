@@ -73,6 +73,30 @@ angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
 						if (error) error(response);
 					});
 		};
+
+		this.RfStore.prototype.del = function(success, error) {
+			var store = this;
+			function removeStore() {
+				var index = stores.list.indexOf(store);
+				if (index >= 0) {
+					stores.list.splice(index, 1);
+				} else {
+					$notifier.error(
+							"Ошибка удаления хранилища",
+							"Неизвестное хранилище: " + store.id);
+				}
+			}
+			store.$del(
+					function() {
+						removeStore();
+						if (success) success(store);
+					},
+					function(response) {
+						$notifier.error(
+								"ОШИБКА " + response.status,
+								"Не удалось удалить хранилище");
+					});
+		};
 	}
 
 	RfStores.prototype.newStore = function() {
@@ -96,6 +120,11 @@ angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
 })
 .controller("RfStoresCtrl", function($scope, $rfStores) {
 	$scope.stores = $rfStores;
+})
+.controller("RfStoreCtrl", function($scope) {
+	$scope.del = function() {
+		$scope.store.del();
+	};
 })
 .controller("NewRfStoreCtrl", function(
 		$scope,

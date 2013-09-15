@@ -5,6 +5,13 @@
     <accordion-group
       ng-repeat="store in stores.list"
       heading="{{store.getName()}}">
+      <div ng-controller="RfStoreCtrl">
+        <div class="btn-group pull-right">
+          <button class="btn btn-danger" ng-click="del()">
+            &#4030;&nbsp;Удалить
+          </button>
+        </div>
+      </div>
     </accordion-group>
   </accordion>
 

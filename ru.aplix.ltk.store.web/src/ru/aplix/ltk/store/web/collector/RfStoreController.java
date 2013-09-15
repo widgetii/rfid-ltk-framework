@@ -112,13 +112,18 @@ public class RfStoreController {
 	@RequestMapping(
 			value = "/stores/{id:\\d+}.json",
 			method = RequestMethod.DELETE)
-	public void deleteStore(@PathVariable("id") int id) {
+	@ResponseBody
+	public RfStoreBean deleteStore(@PathVariable("id") int id) {
 
-		final RfStore<?> store = getStoreService().rfStoreById(id);
+		@SuppressWarnings("unchecked")
+		final RfStore<HttpRfSettings> store =
+				(RfStore<HttpRfSettings>) getStoreService().rfStoreById(id);
 
-		if (store != null) {
-			store.delete();
-		}
+		requireNonNull(store, "Unknown RFID tag store: " + id);
+
+		store.delete();
+
+		return new RfStoreBean(store);
 	}
 
 	private static String applicationURL(HttpServletRequest request) {

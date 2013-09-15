@@ -97,9 +97,8 @@ angular.module("notifier", ["ui.bootstrap"])
 		return this.addMessage(message);
 	};
 	return new Notifier();
-});
-
-function NotifierCtrl($scope, $notifier) {
+})
+.controller("NotifierCtrl", function($scope, $notifier) {
 	$scope.notifier = $notifier;
 	$scope.cssClass = function() {
 		var messages = $notifier.messages;
@@ -108,4 +107,4 @@ function NotifierCtrl($scope, $notifier) {
 		}
 		return "hide";
 	};
-}
+});

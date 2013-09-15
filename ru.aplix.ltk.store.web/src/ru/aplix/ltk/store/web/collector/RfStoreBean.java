@@ -11,7 +11,7 @@ import ru.aplix.ltk.store.RfStore;
 import ru.aplix.ltk.store.RfStoreEditor;
 
 
-public class RfStoreBean {
+public class RfStoreBean implements Comparable<RfStoreBean> {
 
 	private static final String INACTIVE_STATUS = "inactive";
 	private static final String ACTIVE_STATUS = "active";
@@ -88,6 +88,11 @@ public class RfStoreBean {
 		setActive(store.isActive());
 		updateStatus(store);
 		return this;
+	}
+
+	@Override
+	public int compareTo(RfStoreBean o) {
+		return getId() - o.getId();
 	}
 
 	private void updateStatus(RfStore<HttpRfSettings> store) {

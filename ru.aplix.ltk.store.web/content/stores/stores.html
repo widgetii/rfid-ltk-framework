@@ -1,36 +1,44 @@
 <div class="container-fluid" ng-controller="RfStoresCtrl">
   <h1>Хранилища тегов</h1>
 
-  <accordion>
-    <accordion-group
-      ng-repeat="store in stores.list"
-      heading="">
-      <accordion-heading>
-        <span class="pull-right">{{store.getStatus()}}</span>
-        {{store.getName()}}
-      </accordion-heading>
-      <div ng-controller="RfStoreCtrl" class="container-fluid">
-        <p>
-          <dl class="dl-horizontal">
-            <dt>Состояние</dt>
-            <dd>{{store.getStatus()}}</dd>
-            <dt ng-show="store.error">Ошибка</dt>
-            <dd ng-show="store.error">{{store.error}}</dd>
-            <dt ng-show="!store.error && store.cause">Ошибка</dt>
-            <dt ng-show="store.error && store.cause">Причина</dt>
-            <dd ng-show="store.cause">
-              <code><pre>{{store.cause}}</pre></code>
-            </dd>
-          </dl>
-        </p>
-        <div class="btn-group pull-right">
-          <button class="btn btn-danger" ng-click="del()">
-            &#4030;&nbsp;Удалить
-          </button>
+  <div class="accordion" ng-show="stores.list.length">
+    <div ng-repeat="store in stores.list">
+      <div class="accordion-group" ng-controller="RfStoreCtrl">
+        <div class="accordion-heading">
+          <div class="accordion-toggle" ng-click="toggle()">
+            <span class="pull-right">{{store.getStatus()}}</span>
+            {{store.getName()}}
+          </div>
+        </div>
+        <div
+          class="accordion-body"
+          collapse="isCollapsed()">
+          <div class="accordion-inner container-fluid">
+            <p>
+              <dl class="dl-horizontal">
+                <dt>Адрес накопителя</dt>
+                <dd>{{store.remoteURL}}</dd>
+                <dt>Состояние</dt>
+                <dd>{{store.getStatus()}}</dd>
+                <dt ng-show="store.error">Ошибка</dt>
+                <dd ng-show="store.error">{{store.error}}</dd>
+                <dt ng-show="!store.error && store.cause">Ошибка</dt>
+                <dt ng-show="store.error && store.cause">Причина</dt>
+                <dd ng-show="store.cause">
+                  <code><pre>{{store.cause}}</pre></code>
+                </dd>
+              </dl>
+            </p>
+          </div>
+          <div class="btn-group pull-right">
+            <button class="btn btn-danger" ng-click="del()">
+              &#4030;&nbsp;Удалить
+            </button>
+          </div>
         </div>
       </div>
-    </accordion-group>
-  </accordion>
+    </div>
+  </div>
 
   <form
     class="form-horizontal"

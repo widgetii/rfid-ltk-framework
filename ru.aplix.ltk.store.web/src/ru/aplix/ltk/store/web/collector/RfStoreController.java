@@ -4,9 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -60,6 +58,8 @@ public class RfStoreController {
 
 			beans.add(bean);
 		}
+
+		Collections.sort(beans);
 
 		return beans;
 	}

@@ -1,5 +1,10 @@
-angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
-.factory('$rfStores', function($resource, $notifier) {
+angular.module(
+		'rfid-tag-store.stores',
+		[
+			"ngResource",
+			"notifier"
+		])
+.factory('$rfStores', function($resource, $timeout, $notifier) {
 	function RfStores() {
 		this.list = [];
 		var stores = this;
@@ -63,13 +68,10 @@ angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
 
 		this.RfStore.prototype.save = function(success, error) {
 			function updateStore(store) {
-				var len = stores.list.length;
-				for (var i = 0; i < len; ++i) {
-					var old = stores.list[i];
-					if (old.id == store.id) {
-						stores.list[i] = store;
-						return;
-					}
+				var index = stores.storeIndexById(store.id);
+				if (index >= 0) {
+					stores.list[i] = store;
+					return;
 				}
 				$notifier.error(
 						"Ошибка обновления хранилища",
@@ -92,13 +94,7 @@ angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
 			var store = this;
 			function removeStore() {
 				var index = stores.list.indexOf(store);
-				if (index >= 0) {
-					stores.list.splice(index, 1);
-				} else {
-					$notifier.error(
-							"Ошибка удаления хранилища",
-							"Неизвестное хранилище: " + store.id);
-				}
+				if (index >= 0) stores.list.splice(index, 1);
 			}
 			store.$del(
 					function() {
@@ -118,24 +114,51 @@ angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
 		return new RfStore();
 	};
 
+	RfStores.prototype.storeIndexById = function(id) {
+		for (var i = 0; i < len; ++i) {
+			if (this.list[i].id == id) {
+				return i;
+			}
+		}
+		return -1;
+	};
+
 	var stores = new RfStores();
 
-	stores.RfStore.all(
-			function(list) {
-				stores.list = list;
-			},
-			function(response) {
-				$notifier(
-						"ОШИБКА " + response.status,
-						"Не удалось загрузить список хранилищ");
-			});
+	function refreshStores() {
+		stores.RfStore.all(
+				function(list) {
+					stores.list = list;
+				},
+				function(response) {
+					$notifier.error(
+							"ОШИБКА " + response.status,
+							"Не удалось загрузить список хранилищ");
+				});
+		$timeout(refreshStores, 3000);
+	}
+
+	refreshStores();
 
 	return stores;
 })
 .controller("RfStoresCtrl", function($scope, $rfStores) {
 	$scope.stores = $rfStores;
+	$scope.expanded = {};
 })
 .controller("RfStoreCtrl", function($scope) {
+	$scope.isCollapsed = function() {
+		return !$scope.expanded[$scope.store.id];
+	};
+	$scope.toggle = function() {
+		var id = $scope.store.id;
+		var expanded = $scope.expanded;
+		if (expanded[id]) {
+			delete expanded[id];
+		} else {
+			expanded[id] = true;
+		}
+	};
 	$scope.del = function() {
 		$scope.store.del();
 	};

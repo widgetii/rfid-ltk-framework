@@ -1,4 +1,11 @@
-angular.module("rfid-tag-store", ["ngResource", "ui.bootstrap", "notifier"])
+angular.module(
+		"rfid-tag-store",
+		[
+			"ngRoute",
+			"ngResource",
+			"ui.bootstrap",
+			"notifier"
+		])
 .config(function($locationProvider) {
 	$locationProvider.hashPrefix('!');
 })
@@ -10,10 +17,10 @@ angular.module("rfid-tag-store", ["ngResource", "ui.bootstrap", "notifier"])
 			})
 	.otherwise({redirectTo: '/stores'});
 })
-.factory('$rfStores', function($resource) {
+.factory('$rfStores', function($resource, $notifier) {
 	function RfStores() {
 		this.list = [];
-		var self = this;
+		var stores = this;
 
 		this.RfStore = $resource(
 				"stores/:storeId.json",
@@ -24,15 +31,11 @@ angular.module("rfid-tag-store", ["ngResource", "ui.bootstrap", "notifier"])
 					all: {
 						method: 'GET',
 						url: "stores/all.json",
-						isArray: true,
+						isArray: true
 					},
 					create: {
 						method: 'PUT',
-						url: 'stores/create.json',
-						transformResponse: function (store) {
-							self.list.push(store);
-							return store;
-						}
+						url: 'stores/create.json'
 					},
 					save: {
 						method: 'PUT',
@@ -44,6 +47,46 @@ angular.module("rfid-tag-store", ["ngResource", "ui.bootstrap", "notifier"])
 
 		this.RfStore.prototype.getName = function() {
 			return this.remoteURL;
+		};
+
+		this.RfStore.prototype.create = function(success, error) {
+			this.$create(
+					function(store) {
+						stores.list.push(store);
+						if (success) success(store);
+					}, function(response) {
+						$notifier.error(
+								"ОШИБКА " + response.status,
+								"Не удалось создать хранилище");
+						if (error) error(response);
+					});
+		};
+
+		this.RfStore.prototype.save = function(success, error) {
+			function updateStore(store) {
+				var len = stores.list.length;
+				for (var i = 0; i < len; ++i) {
+					var old = stores.list[i];
+					if (old.id == store.id) {
+						stores.list[i] = store;
+						return;
+					}
+				}
+				$notifier.error(
+						"Ошибка обновления хранилища",
+						"Неизвестное хранилище: " + store.id);
+			}
+			this.$save(
+					function(store) {
+						updateStore(store);
+						if (success) success(store);
+					},
+					function(response) {
+						$notifier.error(
+								"ОШИБКА " + response.status,
+								"Не удалось обновить хранилище");
+						if (error) error(response);
+					});
 		};
 	}
 

@@ -2,7 +2,8 @@ function RfStoresCtrl($scope, $rfStores) {
 	$scope.stores = $rfStores;
 }
 
-function NewRfStoreCtrl($scope, $rfStores) {
+function NewRfStoreCtrl($scope, $rfStores, $notifier) {
+	$scope.updating = false;
 	$scope.newStore = $rfStores.newStore();
 	$scope.correctRemoteURL = function() {
 		var store = $scope.newStore;
@@ -13,9 +14,19 @@ function NewRfStoreCtrl($scope, $rfStores) {
 		if ("https:/".startsWith(url)) return;
 		store.remoteURL = "http://" + url;
 	};
+	function startUpdate() {
+		$scope.updating = true;
+	}
+	function stopUpdate() {
+		$scope.updating = false;
+	}
 	$scope.create = function() {
-		var newStore = $scope.newStore;
-		$scope.newStore = $rfStores.newStore();
-		newStore.create();
+		startUpdate();
+		$scope.newStore.create(
+				function() {
+					$scope.newStore = $rfStores.newStore();
+					stopUpdate();
+				},
+				stopUpdate);
 	};
 }

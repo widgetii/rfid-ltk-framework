@@ -18,7 +18,7 @@
 
       <div
         class="control-group"
-        ng-class="{error: !newStoreForm.remoteURL.$valid}">
+        ng-class="{error: newStoreForm.remoteURL.$dirty && newStoreForm.remoteURL.$invalid}">
         <label class="control-label" for="remoteURL">
           Адрес накопителя
         </label>
@@ -33,12 +33,11 @@
             ng-change="correctRemoteURL()">
           <span
             class="help-inline"
-            ng-show="newCStoreForm.remoteURL.$error.required">
+            ng-show="newStoreForm.remoteURL.$dirty && newStoreForm.remoteURL.$error.required">
             адрес обязателен
           </span>
         </div>
       </div>
-
     </fieldset>
 
     <div class="btn-group">

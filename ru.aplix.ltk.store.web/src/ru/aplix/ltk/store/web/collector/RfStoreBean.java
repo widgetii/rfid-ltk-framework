@@ -16,7 +16,7 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 	private static final String INACTIVE_STATUS = "inactive";
 	private static final String ACTIVE_STATUS = "active";
 	private static final String READY_STATUS = "ready";
-	private static final String ERROR_STATUS = "ready";
+	private static final String ERROR_STATUS = "error";
 
 	private int id;
 	private String remoteURL;

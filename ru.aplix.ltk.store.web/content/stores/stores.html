@@ -10,9 +10,7 @@
             {{store.getName()}}
           </div>
         </div>
-        <div
-          class="accordion-body"
-          collapse="isCollapsed()">
+        <div class="accordion-body" collapse="isCollapsed()">
           <div class="accordion-inner container-fluid">
             <p>
               <dl class="dl-horizontal">
@@ -25,32 +23,40 @@
                 <dt ng-show="!store.error && store.cause">Ошибка</dt>
                 <dt ng-show="store.error && store.cause">Причина</dt>
                 <dd ng-show="store.cause">
-                  <code><pre>{{store.cause}}</pre></code>
+                  <pre>{{store.cause}}</pre>
                 </dd>
               </dl>
             </p>
-          </div>
-          <div class="btn-group pull-right">
-            <button
-              class="btn btn-primary"
-              ng-click="start()"
-              ng-disabled="updating"
-              ng-hide="store.active">
-              Запустить
-            </button>
-            <button
-              class="btn btn-warning"
-              ng-click="stop()"
-              ng-disabled="updating"
-              ng-show="store.active">
-              Остановить
-            </button>
-            <button
-              class="btn btn-danger"
-              ng-click="del()"
-              ng-disabled="updating">
-              &#4030;&nbsp;Удалить
-            </button>
+
+            <div class="btn-group pull-right" ng-hide="store.active">
+              <button
+                class="btn btn-primary"
+                ng-click="start()"
+                ng-disabled="updating">
+                Запустить
+              </button>
+              <button
+                class="btn btn-danger"
+                ng-click="del()"
+                ng-disabled="updating">
+                &#4030;&nbsp;Удалить
+              </button>
+            </div>
+
+            <div class="btn-group pull-right" ng-show="store.active">
+              <button
+                class="btn btn-warning"
+                ng-click="stop()"
+                ng-disabled="updating">
+                Остановить
+              </button>
+              <button
+                class="btn btn-danger"
+                ng-click="del()"
+                ng-disabled="updating">
+                &#4030;&nbsp;Удалить
+              </button>
+            </div>
           </div>
         </div>
       </div>

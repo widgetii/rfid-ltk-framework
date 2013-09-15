@@ -70,7 +70,7 @@ public class RfStoreController {
 	@ResponseBody
 	public RfStoreBean createStore(
 			HttpServletRequest request,
-			RfStoreBean bean)
+			@RequestBody RfStoreBean bean)
 	throws MalformedURLException {
 
 		final RfStoreEditor<HttpRfSettings> editor =
@@ -93,7 +93,7 @@ public class RfStoreController {
 	@ResponseBody
 	public RfStoreBean updateStore(
 			@PathVariable("id") int id,
-			RfStoreBean bean)
+			@RequestBody RfStoreBean bean)
 	throws MalformedURLException {
 
 		@SuppressWarnings("unchecked")

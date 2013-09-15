@@ -29,12 +29,12 @@ angular.module(
 				{
 					all: {
 						method: 'GET',
-						url: "stores/all.json",
+						params: {storeId: "all"},
 						isArray: true
 					},
 					create: {
 						method: 'PUT',
-						url: 'stores/create.json'
+						params: {storeId: 'create'}
 					},
 					save: {
 						method: 'PUT',
@@ -50,6 +50,9 @@ angular.module(
 
 		this.RfStore.prototype.create = function(success, error) {
 			this.$create(
+					{
+						storeId: 'create'
+					},
 					function(store) {
 						stores.list.push(store);
 						if (success) success(store);

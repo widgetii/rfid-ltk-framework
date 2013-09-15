@@ -1,5 +1,5 @@
 angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
-.factory('$rfStores', function($resource, $notifier, $rootScope) {
+.factory('$rfStores', function($resource, $notifier) {
 	function RfStores() {
 		this.list = [];
 		var stores = this;
@@ -80,7 +80,19 @@ angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
 		return new RfStore();
 	};
 
-	return new RfStores();
+	var stores = new RfStores();
+
+	stores.RfStore.all(
+			function(list) {
+				stores.list = list;
+			},
+			function(response) {
+				$notifier(
+						"ОШИБКА " + response.status,
+						"Не удалось загрузить список хранилищ");
+			});
+
+	return stores;
 })
 .controller("RfStoresCtrl", function($scope, $rfStores) {
 	$scope.stores = $rfStores;

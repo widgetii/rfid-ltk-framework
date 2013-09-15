@@ -33,8 +33,8 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 		final RfStoreEditor<HttpRfSettings> editor = store.modify();
 
 		setId(store.getId());
-		setActive(store.isActive());
 		setRemoteURL(editor.getRfSettings().getCollectorURL().toString());
+		update(store);
 	}
 
 	public int getId() {

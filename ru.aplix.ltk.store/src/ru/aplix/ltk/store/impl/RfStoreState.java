@@ -96,6 +96,12 @@ final class RfStoreState<S extends RfSettings>
 		return newState;
 	}
 
+	void shutdown() {
+		if (isActive()) {
+			stop();
+		}
+	}
+
 	private void start() {
 		this.collector =
 				getRfProvider().connect(getRfSettings()).getCollector();

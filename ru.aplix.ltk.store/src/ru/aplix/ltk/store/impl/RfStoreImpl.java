@@ -60,6 +60,9 @@ final class RfStoreImpl<S extends RfSettings> implements RfStore<S> {
 	@Override
 	public void delete() {
 		getService().deleteStore(this);
+		synchronized (this) {
+			this.state.shutdown();
+		}
 	}
 
 	synchronized void update(RfStoreEditor<S> editor) {

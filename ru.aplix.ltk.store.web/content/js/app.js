@@ -1,7 +1,6 @@
 angular.module(
 		"rfid-tag-store",
 		[
-			"ngRoute",
 			"ngResource",
 			"ui.bootstrap",
 			"notifier"
@@ -17,7 +16,7 @@ angular.module(
 			})
 	.otherwise({redirectTo: '/stores'});
 })
-.factory('$rfStores', function($resource, $notifier) {
+.factory('$rfStores', function($resource, $notifier, $rootScope) {
 	function RfStores() {
 		this.list = [];
 		var stores = this;

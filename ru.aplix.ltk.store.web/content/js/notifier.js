@@ -66,7 +66,7 @@ angular.module("notifier", ["ui.bootstrap"])
 	Notifier.prototype.error = function(title, text) {
 		if (!text) {
 			text = title;
-			title = "Error";
+			title = "Ошибка";
 		}
 		var message = {
 			cssClass: "alert alert-block alert-error",

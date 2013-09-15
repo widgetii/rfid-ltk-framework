@@ -31,7 +31,8 @@
             ng-model="newStore.remoteURL"
             required
             ng-trim="true"
-            ng-change="correctRemoteURL()">
+            ng-change="correctRemoteURL()"
+            ng-disabled="updating">
           <span
             class="help-inline"
             ng-show="newStoreForm.remoteURL.$dirty && newStoreForm.remoteURL.$error.required">
@@ -45,7 +46,10 @@
       class="control-group">
       <div class="controls">
         <div class="btn-group">
-          <button class="btn btn-primary" type="submit">
+          <button
+            class="btn btn-primary"
+            type="submit"
+            ng-disabled="updating">
             Добавить
           </button>
         </div>

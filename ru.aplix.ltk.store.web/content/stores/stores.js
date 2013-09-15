@@ -125,6 +125,7 @@ angular.module('rfid-tag-store.stores', ["ngResource", "notifier"])
 		}
 	}
 	$scope.create = function() {
+		if ($scope.updating) return;
 		startUpdate();
 		$scope.newStore.create(
 				function() {

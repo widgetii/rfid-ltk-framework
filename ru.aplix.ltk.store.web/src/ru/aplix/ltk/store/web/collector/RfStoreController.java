@@ -23,6 +23,7 @@ import ru.aplix.ltk.store.RfStoreService;
 
 
 @Controller("rfStoreController")
+@RequestMapping("/stores/*.json")
 public class RfStoreController {
 
 	@Autowired

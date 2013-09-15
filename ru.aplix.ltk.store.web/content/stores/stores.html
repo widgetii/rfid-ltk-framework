@@ -31,7 +31,24 @@
             </p>
           </div>
           <div class="btn-group pull-right">
-            <button class="btn btn-danger" ng-click="del()">
+            <button
+              class="btn btn-primary"
+              ng-click="start()"
+              ng-disabled="updating"
+              ng-hide="store.active">
+              Запустить
+            </button>
+            <button
+              class="btn btn-warning"
+              ng-click="stop()"
+              ng-disabled="updating"
+              ng-show="store.active">
+              Остановить
+            </button>
+            <button
+              class="btn btn-danger"
+              ng-click="del()"
+              ng-disabled="updating">
               &#4030;&nbsp;Удалить
             </button>
           </div>

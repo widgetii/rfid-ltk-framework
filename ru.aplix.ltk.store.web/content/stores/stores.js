@@ -25,10 +25,10 @@ angular.module(
 						params: {storeId: 'create'}
 					},
 					save: {
-						method: 'PUT',
+						method: 'PUT'
 					},
 					del: {
-						method: 'DELETE',
+						method: 'DELETE'
 					}
 				});
 
@@ -70,7 +70,7 @@ angular.module(
 			function updateStore(store) {
 				var index = stores.storeIndexById(store.id);
 				if (index >= 0) {
-					stores.list[i] = store;
+					stores.list[index] = store;
 					return;
 				}
 				$notifier.error(
@@ -115,6 +115,7 @@ angular.module(
 	};
 
 	RfStores.prototype.storeIndexById = function(id) {
+		var len = this.list.length;
 		for (var i = 0; i < len; ++i) {
 			if (this.list[i].id == id) {
 				return i;
@@ -135,7 +136,7 @@ angular.module(
 							"ОШИБКА " + response.status,
 							"Не удалось загрузить список хранилищ");
 				});
-		$timeout(refreshStores, 3000);
+		$timeout(refreshStores, 5000);
 	}
 
 	refreshStores();
@@ -147,6 +148,13 @@ angular.module(
 	$scope.expanded = {};
 })
 .controller("RfStoreCtrl", function($scope) {
+	$scope.updating = false;
+	function startUpdate() {
+		$scope.updating = true;
+	}
+	function endUpdate() {
+		$scope.updating = false;
+	}
 	$scope.isCollapsed = function() {
 		return !$scope.expanded[$scope.store.id];
 	};
@@ -161,6 +169,18 @@ angular.module(
 	};
 	$scope.del = function() {
 		$scope.store.del();
+	};
+	$scope.start = function() {
+		$scope.store.active = true;
+		$scope.save();
+	};
+	$scope.stop = function() {
+		$scope.store.active = false;
+		$scope.save();
+	};
+	$scope.save = function() {
+		startUpdate();
+		$scope.store.save(endUpdate, endUpdate);
 	};
 })
 .controller("NewRfStoreCtrl", function(

@@ -66,12 +66,24 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 		return this.status;
 	}
 
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
 	public String getError() {
 		return this.error;
 	}
 
+	public void setError(String error) {
+		this.error = error;
+	}
+
 	public String getCause() {
 		return this.cause;
+	}
+
+	public void setCause(String cause) {
+		this.cause = cause;
 	}
 
 	public void edit(

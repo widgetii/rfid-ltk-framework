@@ -8,10 +8,11 @@ import ru.aplix.ltk.core.RfSettings;
 
 public interface RfStoreService {
 
-	Collection<? extends RfStore<?>> allRfStores();
+	Collection<? extends RfReceiver<?>> allRfReceivers();
 
-	RfStore<?> rfStoreById(int id);
+	RfReceiver<?> rfReceiverById(int id);
 
-	<S extends RfSettings> RfStoreEditor<S> newRfStore(RfProvider<S> provider);
+	<S extends RfSettings> RfReceiverEditor<S> newRfReceiver(
+			RfProvider<S> provider);
 
 }

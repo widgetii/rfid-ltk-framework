@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
-import ru.aplix.ltk.store.RfStore;
+import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfStoreService;
 
 
@@ -16,51 +16,51 @@ import ru.aplix.ltk.store.RfStoreService;
 public class RfStoreServiceImpl implements RfStoreService {
 
 	private final AtomicInteger idSeq = new AtomicInteger();
-	private final ConcurrentHashMap<Integer, RfStoreImpl<?>> stores =
+	private final ConcurrentHashMap<Integer, RfReceiverImpl<?>> receivers =
 			new ConcurrentHashMap<>();
 
 	@Override
-	public Collection<? extends RfStoreImpl<?>> allRfStores() {
-		return this.stores.values();
+	public Collection<? extends RfReceiverImpl<?>> allRfReceivers() {
+		return this.receivers.values();
 	}
 
 	@Override
-	public RfStore<?> rfStoreById(int id) {
-		return this.stores.get(id);
+	public RfReceiver<?> rfReceiverById(int id) {
+		return this.receivers.get(id);
 	}
 
 	@Override
-	public <S extends RfSettings> RfStoreEditorImpl<S> newRfStore(
+	public <S extends RfSettings> RfReceiverEditorImpl<S> newRfReceiver(
 			RfProvider<S> provider) {
-		return new RfStoreEditorImpl<>(this, provider);
+		return new RfReceiverEditorImpl<>(this, provider);
 	}
 
-	<S extends RfSettings> RfStoreImpl<S> saveStore(
-			RfStoreEditorImpl<S> editor) {
+	<S extends RfSettings> RfReceiverImpl<S> saveReceiver(
+			RfReceiverEditorImpl<S> editor) {
 
-		final RfStoreImpl<S> editedStore = editor.getStore();
-		final RfStoreImpl<S> store;
+		final RfReceiverImpl<S> editedReceiver = editor.getRfReceiver();
+		final RfReceiverImpl<S> receiver;
 
-		if (editedStore != null) {
-			store = editedStore;
+		if (editedReceiver != null) {
+			receiver = editedReceiver;
 		} else {
-			store = new RfStoreImpl<>(
+			receiver = new RfReceiverImpl<>(
 					this,
 					this.idSeq.incrementAndGet(),
 					editor.getRfProvider());
 		}
 
-		store.update(editor);
+		receiver.update(editor);
 
-		if (editedStore == null) {
-			this.stores.put(store.getId(), store);
+		if (editedReceiver == null) {
+			this.receivers.put(receiver.getId(), receiver);
 		}
 
-		return store;
+		return receiver;
 	}
 
-	void deleteStore(RfStoreImpl<?> store) {
-		this.stores.remove(store.getId());
+	void deleteReceiver(RfReceiverImpl<?> receiver) {
+		this.receivers.remove(receiver.getId());
 	}
 
 }

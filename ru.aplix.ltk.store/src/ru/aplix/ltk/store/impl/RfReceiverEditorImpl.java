@@ -2,36 +2,36 @@ package ru.aplix.ltk.store.impl;
 
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
-import ru.aplix.ltk.store.RfStore;
-import ru.aplix.ltk.store.RfStoreEditor;
+import ru.aplix.ltk.store.RfReceiver;
+import ru.aplix.ltk.store.RfReceiverEditor;
 
 
-final class RfStoreEditorImpl<S extends RfSettings>
-		implements RfStoreEditor<S> {
+final class RfReceiverEditorImpl<S extends RfSettings>
+		implements RfReceiverEditor<S> {
 
 	private final RfStoreServiceImpl service;
 	private final RfProvider<S> provider;
-	private final RfStoreImpl<S> store;
+	private final RfReceiverImpl<S> receiver;
 	private S settings;
 	private boolean active;
 
-	RfStoreEditorImpl(RfStoreServiceImpl service, RfProvider<S> provider) {
-		this.service = service;
+	RfReceiverEditorImpl(RfStoreServiceImpl store, RfProvider<S> provider) {
+		this.service = store;
 		this.provider = provider;
-		this.store = null;
+		this.receiver = null;
 		this.settings = provider.newSettings();
 		this.active = false;
 	}
 
-	RfStoreEditorImpl(RfStoreImpl<S> store) {
-		this.service = store.getService();
-		this.provider = store.getRfProvider();
-		this.store = store;
-		this.settings = getRfProvider().copySettings(store.getRfSettings());
-		this.active = store.isActive();
+	RfReceiverEditorImpl(RfReceiverImpl<S> reseiver) {
+		this.service = reseiver.getRfStore();
+		this.provider = reseiver.getRfProvider();
+		this.receiver = reseiver;
+		this.settings = getRfProvider().copySettings(reseiver.getRfSettings());
+		this.active = reseiver.isActive();
 	}
 
-	public final RfStoreServiceImpl getService() {
+	public final RfStoreServiceImpl getRfStore() {
 		return this.service;
 	}
 
@@ -40,8 +40,8 @@ final class RfStoreEditorImpl<S extends RfSettings>
 		return this.provider;
 	}
 
-	public final RfStoreImpl<S> getStore() {
-		return this.store;
+	public final RfReceiverImpl<S> getRfReceiver() {
+		return this.receiver;
 	}
 
 	@Override
@@ -66,8 +66,8 @@ final class RfStoreEditorImpl<S extends RfSettings>
 	}
 
 	@Override
-	public RfStore<S> save() {
-		return getService().saveStore(this);
+	public RfReceiver<S> save() {
+		return getRfStore().saveReceiver(this);
 	}
 
 }

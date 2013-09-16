@@ -7,8 +7,8 @@ import java.net.URL;
 
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.source.RfStatusMessage;
-import ru.aplix.ltk.store.RfStore;
-import ru.aplix.ltk.store.RfStoreEditor;
+import ru.aplix.ltk.store.RfReceiver;
+import ru.aplix.ltk.store.RfReceiverEditor;
 
 
 public class RfStoreBean implements Comparable<RfStoreBean> {
@@ -28,9 +28,9 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 	public RfStoreBean() {
 	}
 
-	public RfStoreBean(RfStore<HttpRfSettings> store) {
+	public RfStoreBean(RfReceiver<HttpRfSettings> store) {
 
-		final RfStoreEditor<HttpRfSettings> editor = store.modify();
+		final RfReceiverEditor<HttpRfSettings> editor = store.modify();
 
 		setId(store.getId());
 		setRemoteURL(editor.getRfSettings().getCollectorURL().toString());
@@ -87,7 +87,7 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 	}
 
 	public void edit(
-			RfStoreEditor<HttpRfSettings> editor)
+			RfReceiverEditor<HttpRfSettings> editor)
 	throws MalformedURLException {
 
 		final HttpRfSettings settings = editor.getRfSettings();
@@ -96,7 +96,7 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 		editor.setActive(isActive());
 	}
 
-	public RfStoreBean update(RfStore<HttpRfSettings> store) {
+	public RfStoreBean update(RfReceiver<HttpRfSettings> store) {
 		setActive(store.isActive());
 		updateStatus(store);
 		return this;
@@ -107,7 +107,7 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 		return getId() - o.getId();
 	}
 
-	private void updateStatus(RfStore<HttpRfSettings> store) {
+	private void updateStatus(RfReceiver<HttpRfSettings> store) {
 		this.error = null;
 		this.cause = null;
 		if (!isActive()) {

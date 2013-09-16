@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
-import ru.aplix.ltk.store.RfStore;
+import ru.aplix.ltk.store.RfReceiver;
 
 
 public class RfStoreListBean {
@@ -12,13 +12,13 @@ public class RfStoreListBean {
 	private final ArrayList<RfStoreBean> stores;
 
 	public RfStoreListBean(
-			Collection<? extends RfStore<?>> stores) {
+			Collection<? extends RfReceiver<?>> stores) {
 		this.stores = new ArrayList<>(stores.size());
-		for (RfStore<?> store : stores) {
+		for (RfReceiver<?> store : stores) {
 
 			@SuppressWarnings("unchecked")
 			final RfStoreBean bean =
-					new RfStoreBean((RfStore<HttpRfSettings>) store);
+					new RfStoreBean((RfReceiver<HttpRfSettings>) store);
 
 			this.stores.add(bean);
 		}

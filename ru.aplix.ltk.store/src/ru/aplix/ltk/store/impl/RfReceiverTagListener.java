@@ -6,7 +6,7 @@ import ru.aplix.ltk.message.MsgConsumer;
 
 
 
-final class RfStoreTagListener
+final class RfReceiverTagListener
 		implements MsgConsumer<RfTagAppearanceHandle, RfTagAppearanceMessage> {
 
 	@Override

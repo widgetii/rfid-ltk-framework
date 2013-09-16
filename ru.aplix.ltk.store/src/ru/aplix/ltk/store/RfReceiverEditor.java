@@ -4,7 +4,7 @@ import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 
 
-public interface RfStoreEditor<S extends RfSettings> {
+public interface RfReceiverEditor<S extends RfSettings> {
 
 	RfProvider<S> getRfProvider();
 
@@ -16,6 +16,6 @@ public interface RfStoreEditor<S extends RfSettings> {
 
 	void setActive(boolean active);
 
-	RfStore<S> save();
+	RfReceiver<S> save();
 
 }

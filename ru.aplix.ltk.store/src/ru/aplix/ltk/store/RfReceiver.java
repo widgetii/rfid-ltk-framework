@@ -6,7 +6,7 @@ import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 
 
-public interface RfStore<S extends RfSettings> {
+public interface RfReceiver<S extends RfSettings> {
 
 	int getId();
 
@@ -18,7 +18,7 @@ public interface RfStore<S extends RfSettings> {
 
 	RfStatusMessage getLastStatus();
 
-	RfStoreEditor<S> modify();
+	RfReceiverEditor<S> modify();
 
 	void delete();
 

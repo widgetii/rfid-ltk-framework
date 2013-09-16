@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.RfProvider;
-import ru.aplix.ltk.store.RfStore;
-import ru.aplix.ltk.store.RfStoreEditor;
+import ru.aplix.ltk.store.RfReceiver;
+import ru.aplix.ltk.store.RfReceiverEditor;
 import ru.aplix.ltk.store.RfStoreService;
 
 
@@ -44,16 +44,16 @@ public class RfStoreController {
 	@ResponseBody
 	public List<RfStoreBean> allStores() {
 
-		final Collection<? extends RfStore<?>> srores =
-				getStoreService().allRfStores();
+		final Collection<? extends RfReceiver<?>> srores =
+				getStoreService().allRfReceivers();
 		final ArrayList<RfStoreBean> beans =
 				new ArrayList<>(srores.size());
 
-		for (RfStore<?> store : srores) {
+		for (RfReceiver<?> store : srores) {
 
 			@SuppressWarnings("unchecked")
 			final RfStoreBean bean =
-					new RfStoreBean((RfStore<HttpRfSettings>) store);
+					new RfStoreBean((RfReceiver<HttpRfSettings>) store);
 
 			beans.add(bean);
 		}
@@ -72,14 +72,14 @@ public class RfStoreController {
 			@RequestBody RfStoreBean bean)
 	throws MalformedURLException {
 
-		final RfStoreEditor<HttpRfSettings> editor =
-				getStoreService().newRfStore(getProvider());
+		final RfReceiverEditor<HttpRfSettings> editor =
+				getStoreService().newRfReceiver(getProvider());
 
 		bean.edit(editor);
 		editor.getRfSettings().setClientURL(
 				new URL(applicationURL(request) + "/clr-client"));
 
-		final RfStore<HttpRfSettings> store = editor.save();
+		final RfReceiver<HttpRfSettings> store = editor.save();
 
 		bean.setId(store.getId());
 
@@ -96,12 +96,12 @@ public class RfStoreController {
 	throws MalformedURLException {
 
 		@SuppressWarnings("unchecked")
-		final RfStore<HttpRfSettings> store =
-				(RfStore<HttpRfSettings>) getStoreService().rfStoreById(id);
+		final RfReceiver<HttpRfSettings> store =
+				(RfReceiver<HttpRfSettings>) getStoreService().rfReceiverById(id);
 
 		requireNonNull(store, "Unknown RFID tag store: " + id);
 
-		final RfStoreEditor<HttpRfSettings> editor = store.modify();
+		final RfReceiverEditor<HttpRfSettings> editor = store.modify();
 
 		bean.edit(editor);
 
@@ -115,8 +115,8 @@ public class RfStoreController {
 	public RfStoreBean deleteStore(@PathVariable("id") int id) {
 
 		@SuppressWarnings("unchecked")
-		final RfStore<HttpRfSettings> store =
-				(RfStore<HttpRfSettings>) getStoreService().rfStoreById(id);
+		final RfReceiver<HttpRfSettings> store =
+				(RfReceiver<HttpRfSettings>) getStoreService().rfReceiverById(id);
 
 		requireNonNull(store, "Unknown RFID tag store: " + id);
 

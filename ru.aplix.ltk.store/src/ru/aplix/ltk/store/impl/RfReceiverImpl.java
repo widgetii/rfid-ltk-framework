@@ -4,29 +4,29 @@ import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.source.RfStatusMessage;
-import ru.aplix.ltk.store.RfStore;
-import ru.aplix.ltk.store.RfStoreEditor;
+import ru.aplix.ltk.store.RfReceiver;
+import ru.aplix.ltk.store.RfReceiverEditor;
 
 
-final class RfStoreImpl<S extends RfSettings> implements RfStore<S> {
+final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 
-	private final RfStoreServiceImpl service;
+	private final RfStoreServiceImpl store;
 	private final int id;
 	private final RfProvider<S> provider;
-	private volatile RfStoreState<S> state;
+	private volatile RfReceiverState<S> state;
 
-	RfStoreImpl(
-			RfStoreServiceImpl service,
+	RfReceiverImpl(
+			RfStoreServiceImpl store,
 			int id,
 			RfProvider<S> provider) {
-		this.service = service;
+		this.store = store;
 		this.id = id;
 		this.provider = provider;
-		this.state = new RfStoreState<>(this);
+		this.state = new RfReceiverState<>(this);
 	}
 
-	public final RfStoreServiceImpl getService() {
-		return this.service;
+	public final RfStoreServiceImpl getRfStore() {
+		return this.store;
 	}
 
 	@Override
@@ -55,8 +55,8 @@ final class RfStoreImpl<S extends RfSettings> implements RfStore<S> {
 	}
 
 	@Override
-	public RfStoreEditorImpl<S> modify() {
-		return new RfStoreEditorImpl<>(this);
+	public RfReceiverEditorImpl<S> modify() {
+		return new RfReceiverEditorImpl<>(this);
 	}
 
 	public final S getRfSettings() {
@@ -65,13 +65,13 @@ final class RfStoreImpl<S extends RfSettings> implements RfStore<S> {
 
 	@Override
 	public void delete() {
-		getService().deleteStore(this);
+		getRfStore().deleteReceiver(this);
 		synchronized (this) {
 			this.state.shutdown();
 		}
 	}
 
-	synchronized void update(RfStoreEditor<S> editor) {
+	synchronized void update(RfReceiverEditor<S> editor) {
 		this.state = this.state.update(editor);
 	}
 

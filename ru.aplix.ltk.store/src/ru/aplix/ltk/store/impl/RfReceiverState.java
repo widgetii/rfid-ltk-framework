@@ -6,29 +6,29 @@ import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.collector.RfCollectorHandle;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.message.MsgConsumer;
-import ru.aplix.ltk.store.RfStoreEditor;
+import ru.aplix.ltk.store.RfReceiverEditor;
 
 
-final class RfStoreState<S extends RfSettings>
+final class RfReceiverState<S extends RfSettings>
 		implements MsgConsumer<RfCollectorHandle, RfStatusMessage>, Cloneable {
 
-	private final RfStoreImpl<S> store;
+	private final RfReceiverImpl<S> receiver;
 	private S settings;
 	private volatile RfCollector collector;
 	private RfCollectorHandle handle;
 	private volatile RfStatusMessage lastStatus;
 
-	RfStoreState(RfStoreImpl<S> store) {
-		this.store = store;
-		this.settings = store.getRfProvider().newSettings();
+	RfReceiverState(RfReceiverImpl<S> receiver) {
+		this.receiver = receiver;
+		this.settings = receiver.getRfProvider().newSettings();
 	}
 
 	public final RfProvider<S> getRfProvider() {
-		return getRfStore().getRfProvider();
+		return getRfReceiver().getRfProvider();
 	}
 
-	public final RfStoreImpl<S> getRfStore() {
-		return this.store;
+	public final RfReceiverImpl<S> getRfReceiver() {
+		return this.receiver;
 	}
 
 	public final S getRfSettings() {
@@ -50,7 +50,7 @@ final class RfStoreState<S extends RfSettings>
 	@Override
 	public void consumerSubscribed(RfCollectorHandle handle) {
 		this.handle = handle;
-		handle.requestTagAppearance(new RfStoreTagListener());
+		handle.requestTagAppearance(new RfReceiverTagListener());
 	}
 
 	@Override
@@ -65,15 +65,15 @@ final class RfStoreState<S extends RfSettings>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected RfStoreState<S> clone() {
+	protected RfReceiverState<S> clone() {
 		try {
-			return (RfStoreState<S>) super.clone();
+			return (RfReceiverState<S>) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new IllegalStateException(e);
 		}
 	}
 
-	RfStoreState<S> update(RfStoreEditor<S> editor) {
+	RfReceiverState<S> update(RfReceiverEditor<S> editor) {
 
 		boolean stop = false;
 		final S newSettings =
@@ -89,7 +89,7 @@ final class RfStoreState<S extends RfSettings>
 			stop();
 		}
 
-		final RfStoreState<S> newState = clone();
+		final RfReceiverState<S> newState = clone();
 
 		if (settingsChanged) {
 			newState.settings = newSettings;

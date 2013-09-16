@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+	name="ru.aplix.ltk.app.virgo"
+	default="build">
+
+	<import file="../../build/setup.build.xml"/>
+
+	<property name="ivy.file" value="${basedir}/ivy.xml"/>
+	<property name="app.dir" value="${basedir}/target"/>
+
+	<ivy:settings file="${root.dir}/ivysettings.xml"/>
+	
+	<target name="build">
+		<mkdir taskname="${ant.project.name}" dir="${app.dir}/repository/ext"/>
+		<ivy:retrieve
+			taskname="${ant.project.name}"
+			sync="true"
+			pattern="${app.dir}/repository/ext/[artifact]_[revision].[ext]"
+			type="jar"
+			conf="ext"/>
+		<ivy:retrieve
+			taskname="${ant.project.name}"
+			sync="true"
+			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"
+			type="jar"
+			conf="plugins"/>
+		<copy taskname="${ant.project.name}" todir="${app.dir}">
+			<fileset dir="src"/>
+		</copy>
+	</target>
+
+	<target name="clean" description="Cleans everything">
+		<delete
+			taskname="${ant.project.name}"
+			includeemptydirs="true"
+			dir="${app.dir}"/>
+	</target>
+
+</project>

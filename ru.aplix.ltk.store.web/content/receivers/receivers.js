@@ -39,9 +39,9 @@ angular.module(
 		this.RfReceiver.prototype.getStatus = function() {
 			switch (this.status) {
 			case "inactive":
-				return "Отключено";
+				return "Отключен";
 			case "active":
-				return "Подключено";
+				return "Подключен";
 			case "ready":
 				return "Работает";
 			case "error":
@@ -61,7 +61,7 @@ angular.module(
 					}, function(response) {
 						$notifier.error(
 								"ОШИБКА " + response.status,
-								"Не удалось создать хранилище");
+								"Не удалось создать накопитель");
 						if (error) error(response);
 					});
 		};
@@ -74,8 +74,8 @@ angular.module(
 					return;
 				}
 				$notifier.error(
-						"Ошибка обновления хранилища",
-						"Неизвестное хранилище: " + receiver.id);
+						"Ошибка обновления настроек накопителя",
+						"Неизвестный накопитель: " + receiver.id);
 			}
 			this.$save(
 					function(receiver) {
@@ -85,7 +85,7 @@ angular.module(
 					function(response) {
 						$notifier.error(
 								"ОШИБКА " + response.status,
-								"Не удалось обновить хранилище");
+								"Не удалось обновить настройки накопителя");
 						if (error) error(response);
 					});
 		};
@@ -104,7 +104,7 @@ angular.module(
 					function(response) {
 						$notifier.error(
 								"ОШИБКА " + response.status,
-								"Не удалось удалить хранилище");
+								"Не удалось удалить накопитель");
 					});
 		};
 	}
@@ -134,7 +134,7 @@ angular.module(
 				function(response) {
 					$notifier.error(
 							"ОШИБКА " + response.status,
-							"Не удалось загрузить список хранилищ");
+							"Не удалось загрузить список накопителей");
 				});
 		$timeout(refreshReceivers, 5000);
 	}

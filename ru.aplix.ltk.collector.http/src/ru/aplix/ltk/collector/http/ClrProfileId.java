@@ -3,7 +3,7 @@ package ru.aplix.ltk.collector.http;
 import static java.util.Objects.requireNonNull;
 
 
-public final class ClrProfileId {
+public final class ClrProfileId implements Comparable<ClrProfileId> {
 
 	public static ClrProfileId clrProfileId(String id) {
 
@@ -40,12 +40,26 @@ public final class ClrProfileId {
 	}
 
 	@Override
+	public int compareTo(ClrProfileId o) {
+
+		final int providerIdCmp = this.providerId.compareTo(o.providerId);
+
+		if (providerIdCmp != 0) {
+			return providerIdCmp;
+		}
+
+		return this.id.compareTo(o.id);
+	}
+
+	@Override
 	public int hashCode() {
 
 		final int prime = 31;
 		int result = 1;
+
 		result = prime * result + this.id.hashCode();
 		result = prime * result + this.providerId.hashCode();
+
 		return result;
 	}
 

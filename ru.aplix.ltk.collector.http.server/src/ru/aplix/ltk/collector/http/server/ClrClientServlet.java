@@ -6,6 +6,7 @@ import static ru.aplix.ltk.collector.http.ClrClientId.clrClientId;
 import static ru.aplix.ltk.core.util.Parameters.UTF_8;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -19,6 +20,8 @@ import ru.aplix.ltk.core.util.Parameters;
 
 
 public class ClrClientServlet extends HttpServlet {
+
+	public static final String CLR_SERVLET_PATH = "/collector";
 
 	private static final long serialVersionUID = -4825927568800965736L;
 
@@ -35,6 +38,23 @@ public class ClrClientServlet extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		allProfiles().init();
+	}
+
+	@Override
+	protected void doGet(
+			HttpServletRequest req,
+			HttpServletResponse resp)
+	throws ServletException, IOException {
+		resp.setContentType("text/html;charset=UTF-8");
+
+		@SuppressWarnings("resource")
+		final PrintWriter out = resp.getWriter();
+
+		allProfiles().statusReport(
+				out,
+				req.getContextPath() + CLR_SERVLET_PATH);
+
+		out.flush();
 	}
 
 	@Override

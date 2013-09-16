@@ -1,5 +1,7 @@
 package ru.aplix.ltk.collector.http.server;
 
+import static ru.aplix.ltk.collector.http.server.ClrClientServlet.CLR_SERVLET_PATH;
+
 import javax.servlet.ServletException;
 
 import org.osgi.framework.BundleActivator;
@@ -52,7 +54,7 @@ public class CollectorHttpService implements BundleActivator {
 	private void registerServlets(HttpService service) {
 		try {
 			service.registerServlet(
-					"/collector",
+					CLR_SERVLET_PATH,
 					new ClrClientServlet(this),
 					null,
 					null);

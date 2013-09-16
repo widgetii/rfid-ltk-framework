@@ -1,6 +1,5 @@
 package ru.aplix.ltk.store.web.collector;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
 
 import java.io.IOException;
@@ -21,6 +20,7 @@ import ru.aplix.ltk.core.util.Parameters;
 
 
 @Controller("rfCollectorClientController")
+@RequestMapping("/clr-client")
 public class RfCollectorClientController {
 
 	@Autowired
@@ -31,43 +31,51 @@ public class RfCollectorClientController {
 	}
 
 	@RequestMapping(
-			value = "/clr-client",
-			method = {RequestMethod.GET, RequestMethod.POST})
-	public void process(
+			method = RequestMethod.POST,
+			params = {"client", "type=status"})
+	public void updateStatus(
+			HttpServletRequest request,
+			HttpServletResponse response)
+	throws IOException {
+
+		final UUID clientUUID = UUID.fromString(request.getParameter("client"));
+		final RfStatusRequest statusRequest =
+				new RfStatusRequest(new Parameters(request.getParameterMap()));
+
+		getRfProcessor().updateStatus(clientUUID, statusRequest);
+
+		emptyResponse(response);
+	}
+
+	@RequestMapping(
+			method = RequestMethod.GET,
+			params = "client")
+	public void ping(
 			HttpServletRequest request,
 			HttpServletResponse response)
 	throws IOException {
 
 		final UUID clientUUID = UUID.fromString(request.getParameter("client"));
 
-		if ("GET".equals(request.getMethod())) {
-			getRfProcessor().ping(clientUUID);
-		} else {
+		getRfProcessor().ping(clientUUID);
 
-			final String type = request.getParameter("type");
-			final Parameters params =
-					new Parameters(request.getParameterMap());
+		emptyResponse(response);
+	}
 
-			if ("tag".equals(type)) {
+	@RequestMapping(
+			method = RequestMethod.POST,
+			params = {"client", "type=tag"})
+	public void updateTagAppearance(
+			HttpServletRequest request,
+			HttpServletResponse response)
+	throws IOException {
 
-				final RfTagAppearanceRequest tagAppearanceRequest =
-						new RfTagAppearanceRequest(params);
+		final UUID clientUUID = UUID.fromString(request.getParameter("client"));
+		final RfTagAppearanceRequest tagAppearanceRequest =
+				new RfTagAppearanceRequest(
+						new Parameters(request.getParameterMap()));
 
-				getRfProcessor().updateTagAppearance(
-						clientUUID,
-						tagAppearanceRequest);
-			} else if ("status".equals(type)) {
-
-				final RfStatusRequest statusRequest =
-						new RfStatusRequest(params);
-
-				getRfProcessor().updateStatus(clientUUID, statusRequest);
-			} else {
-				response.sendError(
-						SC_BAD_REQUEST,
-						"Unknown type of request: " + type);
-			}
-		}
+		getRfProcessor().updateTagAppearance(clientUUID, tagAppearanceRequest);
 
 		emptyResponse(response);
 	}

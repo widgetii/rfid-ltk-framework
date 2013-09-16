@@ -75,7 +75,7 @@ angular.module(
 				}
 				$notifier.error(
 						"Ошибка обновления настроек приёмника",
-						"Неизвестный накопитель: " + receiver.id);
+						"Неизвестный приёмник: " + receiver.id);
 			}
 			this.$save(
 					function(receiver) {

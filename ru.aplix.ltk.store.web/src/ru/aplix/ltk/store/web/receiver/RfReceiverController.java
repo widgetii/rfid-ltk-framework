@@ -1,4 +1,4 @@
-package ru.aplix.ltk.store.web.collector;
+package ru.aplix.ltk.store.web.receiver;
 
 import static java.util.Objects.requireNonNull;
 

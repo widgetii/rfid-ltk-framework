@@ -22,13 +22,9 @@
     class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
     <property name="messageConverters">
       <util:list id="responseConverters">
-        <ref bean="jsonResponseConverter"/>
+        <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
       </util:list>
     </property>
   </bean>
-
-  <bean
-    id="jsonResponseConverter" 
-    class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"/>
 
 </beans>

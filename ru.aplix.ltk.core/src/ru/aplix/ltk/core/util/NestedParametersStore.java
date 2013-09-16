@@ -29,17 +29,29 @@ class NestedParametersStore implements ParametersStore {
 
 	@Override
 	public String[] getParam(String name) {
-		return getParent().getParam(getPrefix() + name);
+		return getParent().getParam(name(name));
 	}
 
 	@Override
 	public String[] setParam(String name, String[] values) {
-		return getParent().setParam(getPrefix() + name, values);
+		return getParent().setParam(name(name), values);
 	}
 
 	@Override
 	public ParametersStore nestedStore(String prefix) {
 		return new NestedParametersStore(this, '.' + prefix + '.');
+	}
+
+	private String name(String name) {
+
+		final String prefix = getPrefix();
+
+		if (!name.isEmpty()) {
+			return prefix + name;
+		}
+
+		// Remove the last dot.
+		return prefix.substring(0, prefix.length() - 1);
 	}
 
 	private static final class PrefixedIt

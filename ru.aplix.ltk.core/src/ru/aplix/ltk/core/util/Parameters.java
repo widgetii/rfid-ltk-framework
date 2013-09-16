@@ -43,17 +43,18 @@ public final class Parameters implements Parameterized {
 		return this.store.getParam(name) != null;
 	}
 
-	public final String[] valuesOf(String name, String... defaultValues) {
+	public final String[] valuesOf(String name) {
+		return valuesOf(name, null, null);
+	}
 
-		final String[] values = store().getParam(name);
-
-		return values != null ? values : defaultValues;
+	public final String[] valuesOf(String name, String[] defaultValues) {
+		return valuesOf(name, defaultValues, defaultValues);
 	}
 
 	public final String[] valuesOf(
 			String name,
 			String[] noValues,
-			String... defaultValues) {
+			String[] defaultValues) {
 
 		final String[] values = store().getParam(name);
 

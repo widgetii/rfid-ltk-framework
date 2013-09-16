@@ -61,7 +61,7 @@ angular.module(
 					}, function(response) {
 						$notifier.error(
 								"ОШИБКА " + response.status,
-								"Не удалось создать накопитель");
+								"Не удалось создать приёмник");
 						if (error) error(response);
 					});
 		};
@@ -74,7 +74,7 @@ angular.module(
 					return;
 				}
 				$notifier.error(
-						"Ошибка обновления настроек накопителя",
+						"Ошибка обновления настроек приёмника",
 						"Неизвестный накопитель: " + receiver.id);
 			}
 			this.$save(
@@ -85,7 +85,7 @@ angular.module(
 					function(response) {
 						$notifier.error(
 								"ОШИБКА " + response.status,
-								"Не удалось обновить настройки накопителя");
+								"Не удалось обновить настройки приёмника");
 						if (error) error(response);
 					});
 		};
@@ -104,7 +104,7 @@ angular.module(
 					function(response) {
 						$notifier.error(
 								"ОШИБКА " + response.status,
-								"Не удалось удалить накопитель");
+								"Не удалось удалить приёмник");
 					});
 		};
 	}
@@ -134,7 +134,7 @@ angular.module(
 				function(response) {
 					$notifier.error(
 							"ОШИБКА " + response.status,
-							"Не удалось загрузить список накопителей");
+							"Не удалось загрузить список приёмников");
 				});
 		$timeout(refreshReceivers, 5000);
 	}

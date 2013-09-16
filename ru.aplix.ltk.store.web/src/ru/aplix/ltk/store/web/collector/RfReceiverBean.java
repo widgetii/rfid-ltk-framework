@@ -11,7 +11,7 @@ import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfReceiverEditor;
 
 
-public class RfStoreBean implements Comparable<RfStoreBean> {
+public class RfReceiverBean implements Comparable<RfReceiverBean> {
 
 	private static final String INACTIVE_STATUS = "inactive";
 	private static final String ACTIVE_STATUS = "active";
@@ -25,16 +25,16 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 	private String cause;
 	private boolean active;
 
-	public RfStoreBean() {
+	public RfReceiverBean() {
 	}
 
-	public RfStoreBean(RfReceiver<HttpRfSettings> store) {
+	public RfReceiverBean(RfReceiver<HttpRfSettings> receiver) {
 
-		final RfReceiverEditor<HttpRfSettings> editor = store.modify();
+		final RfReceiverEditor<HttpRfSettings> editor = receiver.modify();
 
-		setId(store.getId());
+		setId(receiver.getId());
 		setRemoteURL(editor.getRfSettings().getCollectorURL().toString());
-		update(store);
+		update(receiver);
 	}
 
 	public int getId() {
@@ -96,18 +96,18 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 		editor.setActive(isActive());
 	}
 
-	public RfStoreBean update(RfReceiver<HttpRfSettings> store) {
-		setActive(store.isActive());
-		updateStatus(store);
+	public RfReceiverBean update(RfReceiver<HttpRfSettings> receiver) {
+		setActive(receiver.isActive());
+		updateStatus(receiver);
 		return this;
 	}
 
 	@Override
-	public int compareTo(RfStoreBean o) {
+	public int compareTo(RfReceiverBean o) {
 		return getId() - o.getId();
 	}
 
-	private void updateStatus(RfReceiver<HttpRfSettings> store) {
+	private void updateStatus(RfReceiver<HttpRfSettings> receiver) {
 		this.error = null;
 		this.cause = null;
 		if (!isActive()) {
@@ -116,7 +116,7 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 		}
 		this.status = ACTIVE_STATUS;
 
-		final RfStatusMessage lastStatus = store.getLastStatus();
+		final RfStatusMessage lastStatus = receiver.getLastStatus();
 
 		if (lastStatus == null) {
 			return;
@@ -133,7 +133,7 @@ public class RfStoreBean implements Comparable<RfStoreBean> {
 		}
 	}
 
-	private void updateError(final RfStatusMessage lastStatus) {
+	private void updateError(RfStatusMessage lastStatus) {
 
 		final String errorMessage = lastStatus.getErrorMessage();
 

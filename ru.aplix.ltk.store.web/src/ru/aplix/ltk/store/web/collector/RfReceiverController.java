@@ -20,40 +20,40 @@ import ru.aplix.ltk.store.RfReceiverEditor;
 import ru.aplix.ltk.store.RfStore;
 
 
-@Controller("rfStoreController")
-public class RfStoreController {
+@Controller("rfReceiverController")
+public class RfReceiverController {
 
 	@Autowired
 	private RfStore rfStore;
 
 	@Autowired
 	@Qualifier("httpRfProvider")
-	private RfProvider<HttpRfSettings> provider;
+	private RfProvider<HttpRfSettings> rfProvider;
 
 	public final RfStore getRfService() {
 		return this.rfStore;
 	}
 
-	public final RfProvider<HttpRfSettings> getProvider() {
-		return this.provider;
+	public final RfProvider<HttpRfSettings> getRfProvider() {
+		return this.rfProvider;
 	}
 
 	@RequestMapping(
 			value = "/stores/all.json",
 			method = {RequestMethod.GET, RequestMethod.HEAD})
 	@ResponseBody
-	public List<RfStoreBean> allStores() {
+	public List<RfReceiverBean> allStores() {
 
 		final Collection<? extends RfReceiver<?>> receivers =
 				getRfService().allRfReceivers();
-		final ArrayList<RfStoreBean> beans =
+		final ArrayList<RfReceiverBean> beans =
 				new ArrayList<>(receivers.size());
 
 		for (RfReceiver<?> receiver : receivers) {
 
 			@SuppressWarnings("unchecked")
-			final RfStoreBean bean =
-					new RfStoreBean((RfReceiver<HttpRfSettings>) receiver);
+			final RfReceiverBean bean =
+					new RfReceiverBean((RfReceiver<HttpRfSettings>) receiver);
 
 			beans.add(bean);
 		}
@@ -67,13 +67,13 @@ public class RfStoreController {
 			value = "/stores/create.json",
 			method = RequestMethod.PUT)
 	@ResponseBody
-	public RfStoreBean createStore(
+	public RfReceiverBean createStore(
 			HttpServletRequest request,
-			@RequestBody RfStoreBean bean)
+			@RequestBody RfReceiverBean bean)
 	throws MalformedURLException {
 
 		final RfReceiverEditor<HttpRfSettings> editor =
-				getRfService().newRfReceiver(getProvider());
+				getRfService().newRfReceiver(getRfProvider());
 
 		bean.edit(editor);
 		editor.getRfSettings().setClientURL(
@@ -90,9 +90,9 @@ public class RfStoreController {
 			value = "/stores/{id:\\d+}.json",
 			method = RequestMethod.PUT)
 	@ResponseBody
-	public RfStoreBean updateStore(
+	public RfReceiverBean updateStore(
 			@PathVariable("id") int id,
-			@RequestBody RfStoreBean bean)
+			@RequestBody RfReceiverBean bean)
 	throws MalformedURLException {
 
 		@SuppressWarnings("unchecked")
@@ -112,7 +112,7 @@ public class RfStoreController {
 			value = "/stores/{id:\\d+}.json",
 			method = RequestMethod.DELETE)
 	@ResponseBody
-	public RfStoreBean deleteStore(@PathVariable("id") int id) {
+	public RfReceiverBean deleteStore(@PathVariable("id") int id) {
 
 		@SuppressWarnings("unchecked")
 		final RfReceiver<HttpRfSettings> store =
@@ -122,7 +122,7 @@ public class RfStoreController {
 
 		store.delete();
 
-		return new RfStoreBean(store);
+		return new RfReceiverBean(store);
 	}
 
 	private static String applicationURL(HttpServletRequest request) {

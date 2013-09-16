@@ -7,9 +7,7 @@
     http://www.osgi.org/xmlns/blueprint/v1.0.0
     http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-  <service
-    ref="rfStoreService"
-    interface="ru.aplix.ltk.store.RfStoreService"/>
+  <service ref="rfStore" interface="ru.aplix.ltk.store.RfStore"/>
 
 </blueprint>
 

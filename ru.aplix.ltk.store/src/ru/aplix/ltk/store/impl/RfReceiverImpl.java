@@ -10,22 +10,19 @@ import ru.aplix.ltk.store.RfReceiverEditor;
 
 final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 
-	private final RfStoreServiceImpl store;
+	private final RfStoreImpl store;
 	private final int id;
 	private final RfProvider<S> provider;
 	private volatile RfReceiverState<S> state;
 
-	RfReceiverImpl(
-			RfStoreServiceImpl store,
-			int id,
-			RfProvider<S> provider) {
+	RfReceiverImpl(RfStoreImpl store, int id, RfProvider<S> provider) {
 		this.store = store;
 		this.id = id;
 		this.provider = provider;
 		this.state = new RfReceiverState<>(this);
 	}
 
-	public final RfStoreServiceImpl getRfStore() {
+	public final RfStoreImpl getRfStore() {
 		return this.store;
 	}
 

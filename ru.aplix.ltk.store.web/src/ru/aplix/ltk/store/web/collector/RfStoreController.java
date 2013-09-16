@@ -17,21 +17,21 @@ import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfReceiverEditor;
-import ru.aplix.ltk.store.RfStoreService;
+import ru.aplix.ltk.store.RfStore;
 
 
 @Controller("rfStoreController")
 public class RfStoreController {
 
 	@Autowired
-	private RfStoreService storeService;
+	private RfStore rfStore;
 
 	@Autowired
 	@Qualifier("httpRfProvider")
 	private RfProvider<HttpRfSettings> provider;
 
-	public final RfStoreService getStoreService() {
-		return this.storeService;
+	public final RfStore getRfService() {
+		return this.rfStore;
 	}
 
 	public final RfProvider<HttpRfSettings> getProvider() {
@@ -44,16 +44,16 @@ public class RfStoreController {
 	@ResponseBody
 	public List<RfStoreBean> allStores() {
 
-		final Collection<? extends RfReceiver<?>> srores =
-				getStoreService().allRfReceivers();
+		final Collection<? extends RfReceiver<?>> receivers =
+				getRfService().allRfReceivers();
 		final ArrayList<RfStoreBean> beans =
-				new ArrayList<>(srores.size());
+				new ArrayList<>(receivers.size());
 
-		for (RfReceiver<?> store : srores) {
+		for (RfReceiver<?> receiver : receivers) {
 
 			@SuppressWarnings("unchecked")
 			final RfStoreBean bean =
-					new RfStoreBean((RfReceiver<HttpRfSettings>) store);
+					new RfStoreBean((RfReceiver<HttpRfSettings>) receiver);
 
 			beans.add(bean);
 		}
@@ -73,7 +73,7 @@ public class RfStoreController {
 	throws MalformedURLException {
 
 		final RfReceiverEditor<HttpRfSettings> editor =
-				getStoreService().newRfReceiver(getProvider());
+				getRfService().newRfReceiver(getProvider());
 
 		bean.edit(editor);
 		editor.getRfSettings().setClientURL(
@@ -97,7 +97,7 @@ public class RfStoreController {
 
 		@SuppressWarnings("unchecked")
 		final RfReceiver<HttpRfSettings> store =
-				(RfReceiver<HttpRfSettings>) getStoreService().rfReceiverById(id);
+				(RfReceiver<HttpRfSettings>) getRfService().rfReceiverById(id);
 
 		requireNonNull(store, "Unknown RFID tag store: " + id);
 
@@ -116,7 +116,7 @@ public class RfStoreController {
 
 		@SuppressWarnings("unchecked")
 		final RfReceiver<HttpRfSettings> store =
-				(RfReceiver<HttpRfSettings>) getStoreService().rfReceiverById(id);
+				(RfReceiver<HttpRfSettings>) getRfService().rfReceiverById(id);
 
 		requireNonNull(store, "Unknown RFID tag store: " + id);
 

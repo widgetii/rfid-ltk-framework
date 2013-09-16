@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.store.RfReceiver;
-import ru.aplix.ltk.store.RfStoreService;
+import ru.aplix.ltk.store.RfStore;
 
 
-@Component("rfStoreService")
-public class RfStoreServiceImpl implements RfStoreService {
+@Component("rfStore")
+public class RfStoreImpl implements RfStore {
 
 	private final AtomicInteger idSeq = new AtomicInteger();
 	private final ConcurrentHashMap<Integer, RfReceiverImpl<?>> receivers =

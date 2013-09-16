@@ -6,7 +6,7 @@ import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 
 
-public interface RfStoreService {
+public interface RfStore {
 
 	Collection<? extends RfReceiver<?>> allRfReceivers();
 

@@ -9,14 +9,14 @@ import ru.aplix.ltk.store.RfReceiverEditor;
 final class RfReceiverEditorImpl<S extends RfSettings>
 		implements RfReceiverEditor<S> {
 
-	private final RfStoreServiceImpl service;
+	private final RfStoreImpl store;
 	private final RfProvider<S> provider;
 	private final RfReceiverImpl<S> receiver;
 	private S settings;
 	private boolean active;
 
-	RfReceiverEditorImpl(RfStoreServiceImpl store, RfProvider<S> provider) {
-		this.service = store;
+	RfReceiverEditorImpl(RfStoreImpl store, RfProvider<S> provider) {
+		this.store = store;
 		this.provider = provider;
 		this.receiver = null;
 		this.settings = provider.newSettings();
@@ -24,15 +24,15 @@ final class RfReceiverEditorImpl<S extends RfSettings>
 	}
 
 	RfReceiverEditorImpl(RfReceiverImpl<S> reseiver) {
-		this.service = reseiver.getRfStore();
+		this.store = reseiver.getRfStore();
 		this.provider = reseiver.getRfProvider();
 		this.receiver = reseiver;
 		this.settings = getRfProvider().copySettings(reseiver.getRfSettings());
 		this.active = reseiver.isActive();
 	}
 
-	public final RfStoreServiceImpl getRfStore() {
-		return this.service;
+	public final RfStoreImpl getRfStore() {
+		return this.store;
 	}
 
 	@Override

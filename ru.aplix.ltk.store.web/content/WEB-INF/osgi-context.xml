@@ -7,9 +7,7 @@
     http://www.osgi.org/xmlns/blueprint/v1.0.0
     http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-  <reference
-    id="rfStoreService"
-    interface="ru.aplix.ltk.store.RfStoreService"/>
+  <reference id="rfStore" interface="ru.aplix.ltk.store.RfStore"/>
     
   <reference
     id="httpRfProcessor"

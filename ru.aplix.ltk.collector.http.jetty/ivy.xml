@@ -15,8 +15,7 @@
     <dependency
       org="bundle"
       name="ru.aplix.ltk.collector.http"
-      rev="latest.integration"
-      conf="compile->@;runtime->@"/>
+      rev="latest.integration"/>
     <dependency
       org="bundle"
       name="org.eclipse.osgi.services"

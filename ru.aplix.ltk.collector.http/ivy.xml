@@ -18,8 +18,7 @@
     <dependency
       org="bundle"
       name="org.apache.httpcomponents.httpcore"
-      rev="4.1.4+"
-      transitive="false"/>
+      rev="4.1.4+"/>
     <dependency
       org="bundle"
       name="org.apache.httpcomponents.httpclient"
@@ -28,12 +27,10 @@
     <dependency
       org="bundle"
       name="org.apache.commons.codec"
-      rev="1.4.0+"
-      transitive="false"/>
+      rev="1.4.0+"/>
     <dependency
       org="bundle"
       name="org.apache.commons.logging"
-      rev="1.1.1+"
-      transitive="false"/>
+      rev="1.1.1+"/>
   </dependencies>
 </ivy-module>

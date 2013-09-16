@@ -19,34 +19,26 @@
       conf="compile->@;runtime->@"/>
     <dependency
       org="bundle"
-      name="javax.servlet"
-      rev="3.0.0+"/>
-    <dependency
-      org="bundle"
-      name="org.eclipse.osgi"
-      rev="3.9.0+"
-      transitive="false"
-      conf="compile->*"/>
-    <dependency
-      org="bundle"
       name="org.eclipse.osgi.services"
       rev="3.3.100+"
-      transitive="false"
       conf="compile->*"/>
     <dependency
       org="bundle"
       name="org.eclipse.equinox.http.jetty"
       rev="3.0.100+"
-      transitive="false"/>
+      transitive="false"
+      conf="compile->*"/>
     <dependency
       org="bundle"
       name="org.eclipse.equinox.transforms.hook"
       rev="1.0.401+"
-      transitive="false"/>
+      transitive="false"
+      conf="compile->*"/>
     <dependency
       org="bundle"
       name="org.eclipse.equinox.weaving.hook"
       rev="1.0.200+"
-      transitive="false"/>
+      transitive="false"
+      conf="compile->*"/>
   </dependencies>
 </ivy-module>

@@ -30,7 +30,8 @@
     </chain>
     <updatesite
       name="eclipse-updatesite"
-      url="http://download.eclipse.org/eclipse/updates/4.3"/>
+      url="http://download.eclipse.org/eclipse/updates/4.3"
+      requirementStrategy="first"/>
     <filesystem name="ltk-bundles" checkmodified="true" cache="ltk-bundles">
       <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
       <artifact
@@ -53,6 +54,9 @@
       resolver="ltk-bundles"/>
     <module
       organisation="bundle"
+      resolver="eclipse-updatesite"/>
+    <module
+      organisation="package"
       resolver="eclipse-updatesite"/>
     <module
       name="com.springsource.*"

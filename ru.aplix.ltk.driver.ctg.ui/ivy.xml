@@ -25,7 +25,6 @@
       org="bundle"
       name="org.eclipse.osgi"
       rev="3.9.0+"
-      transitive="false"
       conf="compile->*"/>
   </dependencies>
 </ivy-module>

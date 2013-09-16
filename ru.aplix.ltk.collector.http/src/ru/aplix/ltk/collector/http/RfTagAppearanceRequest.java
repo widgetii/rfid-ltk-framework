@@ -11,10 +11,14 @@ import ru.aplix.ltk.core.util.Parameters;
 public class RfTagAppearanceRequest
 		implements RfTagAppearanceMessage, Parameterized {
 
+	private ClrClientId clientId;
 	private RfTag rfTag;
 	private RfTagAppearance appearance = RF_TAG_APPEARED;
 
-	public RfTagAppearanceRequest(RfTagAppearanceMessage message) {
+	public RfTagAppearanceRequest(
+			ClrClientId clientId,
+			RfTagAppearanceMessage message) {
+		this.clientId = clientId;
 		this.rfTag = message.getRfTag();
 		this.appearance = message.getAppearance();
 	}
@@ -45,7 +49,9 @@ public class RfTagAppearanceRequest
 
 	@Override
 	public void write(Parameters params) {
-		params.set("rfTag", this.rfTag != null ? this.rfTag.getData() : null)
+		params.set("client", this.clientId.getUUID().toString())
+		.set("type", "tag")
+		.set("rfTag", this.rfTag != null ? this.rfTag.getData() : null)
 		.set("appearance", getAppearance());
 	}
 

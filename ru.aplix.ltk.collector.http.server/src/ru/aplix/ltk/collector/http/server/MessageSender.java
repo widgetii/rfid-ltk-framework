@@ -75,9 +75,9 @@ public abstract class MessageSender<T>
 		return null;
 	}
 
-	protected T post(String path, Parameterized request) {
+	protected T post(Parameterized request) {
 
-		final URL requestURL = requestURL(path);
+		final URL requestURL = requestURL(null);
 
 		if (requestURL == null) {
 			return null;
@@ -105,11 +105,14 @@ public abstract class MessageSender<T>
 
 	private URL requestURL(String path) {
 		try {
-			return new URL(
-					new URL(
-							getClient().getClientURL(),
-							getClient().getId().getUUID().toString()),
-					path);
+
+			final URL clientURL = getClient().getClientURL();
+
+			if (path == null) {
+				return clientURL;
+			}
+
+			return new URL(clientURL, path);
 		} catch (MalformedURLException e) {
 			getClient().requestFailed("Internal error", e);
 		}

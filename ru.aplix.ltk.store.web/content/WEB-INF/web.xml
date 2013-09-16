@@ -39,7 +39,7 @@
 
   <servlet-mapping>
     <servlet-name>action</servlet-name>
-    <url-pattern>/clr-client/*</url-pattern>
+    <url-pattern>/clr-client</url-pattern>
   </servlet-mapping>
 
   <welcome-file-list>

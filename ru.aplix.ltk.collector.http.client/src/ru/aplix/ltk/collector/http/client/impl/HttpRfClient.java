@@ -4,6 +4,7 @@ import static java.util.Collections.synchronizedMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -15,8 +16,8 @@ import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 public class HttpRfClient {
 
 	private final HttpClient httpClient;
-	private final Map<String, HttpRfConnection> connections =
-			synchronizedMap(new HashMap<String, HttpRfConnection>());
+	private final Map<UUID, HttpRfConnection> connections =
+			synchronizedMap(new HashMap<UUID, HttpRfConnection>());
 
 	public HttpRfClient() {
 
@@ -34,8 +35,16 @@ public class HttpRfClient {
 		return new HttpRfConnection(this, settings);
 	}
 
-	public HttpRfConnection getConnection(String clientPath) {
-		return this.connections.get(clientPath);
+	public HttpRfConnection getConnection(UUID clientUUID) {
+
+		final HttpRfConnection connection = this.connections.get(clientUUID);
+
+		if (connection == null) {
+			throw new IllegalArgumentException(
+					"No such client here: " + clientUUID);
+		}
+
+		return connection;
 	}
 
 	public void shutdown() {
@@ -43,11 +52,11 @@ public class HttpRfClient {
 	}
 
 	void connected(HttpRfConnection connection) {
-		this.connections.put(connection.getClientPath(), connection);
+		this.connections.put(connection.getClientUUID(), connection);
 	}
 
 	void disconnected(HttpRfConnection connection) {
-		this.connections.remove(connection.getClientPath());
+		this.connections.remove(connection.getClientUUID());
 	}
 
 }

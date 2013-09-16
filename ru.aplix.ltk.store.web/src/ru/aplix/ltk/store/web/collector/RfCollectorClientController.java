@@ -1,18 +1,18 @@
 package ru.aplix.ltk.store.web.collector;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
-import static ru.aplix.ltk.collector.http.CollectorHttpConstants.CLR_HTTP_CLIENT_PING_PATH;
-import static ru.aplix.ltk.collector.http.CollectorHttpConstants.CLR_HTTP_CLIENT_STATUS_PATH;
-import static ru.aplix.ltk.collector.http.CollectorHttpConstants.CLR_HTTP_CLIENT_TAG_PATH;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import ru.aplix.ltk.collector.http.RfStatusRequest;
 import ru.aplix.ltk.collector.http.RfTagAppearanceRequest;
@@ -21,9 +21,6 @@ import ru.aplix.ltk.core.util.Parameters;
 
 
 @Controller("rfCollectorClientController")
-@RequestMapping(
-		value = "/clr-client/{clientId}",
-		method = RequestMethod.GET)
 public class RfCollectorClientController {
 
 	@Autowired
@@ -34,47 +31,44 @@ public class RfCollectorClientController {
 	}
 
 	@RequestMapping(
-			value = CLR_HTTP_CLIENT_STATUS_PATH,
-			method = RequestMethod.POST)
-	public void updateStatus(
-			@PathVariable("clientId") String clientId,
+			value = "/clr-client",
+			method = {RequestMethod.GET, RequestMethod.POST})
+	public void process(
 			HttpServletRequest request,
 			HttpServletResponse response)
 	throws IOException {
 
-		final RfStatusRequest statusRequest = new RfStatusRequest(
-				new Parameters(request.getParameterMap()));
+		final UUID clientUUID = UUID.fromString(request.getParameter("client"));
 
-		getRfProcessor().updateStatus(clientId, statusRequest);
-		emptyResponse(response);
-	}
+		if ("GET".equals(request.getMethod())) {
+			getRfProcessor().ping(clientUUID);
+		} else {
 
-	@RequestMapping(
-			value = CLR_HTTP_CLIENT_PING_PATH,
-			method = RequestMethod.GET)
-	@ResponseBody
-	public void ping(
-			@PathVariable("clientId") String clientId,
-			HttpServletResponse response)
-	throws IOException {
-		getRfProcessor().ping(clientId);
-		emptyResponse(response);
-	}
+			final String type = request.getParameter("type");
+			final Parameters params =
+					new Parameters(request.getParameterMap());
 
-	@RequestMapping(
-			value = CLR_HTTP_CLIENT_TAG_PATH,
-			method = RequestMethod.POST)
-	public void updateTagAppearance(
-			@PathVariable("clientId") String clientId,
-			HttpServletRequest request,
-			HttpServletResponse response)
-	throws IOException {
+			if ("tag".equals(type)) {
 
-		final RfTagAppearanceRequest tagAppearanceRequest =
-				new RfTagAppearanceRequest(
-						new Parameters(request.getParameterMap()));
+				final RfTagAppearanceRequest tagAppearanceRequest =
+						new RfTagAppearanceRequest(params);
 
-		getRfProcessor().updateTagAppearance(clientId, tagAppearanceRequest);
+				getRfProcessor().updateTagAppearance(
+						clientUUID,
+						tagAppearanceRequest);
+			} else if ("status".equals(type)) {
+
+				final RfStatusRequest statusRequest =
+						new RfStatusRequest(params);
+
+				getRfProcessor().updateStatus(clientUUID, statusRequest);
+			} else {
+				response.sendError(
+						SC_BAD_REQUEST,
+						"Unknown type of request: " + type);
+			}
+		}
+
 		emptyResponse(response);
 	}
 

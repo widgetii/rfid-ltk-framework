@@ -9,11 +9,13 @@ import ru.aplix.ltk.core.util.Parameters;
 
 public class RfStatusRequest implements RfStatusMessage, Parameterized {
 
+	private ClrClientId clientId;
 	private String rfReaderId;
 	private RfStatus rfStatus = RF_ERROR;
 	private String errorMessage;
 
-	public RfStatusRequest(RfStatusMessage status) {
+	public RfStatusRequest(ClrClientId clientId, RfStatusMessage status) {
+		this.clientId = clientId;
 		this.rfReaderId = status.getRfReaderId();
 		this.rfStatus = status.getRfStatus();
 		this.errorMessage = status.getErrorMessage();
@@ -58,7 +60,9 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 
 	@Override
 	public void write(Parameters params) {
-		params.set("rfReaderId", getRfReaderId())
+		params.set("client", this.clientId.getUUID().toString())
+		.set("type", "status")
+		.set("rfReaderId", getRfReaderId())
 		.set("rfStatus", getRfStatus())
 		.set("errorMessage", getErrorMessage());
 	}

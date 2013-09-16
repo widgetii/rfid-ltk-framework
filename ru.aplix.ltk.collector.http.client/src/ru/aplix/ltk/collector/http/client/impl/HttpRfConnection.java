@@ -2,8 +2,6 @@ package ru.aplix.ltk.collector.http.client.impl;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -25,7 +23,6 @@ public class HttpRfConnection
 	private final HttpRfSettings settings;
 	private final HttpReconnector reconnector = new HttpReconnector(this);
 	private UUID clientUUID;
-	private String clientPath;
 	private volatile RfStatusUpdater statusUpdater;
 	private volatile RfTracking tracking;
 
@@ -49,10 +46,6 @@ public class HttpRfConnection
 
 	public final UUID getClientUUID() {
 		return this.clientUUID;
-	}
-
-	public String getClientPath() {
-		return this.clientPath;
 	}
 
 	public final boolean isConnected() {
@@ -146,12 +139,8 @@ public class HttpRfConnection
 				cause));
 	}
 
-	void connectionEstablished(UUID clientUUID) throws MalformedURLException {
+	void connectionEstablished(UUID clientUUID) {
 		this.clientUUID = clientUUID;
-		this.clientPath = new URL(
-				getSettings().getClientURL(),
-				clientUUID.toString())
-				.toString();
 		getClient().connected(this);
 		updateStatus(new RfConnected(clientUUID.toString()));
 	}

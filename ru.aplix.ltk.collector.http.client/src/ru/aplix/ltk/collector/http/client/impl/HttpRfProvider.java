@@ -1,6 +1,7 @@
 package ru.aplix.ltk.collector.http.client.impl;
 
 import java.util.Hashtable;
+import java.util.UUID;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -54,37 +55,20 @@ final class HttpRfProvider
 	}
 
 	@Override
-	public void updateStatus(
-			String clientPath,
-			RfStatusRequest status) {
-
-		final HttpRfConnection con = this.client.getConnection(clientPath);
-
-		if (con != null) {
-			con.updateStatus(status);
-		}
+	public void updateStatus(UUID clientUUID, RfStatusRequest status) {
+		this.client.getConnection(clientUUID).updateStatus(status);
 	}
 
 	@Override
 	public void updateTagAppearance(
-			String clientPath,
+			UUID clientUUID,
 			RfTagAppearanceRequest data) {
-
-		final HttpRfConnection con = this.client.getConnection(clientPath);
-
-		if (con != null) {
-			con.updateTagAppearance(data);
-		}
+		this.client.getConnection(clientUUID).updateTagAppearance(data);
 	}
 
 	@Override
-	public void ping(String clientPath) {
-
-		final HttpRfConnection con = this.client.getConnection(clientPath);
-
-		if (con != null) {
-			con.ping();
-		}
+	public void ping(UUID clientUUID) {
+		this.client.getConnection(clientUUID).ping();
 	}
 
 	void register(BundleContext context) {

@@ -1,6 +1,5 @@
 package ru.aplix.ltk.collector.http.server.sender;
 
-import static ru.aplix.ltk.collector.http.CollectorHttpConstants.CLR_HTTP_CLIENT_TAG_PATH;
 import ru.aplix.ltk.collector.http.RfTagAppearanceRequest;
 import ru.aplix.ltk.collector.http.server.ClrClient;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
@@ -19,9 +18,9 @@ public class TagAppearanceSender extends NoResponseMessageSender {
 
 	@Override
 	public Boolean call() throws Exception {
-		return post(
-				CLR_HTTP_CLIENT_TAG_PATH,
-				new RfTagAppearanceRequest(this.message));
+		return post(new RfTagAppearanceRequest(
+				getClient().getId(),
+				this.message));
 	}
 
 }

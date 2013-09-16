@@ -4,18 +4,18 @@ angular.module(
 			"ngResource",
 			"ui.bootstrap",
 			"notifier",
-			"rfid-tag-store.stores"
+			"rfid-tag-store.receivers"
 		])
 .config(function($locationProvider) {
 	$locationProvider.hashPrefix('!');
 })
 .config(function($routeProvider) {
 	$routeProvider.when(
-			'/stores',
+			'/receivers',
 			{
-				templateUrl: 'stores/stores.html'
+				templateUrl: 'receivers/receivers.html'
 			})
-	.otherwise({redirectTo: '/stores'});
+	.otherwise({redirectTo: '/receivers'});
 })
 .controller("NavCtrl", function($scope, $location) {
 	$scope.navClass = function(path) {

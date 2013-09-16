@@ -30,7 +30,7 @@ public class RfReceiverController {
 	@Qualifier("httpRfProvider")
 	private RfProvider<HttpRfSettings> rfProvider;
 
-	public final RfStore getRfService() {
+	public final RfStore getRfStore() {
 		return this.rfStore;
 	}
 
@@ -39,13 +39,13 @@ public class RfReceiverController {
 	}
 
 	@RequestMapping(
-			value = "/stores/all.json",
+			value = "/receivers/all.json",
 			method = {RequestMethod.GET, RequestMethod.HEAD})
 	@ResponseBody
-	public List<RfReceiverBean> allStores() {
+	public List<RfReceiverBean> allReceivers() {
 
 		final Collection<? extends RfReceiver<?>> receivers =
-				getRfService().allRfReceivers();
+				getRfStore().allRfReceivers();
 		final ArrayList<RfReceiverBean> beans =
 				new ArrayList<>(receivers.size());
 
@@ -64,44 +64,44 @@ public class RfReceiverController {
 	}
 
 	@RequestMapping(
-			value = "/stores/create.json",
+			value = "/receivers/create.json",
 			method = RequestMethod.PUT)
 	@ResponseBody
-	public RfReceiverBean createStore(
+	public RfReceiverBean createReceiver(
 			HttpServletRequest request,
 			@RequestBody RfReceiverBean bean)
 	throws MalformedURLException {
 
 		final RfReceiverEditor<HttpRfSettings> editor =
-				getRfService().newRfReceiver(getRfProvider());
+				getRfStore().newRfReceiver(getRfProvider());
 
 		bean.edit(editor);
 		editor.getRfSettings().setClientURL(
 				new URL(applicationURL(request) + "/clr-client"));
 
-		final RfReceiver<HttpRfSettings> store = editor.save();
+		final RfReceiver<HttpRfSettings> receiver = editor.save();
 
-		bean.setId(store.getId());
+		bean.setId(receiver.getId());
 
-		return bean.update(store);
+		return bean.update(receiver);
 	}
 
 	@RequestMapping(
-			value = "/stores/{id:\\d+}.json",
+			value = "/receivers/{id:\\d+}.json",
 			method = RequestMethod.PUT)
 	@ResponseBody
-	public RfReceiverBean updateStore(
+	public RfReceiverBean updateReceiver(
 			@PathVariable("id") int id,
 			@RequestBody RfReceiverBean bean)
 	throws MalformedURLException {
 
 		@SuppressWarnings("unchecked")
-		final RfReceiver<HttpRfSettings> store =
-				(RfReceiver<HttpRfSettings>) getRfService().rfReceiverById(id);
+		final RfReceiver<HttpRfSettings> receiver =
+				(RfReceiver<HttpRfSettings>) getRfStore().rfReceiverById(id);
 
-		requireNonNull(store, "Unknown RFID tag store: " + id);
+		requireNonNull(receiver, "Unknown RFID tag store: " + id);
 
-		final RfReceiverEditor<HttpRfSettings> editor = store.modify();
+		final RfReceiverEditor<HttpRfSettings> editor = receiver.modify();
 
 		bean.edit(editor);
 
@@ -109,20 +109,20 @@ public class RfReceiverController {
 	}
 
 	@RequestMapping(
-			value = "/stores/{id:\\d+}.json",
+			value = "/receivers/{id:\\d+}.json",
 			method = RequestMethod.DELETE)
 	@ResponseBody
-	public RfReceiverBean deleteStore(@PathVariable("id") int id) {
+	public RfReceiverBean deleteReceiver(@PathVariable("id") int id) {
 
 		@SuppressWarnings("unchecked")
-		final RfReceiver<HttpRfSettings> store =
-				(RfReceiver<HttpRfSettings>) getRfService().rfReceiverById(id);
+		final RfReceiver<HttpRfSettings> receiver =
+				(RfReceiver<HttpRfSettings>) getRfStore().rfReceiverById(id);
 
-		requireNonNull(store, "Unknown RFID tag store: " + id);
+		requireNonNull(receiver, "Unknown RFID tag store: " + id);
 
-		store.delete();
+		receiver.delete();
 
-		return new RfReceiverBean(store);
+		return new RfReceiverBean(receiver);
 	}
 
 	private static String applicationURL(HttpServletRequest request) {

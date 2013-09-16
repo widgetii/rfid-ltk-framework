@@ -1,28 +1,28 @@
 angular.module(
-		'rfid-tag-store.stores',
+		'rfid-tag-store.receivers',
 		[
 			"ngResource",
 			"notifier"
 		])
-.factory('$rfStores', function($resource, $timeout, $notifier) {
-	function RfStores() {
+.factory('$rfReceivers', function($resource, $timeout, $notifier) {
+	function RfReceivers() {
 		this.list = [];
-		var stores = this;
+		var receivers = this;
 
-		this.RfStore = $resource(
-				"stores/:storeId.json",
+		this.RfReceiver = $resource(
+				"receivers/:receiverId.json",
 				{
-					storeId: '@id'
+					receiverId: '@id'
 				},
 				{
 					all: {
 						method: 'GET',
-						params: {storeId: "all"},
+						params: {receiverId: "all"},
 						isArray: true
 					},
 					create: {
 						method: 'PUT',
-						params: {storeId: 'create'}
+						params: {receiverId: 'create'}
 					},
 					save: {
 						method: 'PUT'
@@ -32,11 +32,11 @@ angular.module(
 					}
 				});
 
-		this.RfStore.prototype.getName = function() {
+		this.RfReceiver.prototype.getName = function() {
 			return this.remoteURL;
 		};
 
-		this.RfStore.prototype.getStatus = function() {
+		this.RfReceiver.prototype.getStatus = function() {
 			switch (this.status) {
 			case "inactive":
 				return "Отключено";
@@ -50,14 +50,14 @@ angular.module(
 			return "???";
 		};
 
-		this.RfStore.prototype.create = function(success, error) {
+		this.RfReceiver.prototype.create = function(success, error) {
 			this.$create(
 					{
-						storeId: 'create'
+						receiverId: 'create'
 					},
-					function(store) {
-						stores.list.push(store);
-						if (success) success(store);
+					function(receiver) {
+						receivers.list.push(receiver);
+						if (success) success(receiver);
 					}, function(response) {
 						$notifier.error(
 								"ОШИБКА " + response.status,
@@ -66,21 +66,21 @@ angular.module(
 					});
 		};
 
-		this.RfStore.prototype.save = function(success, error) {
-			function updateStore(store) {
-				var index = stores.storeIndexById(store.id);
+		this.RfReceiver.prototype.save = function(success, error) {
+			function updateReceiver(receiver) {
+				var index = receivers.receiverIndexById(receiver.id);
 				if (index >= 0) {
-					stores.list[index] = store;
+					receivers.list[index] = receiver;
 					return;
 				}
 				$notifier.error(
 						"Ошибка обновления хранилища",
-						"Неизвестное хранилище: " + store.id);
+						"Неизвестное хранилище: " + receiver.id);
 			}
 			this.$save(
-					function(store) {
-						updateStore(store);
-						if (success) success(store);
+					function(receiver) {
+						updateReceiver(receiver);
+						if (success) success(receiver);
 					},
 					function(response) {
 						$notifier.error(
@@ -90,16 +90,16 @@ angular.module(
 					});
 		};
 
-		this.RfStore.prototype.del = function(success, error) {
-			var store = this;
-			function removeStore() {
-				var index = stores.list.indexOf(store);
-				if (index >= 0) stores.list.splice(index, 1);
+		this.RfReceiver.prototype.del = function(success, error) {
+			var receiver = this;
+			function removeReceiver() {
+				var index = receivers.list.indexOf(receiver);
+				if (index >= 0) receivers.list.splice(index, 1);
 			}
-			store.$del(
+			receiver.$del(
 					function() {
-						removeStore();
-						if (success) success(store);
+						removeReceiver();
+						if (success) success(receiver);
 					},
 					function(response) {
 						$notifier.error(
@@ -109,12 +109,12 @@ angular.module(
 		};
 	}
 
-	RfStores.prototype.newStore = function() {
-		var RfStore = this.RfStore;
-		return new RfStore();
+	RfReceivers.prototype.newReceiver = function() {
+		var RfReceiver = this.RfReceiver;
+		return new RfReceiver();
 	};
 
-	RfStores.prototype.storeIndexById = function(id) {
+	RfReceivers.prototype.receiverIndexById = function(id) {
 		var len = this.list.length;
 		for (var i = 0; i < len; ++i) {
 			if (this.list[i].id == id) {
@@ -124,30 +124,30 @@ angular.module(
 		return -1;
 	};
 
-	var stores = new RfStores();
+	var receivers = new RfReceivers();
 
-	function refreshStores() {
-		stores.RfStore.all(
+	function refreshReceivers() {
+		receivers.RfReceiver.all(
 				function(list) {
-					stores.list = list;
+					receivers.list = list;
 				},
 				function(response) {
 					$notifier.error(
 							"ОШИБКА " + response.status,
 							"Не удалось загрузить список хранилищ");
 				});
-		$timeout(refreshStores, 5000);
+		$timeout(refreshReceivers, 5000);
 	}
 
-	refreshStores();
+	refreshReceivers();
 
-	return stores;
+	return receivers;
 })
-.controller("RfStoresCtrl", function($scope, $rfStores) {
-	$scope.stores = $rfStores;
+.controller("RfReceiversCtrl", function($scope, $rfReceivers) {
+	$scope.receivers = $rfReceivers;
 	$scope.expanded = {};
 })
-.controller("RfStoreCtrl", function($scope) {
+.controller("RfReceiverCtrl", function($scope) {
 	$scope.updating = false;
 	function startUpdate() {
 		$scope.updating = true;
@@ -156,10 +156,10 @@ angular.module(
 		$scope.updating = false;
 	}
 	$scope.isCollapsed = function() {
-		return !$scope.expanded[$scope.store.id];
+		return !$scope.expanded[$scope.receiver.id];
 	};
 	$scope.toggle = function() {
-		var id = $scope.store.id;
+		var id = $scope.receiver.id;
 		var expanded = $scope.expanded;
 		if (expanded[id]) {
 			delete expanded[id];
@@ -168,36 +168,36 @@ angular.module(
 		}
 	};
 	$scope.del = function() {
-		$scope.store.del();
+		$scope.receiver.del();
 	};
 	$scope.start = function() {
-		$scope.store.active = true;
+		$scope.receiver.active = true;
 		$scope.save();
 	};
 	$scope.stop = function() {
-		$scope.store.active = false;
+		$scope.receiver.active = false;
 		$scope.save();
 	};
 	$scope.save = function() {
 		startUpdate();
-		$scope.store.save(endUpdate, endUpdate);
+		$scope.receiver.save(endUpdate, endUpdate);
 	};
 })
-.controller("NewRfStoreCtrl", function(
+.controller("NewRfReceiverCtrl", function(
 		$scope,
 		$document,
-		$rfStores,
+		$rfReceivers,
 		$notifier) {
 	$scope.updating = false;
-	$scope.newStore = $rfStores.newStore();
+	$scope.newReceiver = $rfReceivers.newReceiver();
 	$scope.correctRemoteURL = function() {
-		var store = $scope.newStore;
-		var url = store.remoteURL;
+		var receiver = $scope.newReceiver;
+		var url = receiver.remoteURL;
 		if (typeof url !== "string") return;
 		if (url.indexOf("://") >= 0) return;
 		if ("http:/".startsWith(url)) return;
 		if ("https:/".startsWith(url)) return;
-		store.remoteURL = "http://" + url;
+		receiver.remoteURL = "http://" + url;
 	};
 	function startUpdate() {
 		$scope.updating = true;
@@ -205,7 +205,7 @@ angular.module(
 	function endUpdate(success) {
 		$scope.updating = false;
 		if (success) {
-			angular.element($document[0].getElementById("newStoreForm"))
+			angular.element(document.getElementById("newReceiverForm"))
 			.controller("form")
 			.$setDirty(false);
 		}
@@ -213,9 +213,9 @@ angular.module(
 	$scope.create = function() {
 		if ($scope.updating) return;
 		startUpdate();
-		$scope.newStore.create(
+		$scope.newReceiver.create(
 				function() {
-					$scope.newStore = $rfStores.newStore();
+					$scope.newReceiver = $rfReceivers.newReceiver();
 					endUpdate(true);
 				},
 				endUpdate);

@@ -1,13 +1,13 @@
-<div class="container-fluid" ng-controller="RfStoresCtrl">
-  <h1>Хранилища тегов</h1>
+<div class="container-fluid" ng-controller="RfReceiversCtrl">
+  <h1>Приёмники тегов</h1>
 
-  <div class="accordion" ng-show="stores.list.length">
-    <div ng-repeat="store in stores.list">
-      <div class="accordion-group" ng-controller="RfStoreCtrl">
+  <div class="accordion" ng-show="receivers.list.length">
+    <div ng-repeat="receiver in receivers.list">
+      <div class="accordion-group" ng-controller="RfReceiverCtrl">
         <div class="accordion-heading">
           <div class="accordion-toggle" ng-click="toggle()">
-            <span class="pull-right">{{store.getStatus()}}</span>
-            {{store.getName()}}
+            <span class="pull-right">{{receiver.getStatus()}}</span>
+            {{receiver.getName()}}
           </div>
         </div>
         <div class="accordion-body" collapse="isCollapsed()">
@@ -15,20 +15,20 @@
             <p>
               <dl class="dl-horizontal">
                 <dt>Адрес накопителя</dt>
-                <dd>{{store.remoteURL}}</dd>
+                <dd>{{receiver.remoteURL}}</dd>
                 <dt>Состояние</dt>
-                <dd>{{store.getStatus()}}</dd>
-                <dt ng-show="store.error">Ошибка</dt>
-                <dd ng-show="store.error">{{store.error}}</dd>
-                <dt ng-show="!store.error && store.cause">Ошибка</dt>
-                <dt ng-show="store.error && store.cause">Причина</dt>
-                <dd ng-show="store.cause">
-                  <pre>{{store.cause}}</pre>
+                <dd>{{receiver.getStatus()}}</dd>
+                <dt ng-show="receiver.error">Ошибка</dt>
+                <dd ng-show="receiver.error">{{receiver.error}}</dd>
+                <dt ng-show="!receiver.error && receiver.cause">Ошибка</dt>
+                <dt ng-show="receiver.error && receiver.cause">Причина</dt>
+                <dd ng-show="receiver.cause">
+                  <pre>{{receiver.cause}}</pre>
                 </dd>
               </dl>
             </p>
 
-            <div class="btn-group pull-right" ng-hide="store.active">
+            <div class="btn-group pull-right" ng-hide="receiver.active">
               <button
                 class="btn btn-primary"
                 ng-click="start()"
@@ -43,7 +43,7 @@
               </button>
             </div>
 
-            <div class="btn-group pull-right" ng-show="store.active">
+            <div class="btn-group pull-right" ng-show="receiver.active">
               <button
                 class="btn btn-warning"
                 ng-click="stop()"
@@ -65,16 +65,16 @@
 
   <form
     class="form-horizontal"
-    ng-controller="NewRfStoreCtrl"
-    id="newStoreForm"
-    name="newStoreForm"
+    ng-controller="NewRfReceiverCtrl"
+    id="newReceiverForm"
+    name="newReceiverForm"
     ng-submit="create()">
     <fieldset>
       <legend>Новое хранилище</legend>
 
       <div
         class="control-group"
-        ng-class="{error: newStoreForm.remoteURL.$dirty && newStoreForm.remoteURL.$invalid}">
+        ng-class="{error: newReceiverForm.remoteURL.$dirty && newReceiverForm.remoteURL.$invalid}">
         <label class="control-label" for="remoteURL">
           Адрес накопителя
         </label>
@@ -83,14 +83,14 @@
             type="text"
             name="remoteURL"
             placeholder="Адрес накопителя"
-            ng-model="newStore.remoteURL"
+            ng-model="newReceiver.remoteURL"
             required
             ng-trim="true"
             ng-change="correctRemoteURL()"
             ng-disabled="updating">
           <span
             class="help-inline"
-            ng-show="newStoreForm.remoteURL.$dirty && newStoreForm.remoteURL.$error.required">
+            ng-show="newReceiverForm.remoteURL.$dirty && newReceiverForm.remoteURL.$error.required">
             адрес обязателен
           </span>
         </div>

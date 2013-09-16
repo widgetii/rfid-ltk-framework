@@ -1,11 +1,10 @@
 package ru.aplix.ltk.collector.http.server;
 
-import static org.osgi.framework.Constants.SERVICE_ID;
-import static ru.aplix.ltk.collector.http.CollectorHttpConstants.COLLECTOR_HTTP_SERVICE_ID;
-
 import javax.servlet.ServletException;
 
-import org.osgi.framework.*;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.util.tracker.ServiceTracker;
@@ -53,7 +52,7 @@ public class CollectorHttpService implements BundleActivator {
 	private void registerServlets(HttpService service) {
 		try {
 			service.registerServlet(
-					"/client",
+					"/collector",
 					new ClrClientServlet(this),
 					null,
 					null);
@@ -64,21 +63,11 @@ public class CollectorHttpService implements BundleActivator {
 		}
 	}
 
-	private static Filter httpServiceFilter(
-			BundleContext context)
-	throws InvalidSyntaxException {
-		return context.createFilter(
-				'(' + SERVICE_ID + '=' + COLLECTOR_HTTP_SERVICE_ID + ')');
-	}
-
 	private final class HttpTracker
 			extends ServiceTracker<HttpService, HttpService> {
 
-		HttpTracker(BundleContext context) throws InvalidSyntaxException {
-			super(
-					context,
-					httpServiceFilter(context),
-					null);
+		HttpTracker(BundleContext context) {
+			super(context, HttpService.class, null);
 		}
 
 		@Override

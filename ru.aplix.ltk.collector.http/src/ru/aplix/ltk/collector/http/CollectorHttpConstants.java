@@ -7,12 +7,6 @@ package ru.aplix.ltk.collector.http;
 public interface CollectorHttpConstants {
 
 	/**
-	 * The identifier of collector {@code HttpService}.
-	 */
-	String COLLECTOR_HTTP_SERVICE_ID =
-			CollectorHttpConstants.class.getPackage().getName();
-
-	/**
 	 * A path relative to {@link ClrClientRequest#getClientURL() client URL},
 	 * to which {@link RfStatusRequest status updates} will be sent.
 	 */

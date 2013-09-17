@@ -75,10 +75,10 @@ final class RfReceiverState<S extends RfSettings>
 
 	RfReceiverState<S> update(RfReceiverEditor<S> editor) {
 
-		boolean stop = false;
 		final S newSettings =
 				getRfProvider().copySettings(editor.getRfSettings());
 		final boolean wasActive = isActive();
+		boolean stop = wasActive && !editor.isActive();
 		final boolean settingsChanged =
 				!newSettings.equals(getRfSettings());
 

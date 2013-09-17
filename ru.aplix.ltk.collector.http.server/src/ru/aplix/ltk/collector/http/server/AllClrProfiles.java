@@ -68,7 +68,24 @@ public final class AllClrProfiles {
 		out.println("<body>");
 		out.println("<h1>Профили оборудования</h1>");
 
+		RfProvider<?> lastProvider = null;
+
 		for (ClrProfile<?> profile : sortedProfiles()) {
+
+			final RfProvider<?> provider = profile.getProvider();
+
+			if (provider != lastProvider) {
+				if (lastProvider != null) {
+					out.println("<hr/>");
+				}
+				lastProvider = provider;
+
+				out.append("<h2>")
+				.append(html(profile.getProvider().getName()))
+				.append("</h2>")
+				.println();
+			}
+
 			profileReport(out, rootPath, profile);
 		}
 
@@ -151,24 +168,16 @@ public final class AllClrProfiles {
 			PrintWriter out,
 			String rootPath,
 			ClrProfile<?> profile) {
-		out.println("<p>");
 
 		final String profileId = profile.getProfileId().toString();
 		final String path = attr(rootPath + '/' + profileId);
-
-		out.append("<h2>")
-		.append(html(profile.getProvider().getName()))
-		.append("</h2>");
-		out.println();
 
 		out.append("<a href=\"")
 		.append(path)
 		.append("\">")
 		.append(path)
-		.append("</a>");
-		out.println();
-
-		out.println("<hr/>");
+		.append("</a>")
+		.println();
 	}
 
 	private static String attr(String text) {

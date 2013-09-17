@@ -50,9 +50,7 @@ public class ClrClientServlet extends HttpServlet {
 		@SuppressWarnings("resource")
 		final PrintWriter out = resp.getWriter();
 
-		allProfiles().statusReport(
-				out,
-				req.getContextPath() + CLR_SERVLET_PATH);
+		allProfiles().statusReport(out, rootPath(req));
 
 		out.flush();
 	}
@@ -170,6 +168,22 @@ public class ClrClientServlet extends HttpServlet {
 	@Override
 	public void destroy() {
 		allProfiles().destroy();
+	}
+
+	private static String rootPath(HttpServletRequest request) {
+
+		final String scheme = request.getScheme();
+		final int port = request.getServerPort();
+		final StringBuilder url = new StringBuilder();
+
+		url.append(scheme).append("://").append(request.getServerName());
+		if (!(port == 80 && "http".equals(scheme)
+				|| port == 443 && "https".equals("scheme"))) {
+			url.append(':').append(port);
+		}
+		url.append(request.getContextPath()).append(CLR_SERVLET_PATH);
+
+		return url.toString();
 	}
 
 	private void writeResult(

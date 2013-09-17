@@ -16,7 +16,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.*;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
 
 import ru.aplix.ltk.collector.http.ParametersEntity;
@@ -98,25 +100,9 @@ public abstract class MessageSender<T>
 			HttpEntity entity)
 	throws ClientProtocolException, IOException;
 
-	protected T get(String path) {
+	protected T delete() {
 
-		final URL requestURL = requestURL(path);
-
-		if (requestURL == null) {
-			return null;
-		}
-		try {
-			return sendRequest(new HttpGet(requestURL.toURI()));
-		} catch (Throwable e) {
-			requestFailed(requestURL, e);
-		}
-
-		return null;
-	}
-
-	protected T delete(String path) {
-
-		final URL requestURL = requestURL(path);
+		final URL requestURL = requestURL();
 
 		if (requestURL == null) {
 			return null;
@@ -130,9 +116,9 @@ public abstract class MessageSender<T>
 		return null;
 	}
 
-	protected T put(String path, Parameterized request) {
+	protected T put(Parameterized request) {
 
-		final URL requestURL = requestURL(path);
+		final URL requestURL = requestURL();
 
 		if (requestURL == null) {
 			return null;
@@ -144,27 +130,6 @@ public abstract class MessageSender<T>
 			put.setEntity(new ParametersEntity(request));
 
 			return sendRequest(put);
-		} catch (Throwable e) {
-			requestFailed(requestURL, e);
-		}
-
-		return null;
-	}
-
-	protected T post(String path, Parameterized request) {
-
-		final URL requestURL = requestURL(path);
-
-		if (requestURL == null) {
-			return null;
-		}
-		try {
-
-			final HttpPost post = new HttpPost(requestURL.toURI());
-
-			post.setEntity(new ParametersEntity(request));
-
-			return sendRequest(post);
 		} catch (Throwable e) {
 			requestFailed(requestURL, e);
 		}
@@ -189,26 +154,23 @@ public abstract class MessageSender<T>
 		}
 	}
 
-	private URL requestURL(String path) {
+	private URL requestURL() {
 
 		final URL collectorURL = getSettings().getCollectorURL();
 
 		try {
 
-			final UUID clientId = getConnection().getClientUUID();
-			final URL clientURL;
+			final UUID clientUUID = getConnection().getClientUUID();
+			final URL baseURL;
+			final String collectorPath = collectorURL.getPath();
 
-			if (clientId == null) {
-				clientURL = collectorURL;
+			if (collectorPath.endsWith("/")) {
+				baseURL = collectorURL;
 			} else {
-				clientURL = new URL(collectorURL, clientId.toString());
+				baseURL = new URL(collectorURL, collectorPath + '/');
 			}
 
-			if (path == null) {
-				return clientURL;
-			}
-
-			return new URL(clientURL, path);
+			return new URL(baseURL, clientUUID.toString());
 		} catch (MalformedURLException e) {
 			getConnection().requestFailed("Internal error", e);
 		}

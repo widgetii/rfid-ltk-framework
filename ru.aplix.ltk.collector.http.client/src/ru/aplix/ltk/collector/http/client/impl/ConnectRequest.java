@@ -1,25 +1,21 @@
 package ru.aplix.ltk.collector.http.client.impl;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.IOException;
-import java.util.UUID;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 
 import ru.aplix.ltk.collector.http.ClrClientRequest;
-import ru.aplix.ltk.collector.http.ClrClientResponse;
 
 
-public class ConnectRequest extends MessageSender<ClrClientResponse> {
+public class ConnectRequest extends MessageSender<Boolean> {
 
 	public ConnectRequest(HttpRfConnection connection) {
 		super(connection);
 	}
 
 	@Override
-	public ClrClientResponse call() throws Exception {
+	public Boolean call() throws Exception {
 		if (getConnection().isConnected()) {
 			return null;// Already connected.
 		}
@@ -28,23 +24,15 @@ public class ConnectRequest extends MessageSender<ClrClientResponse> {
 
 		request.setClientURL(getSettings().getClientURL());
 
-		final ClrClientResponse response = put(null, request);
-		final UUID clientUUID = response.getClientUUID();
-
-		requireNonNull(
-				clientUUID,
-				"No client UUID in connection response");
-
-		getConnection().connectionEstablished(clientUUID);
-
-		return response;
+		return put(request);
 	}
 
 	@Override
-	protected ClrClientResponse handleEntity(
+	protected Boolean handleEntity(
 			HttpEntity entity)
 	throws ClientProtocolException, IOException {
-		return new ClrClientResponse(parseResponse(entity));
+		getConnection().connectionEstablished();
+		return Boolean.TRUE;
 	}
 
 }

@@ -1,21 +1,19 @@
 package ru.aplix.ltk.collector.http.server;
 
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.apache.http.client.utils.URLEncodedUtils.CONTENT_TYPE;
 import static ru.aplix.ltk.collector.http.ClrClientId.clrClientId;
-import static ru.aplix.ltk.core.util.Parameters.UTF_8;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.aplix.ltk.collector.http.*;
-import ru.aplix.ltk.core.util.Parameterized;
+import ru.aplix.ltk.collector.http.ClrClientId;
+import ru.aplix.ltk.collector.http.ClrClientRequest;
 import ru.aplix.ltk.core.util.Parameters;
 
 
@@ -72,40 +70,11 @@ public class ClrClientServlet extends HttpServlet {
 					"RFID profile not specified");
 			return;
 		}
-		if (clientId.getUUID() == null) {
-			createClient(resp, clientId.getProfileId(), request);
-		} else {
-			updateClient(resp, clientId, request);
-		}
+
+		createClient(resp, clientId, request);
 	}
 
 	private void createClient(
-			HttpServletResponse resp,
-			ClrProfileId profileId,
-			ClrClientRequest request)
-	throws IOException {
-
-		final ClrProfile<?> profile = allProfiles().get(profileId);
-
-		if (profile == null) {
-			resp.sendError(
-					SC_NOT_FOUND,
-					"RFID profile " + profileId + " does not exist");
-			return;
-		}
-
-		final ClrClient<?> client = profile.connectClient(request);
-
-		resp.setStatus(SC_CREATED);
-
-		final ClrClientResponse result = new ClrClientResponse();
-
-		result.setClientUUID(client.getId().getUUID());
-
-		writeResult(resp, result);
-	}
-
-	private void updateClient(
 			HttpServletResponse resp,
 			ClrClientId clientId,
 			ClrClientRequest request)
@@ -121,12 +90,18 @@ public class ClrClientServlet extends HttpServlet {
 					+ " does not exist");
 			return;
 		}
-		if (profile.reconnectClient(clientId.getUUID(), request) == null) {
-			resp.sendError(SC_NOT_FOUND, "Unknown client: " + clientId);
+
+		final UUID clientUUID = clientId.getUUID();
+
+		if (clientUUID == null) {
+			resp.sendError(
+					SC_BAD_REQUEST,
+					"RFID profile client identifier not specified");
 			return;
 		}
 
-		resp.setStatus(SC_NO_CONTENT);
+		profile.connectClient(clientUUID, request);
+		resp.setStatus(SC_CREATED);
 		resp.flushBuffer();
 	}
 
@@ -184,24 +159,6 @@ public class ClrClientServlet extends HttpServlet {
 		url.append(request.getContextPath()).append(CLR_SERVLET_PATH);
 
 		return url.toString();
-	}
-
-	private void writeResult(
-			HttpServletResponse resp,
-			Parameterized result)
-	throws IOException {
-
-		final String response = new Parameters().setBy(result).urlEncode();
-
-		resp.setContentType(CONTENT_TYPE);
-		resp.setCharacterEncoding(UTF_8);
-		resp.setContentLength(response.length());
-
-		@SuppressWarnings("resource")
-		final ServletOutputStream out = resp.getOutputStream();
-
-		out.print(response);
-		out.flush();
 	}
 
 }

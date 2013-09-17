@@ -99,8 +99,12 @@ public abstract class MessageSender<T>
 	protected T sendRequest(
 			HttpUriRequest request)
 	throws IOException, ClientProtocolException {
+
+		final T result = httpClient().execute(request, this);
+
 		getClient().requestSent();
-		return httpClient().execute(request, this);
+
+		return result;
 	}
 
 	private URL requestURL(String path) {

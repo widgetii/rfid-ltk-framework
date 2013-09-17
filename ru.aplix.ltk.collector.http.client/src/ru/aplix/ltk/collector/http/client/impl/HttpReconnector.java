@@ -15,6 +15,7 @@ class HttpReconnector implements Runnable {
 
 	@Override
 	public void run() {
+		this.connection.connectionLost();
 		new ConnectRequest(this.connection).send();
 	}
 
@@ -27,10 +28,14 @@ class HttpReconnector implements Runnable {
 	}
 
 	public void reschedule() {
+		cancel();
+		schedule();
+	}
+
+	public void cancel() {
 		if (this.future != null) {
 			this.future.cancel(false);
 		}
-		schedule();
 	}
 
 }

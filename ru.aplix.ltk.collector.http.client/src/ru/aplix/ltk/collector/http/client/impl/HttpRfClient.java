@@ -51,11 +51,11 @@ public class HttpRfClient {
 		this.httpClient.getConnectionManager().shutdown();
 	}
 
-	void connected(HttpRfConnection connection) {
+	void add(HttpRfConnection connection) {
 		this.connections.put(connection.getClientUUID(), connection);
 	}
 
-	void disconnected(HttpRfConnection connection) {
+	void remove(HttpRfConnection connection) {
 		this.connections.remove(connection.getClientUUID());
 	}
 

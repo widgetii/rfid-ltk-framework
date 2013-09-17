@@ -1,7 +1,6 @@
 package ru.aplix.ltk.collector.http.server;
 
 import static java.util.Collections.synchronizedMap;
-import static java.util.UUID.randomUUID;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,9 +51,11 @@ public class ClrProfile<S extends RfSettings> {
 		return this.parameters;
 	}
 
-	public final ClrClient<S> connectClient(ClrClientRequest request) {
+	public final ClrClient<S> connectClient(
+			UUID clientUUID,
+			ClrClientRequest request) {
 		return addClient(
-				new ClrClientId(getProfileId(), randomUUID()),
+				new ClrClientId(getProfileId(), clientUUID),
 				request);
 	}
 
@@ -100,7 +101,18 @@ public class ClrProfile<S extends RfSettings> {
 
 		final ClrClient<S> client = new ClrClient<>(this, clientId);
 
-		this.clients.put(clientId.getUUID(), client);
+		synchronized (this.clients) {
+
+			final ClrClient<S> existing =
+					this.clients.put(clientId.getUUID(), client);
+
+			if (existing != null) {
+				this.clients.put(clientId.getUUID(), existing);
+				throw new IllegalArgumentException(
+						"Client " + clientId + " already connected");
+			}
+		}
+
 		client.start(request);
 
 		return client;

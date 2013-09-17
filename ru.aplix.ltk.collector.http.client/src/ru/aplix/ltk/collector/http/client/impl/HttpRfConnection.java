@@ -1,5 +1,6 @@
 package ru.aplix.ltk.collector.http.client.impl;
 
+import static java.util.UUID.randomUUID;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
 import java.util.UUID;
@@ -25,11 +26,13 @@ public class HttpRfConnection
 	private UUID clientUUID;
 	private volatile RfStatusUpdater statusUpdater;
 	private volatile RfTracking tracking;
+	private volatile boolean connected;
 
 	public HttpRfConnection(HttpRfClient client, HttpRfSettings settings) {
 		super(settings);
 		this.client = client;
 		this.settings = settings;
+		generateUUID();
 	}
 
 	public final ScheduledExecutorService getExecutor() {
@@ -49,7 +52,7 @@ public class HttpRfConnection
 	}
 
 	public final boolean isConnected() {
-		return getClientUUID() != null;
+		return this.connected;
 	}
 
 	@Override
@@ -89,6 +92,7 @@ public class HttpRfConnection
 	@Override
 	public void rejectRfStatus() {
 		this.statusUpdater = null;
+		this.reconnector.cancel();
 		new DisconnectRequest(this).send();
 		this.executor.shutdown();
 	}
@@ -128,21 +132,35 @@ public class HttpRfConnection
 	}
 
 	void requestFailed(String message, Throwable cause) {
-		getClient().disconnected(this);
+		getClient().remove(this);
 
 		final UUID clientUUID = getClientUUID();
 
-		this.clientUUID = null;
+		disconnect();
 		updateStatus(new RfError(
 				clientUUID != null ? clientUUID.toString() : null,
 				message,
 				cause));
 	}
 
-	void connectionEstablished(UUID clientUUID) {
-		this.clientUUID = clientUUID;
-		getClient().connected(this);
-		updateStatus(new RfConnected(clientUUID.toString()));
+	void connectionEstablished() {
+		this.connected = true;
+		updateStatus(new RfConnected(getClientUUID().toString()));
+	}
+
+	void connectionLost() {
+		disconnect();
+	}
+
+	private void generateUUID() {
+		this.clientUUID = randomUUID();
+		getClient().add(this);
+	}
+
+	private void disconnect() {
+		this.connected = false;
+		getClient().remove(this);
+		generateUUID();
 	}
 
 }

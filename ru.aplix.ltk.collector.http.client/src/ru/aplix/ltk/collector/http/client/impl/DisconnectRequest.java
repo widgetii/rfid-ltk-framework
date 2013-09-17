@@ -17,7 +17,7 @@ public class DisconnectRequest extends MessageSender<Void> {
 		if (!getConnection().isConnected()) {
 			return null;
 		}
-		return delete(null);
+		return delete();
 	}
 
 	@Override

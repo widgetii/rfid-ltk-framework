@@ -19,6 +19,14 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 		this.rfReaderId = status.getRfReaderId();
 		this.rfStatus = status.getRfStatus();
 		this.errorMessage = status.getErrorMessage();
+		if (this.errorMessage == null) {
+
+			final Throwable cause = status.getCause();
+
+			if (cause != null) {
+				this.errorMessage = cause.toString();
+			}
+		}
 	}
 
 	public RfStatusRequest(Parameters parameters) {

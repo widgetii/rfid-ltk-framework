@@ -204,7 +204,7 @@ public final class Parameters implements Parameterized {
 		}
 
 		try {
-			return Enum.valueOf(enumType, name);
+			return Enum.valueOf(enumType, values[0]);
 		} catch (IllegalArgumentException e) {
 			return noValue;
 		}
@@ -326,6 +326,15 @@ public final class Parameters implements Parameterized {
 		return this;
 	}
 
+	@Override
+	public String toString() {
+		try {
+			return urlEncode();
+		} catch (UnsupportedEncodingException e) {
+			return e.getMessage();
+		}
+	}
+
 	private void addDecodedParam(
 			StringBuilder name,
 			StringBuilder value,
@@ -375,24 +384,30 @@ public final class Parameters implements Parameterized {
 			final String[] values = e.getValue();
 			final int numVals = values.length;
 
-			if (notFirst) {
-				out.append('&');
-			} else {
-				notFirst = true;
-			}
-			out.append(name);
 			if (numVals == 0) {
+				if (notFirst) {
+					out.append('&');
+				} else {
+					notFirst = true;
+				}
+				out.append(name);
 				continue;
 			}
-			out.append('=').append(URLEncoder.encode(values[0], encoding));
-			for (int i = 1; i < numVals; ++i) {
+
+			for (int i = 0; i < numVals; ++i) {
 
 				final String value = values[i];
 
-				out.append('&').append(name).append('=');
-				if (value != null) {
-					out.append(URLEncoder.encode(value, encoding));
+				if (value == null) {
+					continue;
 				}
+				if (notFirst) {
+					out.append('&');
+				} else {
+					notFirst = true;
+				}
+				out.append(name).append('=');
+				out.append(URLEncoder.encode(value, encoding));
 			}
 		}
 	}

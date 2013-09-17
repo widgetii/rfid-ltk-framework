@@ -22,11 +22,6 @@
       rev="2.2.0">
       <artifact name="com.springsource.edu.emory.mathcs.backport" type="jar"/>
     </dependency>
-    <dependency
-      org="org.slf4j"
-      name="com.springsource.slf4j.api"
-      rev="1.6.1">
-      <artifact name="com.springsource.slf4j.api" type="jar"/>
-    </dependency>
+    <dependency org="bundle" name="org.slf4j.api" rev="1.7.2+"/>
   </dependencies>
 </ivy-module>

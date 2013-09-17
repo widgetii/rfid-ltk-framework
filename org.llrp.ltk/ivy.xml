@@ -27,12 +27,7 @@
       rev="1.2.16">
       <artifact name="com.springsource.org.apache.log4j" type="jar"/>
     </dependency>
-    <dependency
-      org="org.slf4j"
-      name="com.springsource.slf4j.org.apache.log4j"
-      rev="1.6.1">
-      <artifact name="com.springsource.slf4j.org.apache.log4j" type="jar"/>
-    </dependency>
+    <dependency org="bundle" name="org.slf4j.log4j" rev="1.7.2+"/>
     <dependency
       org="org.jdom"
       name="com.springsource.org.jdom"

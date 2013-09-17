@@ -24,6 +24,6 @@ Export-Package: org.apache.mina.common,
  org.apache.mina.transport.vmpipe,
  org.apache.mina.transport.vmpipe.support,
  org.apache.mina.util
-Require-Bundle: com.springsource.slf4j.api;bundle-version="1.6.1",
-  com.springsource.edu.emory.mathcs.backport;bundle-version="2.2.0"
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2",
+ com.springsource.edu.emory.mathcs.backport;bundle-version="2.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

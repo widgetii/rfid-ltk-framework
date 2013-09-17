@@ -28,10 +28,16 @@
         <artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
       </url>
     </chain>
-    <updatesite
-      name="eclipse-updatesite"
-      url="http://download.eclipse.org/eclipse/updates/4.3"
-      requirementStrategy="first"/>
+    <chain name="updatesites" dual="true" returnFirst="true">
+      <updatesite
+        name="eclipse-updatesite"
+        url="http://download.eclipse.org/eclipse/updates/4.3"
+        requirementStrategy="first"/>
+      <updatesite
+        name="virgo-updatesite"
+        url="http://download.eclipse.org/virgo/release/tooling"
+        requirementStrategy="first"/>
+    </chain>
     <filesystem name="ltk-bundles" checkmodified="true" cache="ltk-bundles">
       <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
       <artifact
@@ -54,10 +60,10 @@
       resolver="ltk-bundles"/>
     <module
       organisation="bundle"
-      resolver="eclipse-updatesite"/>
+      resolver="updatesites"/>
     <module
       organisation="package"
-      resolver="eclipse-updatesite"/>
+      resolver="updatesites"/>
     <module
       name="com.springsource.*"
       resolver="com.springsource"/>

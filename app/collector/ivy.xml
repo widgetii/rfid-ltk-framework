@@ -52,10 +52,23 @@
       org="bundle"
       name="org.apache.felix.gogo.command"
       rev="0.10.0+"/>
+    <dependency org="bundle" name="org.slf4j.jcl" rev="1.7.2+"/>
+    <dependency org="bundle" name="org.slf4j.jul" rev="1.7.2+"/>
     <dependency
-      org="org.slf4j"
-      name="com.springsource.slf4j.nop"
-      rev="1.6.1"/>
+      org="bundle"
+      name="ch.qos.logback.classic"
+      rev="1.0.7+"
+      transitive="false"/>
+    <dependency
+      org="bundle"
+      name="ch.qos.logback.core"
+      rev="1.0.7+"
+      transitive="false"/>
+    <dependency
+      org="bundle"
+      name="ch.qos.logback.slf4j"
+      rev="1.0.7+"
+      transitive="false"/>
 
     <exclude type="license"/>
     <exclude type="src"/>

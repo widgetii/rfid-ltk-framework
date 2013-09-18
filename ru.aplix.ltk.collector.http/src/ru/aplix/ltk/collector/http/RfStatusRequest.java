@@ -1,6 +1,10 @@
 package ru.aplix.ltk.collector.http;
 
 import static ru.aplix.ltk.core.source.RfStatus.RF_ERROR;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import ru.aplix.ltk.core.source.RfStatus;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.core.util.Parameterized;
@@ -13,20 +17,14 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 	private String rfReaderId;
 	private RfStatus rfStatus = RF_ERROR;
 	private String errorMessage;
+	private Throwable cause;
 
 	public RfStatusRequest(ClrClientId clientId, RfStatusMessage status) {
 		this.clientId = clientId;
 		this.rfReaderId = status.getRfReaderId();
 		this.rfStatus = status.getRfStatus();
 		this.errorMessage = status.getErrorMessage();
-		if (this.errorMessage == null) {
-
-			final Throwable cause = status.getCause();
-
-			if (cause != null) {
-				this.errorMessage = cause.toString();
-			}
-		}
+		this.cause = status.getCause();
 	}
 
 	public RfStatusRequest(Parameters parameters) {
@@ -50,7 +48,7 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 
 	@Override
 	public Throwable getCause() {
-		return null;
+		return this.cause;
 	}
 
 	@Override
@@ -64,6 +62,7 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 				getRfStatus());
 		this.errorMessage =
 				params.valueOf("errorMessage", null, getErrorMessage());
+		this.cause = readCause(params);
 	}
 
 	@Override
@@ -73,6 +72,48 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 		.set("rfReaderId", getRfReaderId())
 		.set("rfStatus", getRfStatus())
 		.set("errorMessage", getErrorMessage());
+		writeCause(params);
+	}
+
+	private Throwable readCause(Parameters params) {
+
+		final Parameters causeParams = params.sub("cause");
+		final String causeClass = causeParams.valueOf("");
+
+		if (causeClass == null) {
+			return getCause();
+		}
+
+		return new RemoteClrException(
+				causeClass,
+				causeParams.valueOf("message"),
+				causeParams.valueOf("stackTrace"));
+	}
+
+	private void writeCause(Parameters params) {
+
+		final Throwable cause = getCause();
+
+		if (cause == null) {
+			return;
+		}
+
+		final Parameters causeParams = params.sub("cause");
+
+		causeParams.set("", cause.getClass().getName());
+		causeParams.set("message", cause.getMessage());
+		causeParams.set("stackTrace", stackTrace(cause));
+	}
+
+	private String stackTrace(Throwable cause) {
+
+		final StringWriter str = new StringWriter();
+
+		try (PrintWriter out = new PrintWriter(str)) {
+			cause.printStackTrace(out);
+		}
+
+		return str.toString();
 	}
 
 }

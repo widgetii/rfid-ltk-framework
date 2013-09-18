@@ -1,0 +1,94 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:	rfcollector
+# Required-Start:  $network $remote_fs $syslog
+# Required-Stop:   $network $remote_fs $syslog
+# Default-Start:   2 3 4 5
+# Default-Stop: 
+# Short-Description: Start RFID collector daemon
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+. /lib/lsb/init-functions
+
+DAEMON=/usr/bin/java
+PIDFILE=/var/run/rfcollector.pid
+RFCOLLECTOR_DIR=/home/pi/ru.aplix.ltk/app/collector/target
+LAUNCHER_JAR=org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar
+
+test -x $DAEMON || exit 5
+
+if [ -r /etc/default/rfcollector ]; then
+	. /etc/default/rfcollector
+fi
+
+JAVA_OPTS="$JAVA_OPTS -jar plugins/$LAUNCHER_JAR $COLLECTOR_OPTS"
+
+
+LOCKFILE=/var/lock/rfcollector
+
+lock_rfcollector() {
+	if [ -x /usr/bin/lockfile-create ]; then
+		lockfile-create $LOCKFILE
+		lockfile-touch $LOCKFILE &
+		LOCKTOUCHPID="$!"
+	fi
+}
+
+unlock_rfcollector() {
+	if [ -x /usr/bin/lockfile-create ] ; then
+		kill $LOCKTOUCHPID
+		lockfile-remove $LOCKFILE
+	fi
+}
+
+RUNASUSER=pi
+UGID=$(getent passwd $RUNASUSER | cut -f 3,4 -d:) || true
+
+case $1 in
+	start)
+		log_daemon_msg "Starting RFID collector" "rfcollector"
+		if [ -z "$UGID" ]; then
+			log_failure_msg "user \"$RUNASUSER\" does not exist"
+			exit 1
+		fi
+		lock_rfcollector
+		start-stop-daemon --start --quiet --oknodo \
+			--chuid $UGID --chdir "$RFCOLLECTOR_DIR" \
+			--background  --startas $DAEMON \
+			--pidfile $PIDFILE --make-pidfile \
+			-- $JAVA_OPTS
+		status=$?
+		unlock_rfcollector
+		log_end_msg $status
+		;;
+	stop)
+		log_daemon_msg "Stopping RFID collector" "rfcollector"
+		start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE \
+			--retry TERM/5/KILL/2
+		log_end_msg $?
+		rm -f $PIDFILE
+		;;
+	restart|force-reload)
+		$0 stop && sleep 2 && $0 start
+		;;
+	try-restart)
+		if $0 status >/dev/null; then
+			$0 restart
+		else
+			exit 0
+		fi
+		;;
+	reload)
+		exit 3
+		;;
+	status)
+		status_of_proc -p $LOCKFILE $DAEMON "RFID collector"
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|try-restart|force-reload|status}"
+		exit 2
+		;;
+esac

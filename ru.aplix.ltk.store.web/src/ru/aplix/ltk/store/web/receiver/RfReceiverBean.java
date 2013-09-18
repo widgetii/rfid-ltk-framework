@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import ru.aplix.ltk.collector.http.RemoteClrException;
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.store.RfReceiver;
@@ -143,16 +144,43 @@ public class RfReceiverBean implements Comparable<RfReceiverBean> {
 
 		final Throwable cause = lastStatus.getCause();
 
-		if (cause != null) {
-
-			final StringWriter trace = new StringWriter();
-
-			try (PrintWriter out = new PrintWriter(trace)) {
-				cause.printStackTrace(out);
-			}
-
-			this.cause = trace.toString();
+		if (cause == null) {
+			return;
 		}
+
+		if (cause instanceof RemoteClrException) {
+			updateRemoteCause((RemoteClrException) cause);
+		} else {
+			updateCause(cause);
+		}
+	}
+
+	private void updateCause(Throwable cause) {
+
+		final StringWriter trace = new StringWriter();
+
+		try (PrintWriter out = new PrintWriter(trace)) {
+			cause.printStackTrace(out);
+		}
+
+		this.cause = trace.toString();
+	}
+
+	private void updateRemoteCause(RemoteClrException cause) {
+
+		final StringBuilder out = new StringBuilder();
+
+		out.append(cause.getRemoteExceptionClassName());
+
+		final String message = cause.getMessage();
+
+		if (message != null) {
+			out.append(": ").append(message);
+		}
+		out.append('\n');
+		out.append(cause.getRemoteStackTrace());
+
+		this.cause = out.toString();
 	}
 
 }

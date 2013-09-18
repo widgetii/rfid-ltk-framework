@@ -37,6 +37,14 @@
 				<include name="configuration/**"/>
 			</fileset>
 		</copy>
+		<available file="local" type="dir" property="locals.exist"/>
+		<antcall target="_copy_local"/>
+	</target>
+
+	<target name="_copy_local" if="locals.exist">
+		<copy todir="${app.dir}" overwrite="true">
+			<fileset dir="local"/>
+		</copy>
 	</target>
 
 	<target name="clean" description="Cleans everything">

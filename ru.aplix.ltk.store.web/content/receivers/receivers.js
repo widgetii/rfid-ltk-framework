@@ -195,8 +195,11 @@ angular.module(
 		var url = receiver.remoteURL;
 		if (typeof url !== "string") return;
 		if (url.indexOf("://") >= 0) return;
-		if (url.substring(0, 7) == "http://") return;
-		if (url.substring(0, 8) == "https://") return;
+		var len = url.length;
+		if ("http://".substring(0, len)
+				== url.substring(0, Math.min(len, 7))) return;
+		if ("https://".substring(0, len)
+				== url.substring(0, Math.min(len, 8))) return;
 		receiver.remoteURL = "http://" + url;
 	};
 	function startUpdate() {

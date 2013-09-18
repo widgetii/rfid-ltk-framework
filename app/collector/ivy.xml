@@ -25,6 +25,10 @@
       conf="runtime->@"/>
     <dependency
       org="bundle"
+      name="ru.aplix.ltk.osgi.shutdown"
+      rev="latest.integration"/>
+    <dependency
+      org="bundle"
       name="org.eclipse.osgi.services"
       rev="3.3.100+"/>
     <dependency

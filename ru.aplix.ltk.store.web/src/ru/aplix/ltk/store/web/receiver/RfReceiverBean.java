@@ -167,20 +167,7 @@ public class RfReceiverBean implements Comparable<RfReceiverBean> {
 	}
 
 	private void updateRemoteCause(RemoteClrException cause) {
-
-		final StringBuilder out = new StringBuilder();
-
-		out.append(cause.getRemoteExceptionClassName());
-
-		final String message = cause.getMessage();
-
-		if (message != null) {
-			out.append(": ").append(message);
-		}
-		out.append('\n');
-		out.append(cause.getRemoteStackTrace());
-
-		this.cause = out.toString();
+		this.cause = cause.getRemoteStackTrace();
 	}
 
 }

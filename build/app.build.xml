@@ -25,13 +25,8 @@
 		</subant>
 	</target>
 
-	<target name="build" depends="build-deps">
+	<target name="resources">
 		<mkdir taskname="${ant.project.name}" dir="${app.dir}"/>
-		<ivy:retrieve
-			taskname="${ant.project.name}"
-			sync="true"
-			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"
-			type="jar"/>
 		<copy taskname="${ant.project.name}" todir="${app.dir}">
 			<fileset dir=".">
 				<include name="configuration/**"/>
@@ -39,6 +34,14 @@
 		</copy>
 		<available file="local" type="dir" property="locals.exist"/>
 		<antcall target="_copy_local"/>
+	</target>
+	
+	<target name="build" depends="build-deps,resources">
+		<ivy:retrieve
+			taskname="${ant.project.name}"
+			sync="true"
+			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"
+			type="jar"/>
 	</target>
 
 	<target name="_copy_local" if="locals.exist">

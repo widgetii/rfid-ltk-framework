@@ -195,8 +195,8 @@ angular.module(
 		var url = receiver.remoteURL;
 		if (typeof url !== "string") return;
 		if (url.indexOf("://") >= 0) return;
-		if (url.substring(0, 6) == "http:/") return;
-		if (url.substring(0, 7) == "https:/") return;
+		if (url.substring(0, 7) == "http://") return;
+		if (url.substring(0, 8) == "https://") return;
 		receiver.remoteURL = "http://" + url;
 	};
 	function startUpdate() {

@@ -18,6 +18,11 @@
       rev="latest.integration"/>
     <dependency
       org="bundle"
+      name="ru.aplix.ltk.osgi"
+      rev="latest.integration"
+      conf="compile->@;runtime->@"/>
+    <dependency
+      org="bundle"
       name="org.llrp.ltk"
       rev="1.0.0.7aplix"
       conf="compile->compile;runtime->runtime"/>

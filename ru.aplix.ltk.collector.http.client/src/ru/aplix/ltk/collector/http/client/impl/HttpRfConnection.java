@@ -13,6 +13,7 @@ import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.collector.RfTracker;
 import ru.aplix.ltk.core.collector.RfTracking;
 import ru.aplix.ltk.core.source.*;
+import ru.aplix.ltk.osgi.Logger;
 
 
 public class HttpRfConnection
@@ -55,8 +56,13 @@ public class HttpRfConnection
 		return this.connected;
 	}
 
+	public final Logger getLogger() {
+		return getClient().getProvider().getLogger();
+	}
+
 	@Override
 	public void requestRfStatus(RfStatusUpdater updater) {
+		getLogger().debug(this + " Starting");
 		this.statusUpdater = updater;
 		this.executor = newSingleThreadScheduledExecutor();
 		new ConnectRequest(this).send();
@@ -91,6 +97,7 @@ public class HttpRfConnection
 
 	@Override
 	public void rejectRfStatus() {
+		getLogger().debug(this + " Stopping");
 		this.statusUpdater = null;
 		this.reconnector.cancel();
 		new DisconnectRequest(this).send();
@@ -122,6 +129,14 @@ public class HttpRfConnection
 	}
 
 	@Override
+	public String toString() {
+		if (this.client == null) {
+			return super.toString();
+		}
+		return "HttpRfConnection[" + getSettings().getCollectorURL() + ']';
+	}
+
+	@Override
 	protected RfCollector createCollector() {
 		return new RfCollector(this, this);
 	}
@@ -149,6 +164,7 @@ public class HttpRfConnection
 	}
 
 	void connectionLost() {
+		getLogger().error(this + " Connection lost");
 		disconnect();
 	}
 

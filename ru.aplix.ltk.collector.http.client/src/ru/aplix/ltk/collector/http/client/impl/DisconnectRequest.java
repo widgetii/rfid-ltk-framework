@@ -15,8 +15,10 @@ public class DisconnectRequest extends MessageSender<Void> {
 	@Override
 	public Void call() throws Exception {
 		if (!getConnection().isConnected()) {
+			getLogger().warning(getConnection() + " Not connected");
 			return null;
 		}
+		getLogger().info(getConnection() + " Disconnecting");
 		return delete();
 	}
 

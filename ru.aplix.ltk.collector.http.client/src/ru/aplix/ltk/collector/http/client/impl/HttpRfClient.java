@@ -15,16 +15,22 @@ import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 
 public class HttpRfClient {
 
+	private final HttpRfProvider provider;
 	private final HttpClient httpClient;
 	private final Map<UUID, HttpRfConnection> connections =
 			synchronizedMap(new HashMap<UUID, HttpRfConnection>());
 
-	public HttpRfClient() {
+	public HttpRfClient(HttpRfProvider provider) {
 
+		this.provider = provider;
 		final ThreadSafeClientConnManager conman =
 				new ThreadSafeClientConnManager();
 
 		this.httpClient = new DefaultHttpClient(conman);
+	}
+
+	public final HttpRfProvider getProvider() {
+		return this.provider;
 	}
 
 	public final HttpClient httpClient() {

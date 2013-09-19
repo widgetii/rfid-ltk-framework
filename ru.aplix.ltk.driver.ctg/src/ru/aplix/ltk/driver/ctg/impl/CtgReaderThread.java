@@ -131,13 +131,25 @@ final class CtgReaderThread
 			getLogger().debug(this + " Connecting");
 			this.reader.connect(getSettings().getConnectionTimeout());
 			if (this.stopped) {
+				this.reader.disconnect();
 				return false;
 			}
-			return (setReaderConfig()
-					&& deleteROSpecs()
-					&& addROSpec()
-					&& enableROSpec()
-					&& startROSpec());
+
+			boolean ok = false;
+
+			try {
+				ok = setReaderConfig()
+						&& deleteROSpecs()
+						&& addROSpec()
+						&& enableROSpec()
+						&& startROSpec();
+			} finally {
+				if (!ok) {
+					this.reader.disconnect();
+				}
+			}
+
+			return ok;
 		} catch (Throwable e) {
 			sendError(e);
 		}
@@ -402,6 +414,7 @@ final class CtgReaderThread
 			errorMessage = statusCode.toString();
 		}
 
+		getLogger().error(this + errorMessage);
 		getContext().updateStatus(new RfError(null, errorMessage));
 
 		return false;

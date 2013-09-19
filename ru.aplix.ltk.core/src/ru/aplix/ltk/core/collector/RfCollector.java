@@ -143,6 +143,10 @@ public class RfCollector
 		this.sourceListener.noError();
 	}
 
+	final void updateStatus(RfStatusMessage status) {
+		this.sourceListener.updateStatus(status);
+	}
+
 	private static final class RfTagAppearanceSubscriptions
 			extends MsgSubscriptions<
 					RfTagAppearanceHandle,

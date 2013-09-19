@@ -32,7 +32,7 @@ public final class RfTracking implements RfStatusUpdater {
 	 */
 	@Override
 	public final void updateStatus(RfStatusMessage status) {
-		this.collector.collectorSubscriptions().sendMessage(status);
+		this.collector.updateStatus(status);
 	}
 
 	/**

@@ -6,6 +6,7 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
+import ru.aplix.ltk.collector.http.RemoteClrException;
 import ru.aplix.ltk.collector.http.RfTagAppearanceRequest;
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.RfConnection;
@@ -105,7 +106,8 @@ public class HttpRfConnection
 	}
 
 	public void updateStatus(RfStatusMessage status) {
-		ping();
+		requestReceived();
+		logStatus(status);
 
 		final RfStatusUpdater statusUpdater = this.statusUpdater;
 
@@ -114,8 +116,36 @@ public class HttpRfConnection
 		}
 	}
 
+	private void logStatus(RfStatusMessage status) {
+		if (!status.getRfStatus().isError()) {
+			getLogger().debug(this + " Status update: " + status.getRfStatus());
+			return;
+		}
+
+		final String errorMessage = status.getErrorMessage();
+		final Throwable cause = status.getCause();
+
+		if (cause instanceof RemoteClrException) {
+
+			final RemoteClrException remote = (RemoteClrException) cause;
+
+			getLogger().error(
+					this + "Remote error: " + errorMessage
+					+ ". Remote exception: "
+					+ remote.getRemoteExceptionClassName()
+					+ ": " + remote.getMessage());
+			return;
+		}
+
+		getLogger().error(this + " Remote error: " + errorMessage, cause);
+	}
+
 	public void updateTagAppearance(RfTagAppearanceRequest tagAppearance) {
-		ping();
+		requestReceived();
+
+		getLogger().debug(
+				this + " Tag appearance changed (" + tagAppearance.getRfTag()
+				+ "): " + tagAppearance.getAppearance());
 
 		final RfTracking tracking = this.tracking;
 
@@ -125,6 +155,11 @@ public class HttpRfConnection
 	}
 
 	public void ping() {
+		getLogger().debug(this + " Ping");
+		requestReceived();
+	}
+
+	private void requestReceived() {
 		this.reconnector.reschedule();
 	}
 
@@ -133,7 +168,12 @@ public class HttpRfConnection
 		if (this.client == null) {
 			return super.toString();
 		}
-		return "HttpRfConnection[" + getSettings().getCollectorURL() + ']';
+		if (this.clientUUID == null) {
+			return "HttpRfConnection[" + getSettings().getCollectorURL() + ']';
+		}
+		return "HttpRfConnection["
+				+ this.clientUUID + "->"
+				+ getSettings().getCollectorURL() + ']';
 	}
 
 	@Override

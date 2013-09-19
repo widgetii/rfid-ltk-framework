@@ -20,11 +20,15 @@ class HttpReconnector implements Runnable {
 	}
 
 	public void schedule() {
+
+		final long reconnectionDelay =
+				this.connection.getSettings().getReconnectionDelay();
+
 		this.future = this.connection.getExecutor().scheduleAtFixedRate(
 				this,
-				15,
-				15,
-				TimeUnit.SECONDS);
+				reconnectionDelay,
+				reconnectionDelay,
+				TimeUnit.MILLISECONDS);
 	}
 
 	public void reschedule() {

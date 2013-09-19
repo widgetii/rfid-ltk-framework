@@ -10,25 +10,37 @@ import ru.aplix.ltk.core.util.Parameters;
 
 public class HttpRfSettings extends AbstractRfSettings {
 
+	public static final long HTTP_RF_DEFAULT_RECONNECTION_DELAY = 45000L;
+
 	private URL collectorURL;
 	private URL clientURL;
+	private long reconnectionDelay = HTTP_RF_DEFAULT_RECONNECTION_DELAY;
 
 	public URL getCollectorURL() {
 		return this.collectorURL;
 	}
 
-	public void setCollectorURL(URL collectorURL) {
+	public final void setCollectorURL(URL collectorURL) {
 		ensureHttpURL(collectorURL);
 		this.collectorURL = collectorURL;
 	}
 
-	public URL getClientURL() {
+	public final URL getClientURL() {
 		return this.clientURL;
 	}
 
-	public void setClientURL(URL clientURL) {
+	public final void setClientURL(URL clientURL) {
 		ensureHttpURL(clientURL);
 		this.clientURL = clientURL;
+	}
+
+	public final long getReconnectionDelay() {
+		return this.reconnectionDelay;
+	}
+
+	public final void setReconnectionDelay(long delay) {
+		this.reconnectionDelay =
+				delay > 0 ? delay : HTTP_RF_DEFAULT_RECONNECTION_DELAY;
 	}
 
 	@Override
@@ -41,12 +53,17 @@ public class HttpRfSettings extends AbstractRfSettings {
 		setCollectorURL(
 				urlFromParams("collectorURL", params, getCollectorURL()));
 		setClientURL(urlFromParams("clientURL", params, getClientURL()));
+		setReconnectionDelay(params.longValueOf(
+				"reconnectionDelay",
+				HTTP_RF_DEFAULT_RECONNECTION_DELAY,
+				getReconnectionDelay()));
 	}
 
 	@Override
 	protected void writeSettings(Parameters params) {
 		params.set("collectorURL", getCollectorURL())
-		.set("clientURL", getClientURL());
+		.set("clientURL", getClientURL())
+		.set("reconnectionDelay", getReconnectionDelay());
 	}
 
 	private void ensureHttpURL(URL url) {

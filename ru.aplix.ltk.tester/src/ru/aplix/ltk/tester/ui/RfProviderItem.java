@@ -3,6 +3,7 @@ package ru.aplix.ltk.tester.ui;
 import static javax.swing.BorderFactory.createTitledBorder;
 
 import java.awt.Component;
+import java.awt.Container;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -200,7 +201,12 @@ public class RfProviderItem<S extends RfSettings>
 
 	private void disposeUI() {
 		if (this.uiComponent != null) {
-			this.uiComponent.getParent().remove(this.uiComponent);
+
+			final Container parent = this.uiComponent.getParent();
+
+			if (parent != null) {
+				parent.remove(this.uiComponent);
+			}
 		}
 	}
 

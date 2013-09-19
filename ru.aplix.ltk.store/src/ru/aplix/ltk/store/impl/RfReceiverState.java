@@ -44,7 +44,7 @@ final class RfReceiverState<S extends RfSettings>
 	}
 
 	public final RfStatusMessage getLastStatus() {
-		return isActive() ? this.lastStatus : null;
+		return this.lastStatus;
 	}
 
 	@Override
@@ -108,12 +108,14 @@ final class RfReceiverState<S extends RfSettings>
 	}
 
 	private void start() {
+		this.lastStatus = null;
 		this.collector =
 				getRfProvider().connect(getRfSettings()).getCollector();
 		this.collector.subscribe(this);
 	}
 
 	private void stop() {
+		this.lastStatus = null;
 		this.collector = null;
 		if (this.handle != null) {
 			this.handle.unsubscribe();

@@ -414,7 +414,7 @@ final class CtgReaderThread
 			errorMessage = statusCode.toString();
 		}
 
-		getLogger().error(this + errorMessage);
+		getLogger().error(toString() + ' ' + errorMessage);
 		getContext().updateStatus(new RfError(null, errorMessage));
 
 		return false;

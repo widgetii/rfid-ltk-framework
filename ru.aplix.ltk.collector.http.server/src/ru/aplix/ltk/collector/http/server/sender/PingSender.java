@@ -13,7 +13,7 @@ import ru.aplix.ltk.collector.http.server.ClrClient;
 
 public class PingSender extends NoResponseMessageSender implements Runnable {
 
-	private static final long PING_PERIOD = 5000L;
+	private static final long PING_PERIOD = 5;
 
 	private final ScheduledExecutorService executor;
 	private ScheduledFuture<?> ping;

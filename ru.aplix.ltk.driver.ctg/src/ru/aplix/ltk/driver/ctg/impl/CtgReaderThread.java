@@ -152,10 +152,8 @@ final class CtgReaderThread
 		final long delay =
 				keepAliveTimeout - (currentTimeMillis() - lastUpdate);
 
-		synchronized (this) {
-			if (!delay(delay)) {
-				return false;
-			}
+		if (!delay(delay)) {
+			return false;
 		}
 
 		if (this.lastUpdate == lastUpdate) {
@@ -448,12 +446,10 @@ final class CtgReaderThread
 	private void closeConnection() throws TimeoutException {
 
 		final CLOSE_CONNECTION request = new CLOSE_CONNECTION();
-		final CLOSE_CONNECTION_RESPONSE response =
-				(CLOSE_CONNECTION_RESPONSE) this.reader.transact(
+
+		this.reader.transact(
 				request,
 				getSettings().getTransactionTimeout());
-
-		checkStatus(response.getLLRPStatus());
 	}
 
 	private final class LLRPHandler extends LLRPIoHandlerAdapterImpl {

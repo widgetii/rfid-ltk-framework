@@ -33,11 +33,7 @@ final class RfSourceListener implements RfStatusUpdater, RfDataReceiver {
 			// Do not report the same status twice.
 			return;
 		}
-		if (!this.receivingStatus) {
-			// Not fully started yet. Do not propagate messages.
-			return;
-		}
-		this.collector.collectorSubscriptions().sendMessage(status);
+		reportStatus(status);
 	}
 
 	@Override
@@ -90,8 +86,21 @@ final class RfSourceListener implements RfStatusUpdater, RfDataReceiver {
 		return this.lastStatus;
 	}
 
-	final synchronized void noError() {
-		this.lastError = null;
+	final void noError() {
+
+		final RfStatusMessage lastStatus;
+
+		synchronized (this) {
+			if (this.lastError == null) {
+				lastStatus = null;
+			} else {
+				this.lastError = null;
+				lastStatus = this.lastStatus;
+			}
+		}
+		if (lastStatus != null) {
+			reportStatus(lastStatus);
+		}
 	}
 
 	private synchronized boolean setStatus(RfStatusMessage status) {
@@ -132,6 +141,14 @@ final class RfSourceListener implements RfStatusUpdater, RfDataReceiver {
 			return true;
 		}
 		return false;
+	}
+
+	private void reportStatus(RfStatusMessage status) {
+		if (!this.receivingStatus) {
+			// Not fully started yet. Do not propagate messages.
+			return;
+		}
+		this.collector.collectorSubscriptions().sendMessage(status);
 	}
 
 }

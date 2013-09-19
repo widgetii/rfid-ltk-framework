@@ -52,6 +52,9 @@ public final class RfTracking implements RfStatusUpdater {
 	 */
 	public final void updateTagAppearance(
 			RfTagAppearanceMessage tagAppearance) {
+		if (tagAppearance.getAppearance().isPresent()) {
+			this.collector.noError();
+		}
 		this.collector.tagAppearanceSubscriptions().sendMessage(tagAppearance);
 	}
 

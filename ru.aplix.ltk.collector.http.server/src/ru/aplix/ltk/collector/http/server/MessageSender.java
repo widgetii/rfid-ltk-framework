@@ -107,16 +107,16 @@ public abstract class MessageSender<T>
 		return result;
 	}
 
-	private URL requestURL(String path) {
+	private URL requestURL(String query) {
 		try {
 
 			final URL clientURL = getClient().getClientURL();
 
-			if (path == null) {
+			if (query == null) {
 				return clientURL;
 			}
 
-			return new URL(clientURL, path);
+			return new URL(clientURL, clientURL.getPath() + query);
 		} catch (MalformedURLException e) {
 			getClient().requestFailed("Internal error", e);
 		}

@@ -19,6 +19,7 @@ import ru.aplix.ltk.core.reader.RfReaderContext;
 import ru.aplix.ltk.core.source.RfConnected;
 import ru.aplix.ltk.core.source.RfError;
 import ru.aplix.ltk.driver.ctg.CtgRfSettings;
+import ru.aplix.ltk.osgi.Logger;
 
 
 final class CtgReaderThread
@@ -32,7 +33,7 @@ final class CtgReaderThread
 	private volatile boolean stopped;
 
 	public CtgReaderThread(CtgRfReaderDriver driver) {
-		super("CtgRfReader");
+		super("CtgRfReader[" + driver.getRfPortId() + ']');
 		this.driver = driver;
 		setUncaughtExceptionHandler(this);
 	}
@@ -49,8 +50,13 @@ final class CtgReaderThread
 		return getDriver().getSettings();
 	}
 
+	public final Logger getLogger() {
+		return getDriver().getConnection().getProvider().getLogger();
+	}
+
 	@Override
 	public void run() {
+		getLogger().info(this + " Creating LLRP connector: " + getSettings());
 		this.reader = new LLRPConnector(
 				this,
 				getSettings().getReaderHost(),
@@ -66,6 +72,7 @@ final class CtgReaderThread
 			if (connect()) {
 				update();
 				this.connected = true;
+				getLogger().debug(this + " Connected");
 				getContext().updateStatus(
 						new RfConnected(getDriver().getRfPortId()));
 				continue;
@@ -90,6 +97,9 @@ final class CtgReaderThread
 
 			final short messageType = message.getTypeNum().toShort();
 
+			getLogger().debug(
+					this + " Message received. Message type: " + messageType);
+
 			if (messageType == RO_ACCESS_REPORT.TYPENUM.toShort()) {
 				tagRecived(message);
 			}
@@ -103,6 +113,14 @@ final class CtgReaderThread
 		getContext().updateStatus(new RfError(null, message));
 	}
 
+	@Override
+	public String toString() {
+		if (this.driver == null) {
+			return super.toString();
+		}
+		return "CtgRfReader[" + getDriver().getRfPortId() + ']';
+	}
+
 	public synchronized void stopReader() {
 		this.stopped = true;
 		notifyAll();
@@ -110,6 +128,7 @@ final class CtgReaderThread
 
 	private boolean connect() {
 		try {
+			getLogger().debug(this + " Connecting");
 			this.reader.connect(getSettings().getConnectionTimeout());
 			if (this.stopped) {
 				return false;
@@ -140,7 +159,7 @@ final class CtgReaderThread
 		}
 
 		if (this.lastUpdate == lastUpdate) {
-			// Keep alive time out.
+			getLogger().error(this + " Keep alive timed out");
 			getContext().updateStatus(
 					new RfError(null, "Connection lost"));
 			this.reader.disconnect();
@@ -151,7 +170,14 @@ final class CtgReaderThread
 	}
 
 	private boolean reconnectionDelay() {
-		return delay(getSettings().getReconnectionDelay());
+
+		final long reconnectionDelay = getSettings().getReconnectionDelay();
+
+		getLogger().debug(
+				this + " Delay before reconnection "
+				+ reconnectionDelay + "ms");
+
+		return delay(reconnectionDelay);
 	}
 
 	private boolean delay(long delay) {
@@ -400,6 +426,7 @@ final class CtgReaderThread
 	}
 
 	private void sendError(Throwable cause) {
+		getLogger().error(toString(), cause);
 		getContext().updateStatus(new RfError(null, cause));
 	}
 
@@ -408,6 +435,7 @@ final class CtgReaderThread
 			return;
 		}
 		try {
+			getLogger().info(" Closing connection");
 			closeConnection();
 		} catch (TimeoutException e) {
 			sendError(e);

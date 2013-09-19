@@ -9,15 +9,20 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+import ru.aplix.ltk.osgi.Logger;
+
 
 public class CtgActivator implements BundleActivator {
 
+	private Logger logger;
 	private ServiceRegistration<?> providerRegistration;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
+		this.logger = new Logger(context);
+		this.logger.open();
 
-		final CtgRfProvider provider = new CtgRfProvider();
+		final CtgRfProvider provider = new CtgRfProvider(this.logger);
 		final Hashtable<String, String> properties = new Hashtable<>(1);
 
 		properties.put(RF_PROVIDER_ID, provider.getId());
@@ -30,8 +35,12 @@ public class CtgActivator implements BundleActivator {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		this.providerRegistration.unregister();
-		this.providerRegistration = null;
+		try {
+			this.providerRegistration.unregister();
+		} finally {
+			this.providerRegistration = null;
+			this.logger.close();
+		}
 	}
 
 }

@@ -9,9 +9,11 @@ import ru.aplix.ltk.driver.ctg.CtgRfSettings;
 public class CtgRfConnection extends RfConnection {
 
 	private final CtgRfSettings settings;
+	private final CtgRfProvider provider;
 
-	public CtgRfConnection(CtgRfSettings settings) {
+	public CtgRfConnection(CtgRfProvider provider, CtgRfSettings settings) {
 		super(settings);
+		this.provider = provider;
 		this.settings = settings;
 	}
 
@@ -19,9 +21,13 @@ public class CtgRfConnection extends RfConnection {
 		return this.settings;
 	}
 
+	public final CtgRfProvider getProvider() {
+		return this.provider;
+	}
+
 	@Override
 	protected RfSource createSource() {
-		return new RfReader(new CtgRfReaderDriver(getSettings())).toRfSource();
+		return new RfReader(new CtgRfReaderDriver(this)).toRfSource();
 	}
 
 }

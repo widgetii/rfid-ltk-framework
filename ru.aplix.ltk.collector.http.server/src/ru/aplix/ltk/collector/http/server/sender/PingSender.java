@@ -18,7 +18,6 @@ public class PingSender extends NoResponseMessageSender implements Runnable {
 	private final ScheduledExecutorService executor;
 	private ScheduledFuture<?> ping;
 
-
 	public PingSender(ClrClient<?> client, ScheduledExecutorService executor) {
 		super(client);
 		this.executor = executor;

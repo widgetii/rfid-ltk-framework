@@ -100,6 +100,7 @@ public class HttpRfConnection
 	public void rejectRfStatus() {
 		getLogger().debug(this + " Stopping");
 		this.statusUpdater = null;
+		disconnect();
 		this.reconnector.cancel();
 		new DisconnectRequest(this).send();
 		this.executor.shutdown();
@@ -191,7 +192,7 @@ public class HttpRfConnection
 
 		final UUID clientUUID = getClientUUID();
 
-		disconnect();
+		reconnect();
 		updateStatus(new RfError(
 				clientUUID != null ? clientUUID.toString() : null,
 				message,
@@ -205,7 +206,7 @@ public class HttpRfConnection
 
 	void connectionLost() {
 		getLogger().error(this + " Connection lost");
-		disconnect();
+		reconnect();
 	}
 
 	private void generateUUID() {
@@ -213,10 +214,14 @@ public class HttpRfConnection
 		getClient().add(this);
 	}
 
+	private void reconnect() {
+		disconnect();
+		generateUUID();
+	}
+
 	private void disconnect() {
 		this.connected = false;
 		getClient().remove(this);
-		generateUUID();
 	}
 
 }

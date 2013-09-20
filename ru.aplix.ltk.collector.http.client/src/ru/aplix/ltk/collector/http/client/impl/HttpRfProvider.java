@@ -68,8 +68,9 @@ final class HttpRfProvider
 	@Override
 	public void updateTagAppearance(
 			UUID clientUUID,
-			RfTagAppearanceRequest data) {
-		this.client.getConnection(clientUUID).updateTagAppearance(data);
+			RfTagAppearanceRequest tagAppearance) {
+		this.client.getConnection(clientUUID)
+		.updateTagAppearance(tagAppearance);
 	}
 
 	@Override

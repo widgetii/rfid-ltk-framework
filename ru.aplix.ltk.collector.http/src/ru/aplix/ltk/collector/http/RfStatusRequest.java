@@ -11,6 +11,15 @@ import ru.aplix.ltk.core.util.Parameterized;
 import ru.aplix.ltk.core.util.Parameters;
 
 
+/**
+ * An HTTP request containing RFID status update.
+ *
+ * <p>This request is sent by HTTP collector to its client to inform about
+ * status updates.</p>
+ *
+ * <p>This request is sent by HTTP PUT to
+ * {@link ClrClientRequest#getClientURL() client's URL}.</p>
+ */
 public class RfStatusRequest implements RfStatusMessage, Parameterized {
 
 	private ClrClientId clientId;
@@ -19,6 +28,12 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 	private String errorMessage;
 	private Throwable cause;
 
+	/**
+	 * Constructs a request.
+	 *
+	 * @param clientId a client identifier to send the request to.
+	 * @param status an RFID status update to send.
+	 */
 	public RfStatusRequest(ClrClientId clientId, RfStatusMessage status) {
 		this.clientId = clientId;
 		this.rfReaderId = status.getRfReaderId();
@@ -27,6 +42,11 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 		this.cause = status.getCause();
 	}
 
+	/**
+	 * Reconstruct a request from the given parameters.
+	 *
+	 * @param parameters parameters containing the constructed request's data.
+	 */
 	public RfStatusRequest(Parameters parameters) {
 		read(parameters);
 	}
@@ -46,6 +66,16 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 		return this.errorMessage;
 	}
 
+	/**
+	 * A cause of this error.
+	 *
+	 * <p>This method can return an instance of {@link RemoteClrException}
+	 * when reconstructed from parameters, e.g. at HTTP collector's client
+	 * side.</p>
+	 *
+	 * @return a throwable caused this error, or <code>null</code> if nothing
+	 * to report.
+	 */
 	@Override
 	public Throwable getCause() {
 		return this.cause;

@@ -1,10 +1,30 @@
 package ru.aplix.ltk.collector.http;
 
 import static java.util.Objects.requireNonNull;
+import ru.aplix.ltk.core.RfProvider;
 
 
+/**
+ * An identifier of HTTP collector profile.
+ */
 public final class ClrProfileId implements Comparable<ClrProfileId> {
 
+	/**
+	 * Construct the profile identifier from the given string representation.
+	 *
+	 * <p>The string representation of profile may be one of:
+	 * <ul>
+	 * <li>{@code <id> '@' <providerId>} - containing both profile's identifier
+	 * and provider's one, or</li>
+	 * <li>{@code <providerId>} - containing only profile's identifier; in this
+	 * case the profile's identifier is empty string.</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * @param id a string representation of profile identifier.
+	 *
+	 * @return reconstructed profile identifier.
+	 */
 	public static ClrProfileId clrProfileId(String id) {
 
 		final int atIdx = id.indexOf('@');
@@ -21,20 +41,44 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 	private final String providerId;
 	private final String id;
 
+	/**
+	 * Constructs an identifier of HTTP collector profile with empty local id.
+	 *
+	 * @param providerId provider identifier.
+	 */
 	public ClrProfileId(String providerId) {
 		this(providerId, "");
 	}
 
+	/**
+	 * Constructs an identifier of HTTP collector profile.
+	 *
+	 * @param providerId provider identifier.
+	 * @param id local profile id, or <code>null</code> to use an empty string.
+	 */
 	public ClrProfileId(String providerId, String id) {
 		requireNonNull(providerId, "RFID provider identifier not specified");
 		this.providerId = providerId;
 		this.id = id != null ? id : "";
 	}
 
+	/**
+	 * RFID provider identifier.
+	 *
+	 * <p>This identifier should match the target {@link RfProvider#getId()
+	 * provider's one}.<p>
+	 *
+	 * @return identifier passed to the constructor.
+	 */
 	public final String getProviderId() {
 		return this.providerId;
 	}
 
+	/**
+	 * Local profile identifier.
+	 *
+	 * @return identifier passed to the constructor, or empty string.
+	 */
 	public final String getId() {
 		return this.id;
 	}

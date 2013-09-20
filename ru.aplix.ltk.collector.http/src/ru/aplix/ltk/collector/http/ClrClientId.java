@@ -6,8 +6,28 @@ import static ru.aplix.ltk.collector.http.ClrProfileId.clrProfileId;
 import java.util.UUID;
 
 
+/**
+ * An identifier of HTTP collector client.
+ */
 public class ClrClientId {
 
+	/**
+	 * Constructs an identifier from the given path.
+	 *
+	 * <p>The path should contain a fragment with a
+	 * {@link ClrProfileId#clrProfileId(String) profile identifier}, and
+	 * optionally - a client UUID, separated from profile identifier with
+	 * a {@code '/'} sign.</p>
+	 *
+	 * <p>The path itself may start with a {@code '/'} sign, and may contain
+	 * more fragments after the client UUID, separated from the latter by
+	 * the {@code '/'} sign.</p>
+	 *
+	 * @param path path containing identifier.
+	 *
+	 * @return new client identifier, or <code>null</code> if {@code path}
+	 * is null.
+	 */
 	public static ClrClientId clrClientId(String path) {
 		if (path == null) {
 			return null;
@@ -54,20 +74,42 @@ public class ClrClientId {
 	private final ClrProfileId profileId;
 	private final UUID uuid;
 
+	/**
+	 * Constructs an identifier of HTTP collector client.
+	 *
+	 * @param profileId identifier of HTTP collector profile.
+	 * @param uuid client UUID, or <code>null</code> if unknown.
+	 */
 	public ClrClientId(ClrProfileId profileId, UUID uuid) {
 		requireNonNull(profileId, "RFID profile identifier not specified");
 		this.profileId = profileId;
 		this.uuid = uuid;
 	}
 
+	/**
+	 * RFID provider identifier.
+	 *
+	 * @return {@link ClrProfileId#getProviderId() provider identifier}.
+	 */
 	public final String getProviderId() {
 		return getProfileId().getProviderId();
 	}
 
+	/**
+	 * Identifier of HTTP collector profile.
+	 *
+	 * @return identifier passed to the constructor.
+	 */
 	public final ClrProfileId getProfileId() {
 		return this.profileId;
 	}
 
+	/**
+	 * Client's UUID
+	 *
+	 * @return UUID passed to the constructor, or <code>null</code> if not
+	 * specified.
+	 */
 	public final UUID getUUID() {
 		return this.uuid;
 	}

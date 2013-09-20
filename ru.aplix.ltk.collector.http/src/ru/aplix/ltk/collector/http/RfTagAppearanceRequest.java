@@ -8,6 +8,9 @@ import ru.aplix.ltk.core.util.Parameterized;
 import ru.aplix.ltk.core.util.Parameters;
 
 
+/**
+ * An HTTP request containing the info about a change in RFID tag appearance.
+ */
 public class RfTagAppearanceRequest
 		implements RfTagAppearanceMessage, Parameterized {
 
@@ -15,6 +18,12 @@ public class RfTagAppearanceRequest
 	private RfTag rfTag;
 	private RfTagAppearance appearance = RF_TAG_APPEARED;
 
+	/**
+	 * Constructs a request.
+	 *
+	 * @param clientId a client identifier to send the request to.
+	 * @param message a change in RFID tag appearance to send.
+	 */
 	public RfTagAppearanceRequest(
 			ClrClientId clientId,
 			RfTagAppearanceMessage message) {
@@ -23,6 +32,11 @@ public class RfTagAppearanceRequest
 		this.appearance = message.getAppearance();
 	}
 
+	/**
+	 * Reconstruct a request from the given parameters.
+	 *
+	 * @param parameters parameters containing the constructed request's data.
+	 */
 	public RfTagAppearanceRequest(Parameters parameters) {
 		read(parameters);
 	}

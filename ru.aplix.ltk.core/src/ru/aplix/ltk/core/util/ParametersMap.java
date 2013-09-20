@@ -28,6 +28,9 @@ final class ParametersMap implements ParametersStore {
 
 	@Override
 	public String[] setParam(String name, String[] values) {
+		if (values == null) {
+			return this.map.remove(name);
+		}
 		return this.map.put(name, values);
 	}
 

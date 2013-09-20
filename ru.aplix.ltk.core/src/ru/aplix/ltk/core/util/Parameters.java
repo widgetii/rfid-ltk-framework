@@ -12,29 +12,74 @@ import java.util.Map;
 import java.util.Objects;
 
 
+/**
+ * Arbitrary parameters represented as strings.
+ *
+ * <p>Each parameters has a name, and may have zero or more values.</p>
+ *
+ * <p>This can be used to transfer data over HTTP or write it to the file.</p>
+ *
+ * <p>The actual store of parameters is implemented by {@link ParametersStore}
+ * instance.</p>
+ *
+ * <p>The {@link Parameterized parameterized objects} can store their data in
+ * parameters, and thus can transfer, read, and store it where {@link #store()
+ * possible}.</p>
+ *
+ * <p>This class contains a lot of handy methods for accessing and assigning
+ * parameter values and converting them to/from different data formats.</p>
+ */
 public final class Parameters implements Parameterized {
 
+	/**
+	 * UTF-8 - the default URL encoding charset.
+	 */
 	public static final String UTF_8 = "UTF-8";
 
 	private final ParametersStore store;
 
+	/**
+	 * Constructs empty parameters stored in {@code HashMap}.
+	 */
 	public Parameters() {
 		this(new HashMap<String, String[]>());
 	}
 
+	/**
+	 * Constructs empty parameters stored in {@code HashMap} with the given
+	 * initial capacity.
+	 *
+	 * @param capacity initial {@code HashMap} capacity.
+	 */
 	public Parameters(int capacity) {
 		this(new HashMap<String, String[]>(capacity));
 	}
 
+	/**
+	 * Construct parameters store in the given map.
+	 *
+	 * @param map map to store parameters in.
+	 */
 	public Parameters(Map<String, String[]> map) {
 		this.store = new ParametersMap(map);
 	}
 
+	/**
+	 * Construct parameters stored in the given store.
+	 *
+	 * @param store parameters store to use.
+	 */
 	public Parameters(ParametersStore store) {
 		requireNonNull(store, "Parameters store not specified");
 		this.store = store;
 	}
 
+	/**
+	 * Parameters store.
+	 *
+	 * @return the store passed to the constructor or constructed
+	 * automatically.
+	 */
 	public final ParametersStore store() {
 		return this.store;
 	}
@@ -210,6 +255,31 @@ public final class Parameters implements Parameterized {
 		}
 	}
 
+	/**
+	 * Returns a nested parameters.
+	 *
+	 * <p>The nested parameters are parameters the same parameters, but with the
+	 * names prepended by the given prefix:
+	 * <ul>
+	 * <li>If these parameters are top-level, then nested parameter names will
+	 * start with the string {@code (prefix + ".")}.</li>
+	 * <li>If these parameters are nested, then nested parameter names will
+	 * start with the string {@code (thisPrefix + "." + prefix + ".")}.</li>
+	 * </ul>
+	 * </p>
+	 *
+	 * <p>If the nested parameter's name is empty, then the actual parameter
+	 * name will be a prefix itself, without a trailing dot.</p>
+	 *
+	 * <p>The nested parameters are backed to these ones, i.e. all changes in
+	 * nested parameters are immediately reflected in these ones, and vice
+	 * versa.</p>
+	 *
+	 * @param prefix nested parameters prefix.
+	 *
+	 * @return nested parameters instance, or this parameters instance if the
+	 * prefix is empty.
+	 */
 	public final Parameters sub(String prefix) {
 		requireNonNull(prefix, "HTTP params prefix not specified");
 
@@ -349,10 +419,28 @@ public final class Parameters implements Parameterized {
 		add(name.toString(), value.toString());
 	}
 
+	/**
+	 * URL-encodes these parameters into a string in UTF-8 encoding.
+	 *
+	 * @return a string containing URL-encoded data.
+	 *
+	 * @throws UnsupportedEncodingException if {@code UTF-8} encoding is not
+	 * supported.
+	 */
 	public final String urlEncode() throws UnsupportedEncodingException {
 		return urlEncode(UTF_8);
 	}
 
+	/**
+	 * URL-encodes these parameters into a string.
+	 *
+	 * @param encoding encoding to use for URL encoding.
+	 *
+	 * @return a string containing URL-encoded data.
+	 *
+	 * @throws UnsupportedEncodingException if {@code encoding} is not
+	 * supported.
+	 */
 	public final String urlEncode(
 			String encoding)
 	throws UnsupportedEncodingException {
@@ -370,11 +458,38 @@ public final class Parameters implements Parameterized {
 		return out.toString();
 	}
 
-	public final void urlEncode(Appendable out) throws IOException {
+	/**
+	 * URL-encodes these parameters in UTF-8 encoding.
+	 *
+	 * @param out an appendable to write URL-encoded values to.
+	 *
+	 * @throws UnsupportedEncodingException if {@code UTF-8} encoding is not
+	 * supported.
+	 * @throws IOException if i/o exception happened during the attempt to write
+	 * to the {@code appendable}.
+	 */
+	public final void urlEncode(
+			Appendable out)
+	throws UnsupportedEncodingException, IOException {
 		urlEncode(out, UTF_8);
 	}
 
-	public void urlEncode(Appendable out, String encoding) throws IOException {
+	/**
+	 * URL-encodes these parameters.
+	 *
+	 * @param out an appendable to write URL-encoded values to.
+	 * @param encoding encoding to use for URL encoding.
+	 *
+	 * @throws UnsupportedEncodingException if {@code encoding} is not
+	 * supported.
+	 * @throws IOException if i/o exception happened during the attempt to write
+	 * to the {@code appendable}.
+	 *
+	 */
+	public void urlEncode(
+			Appendable out,
+			String encoding)
+	throws UnsupportedEncodingException, IOException {
 
 		boolean notFirst = false;
 

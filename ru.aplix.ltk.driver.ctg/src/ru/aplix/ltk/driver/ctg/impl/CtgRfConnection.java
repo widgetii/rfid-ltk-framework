@@ -32,7 +32,10 @@ public class CtgRfConnection extends RfConnection {
 
 	@Override
 	protected RfSource createSource() {
-		return getProvider().driverFor(this).getReader().toRfSource();
+		return getProvider()
+				.driverFor(this)
+				.getReader()
+				.toRfSource(getSettings().getAntennas());
 	}
 
 }

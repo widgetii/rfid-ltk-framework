@@ -1,9 +1,12 @@
 package ru.aplix.ltk.driver.ctg;
 
+import static ru.aplix.ltk.core.util.IntSet.FULL_INT_SET;
+import static ru.aplix.ltk.core.util.IntSet.INT_SET_PARAMATER_TYPE;
 import static ru.aplix.ltk.core.util.NumericParameterType.INTEGER_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.util.NumericParameterType.LONG_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.util.ParameterType.STRING_PARAMETER_TYPE;
 import ru.aplix.ltk.core.AbstractRfSettings;
+import ru.aplix.ltk.core.util.IntSet;
 import ru.aplix.ltk.core.util.Parameter;
 import ru.aplix.ltk.core.util.Parameters;
 
@@ -39,6 +42,15 @@ public class CtgRfSettings extends AbstractRfSettings {
 	 */
 	public static final Parameter<Integer> CTG_RF_ROSPEC_ID =
 			INTEGER_PARAMETER_TYPE.parameter("roSpecId").byDefault(123);
+
+	/**
+	 * Antennas parameter. All antennas by default.
+	 *
+	 * @see #getAntennas()
+	 */
+	public static final Parameter<IntSet> CTG_RF_ANTENNAS =
+			INT_SET_PARAMATER_TYPE.parameter("antennas")
+			.byDefault(FULL_INT_SET);
 
 	/**
 	 * Reader connection timeout parameter.
@@ -80,6 +92,7 @@ public class CtgRfSettings extends AbstractRfSettings {
 	private String readerHost;
 	private int readerPort = CTG_RF_READER_PORT.getDefault();
 	private int roSpecId = CTG_RF_ROSPEC_ID.getDefault();
+	private IntSet antennas = CTG_RF_ANTENNAS.getDefault();
 	private long connectionTimeout = CTG_RF_CONNECTION_TIMEOUT.getDefault();
 	private long transactionTimeout = CTG_RF_TRANSACTION_TIMEOUT.getDefault();
 	private long reconnectionDelay = CTG_RF_RECONNECTION_DELAY.getDefault();
@@ -149,6 +162,26 @@ public class CtgRfSettings extends AbstractRfSettings {
 	 */
 	public void setROSpecId(int roSpecId) {
 		this.roSpecId = roSpecId;
+	}
+
+	/**
+	 * A set of antennas to read RFID tags from.
+	 *
+	 * @return a set of integer antenna identifiers.
+	 */
+	public IntSet getAntennas() {
+		return this.antennas;
+	}
+
+	/**
+	 * Sets antennas to read RFID tags from.
+	 *
+	 * @param antennas new set of integer antenna identifiers,
+	 * or <code>null</code> to read all of them.
+	 */
+	public void setAntennas(IntSet antennas) {
+		this.antennas =
+				antennas != null ? antennas : CTG_RF_ANTENNAS.getDefault();
 	}
 
 	/**
@@ -258,6 +291,9 @@ public class CtgRfSettings extends AbstractRfSettings {
 		setROSpecId(params.valueOf(
 				CTG_RF_ROSPEC_ID,
 				getROSpecId()));
+		setAntennas(params.valueOf(
+				CTG_RF_ANTENNAS,
+				getAntennas()));
 		setConnectionTimeout(params.valueOf(
 				CTG_RF_CONNECTION_TIMEOUT,
 				getConnectionTimeout()));
@@ -277,6 +313,7 @@ public class CtgRfSettings extends AbstractRfSettings {
 		params.set(CTG_RF_READER_HOST, getReaderHost())
 		.set(CTG_RF_READER_PORT, getReaderPort())
 		.set(CTG_RF_ROSPEC_ID, getROSpecId())
+		.set(CTG_RF_ANTENNAS, getAntennas())
 		.set(CTG_RF_CONNECTION_TIMEOUT, getConnectionTimeout())
 		.set(CTG_RF_TRANSACTION_TIMEOUT, getTransactionTimeout())
 		.set(CTG_RF_RECONNECTION_DELAY, getReconnectionDelay())

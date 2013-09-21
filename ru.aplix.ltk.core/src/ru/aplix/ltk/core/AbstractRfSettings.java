@@ -1,6 +1,5 @@
 package ru.aplix.ltk.core;
 
-import static ru.aplix.ltk.core.collector.RfTrackingPolicy.DEFAULT_TRACKING_POLICY;
 import ru.aplix.ltk.core.collector.RfTrackingPolicy;
 import ru.aplix.ltk.core.util.Parameters;
 
@@ -13,14 +12,9 @@ import ru.aplix.ltk.core.util.Parameters;
  */
 public abstract class AbstractRfSettings implements RfSettings, Cloneable {
 
-	private RfTrackingPolicy trackingPolicy;
+	private RfTrackingPolicy trackingPolicy = RF_TRACKING_POLICY.getDefault();
 
 	public AbstractRfSettings() {
-		this.trackingPolicy = defaultTrackingPolicy();
-	}
-
-	public RfTrackingPolicy defaultTrackingPolicy() {
-		return DEFAULT_TRACKING_POLICY;
 	}
 
 	@Override
@@ -32,18 +26,20 @@ public abstract class AbstractRfSettings implements RfSettings, Cloneable {
 	public final void setTrackingPolicy(RfTrackingPolicy trackingPolicy) {
 		this.trackingPolicy =
 				trackingPolicy != null
-				? trackingPolicy : defaultTrackingPolicy();
+				? trackingPolicy : RF_TRACKING_POLICY.getDefault();
 	}
 
 	@Override
 	public final void read(Parameters params) {
-		readTrackingPolicy(params);
+		setTrackingPolicy(params.valueOf(
+				RF_TRACKING_POLICY,
+				getTrackingPolicy()));
 		readSettings(params);
 	}
 
 	@Override
 	public final void write(Parameters params) {
-		writeTrackingPolicy(params);
+		params.set(RF_TRACKING_POLICY, getTrackingPolicy());
 		writeSettings(params);
 	}
 
@@ -56,56 +52,18 @@ public abstract class AbstractRfSettings implements RfSettings, Cloneable {
 		}
 	}
 
+	/**
+	 * Reads this settings except tracking policy.
+	 *
+	 * @param params parameters to read the setting from.
+	 */
 	protected abstract void readSettings(Parameters params);
 
+	/**
+	 * Writes this settings except tracking policy.
+	 *
+	 * @param params parameters to write the settings to.
+	 */
 	protected abstract void writeSettings(Parameters params);
-
-	protected void readTrackingPolicy(Parameters params) {
-
-		final Parameters tpParams = params.sub("trackingPolicy");
-		final String tpClassName = tpParams.valueOf("", "", null);
-
-		if (tpClassName != null) {
-			if (tpClassName.isEmpty()) {
-				setTrackingPolicy(defaultTrackingPolicy());
-			} else if ("default".equals(tpClassName)) {
-				setTrackingPolicy(DEFAULT_TRACKING_POLICY);
-				return;// Default tracking policy has no parameters.
-			} else {
-				setTrackingPolicy(createTrackingPolicy(tpClassName));
-			}
-		}
-
-		getTrackingPolicy().read(tpParams);
-	}
-
-	protected void writeTrackingPolicy(Parameters params) {
-
-		final Parameters tcParams = params.sub("trackingPolicy");
-		final RfTrackingPolicy tp = getTrackingPolicy();
-
-		if (tp == DEFAULT_TRACKING_POLICY) {
-			tcParams.set("", "default");
-			return;
-		}
-
-		tcParams.set("class", tp.getClass().getName());
-		tp.write(tcParams);
-	}
-
-	private RfTrackingPolicy createTrackingPolicy(String className) {
-		try {
-
-			@SuppressWarnings("unchecked")
-			final Class<RfTrackingPolicy> tpClass =
-					(Class<RfTrackingPolicy>) Class.forName(className);
-
-			return tpClass.newInstance();
-		} catch (ClassNotFoundException
-				| InstantiationException
-				| IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 }

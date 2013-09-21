@@ -274,6 +274,10 @@ public final class Parameters implements Parameterized {
 			store().setParam(name, null);
 			return this;
 		}
+		if (values.length == 0) {
+			store().setParam(name, new String[0]);
+			return this;
+		}
 		type.setValues(this, name, values);
 		return this;
 	}

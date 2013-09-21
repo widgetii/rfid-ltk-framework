@@ -1,6 +1,9 @@
 package ru.aplix.ltk.core;
 
+import static ru.aplix.ltk.core.RfTrackingPolicyParameterType.RF_TRACKING_POLICY_PARAMETER_TYPE;
+import static ru.aplix.ltk.core.collector.RfTrackingPolicy.DEFAULT_TRACKING_POLICY;
 import ru.aplix.ltk.core.collector.RfTrackingPolicy;
+import ru.aplix.ltk.core.util.Parameter;
 import ru.aplix.ltk.core.util.Parameterized;
 
 
@@ -20,6 +23,13 @@ import ru.aplix.ltk.core.util.Parameterized;
  * connection, but can be reused to open another connection.</p>
  */
 public interface RfSettings extends Parameterized {
+
+	/**
+	 * RFID tracking policy parameter.
+	 */
+	Parameter<RfTrackingPolicy> RF_TRACKING_POLICY =
+			RF_TRACKING_POLICY_PARAMETER_TYPE.parameter("trackingPolicy")
+			.byDefault(DEFAULT_TRACKING_POLICY);
 
 	/**
 	 * RFID tracking policy.

@@ -76,12 +76,14 @@ public abstract class SimpleParameterType<T> extends ParameterType<T> {
 			return values;
 		}
 
+		boolean hasNonNull = false;
 		int i = 0;
 
 		for (String string : strings) {
 			if (string == null) {
 				continue;
 			}
+			hasNonNull = true;
 
 			final T value = valueFromString(string);
 
@@ -93,7 +95,7 @@ public abstract class SimpleParameterType<T> extends ParameterType<T> {
 		}
 
 		if (i == 0) {
-			return null;
+			return hasNonNull ? createValues(0) : null;
 		}
 		if (i == values.length) {
 			return values;

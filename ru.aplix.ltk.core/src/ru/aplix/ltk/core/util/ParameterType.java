@@ -33,6 +33,14 @@ public abstract class ParameterType<T> {
 			new ObjectParameterType();
 
 	/**
+	 * Boolean parameter type.
+	 *
+	 * <p>Supports different case-insensitive true/false values.</p>
+	 */
+	public static final SimpleParameterType<Boolean> BOOLEAN_PARAMETER_TYPE =
+			new BooleanParameterType();
+
+	/**
 	 * Binary data parameter type.
 	 *
 	 * <p>Represents byte arrays as hexadecimal strings.</p>

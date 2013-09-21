@@ -220,14 +220,26 @@ final class CtgReaderThread
 	private boolean deleteROSpecs() throws TimeoutException {
 
 		final DELETE_ROSPEC request = new DELETE_ROSPEC();
-		// Use zero as the ROSpec ID.
-		// This means delete all ROSpecs.
-		request.setROSpecID(new UnsignedInteger(0));
+		final int roSpecId;
+
+		if (getSettings().isExclusiveMode()) {
+			// Use zero as the ROSpec ID.
+			// This means delete all ROSpecs.
+			roSpecId = 0;
+		} else {
+			roSpecId = getSettings().getROSpecId();
+		}
+
+		request.setROSpecID(new UnsignedInteger(roSpecId));
 
 		final DELETE_ROSPEC_RESPONSE response =
 				(DELETE_ROSPEC_RESPONSE) this.reader.transact(
 						request,
 						getSettings().getTransactionTimeout());
+
+		if (roSpecId == 0) {
+			return true;
+		}
 
 		return checkStatus(response.getLLRPStatus());
 	}

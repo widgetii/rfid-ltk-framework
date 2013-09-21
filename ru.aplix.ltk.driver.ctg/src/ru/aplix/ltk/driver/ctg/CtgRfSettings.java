@@ -4,6 +4,7 @@ import static ru.aplix.ltk.core.util.IntSet.FULL_INT_SET;
 import static ru.aplix.ltk.core.util.IntSet.INT_SET_PARAMATER_TYPE;
 import static ru.aplix.ltk.core.util.NumericParameterType.INTEGER_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.util.NumericParameterType.LONG_PARAMETER_TYPE;
+import static ru.aplix.ltk.core.util.ParameterType.BOOLEAN_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.util.ParameterType.STRING_PARAMETER_TYPE;
 import ru.aplix.ltk.core.AbstractRfSettings;
 import ru.aplix.ltk.core.util.IntSet;
@@ -42,6 +43,15 @@ public class CtgRfSettings extends AbstractRfSettings {
 	 */
 	public static final Parameter<Integer> CTG_RF_ROSPEC_ID =
 			INTEGER_PARAMETER_TYPE.parameter("roSpecId").byDefault(123);
+
+	/**
+	 * Exclusive usage mode parameter. False by default.
+	 *
+	 * @see #isExclusiveMode
+	 */
+	public static final Parameter<Boolean> CTG_RF_EXCLUSIVE_MODE =
+			BOOLEAN_PARAMETER_TYPE.parameter("exclusiveMode")
+			.byDefault(false);
 
 	/**
 	 * Antennas parameter. All antennas by default.
@@ -92,6 +102,7 @@ public class CtgRfSettings extends AbstractRfSettings {
 	private String readerHost;
 	private int readerPort = CTG_RF_READER_PORT.getDefault();
 	private int roSpecId = CTG_RF_ROSPEC_ID.getDefault();
+	private boolean exclusiveMode = CTG_RF_EXCLUSIVE_MODE.getDefault();
 	private IntSet antennas = CTG_RF_ANTENNAS.getDefault();
 	private long connectionTimeout = CTG_RF_CONNECTION_TIMEOUT.getDefault();
 	private long transactionTimeout = CTG_RF_TRANSACTION_TIMEOUT.getDefault();
@@ -162,6 +173,35 @@ public class CtgRfSettings extends AbstractRfSettings {
 	 */
 	public void setROSpecId(int roSpecId) {
 		this.roSpecId = roSpecId;
+	}
+
+	/**
+	 * Whether a connection to the reader device should be established in
+	 * exclusive mode.
+	 *
+	 * @return <code>true</code> for exclusive mode, or <code>false</code> for
+	 * non-exclusive one.
+	 */
+	public boolean isExclusiveMode() {
+		return this.exclusiveMode;
+	}
+
+	/**
+	 * Changes the exclusive connection mode.
+	 *
+	 * <p>In exclusive mode the driver deletes all of RO specs from device,
+	 * and another reader device clients stop receiving updates from it.
+	 * Note that they won't be disconnected.</p>
+	 *
+	 * <p>In non-exclusive mode (the default) the driver only attempts to delete
+	 * a RO spec with the {@link #getROSpecId() same ID} it is going to create.
+	 * It is not an error if such RO spec does not exist.</p>
+	 *
+	 * @param exclusiveMode <code>true</code> for exclusive mode, or
+	 * <code>false</code> for non-exclusive one.
+	 */
+	public void setExclusiveMode(boolean exclusiveMode) {
+		this.exclusiveMode = exclusiveMode;
 	}
 
 	/**
@@ -291,6 +331,9 @@ public class CtgRfSettings extends AbstractRfSettings {
 		setROSpecId(params.valueOf(
 				CTG_RF_ROSPEC_ID,
 				getROSpecId()));
+		setExclusiveMode(params.valueOf(
+				CTG_RF_EXCLUSIVE_MODE,
+				isExclusiveMode()));
 		setAntennas(params.valueOf(
 				CTG_RF_ANTENNAS,
 				getAntennas()));
@@ -313,6 +356,7 @@ public class CtgRfSettings extends AbstractRfSettings {
 		params.set(CTG_RF_READER_HOST, getReaderHost())
 		.set(CTG_RF_READER_PORT, getReaderPort())
 		.set(CTG_RF_ROSPEC_ID, getROSpecId())
+		.set(CTG_RF_EXCLUSIVE_MODE, isExclusiveMode())
 		.set(CTG_RF_ANTENNAS, getAntennas())
 		.set(CTG_RF_CONNECTION_TIMEOUT, getConnectionTimeout())
 		.set(CTG_RF_TRANSACTION_TIMEOUT, getTransactionTimeout())

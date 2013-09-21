@@ -1,6 +1,7 @@
 package ru.aplix.ltk.driver.ctg.impl;
 
 import static ru.aplix.ltk.driver.ctg.CtgRfSettings.CTG_RF_DEFAULT_READER_PORT;
+import ru.aplix.ltk.core.reader.RfReader;
 import ru.aplix.ltk.core.reader.RfReaderContext;
 import ru.aplix.ltk.core.reader.RfReaderDriver;
 import ru.aplix.ltk.driver.ctg.CtgRfSettings;
@@ -9,15 +10,21 @@ import ru.aplix.ltk.driver.ctg.CtgRfSettings;
 final class CtgRfReaderDriver implements RfReaderDriver {
 
 	private final CtgRfConnection connection;
+	private final RfReader reader;
 	private RfReaderContext context;
 	private volatile CtgReaderThread thread;
 
 	CtgRfReaderDriver(CtgRfConnection connection) {
 		this.connection = connection;
+		this.reader = new RfReader(this);
 	}
 
 	public final CtgRfConnection getConnection() {
 		return this.connection;
+	}
+
+	public final RfReader getReader() {
+		return this.reader;
 	}
 
 	public final CtgRfSettings getSettings() {
@@ -54,6 +61,7 @@ final class CtgRfReaderDriver implements RfReaderDriver {
 
 	@Override
 	public void stopRfReader() {
+		getConnection().getProvider().removeDriver(this);
 		if (this.thread != null) {
 			this.thread.stopReader();
 			this.thread = null;

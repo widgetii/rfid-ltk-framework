@@ -1,7 +1,9 @@
 package ru.aplix.ltk.core.reader;
 
 import static java.util.Objects.requireNonNull;
+import static ru.aplix.ltk.core.util.IntSet.FULL_INT_SET;
 import ru.aplix.ltk.core.source.*;
+import ru.aplix.ltk.core.util.IntSet;
 import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.message.MsgService;
 import ru.aplix.ltk.message.MsgSubscriptions;
@@ -43,7 +45,19 @@ public class RfReader extends MsgService<RfReaderHandle, RfStatusMessage> {
 	 * @return new RFID data source receiving data from this reader.
 	 */
 	public RfSource toRfSource() {
-		return new RfReaderSource(this);
+		return new RfReaderSource(this, FULL_INT_SET);
+	}
+
+	/**
+	 * Converts this reader to filtering RFID data source.
+	 *
+	 * @param antennas a set of integer antenna identifiers to read data from.
+	 *
+	 * @return new RFID data source receiving data from the given set of
+	 * antennas of this reader.
+	 */
+	public RfSource toRfSource(IntSet antennas) {
+		return new RfReaderSource(this, antennas);
 	}
 
 	/**
@@ -109,11 +123,13 @@ public class RfReader extends MsgService<RfReaderHandle, RfStatusMessage> {
 	private static final class RfReaderSource implements RfSource {
 
 		private final RfReader reader;
+		private final IntSet antennas;
 		private RfReaderHandle readerHandle;
 		private RfDataHandle dataHandle;
 
-		RfReaderSource(RfReader reader) {
+		RfReaderSource(RfReader reader, IntSet antennas) {
 			this.reader = reader;
+			this.antennas = antennas;
 		}
 
 		@Override
@@ -125,7 +141,7 @@ public class RfReader extends MsgService<RfReaderHandle, RfStatusMessage> {
 		@Override
 		public void requestRfData(RfDataReceiver receiver) {
 			this.dataHandle = this.readerHandle.requestRfData(
-					new RfReaderDataListener(receiver));
+					new RfReaderDataListener(receiver, this.antennas));
 		}
 
 		@Override
@@ -170,9 +186,13 @@ public class RfReader extends MsgService<RfReaderHandle, RfStatusMessage> {
 			implements MsgConsumer<RfDataHandle, RfDataMessage> {
 
 		private final RfDataReceiver receiver;
+		private final IntSet antennas;
 
-		RfReaderDataListener(RfDataReceiver receiver) {
+		RfReaderDataListener(
+				RfDataReceiver receiver,
+				IntSet antennas) {
 			this.receiver = receiver;
+			this.antennas = antennas;
 		}
 
 		@Override
@@ -181,7 +201,9 @@ public class RfReader extends MsgService<RfReaderHandle, RfStatusMessage> {
 
 		@Override
 		public void messageReceived(RfDataMessage message) {
-			this.receiver.sendRfData(message);
+			if (this.antennas.contains(message.getAntennaId())) {
+				this.receiver.sendRfData(message);
+			}
 		}
 
 		@Override

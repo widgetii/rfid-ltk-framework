@@ -1,7 +1,7 @@
 package ru.aplix.ltk.driver.ctg.ui;
 
-import static ru.aplix.ltk.core.collector.DefaultRfTracker.DEFAULT_INVALIDATION_TIMEOUT;
-import static ru.aplix.ltk.core.collector.DefaultRfTracker.DEFAULT_TRANSACTION_TIMEOUT;
+import static ru.aplix.ltk.core.collector.DefaultRfTrackingPolicy.RF_INVALIDATION_TIMEOUT;
+import static ru.aplix.ltk.core.collector.DefaultRfTrackingPolicy.RF_TRANSACTION_TIMEOUT;
 import static ru.aplix.ltk.driver.ctg.CtgRfSettings.*;
 
 import java.awt.GridBagConstraints;
@@ -44,14 +44,14 @@ public class CtgRfSettingsPanel extends JPanel {
 		Long.toString(CTG_RF_KEEP_ALIVE_REQUEST_PERIOD.getDefault() * 2),
 	};
 	private static final String[] TRANSACTION_PERIODS = {
-		Long.toString(DEFAULT_TRANSACTION_TIMEOUT / 2),
-		Long.toString(DEFAULT_TRANSACTION_TIMEOUT),
-		Long.toString(DEFAULT_TRANSACTION_TIMEOUT * 2),
+		Long.toString(RF_TRANSACTION_TIMEOUT.getDefault() / 2),
+		RF_TRANSACTION_TIMEOUT.getDefault().toString(),
+		Long.toString(RF_TRANSACTION_TIMEOUT.getDefault() * 2),
 	};
 	private static final String[] INVALIDATION_PERIODS = {
-		Long.toString(DEFAULT_INVALIDATION_TIMEOUT / 2),
-		Long.toString(DEFAULT_INVALIDATION_TIMEOUT),
-		Long.toString(DEFAULT_INVALIDATION_TIMEOUT * 2),
+		Long.toString(RF_INVALIDATION_TIMEOUT.getDefault() / 2),
+		RF_INVALIDATION_TIMEOUT.getDefault().toString(),
+		Long.toString(RF_INVALIDATION_TIMEOUT.getDefault() * 2),
 	};
 
 	private final CtgRfSettingsUI settingsUI;
@@ -143,10 +143,10 @@ public class CtgRfSettingsPanel extends JPanel {
 
 		ui.getTrackingPolicy().setTransactionTimeout(longOption(
 				this.tagTransactionTimeout,
-				DEFAULT_TRANSACTION_TIMEOUT));
+				RF_TRANSACTION_TIMEOUT.getDefault()));
 		ui.getTrackingPolicy().setInvalidationTimeout(longOption(
 				this.tagInvalidationTimeout,
-				DEFAULT_INVALIDATION_TIMEOUT));
+				RF_INVALIDATION_TIMEOUT.getDefault()));
 	}
 
 	private void applySettings() {

@@ -4,7 +4,7 @@ import static java.lang.System.currentTimeMillis;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
-import static ru.aplix.ltk.core.collector.DefaultRfTracker.DEFAULT_INVALIDATION_TIMEOUT;
+import static ru.aplix.ltk.core.collector.DefaultRfTrackingPolicy.RF_INVALIDATION_TIMEOUT;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
 import static ru.aplix.ltk.core.test.reader.TestTags.randomTag;
@@ -55,7 +55,7 @@ public class DisappearanceTest {
 				0,
 				true);
 		final TestDataMessage data3 = new TestDataMessage(
-				data2.getTimestamp() + DEFAULT_INVALIDATION_TIMEOUT,
+				data2.getTimestamp() + RF_INVALIDATION_TIMEOUT.getDefault(),
 				null,
 				0,
 				false);
@@ -92,7 +92,7 @@ public class DisappearanceTest {
 				0,
 				true);
 		final TestDataMessage data3 = new TestDataMessage(
-				data2.getTimestamp() + DEFAULT_INVALIDATION_TIMEOUT - 1,
+				data2.getTimestamp() + RF_INVALIDATION_TIMEOUT.getDefault() - 1,
 				null,
 				0,
 				false);

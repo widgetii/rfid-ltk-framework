@@ -2,6 +2,8 @@ package ru.aplix.ltk.core.collector;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+import static ru.aplix.ltk.core.collector.DefaultRfTrackingPolicy.RF_INVALIDATION_TIMEOUT;
+import static ru.aplix.ltk.core.collector.DefaultRfTrackingPolicy.RF_TRANSACTION_TIMEOUT;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -48,29 +50,17 @@ import ru.aplix.ltk.core.source.RfTag;
  */
 public class DefaultRfTracker implements RfTracker, Runnable {
 
-	/**
-	 * Default {@link #getTransactionTimeout() transaction timeout} value.
-	 */
-	public static final long DEFAULT_TRANSACTION_TIMEOUT = 4000L;
-
-	/**
-	 * Default {@link #getInvalidationTimeout() cache invalidation timeout}
-	 * value.
-	 */
-	public static final long DEFAULT_INVALIDATION_TIMEOUT = 8000L;
-
 	private final ScheduledExecutorService executorService =
 			newSingleThreadScheduledExecutor();
 	private final HashMap<RfTag, Long> tags = new HashMap<>();
 	private ScheduledFuture<?> transactionChecker;
-	private long transactionTimeout = DEFAULT_TRANSACTION_TIMEOUT;
-	private long invalidationTimeout = DEFAULT_INVALIDATION_TIMEOUT;
+	private long transactionTimeout = RF_TRANSACTION_TIMEOUT.getDefault();
+	private long invalidationTimeout = RF_INVALIDATION_TIMEOUT.getDefault();
 	private long transactionStart;
 	private long lastTimestamp;
 	private long localTimeDiff;
 	private int transactionId;
 	private RfTracking tracking;
-
 
 	/**
 	 * Transaction timeout.
@@ -84,12 +74,13 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 	/**
 	 * Changes transaction timeout.
 	 *
-	 * @param transactionTimeout new timeout value in milliseconds.
+	 * @param transactionTimeout new timeout value in milliseconds, or
+	 * non-positive value to set it to the default value.
 	 */
 	public final void setTransactionTimeout(long transactionTimeout) {
 		this.transactionTimeout =
 				transactionTimeout > 0
-				? transactionTimeout : DEFAULT_TRANSACTION_TIMEOUT;
+				? transactionTimeout : RF_TRANSACTION_TIMEOUT.getDefault();
 	}
 
 	/**
@@ -104,13 +95,16 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 	/**
 	 * Changes cache invalidation timeout.
 	 *
-	 * <p>Set it to zero or negative value to invalidate the unread tags
-	 * immediately after the transaction end.</p>
+	 * <p>Set it to zero to invalidate the unread tags immediately after the
+	 * transaction end.</p>
 	 *
-	 * @param invalidationTimeout new timeout value in milliseconds.
+	 * @param invalidationTimeout new timeout value in milliseconds, or negative
+	 * value to set it to the default value.
 	 */
 	public final void setInvalidationTimeout(long invalidationTimeout) {
-		this.invalidationTimeout = invalidationTimeout;
+		this.invalidationTimeout =
+				invalidationTimeout >= 0
+				? invalidationTimeout : RF_INVALIDATION_TIMEOUT.getDefault();
 	}
 
 	@Override

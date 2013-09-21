@@ -2,6 +2,7 @@ package ru.aplix.ltk.tester.ui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Dimension;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -24,6 +25,7 @@ class ConnectionSettings extends JPanel implements RfProviderItemListener {
 		this.cardLayout = new CardLayout();
 		this.settingsPanel = new JPanel(this.cardLayout);
 		this.connectionControls = new ConnectionControls(this);
+		setPreferredSize(new Dimension(720, 600));
 
 		add(this.settingsPanel, BorderLayout.CENTER);
 		add(this.connectionControls, BorderLayout.SOUTH);

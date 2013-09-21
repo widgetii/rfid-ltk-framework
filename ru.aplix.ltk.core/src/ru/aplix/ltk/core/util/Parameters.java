@@ -193,6 +193,22 @@ public final class Parameters implements Parameterized {
 		return values[0];
 	}
 
+	public final <T> T valueOf(Parameter<T> parameter) {
+		return valueOf(
+				parameter.getType(),
+				parameter.getName(),
+				parameter.getDefault(),
+				parameter.getDefault());
+	}
+
+	public final <T> T valueOf(Parameter<T> parameter, T defaultValue) {
+		return valueOf(
+				parameter.getType(),
+				parameter.getName(),
+				parameter.getDefault(),
+				defaultValue);
+	}
+
 	public final String valueOf(String name) {
 		return valueOf(name, null);
 	}

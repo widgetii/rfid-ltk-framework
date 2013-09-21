@@ -1,6 +1,10 @@
 package ru.aplix.ltk.driver.ctg;
 
+import static ru.aplix.ltk.core.util.NumericParameterType.INTEGER_PARAMETER_TYPE;
+import static ru.aplix.ltk.core.util.NumericParameterType.LONG_PARAMETER_TYPE;
+import static ru.aplix.ltk.core.util.ParameterType.STRING_PARAMETER_TYPE;
 import ru.aplix.ltk.core.AbstractRfSettings;
+import ru.aplix.ltk.core.util.Parameter;
 import ru.aplix.ltk.core.util.Parameters;
 
 
@@ -13,55 +17,74 @@ import ru.aplix.ltk.core.util.Parameters;
 public class CtgRfSettings extends AbstractRfSettings {
 
 	/**
-	 * Default reader device port number (5084).
+	 * Reader device host parameter.
 	 *
 	 * @see #getReaderPort()
 	 */
-	public static final int CTG_RF_DEFAULT_READER_PORT = 5084;
+	public static final Parameter<String> CTG_RF_READER_HOST =
+			STRING_PARAMETER_TYPE.parameter("readerHost");
 
 	/**
-	 * Default ROSpec identifier to use.
+	 * Reader device port parameter (5084 by default).
+	 *
+	 * @see #getReaderPort()
+	 */
+	public static final Parameter<Integer> CTG_RF_READER_PORT =
+			INTEGER_PARAMETER_TYPE.parameter("readerPort").byDefault(5084);
+
+	/**
+	 * ROSpec identifier parameter.
 	 *
 	 * @see #getROSpecId()
 	 */
-	public static final int CTG_RF_DEFAULT_ROSPEC_ID = 123;
+	public static final Parameter<Integer> CTG_RF_ROSPEC_ID =
+			INTEGER_PARAMETER_TYPE.parameter("roSpecId").byDefault(123);
 
 	/**
-	 * Default reader connection timeout.
+	 * Reader connection timeout parameter.
 	 *
 	 * @see #getConnectionTimeout()
 	 */
-	public static final long CTG_RF_DEFAULT_CONNECTION_TIMEOUT = 10000L;
+	public static final Parameter<Long> CTG_RF_CONNECTION_TIMEOUT =
+			LONG_PARAMETER_TYPE.parameter("connectionTimeout")
+			.byDefault(10000L);
 
 	/**
-	 * Default reader transaction timeout.
+	 * Reader transaction timeout parameter.
 	 *
 	 * @see #getTransactionTimeout()
 	 */
-	public static final long CTG_RF_DEFAULT_TRANSACTION_TIMEOUT = 10000L;
+	public static final Parameter<Long> CTG_RF_TRANSACTION_TIMEOUT =
+			LONG_PARAMETER_TYPE.parameter("transactionTimeout")
+			.byDefault(10000L);
 
 	/**
-	 * Default delay between reconnection attempts.
+	 * Delay between reconnection attempts parameter.
 	 *
 	 * @see #getReconnectionDelay()
 	 */
-	public static final long CTG_RF_DEFAULT_RECONNECTION_DELAY = 10000L;
+	public static final Parameter<Long> CTG_RF_RECONNECTION_DELAY =
+			LONG_PARAMETER_TYPE.parameter("reconnectionDelay")
+			.byDefault(10000L);
 
 	/**
-	 * Default period between keep-alive requests issued by reader device.
+	 * A period between keep-alive requests issued by reader device parameter.
 	 *
 	 * @see #getKeepAliveRequestPeriod()
 	 */
-	public static final int CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD = 10000;
+	public static final
+	Parameter<Integer> CTG_RF_KEEP_ALIVE_REQUEST_PERIOD =
+			INTEGER_PARAMETER_TYPE.parameter("keepAliveRequestPeriod")
+			.byDefault(10000);
 
 	private String readerHost;
-	private int readerPort = CTG_RF_DEFAULT_READER_PORT;
-	private int roSpecId = CTG_RF_DEFAULT_ROSPEC_ID;
-	private long connectionTimeout = CTG_RF_DEFAULT_CONNECTION_TIMEOUT;
-	private long transactionTimeout = CTG_RF_DEFAULT_TRANSACTION_TIMEOUT;
-	private long reconnectionDelay = CTG_RF_DEFAULT_RECONNECTION_DELAY;
+	private int readerPort = CTG_RF_READER_PORT.getDefault();
+	private int roSpecId = CTG_RF_ROSPEC_ID.getDefault();
+	private long connectionTimeout = CTG_RF_CONNECTION_TIMEOUT.getDefault();
+	private long transactionTimeout = CTG_RF_TRANSACTION_TIMEOUT.getDefault();
+	private long reconnectionDelay = CTG_RF_RECONNECTION_DELAY.getDefault();
 	private int keepAliveRequestPeriod =
-			CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD;
+			CTG_RF_KEEP_ALIVE_REQUEST_PERIOD.getDefault();
 
 	/**
 	 * Reader device host.
@@ -96,10 +119,10 @@ public class CtgRfSettings extends AbstractRfSettings {
 	 * Sets the reader port.
 	 *
 	 * @param port new reader port number, or non-positive value to drop it to
-	 * the {@link #CTG_RF_DEFAULT_READER_PORT default one}.
+	 * the default one.
 	 */
 	public void setReaderPort(int port) {
-		this.readerPort = port > 0 ? port : CTG_RF_DEFAULT_READER_PORT;
+		this.readerPort = port > 0 ? port : CTG_RF_READER_PORT.getDefault();
 	}
 
 	/**
@@ -141,11 +164,11 @@ public class CtgRfSettings extends AbstractRfSettings {
 	 * Sets reader device connection timeout.
 	 *
 	 * @param timeout new timeout in milliseconds, or negative value to set it
-	 * to the {@link #CTG_RF_DEFAULT_CONNECTION_TIMEOUT default one}.
+	 * to the default one.
 	 */
 	public void setConnectionTimeout(long timeout) {
 		this.connectionTimeout =
-				timeout < 0 ? CTG_RF_DEFAULT_CONNECTION_TIMEOUT : timeout;
+				timeout < 0 ? CTG_RF_CONNECTION_TIMEOUT.getDefault() : timeout;
 	}
 
 	/**
@@ -164,12 +187,11 @@ public class CtgRfSettings extends AbstractRfSettings {
 	 * Sets the reader device transaction timeout.
 	 *
 	 * @param timeout new timeout in milliseconds, zero to wait indefinitely, or
-	 * negative value to set it to the
-	 * {@link #CTG_RF_DEFAULT_TRANSACTION_TIMEOUT default one}.
+	 * negative value to set it to the default one.
 	 */
 	public void setTransactionTimeout(long timeout) {
 		this.transactionTimeout =
-				timeout < 0 ? CTG_RF_DEFAULT_TRANSACTION_TIMEOUT : timeout;
+				timeout < 0 ? CTG_RF_TRANSACTION_TIMEOUT.getDefault() : timeout;
 	}
 
 	/**
@@ -187,12 +209,11 @@ public class CtgRfSettings extends AbstractRfSettings {
 	 * Sets the delay between reconnection attempts.
 	 *
 	 * @param delay new delay in milliseconds, zero to reconnect immediately,
-	 * or negative value to set it to the
-	 * {@link #CTG_RF_DEFAULT_RECONNECTION_DELAY default one}
+	 * or negative value to set it to the default one
 	 */
 	public void setReconnectionDelay(long delay) {
 		this.reconnectionDelay =
-				delay < 0 ? CTG_RF_DEFAULT_RECONNECTION_DELAY : delay;
+				delay < 0 ? CTG_RF_RECONNECTION_DELAY.getDefault() : delay;
 	}
 
 	/**
@@ -218,54 +239,48 @@ public class CtgRfSettings extends AbstractRfSettings {
 	 * Sets the period between keep-alive requests issues by reader device.
 	 *
 	 * @param period new period in milliseconds, or negative value to set it to
-	 * the {@link #CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD default one}.
+	 * the default one.
 	 */
 	public void setKeepAliveRequestPeriod(int period) {
 		this.keepAliveRequestPeriod =
-				period < 0 ? CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD : period;
+				period < 0 ? CTG_RF_KEEP_ALIVE_REQUEST_PERIOD.getDefault()
+				: period;
 	}
 
 	@Override
 	protected void readSettings(Parameters params) {
 		setReaderHost(params.valueOf(
-				"readerHost",
-				null,
+				CTG_RF_READER_HOST,
 				getReaderHost()));
-		setReaderPort(params.intValueOf(
-				"readerPort",
-				CTG_RF_DEFAULT_READER_PORT,
+		setReaderPort(params.valueOf(
+				CTG_RF_READER_PORT,
 				getReaderPort()));
-		setROSpecId(params.intValueOf(
-				"roSpecId",
-				CTG_RF_DEFAULT_ROSPEC_ID,
+		setROSpecId(params.valueOf(
+				CTG_RF_ROSPEC_ID,
 				getROSpecId()));
-		setConnectionTimeout(params.longValueOf(
-				"connectionTimeout",
-				CTG_RF_DEFAULT_CONNECTION_TIMEOUT,
+		setConnectionTimeout(params.valueOf(
+				CTG_RF_CONNECTION_TIMEOUT,
 				getConnectionTimeout()));
-		setTransactionTimeout(params.longValueOf(
-				"transactionTimeout",
-				CTG_RF_DEFAULT_TRANSACTION_TIMEOUT,
+		setTransactionTimeout(params.valueOf(
+				CTG_RF_TRANSACTION_TIMEOUT,
 				getTransactionTimeout()));
-		setReconnectionDelay(params.longValueOf(
-				"reconnectionDelay",
-				CTG_RF_DEFAULT_RECONNECTION_DELAY,
+		setReconnectionDelay(params.valueOf(
+				CTG_RF_RECONNECTION_DELAY,
 				getReconnectionDelay()));
-		setKeepAliveRequestPeriod(params.intValueOf(
-				"keepAliveRequestPeriod",
-				CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD,
+		setKeepAliveRequestPeriod(params.valueOf(
+				CTG_RF_KEEP_ALIVE_REQUEST_PERIOD,
 				getKeepAliveRequestPeriod()));
 	}
 
 	@Override
 	protected void writeSettings(Parameters params) {
-		params.set("readerHost", getReaderHost())
-		.set("readerPort", getReaderPort())
-		.set("roSpecId", getROSpecId())
-		.set("connectionTimeout", getConnectionTimeout())
-		.set("transactionTimeout", getTransactionTimeout())
-		.set("reconnectionDelay", getReconnectionDelay())
-		.set("keepAliveRequestPeriod", getKeepAliveRequestPeriod());
+		params.set(CTG_RF_READER_HOST, getReaderHost())
+		.set(CTG_RF_READER_PORT, getReaderPort())
+		.set(CTG_RF_ROSPEC_ID, getROSpecId())
+		.set(CTG_RF_CONNECTION_TIMEOUT, getConnectionTimeout())
+		.set(CTG_RF_TRANSACTION_TIMEOUT, getTransactionTimeout())
+		.set(CTG_RF_RECONNECTION_DELAY, getReconnectionDelay())
+		.set(CTG_RF_KEEP_ALIVE_REQUEST_PERIOD, getKeepAliveRequestPeriod());
 	}
 
 	@Override

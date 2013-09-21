@@ -50,9 +50,21 @@ public final class Parameter<T> {
 	}
 
 	/**
+	 * Default parameter value.
+	 *
+	 * @return first default value, or <code>null</code> if not specified.
+	 */
+	public final T getDefault() {
+		if (this.defaults == null || this.defaults.length == 0) {
+			return null;
+		}
+		return this.defaults[0];
+	}
+
+	/**
 	 * Default parameter values.
 	 *
-	 * @return default values assigned with {@link #defaults(Object...)}
+	 * @return default values assigned with {@link #byDefault(Object...)}
 	 * method, or <code>null</code> if not assigned yet.
 	 */
 	public final T[] getDefaults() {
@@ -67,7 +79,7 @@ public final class Parameter<T> {
 	 * @return new instance of parameter with default values set.
 	 */
 	@SafeVarargs
-	public final Parameter<T> defaults(T... defaults) {
+	public final Parameter<T> byDefault(T... defaults) {
 		if (defaults.length == 1 && defaults[0] == null) {
 			return new Parameter<>(this, null);
 		}

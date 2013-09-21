@@ -18,30 +18,30 @@ public class CtgRfSettingsPanel extends JPanel {
 	private static final long serialVersionUID = -4493305190228105924L;
 
 	private static final String[] READER_PORTS = {
-		Integer.toString(CTG_RF_DEFAULT_READER_PORT)
+		CTG_RF_READER_PORT.getDefault().toString()
 	};
 	private static final String[] RO_SPEC_IDS = {
-		Integer.toString(CTG_RF_DEFAULT_ROSPEC_ID)
+		CTG_RF_ROSPEC_ID.getDefault().toString()
 	};
 	private static final String[] CONNECTION_TIMEOUTS = {
-		Long.toString(CTG_RF_DEFAULT_CONNECTION_TIMEOUT / 2),
-		Long.toString(CTG_RF_DEFAULT_CONNECTION_TIMEOUT),
-		Long.toString(CTG_RF_DEFAULT_CONNECTION_TIMEOUT * 2)
+		Long.toString(CTG_RF_CONNECTION_TIMEOUT.getDefault() / 2),
+		CTG_RF_CONNECTION_TIMEOUT.getDefault().toString(),
+		Long.toString(CTG_RF_CONNECTION_TIMEOUT.getDefault() * 2)
 	};
 	private static final String[] TRANSACTION_TIMEOUTS = {
-		Long.toString(CTG_RF_DEFAULT_TRANSACTION_TIMEOUT / 4),
-		Long.toString(CTG_RF_DEFAULT_TRANSACTION_TIMEOUT / 2),
-		Long.toString(CTG_RF_DEFAULT_TRANSACTION_TIMEOUT)
+		Long.toString(CTG_RF_TRANSACTION_TIMEOUT.getDefault() / 4),
+		Long.toString(CTG_RF_TRANSACTION_TIMEOUT.getDefault() / 2),
+		CTG_RF_TRANSACTION_TIMEOUT.getDefault().toString()
 	};
 	private static final String[] RECONNECTION_DELAYS = {
-		Long.toString(CTG_RF_DEFAULT_RECONNECTION_DELAY / 4),
-		Long.toString(CTG_RF_DEFAULT_RECONNECTION_DELAY / 2),
-		Long.toString(CTG_RF_DEFAULT_RECONNECTION_DELAY)
+		Long.toString(CTG_RF_RECONNECTION_DELAY.getDefault() / 4),
+		Long.toString(CTG_RF_RECONNECTION_DELAY.getDefault() / 2),
+		CTG_RF_RECONNECTION_DELAY.getDefault().toString()
 	};
 	private static final String[] KEEP_ALIVE_REQUEST_PERIODS = {
-		Long.toString(CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD / 2),
-		Long.toString(CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD),
-		Long.toString(CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD * 2),
+		Long.toString(CTG_RF_KEEP_ALIVE_REQUEST_PERIOD.getDefault() / 2),
+		CTG_RF_KEEP_ALIVE_REQUEST_PERIOD.getDefault().toString(),
+		Long.toString(CTG_RF_KEEP_ALIVE_REQUEST_PERIOD.getDefault() * 2),
 	};
 	private static final String[] TRANSACTION_PERIODS = {
 		Long.toString(DEFAULT_TRANSACTION_TIMEOUT / 2),
@@ -122,22 +122,22 @@ public class CtgRfSettingsPanel extends JPanel {
 		settings.setReaderHost((String) this.readerHost.getSelectedItem());
 		settings.setReaderPort(intOption(
 				this.readerPort,
-				CTG_RF_DEFAULT_READER_PORT));
+				CTG_RF_READER_PORT.getDefault()));
 		settings.setROSpecId(intOption(
 				this.roSpecId,
-				CTG_RF_DEFAULT_ROSPEC_ID));
+				CTG_RF_ROSPEC_ID.getDefault()));
 		settings.setConnectionTimeout(longOption(
 				this.connectionTimeout,
-				CTG_RF_DEFAULT_CONNECTION_TIMEOUT));
+				CTG_RF_CONNECTION_TIMEOUT.getDefault()));
 		settings.setTransactionTimeout(longOption(
 				this.transactionTimeout,
-				CTG_RF_DEFAULT_TRANSACTION_TIMEOUT));
+				CTG_RF_TRANSACTION_TIMEOUT.getDefault()));
 		settings.setReconnectionDelay(longOption(
 				this.reconnectionDelay,
-				CTG_RF_DEFAULT_RECONNECTION_DELAY));
+				CTG_RF_RECONNECTION_DELAY.getDefault()));
 		settings.setKeepAliveRequestPeriod(intOption(
 				this.keepAliveRequestPeriod,
-				CTG_RF_DEFAULT_KEEP_ALIVE_REQUEST_PERIOD));
+				CTG_RF_KEEP_ALIVE_REQUEST_PERIOD.getDefault()));
 
 		final CtgRfSettingsUI ui = this.settingsUI;
 

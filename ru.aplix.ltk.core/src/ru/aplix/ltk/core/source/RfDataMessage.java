@@ -23,6 +23,13 @@ public interface RfDataMessage {
 	long getTimestamp();
 
 	/**
+	 * Identifier of antenna this message received from.
+	 *
+	 * @return antenna identifier.
+	 */
+	int getAntennaId();
+
+	/**
 	 * RFID tag read by reader device.
 	 *
 	 * <p>This method can return <code>null</code>, e.g. to indicate

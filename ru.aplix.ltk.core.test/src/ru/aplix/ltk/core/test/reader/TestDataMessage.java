@@ -28,6 +28,11 @@ public class TestDataMessage implements RfDataMessage {
 	}
 
 	@Override
+	public int getAntennaId() {
+		return 0;
+	}
+
+	@Override
 	public RfTag getRfTag() {
 		return this.tag;
 	}

@@ -29,6 +29,7 @@ public class LLRPDataMessage implements RfDataMessage {
 		return this.timestamp;
 	}
 
+	@Override
 	public int getAntennaId() {
 		return this.antennaId;
 	}

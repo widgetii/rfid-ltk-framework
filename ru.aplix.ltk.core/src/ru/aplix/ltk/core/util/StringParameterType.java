@@ -4,19 +4,19 @@ package ru.aplix.ltk.core.util;
 final class StringParameterType extends SimpleParameterType<String> {
 
 	@Override
-	public String[] valuesFromStrings(String name, String[] strings) {
+	public String[] valuesFromStrings(String[] strings) {
 		if (!hasNulls(strings)) {
 			return strings;
 		}
-		return super.valuesFromStrings(name, strings);
+		return super.valuesFromStrings(strings);
 	}
 
 	@Override
-	public String[] valuesToStrings(String name, String[] values) {
+	public String[] valuesToStrings(String[] values) {
 		if (!hasNulls(values)) {
 			return values;
 		}
-		return super.valuesToStrings(name, values);
+		return super.valuesToStrings(values);
 	}
 
 	@Override

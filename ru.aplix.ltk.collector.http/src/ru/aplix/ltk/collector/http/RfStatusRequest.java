@@ -1,14 +1,15 @@
 package ru.aplix.ltk.collector.http;
 
+import static ru.aplix.ltk.collector.http.RemoteClrException.REMOTE_CLR_EXCEPTION_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.source.RfStatus.RF_ERROR;
+import static ru.aplix.ltk.core.util.ParameterType.STRING_PARAMETER_TYPE;
+import static ru.aplix.ltk.core.util.ParameterType.UUID_PARAMETER_TYPE;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.util.UUID;
 
 import ru.aplix.ltk.core.source.RfStatus;
 import ru.aplix.ltk.core.source.RfStatusMessage;
-import ru.aplix.ltk.core.util.Parameterized;
-import ru.aplix.ltk.core.util.Parameters;
+import ru.aplix.ltk.core.util.*;
 
 
 /**
@@ -22,9 +23,24 @@ import ru.aplix.ltk.core.util.Parameters;
  */
 public class RfStatusRequest implements RfStatusMessage, Parameterized {
 
+	static final Parameter<UUID> CLIENT =
+			UUID_PARAMETER_TYPE.parameter("client");
+	static final Parameter<String> TYPE =
+			STRING_PARAMETER_TYPE.parameter("type");
+	private static final Parameter<String> RF_READER_ID =
+			STRING_PARAMETER_TYPE.parameter("readerId");
+	private static final Parameter<RfStatus> RF_STATUS =
+			new EnumParameterType<>(RfStatus.class)
+			.parameter("rfStatus")
+			.byDefault(RF_ERROR);
+	private static final Parameter<String> ERROR_MESSAGE =
+			STRING_PARAMETER_TYPE.parameter("errorMessage");
+	private static final Parameter<Throwable> CAUSE =
+			REMOTE_CLR_EXCEPTION_PARAMETER_TYPE.parameter("cause");
+
 	private ClrClientId clientId;
 	private String rfReaderId;
-	private RfStatus rfStatus = RF_ERROR;
+	private RfStatus rfStatus = RF_STATUS.getDefault();
 	private String errorMessage;
 	private Throwable cause;
 
@@ -83,67 +99,20 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 
 	@Override
 	public void read(Parameters params) {
-		this.rfReaderId =
-				params.valueOf("rfReaderId", null, getRfReaderId());
-		this.rfStatus = params.enumValueOf(
-				RfStatus.class,
-				"rfStatus",
-				RF_ERROR,
-				getRfStatus());
-		this.errorMessage =
-				params.valueOf("errorMessage", null, getErrorMessage());
-		this.cause = readCause(params);
+		this.rfReaderId = params.valueOf(RF_READER_ID, getRfReaderId());
+		this.rfStatus = params.valueOf(RF_STATUS, getRfStatus());
+		this.errorMessage = params.valueOf(ERROR_MESSAGE, getErrorMessage());
+		this.cause = params.valueOf(CAUSE, getCause());
 	}
 
 	@Override
 	public void write(Parameters params) {
-		params.set("client", this.clientId.getUUID().toString())
-		.set("type", "status")
-		.set("rfReaderId", getRfReaderId())
-		.set("rfStatus", getRfStatus())
-		.set("errorMessage", getErrorMessage());
-		writeCause(params);
-	}
-
-	private Throwable readCause(Parameters params) {
-
-		final Parameters causeParams = params.sub("cause");
-		final String causeClass = causeParams.valueOf("");
-
-		if (causeClass == null) {
-			return getCause();
-		}
-
-		return new RemoteClrException(
-				causeClass,
-				causeParams.valueOf("message"),
-				causeParams.valueOf("stackTrace"));
-	}
-
-	private void writeCause(Parameters params) {
-
-		final Throwable cause = getCause();
-
-		if (cause == null) {
-			return;
-		}
-
-		final Parameters causeParams = params.sub("cause");
-
-		causeParams.set("", cause.getClass().getName());
-		causeParams.set("message", cause.getMessage());
-		causeParams.set("stackTrace", stackTrace(cause));
-	}
-
-	private String stackTrace(Throwable cause) {
-
-		final StringWriter str = new StringWriter();
-
-		try (PrintWriter out = new PrintWriter(str)) {
-			cause.printStackTrace(out);
-		}
-
-		return str.toString();
+		params.set(CLIENT, this.clientId.getUUID())
+		.set(TYPE, "status")
+		.set(RF_READER_ID, getRfReaderId())
+		.set(RF_STATUS, getRfStatus())
+		.set(ERROR_MESSAGE, getErrorMessage())
+		.set(CAUSE, getCause());
 	}
 
 }

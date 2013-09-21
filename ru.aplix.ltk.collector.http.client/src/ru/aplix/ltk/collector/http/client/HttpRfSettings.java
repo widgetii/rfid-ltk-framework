@@ -1,11 +1,13 @@
 package ru.aplix.ltk.collector.http.client;
 
-import java.net.MalformedURLException;
+import static ru.aplix.ltk.core.util.NumericParameterType.LONG_PARAMETER_TYPE;
+import static ru.aplix.ltk.core.util.ParameterType.URL_PARAMETER_TYPE;
+
 import java.net.URL;
-import java.util.Objects;
 
 import ru.aplix.ltk.collector.http.ClrClientRequest;
 import ru.aplix.ltk.core.AbstractRfSettings;
+import ru.aplix.ltk.core.util.Parameter;
 import ru.aplix.ltk.core.util.Parameters;
 
 
@@ -21,15 +23,33 @@ import ru.aplix.ltk.core.util.Parameters;
 public class HttpRfSettings extends AbstractRfSettings {
 
 	/**
-	 * Default HTTP collector reconnection delay.
+	 * HTTP collector URL parameter.
+	 *
+	 * @see #getCollectorURL()
+	 */
+	public static final Parameter<URL> HTTP_RF_COLLECTOR_URL =
+			URL_PARAMETER_TYPE.parameter("collectorURL");
+
+	/**
+	 * HTTP collector client URL parameter.
+	 *
+	 * @see #getClientURL()
+	 */
+	public static final Parameter<URL> HTTP_RF_CLIENT_URL =
+			URL_PARAMETER_TYPE.parameter("clientURL");
+
+	/**
+	 * HTTP collector reconnection delay parameter.
 	 *
 	 * @see #getReconnectionDelay()
 	 */
-	public static final long HTTP_RF_DEFAULT_RECONNECTION_DELAY = 45000L;
+	public static final Parameter<Long> HTTP_RF_RECONNECTION_DELAY =
+			LONG_PARAMETER_TYPE.parameter("reconnectionDelay")
+			.byDefault(45000L);
 
 	private URL collectorURL;
 	private URL clientURL;
-	private long reconnectionDelay = HTTP_RF_DEFAULT_RECONNECTION_DELAY;
+	private long reconnectionDelay = HTTP_RF_RECONNECTION_DELAY.getDefault();
 
 	/**
 	 * HTTP collector URL
@@ -97,7 +117,7 @@ public class HttpRfSettings extends AbstractRfSettings {
 	 */
 	public final void setReconnectionDelay(long delay) {
 		this.reconnectionDelay =
-				delay > 0 ? delay : HTTP_RF_DEFAULT_RECONNECTION_DELAY;
+				delay > 0 ? delay : HTTP_RF_RECONNECTION_DELAY.getDefault();
 	}
 
 	@Override
@@ -107,20 +127,22 @@ public class HttpRfSettings extends AbstractRfSettings {
 
 	@Override
 	protected void readSettings(Parameters params) {
-		setCollectorURL(
-				urlFromParams("collectorURL", params, getCollectorURL()));
-		setClientURL(urlFromParams("clientURL", params, getClientURL()));
-		setReconnectionDelay(params.longValueOf(
-				"reconnectionDelay",
-				HTTP_RF_DEFAULT_RECONNECTION_DELAY,
+		setCollectorURL(params.valueOf(
+				HTTP_RF_COLLECTOR_URL,
+				getCollectorURL()));
+		setClientURL(params.valueOf(
+				HTTP_RF_CLIENT_URL,
+				getClientURL()));
+		setReconnectionDelay(params.valueOf(
+				HTTP_RF_RECONNECTION_DELAY,
 				getReconnectionDelay()));
 	}
 
 	@Override
 	protected void writeSettings(Parameters params) {
-		params.set("collectorURL", getCollectorURL())
-		.set("clientURL", getClientURL())
-		.set("reconnectionDelay", getReconnectionDelay());
+		params.set(HTTP_RF_COLLECTOR_URL, getCollectorURL())
+		.set(HTTP_RF_CLIENT_URL, getClientURL())
+		.set(HTTP_RF_RECONNECTION_DELAY, getReconnectionDelay());
 	}
 
 	private void ensureHttpURL(URL url) {
@@ -132,23 +154,6 @@ public class HttpRfSettings extends AbstractRfSettings {
 				throw new IllegalArgumentException(
 						"HTTP/HTTPS URL expected: " + url);
 			}
-		}
-	}
-
-	private URL urlFromParams(
-			String name,
-			Parameters params,
-			URL noValue) {
-		try {
-
-			final String url = params.valueOf(
-					name,
-					null,
-					Objects.toString(noValue, null));
-
-			return url != null ? new URL(url) : null;
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Invalid client URL", e);
 		}
 	}
 

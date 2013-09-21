@@ -1,9 +1,10 @@
 package ru.aplix.ltk.collector.http;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Objects;
+import static ru.aplix.ltk.core.util.ParameterType.URL_PARAMETER_TYPE;
 
+import java.net.URL;
+
+import ru.aplix.ltk.core.util.Parameter;
 import ru.aplix.ltk.core.util.Parameterized;
 import ru.aplix.ltk.core.util.Parameters;
 
@@ -22,6 +23,9 @@ import ru.aplix.ltk.core.util.Parameters;
  * request.</p>
  */
 public class ClrClientRequest implements Parameterized {
+
+	private static final Parameter<URL> CLIENT_URL =
+			URL_PARAMETER_TYPE.parameter("clientURL");
 
 	private URL clientURL;
 
@@ -66,12 +70,12 @@ public class ClrClientRequest implements Parameterized {
 
 	@Override
 	public void read(Parameters params) {
-		setClientURL(clientURLFromParams(params));
+		setClientURL(params.valueOf(CLIENT_URL, getClientURL()));
 	}
 
 	@Override
 	public void write(Parameters params) {
-		params.set("clientURL", getClientURL());
+		params.set(CLIENT_URL, getClientURL());
 	}
 
 	private void ensureHttpURL(URL clientURL) {
@@ -83,20 +87,6 @@ public class ClrClientRequest implements Parameterized {
 				throw new IllegalArgumentException(
 						"HTTP/HTTPS client URL expected: " + clientURL);
 			}
-		}
-	}
-
-	private URL clientURLFromParams(Parameters params) {
-		try {
-
-			final String url = params.valueOf(
-					"clientURL",
-					null,
-					Objects.toString(getClientURL(), null));
-
-			return url != null ? new URL(url) : null;
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Invalid client URL", e);
 		}
 	}
 

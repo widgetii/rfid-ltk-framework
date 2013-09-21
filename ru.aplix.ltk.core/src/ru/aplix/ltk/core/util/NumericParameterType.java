@@ -44,9 +44,9 @@ public abstract class NumericParameterType<N extends Number>
 			};
 
 	@Override
-	public N[] valuesFromStrings(String name, String[] strings) {
+	public N[] valuesFromStrings(String[] strings) {
 		try {
-			return super.valuesFromStrings(name, strings);
+			return super.valuesFromStrings(strings);
 		} catch (NumberFormatException e) {
 			return createValues(0);
 		}

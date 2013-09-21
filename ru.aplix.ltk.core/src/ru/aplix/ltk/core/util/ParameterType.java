@@ -1,6 +1,10 @@
 package ru.aplix.ltk.core.util;
 
+import static java.lang.System.arraycopy;
 import static java.util.Objects.requireNonNull;
+
+import java.net.URL;
+import java.util.UUID;
 
 
 /**
@@ -37,24 +41,67 @@ public abstract class ParameterType<T> {
 			new BinaryParameterType();
 
 	/**
-	 * Restores parameter values from strings.
-	 *
-	 * @param name parameter name.
-	 * @param strings strings to restore values from.
-	 *
-	 * @return restored values.
+	 * URL parameter type.
 	 */
-	public abstract T[] valuesFromStrings(String name, String[] strings);
+	public static final SimpleParameterType<URL> URL_PARAMETER_TYPE =
+			new URLParameterType();
 
 	/**
-	 * Converts parameter values to strings.
-	 *
-	 * @param name parameter name.
-	 * @param values parameter values.
-	 *
-	 * @return string representations of the given values.
+	 * UUID parameter type.
 	 */
-	public abstract String[] valuesToStrings(String name, T[] values);
+	public static final SimpleParameterType<UUID> UUID_PARAMETER_TYPE =
+			new UUIDParameterType();
+
+	/**
+	 * Retrieves parameter values.
+	 *
+	 * @param params parameters to retrieve the values from.
+	 * @param name parameter name.
+	 *
+	 * @return retrieved values, or <code>null</code> if there is no such
+	 * property.
+	 */
+	public abstract T[] getValues(Parameters params, String name);
+
+	/**
+	 * Stores parameter values as strings.
+	 *
+	 * @param params parameters to store values in.
+	 * @param name parameter name.
+	 * @param values parameter values to store.
+	 */
+	public abstract void setValues(Parameters params, String name, T[] values);
+
+	/**
+	 * Appends parameter values as strings.
+	 *
+	 * @param params parameters to store values in.
+	 * @param name parameter name.
+	 * @param values parameter values to append.
+	 */
+	public void addValues(Parameters params, String name, T[] values) {
+
+		final String[] oldValues = params.store().getParam(name);
+
+		setValues(params, name, values);
+		if (oldValues == null) {
+			return;
+		}
+
+		final String[] newValues = params.store().getParam(name);
+
+		if (newValues == oldValues) {
+			return;
+		}
+
+		final String[] result =
+				new String[oldValues.length + newValues.length];
+
+		arraycopy(oldValues, 0, result, 0, oldValues.length);
+		arraycopy(newValues, 0, result, oldValues.length, newValues.length);
+
+		params.store().setParam(name, result);
+	}
 
 	/**
 	 * Constructs parameter of this type.

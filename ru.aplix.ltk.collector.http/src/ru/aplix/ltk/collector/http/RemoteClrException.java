@@ -1,5 +1,7 @@
 package ru.aplix.ltk.collector.http;
 
+import ru.aplix.ltk.core.util.ParameterType;
+
 
 /**
  * An exception occurred remotely at HTTP collector.
@@ -14,6 +16,15 @@ package ru.aplix.ltk.collector.http;
 public class RemoteClrException extends RuntimeException {
 
 	private static final long serialVersionUID = 54471956338415379L;
+
+	/**
+	 * Remote collector exception parameter value type.
+	 *
+	 * <p>It restores any throwable as an instance of
+	 * {@link RemoteClrException}.</p>
+	 */
+	public static final ParameterType<Throwable>
+	REMOTE_CLR_EXCEPTION_PARAMETER_TYPE = new RemoteClrExceptionParameterType();
 
 	private final String remoteExceptionClassName;
 	private final String remoteStackTrace;

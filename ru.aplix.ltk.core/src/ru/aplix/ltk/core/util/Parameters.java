@@ -1,11 +1,6 @@
 package ru.aplix.ltk.core.util;
 
-import static java.lang.System.arraycopy;
 import static java.util.Objects.requireNonNull;
-import static ru.aplix.ltk.core.util.NumericParameterType.INTEGER_PARAMETER_TYPE;
-import static ru.aplix.ltk.core.util.NumericParameterType.LONG_PARAMETER_TYPE;
-import static ru.aplix.ltk.core.util.ParameterType.BINARY_PARAMETER_TYPE;
-import static ru.aplix.ltk.core.util.ParameterType.OBJECT_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.util.ParameterType.STRING_PARAMETER_TYPE;
 
 import java.io.IOException;
@@ -109,13 +104,7 @@ public final class Parameters implements Parameterized {
 			T[] noValues,
 			T[] defaultValues) {
 
-		final String[] strings = store().getParam(name);
-
-		if (strings == null) {
-			return defaultValues;
-		}
-
-		final T[] values = type.valuesFromStrings(name, strings);
+		final T[] values = type.getValues(this, name);
 
 		if (values == null) {
 			return defaultValues;
@@ -155,7 +144,17 @@ public final class Parameters implements Parameterized {
 			String name,
 			String[] noValues,
 			String[] defaultValues) {
-		return valuesOf(STRING_PARAMETER_TYPE, name, noValues, defaultValues);
+
+		final String[] values = store().getParam(name);
+
+		if (values == null) {
+			return defaultValues;
+		}
+		if (values.length == 0) {
+			return noValues;
+		}
+
+		return values;
 	}
 
 	public final <T> T valueOf(ParameterType<T> type, String name) {
@@ -175,13 +174,7 @@ public final class Parameters implements Parameterized {
 			T noValue,
 			T defaultValue) {
 
-		final String[] strings = store().getParam(name);
-
-		if (strings == null) {
-			return defaultValue;
-		}
-
-		final T[] values = type.valuesFromStrings(name, strings);
+		final T[] values = type.getValues(this, name);
 
 		if (values == null) {
 			return defaultValue;
@@ -221,84 +214,7 @@ public final class Parameters implements Parameterized {
 			String name,
 			String noValue,
 			String defaultValue) {
-
-		final String[] values = store().getParam(name);
-
-		if (values == null) {
-			return defaultValue;
-		}
-		if (values.length == 0) {
-			return noValue;
-		}
-
-		return values[0];
-	}
-
-	public final int intValueOf(String name) {
-		return intValueOf(name, 0, 0);
-	}
-
-	public final int intValueOf(String name, int defaultValue) {
-		return intValueOf(name, defaultValue, defaultValue);
-	}
-
-	public final int intValueOf(String name, int noValue, int defaultValue) {
-		return valueOf(INTEGER_PARAMETER_TYPE, name, noValue, defaultValue);
-	}
-
-	public final long longValueOf(String name) {
-		return longValueOf(name, 0, 0);
-	}
-
-	public final long longValueOf(String name, long defaultValue) {
-		return longValueOf(name, defaultValue, defaultValue);
-	}
-
-	public final long longValueOf(
-			String name,
-			long noValue,
-			long defaultValue) {
-		return valueOf(LONG_PARAMETER_TYPE, name, noValue, defaultValue);
-	}
-
-	public final byte[] binaryValueOf(String name) {
-		return binaryValueOf(name, null, null);
-	}
-
-	public final byte[] binaryValueOf(String name, byte[] defaultValue) {
-		return binaryValueOf(name, defaultValue, defaultValue);
-	}
-
-	public final byte[] binaryValueOf(
-			String name,
-			byte[] noValue,
-			byte[] defaultValue) {
-		return valueOf(BINARY_PARAMETER_TYPE, name, noValue, defaultValue);
-	}
-
-	public final <E extends Enum<E>> E enumValueOf(
-			Class<E> enumType,
-			String name) {
-		return enumValueOf(enumType, name, null, null);
-	}
-
-	public final <E extends Enum<E>> E enumValueOf(
-			Class<E> enumType,
-			String name,
-			E defaultValue) {
-		return enumValueOf(enumType, name, defaultValue, defaultValue);
-	}
-
-	public <E extends Enum<E>> E enumValueOf(
-			Class<E> enumType,
-			String name,
-			E noValue,
-			E defaultValue) {
-		return valueOf(
-				new EnumParameterType<>(enumType),
-				name,
-				noValue,
-				defaultValue);
+		return valueOf(STRING_PARAMETER_TYPE, name, noValue, defaultValue);
 	}
 
 	/**
@@ -353,9 +269,12 @@ public final class Parameters implements Parameterized {
 			ParameterType<T> type,
 			String name,
 			T... values) {
-		this.store.setParam(
-				name,
-				values == null ? null : type.valuesToStrings(name, values));
+		requireNonNull(name, "Parameter name not specified");
+		if (values == null) {
+			store().setParam(name, null);
+			return this;
+		}
+		type.setValues(this, name, values);
 		return this;
 	}
 
@@ -368,54 +287,16 @@ public final class Parameters implements Parameterized {
 		return set(STRING_PARAMETER_TYPE, name, values);
 	}
 
-	public final Parameters set(String name, Object... values) {
-		return set(OBJECT_PARAMETER_TYPE, name, values);
-	}
-
-	@SafeVarargs
-	public final <E extends Enum<E>> Parameters set(
-			String name,
-			E... values) {
-		return set(name, strValues(values));
-	}
-
-	public final Parameters set(String name, byte[]... values) {
-		return set(name, BINARY_PARAMETER_TYPE, values);
-	}
-
 	@SafeVarargs
 	public final <T> Parameters add(
 			ParameterType<T> type,
 			String name,
 			T... values) {
+		requireNonNull(name, "Parameter name not specified");
 		if (values == null) {
 			return this;
 		}
-
-		final String[] strings = type.valuesToStrings(name, values);
-
-		if (strings == null) {
-			return this;
-		}
-
-		final String[] existing = this.store.setParam(name, strings);
-
-		if (existing == null) {
-			return this;
-		}
-		if (strings.length == 0) {
-			this.store.setParam(name, existing);
-			return this;
-		}
-
-		final String[] newStrings =
-				new String[existing.length + strings.length];
-
-		arraycopy(existing, 0, newStrings, 0, existing.length);
-		arraycopy(strings, 0, newStrings, existing.length, strings.length);
-
-		this.store.setParam(name, newStrings);
-
+		type.addValues(this, name, values);
 		return this;
 	}
 
@@ -426,21 +307,6 @@ public final class Parameters implements Parameterized {
 
 	public final Parameters add(String name, String... values) {
 		return add(STRING_PARAMETER_TYPE, name, values);
-	}
-
-	public final Parameters add(String name, Object... values) {
-		return add(OBJECT_PARAMETER_TYPE, name, values);
-	}
-
-	@SafeVarargs
-	public final <E extends Enum<E>> Parameters add(
-			String name,
-			E... values) {
-		return add(name, strValues(values));
-	}
-
-	public final Parameters add(String name, byte[]... values) {
-		return add(BINARY_PARAMETER_TYPE, name, values);
 	}
 
 	public Parameters urlDecode(Reader in) throws IOException {
@@ -621,23 +487,6 @@ public final class Parameters implements Parameterized {
 	@Override
 	public final void write(Parameters params) {
 		params.read(this);
-	}
-
-	private static <E extends Enum<E>> String[] strValues(E[] values) {
-		if (values == null) {
-			return null;
-		}
-
-		final String[] strValues = new String[values.length];
-
-		for (int i = 0; i < values.length; ++i) {
-
-			final E value = values[i];
-
-			strValues[i] = value != null ? value.name() : null;
-		}
-
-		return strValues;
 	}
 
 }

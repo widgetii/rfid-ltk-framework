@@ -1,5 +1,7 @@
 package ru.aplix.ltk.core.util;
 
+import static java.lang.System.arraycopy;
+
 import java.util.Arrays;
 
 
@@ -14,7 +16,59 @@ import java.util.Arrays;
 public abstract class SimpleParameterType<T> extends ParameterType<T> {
 
 	@Override
-	public T[] valuesFromStrings(String name, String[] strings) {
+	public T[] getValues(Parameters params, String name) {
+
+		final String[] strings = params.store().getParam(name);
+
+		if (strings == null) {
+			return null;
+		}
+
+		final T[] values = valuesFromStrings(strings);
+
+		if (values == null) {
+			return null;
+		}
+
+		return values;
+	}
+
+	@Override
+	public void setValues(Parameters params, String name, T[] values) {
+		params.store().setParam(
+				name,
+				values == null ? null : valuesToStrings(values));
+	}
+
+	@Override
+	public void addValues(Parameters params, String name, T[] values) {
+
+		final String[] strings = valuesToStrings(values);
+
+		if (strings == null) {
+			return;
+		}
+
+		final String[] existing = params.store().setParam(name, strings);
+
+		if (existing == null) {
+			return;
+		}
+		if (strings.length == 0) {
+			params.store().setParam(name, existing);
+			return;
+		}
+
+		final String[] newStrings =
+				new String[existing.length + strings.length];
+
+		arraycopy(existing, 0, newStrings, 0, existing.length);
+		arraycopy(strings, 0, newStrings, existing.length, strings.length);
+
+		params.store().setParam(name, newStrings);
+	}
+
+	public T[] valuesFromStrings(String[] strings) {
 
 		final T[] values = createValues(strings.length);
 
@@ -48,8 +102,7 @@ public abstract class SimpleParameterType<T> extends ParameterType<T> {
 		return Arrays.copyOf(values, i);
 	}
 
-	@Override
-	public String[] valuesToStrings(String name, T[] values) {
+	public String[] valuesToStrings(T[] values) {
 
 		final String[] strings = new String[values.length];
 

@@ -309,7 +309,7 @@ final class CtgReaderThread
 
 		// Select which fields we want in the report.
 		reportContent.setEnableAccessSpecID(new Bit(0));
-		reportContent.setEnableAntennaID(new Bit(0));
+		reportContent.setEnableAntennaID(new Bit(1));
 		reportContent.setEnableChannelIndex(new Bit(0));
 		reportContent.setEnableFirstSeenTimestamp(new Bit(0));
 		reportContent.setEnableInventoryParameterSpecID(new Bit(0));

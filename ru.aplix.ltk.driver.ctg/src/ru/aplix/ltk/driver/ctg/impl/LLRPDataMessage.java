@@ -11,6 +11,7 @@ public class LLRPDataMessage implements RfDataMessage {
 
 	private final long timestamp;
 	private final RfTag tag;
+	private final int antennaId;
 
 	public LLRPDataMessage(TagReportData tag) {
 
@@ -18,6 +19,7 @@ public class LLRPDataMessage implements RfDataMessage {
 				tag.getLastSeenTimestampUTC().getMicroseconds();
 
 		this.timestamp = lastSeenTimestamp.toLong() / 1000L;
+		this.antennaId = tag.getAntennaID().getAntennaID().intValue();
 		this.tag =
 				new RfTag(tag.getEPCParameter().encodeBinary().toByteArray());
 	}
@@ -25,6 +27,10 @@ public class LLRPDataMessage implements RfDataMessage {
 	@Override
 	public long getTimestamp() {
 		return this.timestamp;
+	}
+
+	public int getAntennaId() {
+		return this.antennaId;
 	}
 
 	@Override

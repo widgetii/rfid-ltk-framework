@@ -127,10 +127,38 @@ angular.module(
 	var receivers = new RfReceivers();
 
 	function refreshReceivers() {
+		function mergeReceivers(list) {
+			var len1 = receivers.list.length;
+			var len2 = list.length;
+			var i1 = 0;
+			var i2 = 0;
+			for (;;) {
+				if (i2 >= len2) {
+					break;
+				}
+				var r2 = list[i2];
+				if (i1 >= len1) {
+					receivers.list.splice(i1, 0, r2);
+					++r2;
+					continue;
+				}
+				var r1 = receivers.list[i1];
+				if (r1.id < r2.id) {
+					++i1;
+					continue;
+				}
+				if (r1.id > r2.id) {
+					receivers.splice(i1, 0, r2);
+					++i2;
+					continue;
+				}
+				receivers.list[i1] = r2;
+				++i1;
+				++i2;
+			}
+		}
 		receivers.RfReceiver.all(
-				function(list) {
-					receivers.list = list;
-				},
+				mergeReceivers,
 				function(response) {
 					$notifier.error(
 							"ОШИБКА " + response.status,

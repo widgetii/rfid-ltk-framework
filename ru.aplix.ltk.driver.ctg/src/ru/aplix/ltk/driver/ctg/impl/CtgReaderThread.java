@@ -31,6 +31,7 @@ final class CtgReaderThread
 	private volatile long lastUpdate;
 	private boolean connected;
 	private volatile boolean stopped;
+	private AntennaID lastAntennaID;
 
 	public CtgReaderThread(CtgRfReaderDriver driver) {
 		super("CtgRfReader[" + driver.getRfPortId() + ']');
@@ -119,6 +120,17 @@ final class CtgReaderThread
 			return super.toString();
 		}
 		return "CtgRfReader[" + getDriver().getRfPortId() + ']';
+	}
+
+	final AntennaID antennaID(TagReportData tag) {
+
+		final AntennaID antennaID = tag.getAntennaID();
+
+		if (antennaID == null) {
+			return this.lastAntennaID;
+		}
+
+		return this.lastAntennaID = antennaID;
 	}
 
 	public synchronized void stopReader() {
@@ -441,7 +453,7 @@ final class CtgReaderThread
 		// Loop through the list and get the EPC of each tag.
 		for (TagReportData tag : tags) {
 			try {
-				getContext().sendRfData(new LLRPDataMessage(tag));
+				getContext().sendRfData(new LLRPDataMessage(this, tag));
 			} catch (Throwable e) {
 				sendError(e);
 			}

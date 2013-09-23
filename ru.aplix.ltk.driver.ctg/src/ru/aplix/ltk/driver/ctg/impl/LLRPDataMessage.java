@@ -13,13 +13,13 @@ public class LLRPDataMessage implements RfDataMessage {
 	private final RfTag tag;
 	private final int antennaId;
 
-	public LLRPDataMessage(TagReportData tag) {
+	public LLRPDataMessage(CtgReaderThread reader, TagReportData tag) {
 
 		final UnsignedLong_DATETIME lastSeenTimestamp =
 				tag.getLastSeenTimestampUTC().getMicroseconds();
 
 		this.timestamp = lastSeenTimestamp.toLong() / 1000L;
-		this.antennaId = tag.getAntennaID().getAntennaID().intValue();
+		this.antennaId = reader.antennaID(tag).getAntennaID().intValue();
 		this.tag =
 				new RfTag(tag.getEPCParameter().encodeBinary().toByteArray());
 	}

@@ -3,7 +3,6 @@ package ru.aplix.ltk.collector.log;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.LongBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
@@ -12,11 +11,11 @@ import java.nio.file.Path;
 public class CyclicLog implements Closeable {
 
 	private final Path path;
+	private final Path positionPath;
 	private final FileChannel logChannel;
 	private final FileChannel positionChannel;
 	private final ByteBuffer record;
 	private final ByteBuffer positionRecord;
-	private final LongBuffer positionValue;
 	private final long maxSize;
 	private CyclicLogLock lock;
 	private long lockStart;
@@ -24,17 +23,22 @@ public class CyclicLog implements Closeable {
 
 	public CyclicLog(CyclicLogConfig config) throws IOException {
 		this.path = config.getPath();
+		this.positionPath = config.getPositionPath();
 		this.maxSize = config.getMaxRecords() * config.getRecordSize();
 		this.record = ByteBuffer.allocate(config.getRecordSize());
 		this.positionRecord = ByteBuffer.allocate(8);
-		this.positionValue = this.positionRecord.asLongBuffer();
-		this.logChannel = config.openLog();
-		this.positionChannel = config.openPosition();
+		this.logChannel = FileChannel.open(getPath(), config.openOptions());
+		this.positionChannel =
+				FileChannel.open(getPositionPath(), config.openOptions());
 		initPosition();
 	}
 
 	public final Path getPath() {
 		return this.path;
+	}
+
+	public final Path getPositionPath() {
+		return this.positionPath;
 	}
 
 	public final int getRecordSize() {
@@ -61,7 +65,7 @@ public class CyclicLog implements Closeable {
 		return this.positionChannel;
 	}
 
-	public boolean write() throws IOException {
+	public void write() throws IOException {
 		record().clear();
 		synchronized (this) {
 			waitToWrite();
@@ -70,7 +74,6 @@ public class CyclicLog implements Closeable {
 		}
 		storePosition();
 		record().clear();
-		return true;
 	}
 
 	public final CyclicLogReader read() throws IOException {
@@ -81,6 +84,17 @@ public class CyclicLog implements Closeable {
 	public void close() throws IOException {
 		this.logChannel.close();
 		this.positionChannel.close();
+	}
+
+	public boolean delete() throws IOException {
+		close();
+
+		boolean deleted;
+
+		deleted = getPath().toFile().delete();
+		deleted = getPositionPath().toFile().delete() & deleted;
+
+		return deleted;
 	}
 
 	synchronized CyclicLogLock lock() throws IOException {
@@ -139,7 +153,7 @@ public class CyclicLog implements Closeable {
 			return;
 		}
 
-		final long logPosition = this.positionValue.get();
+		final long logPosition = this.positionRecord.getLong();
 
 		if (logPosition >= getMaxSize()) {
 			// Truncate the log.
@@ -164,10 +178,10 @@ public class CyclicLog implements Closeable {
 	}
 
 	private void storePosition() throws IOException {
-		this.positionValue.clear();
-		this.positionValue.put(logChannel().position());
 		this.positionRecord.clear();
-		positionChannel().write(this.positionRecord);
+		this.positionRecord.putLong(logChannel().position());
+		this.positionRecord.clear();
+		positionChannel().position(0).write(this.positionRecord);
 	}
 
 	private void waitToWrite() throws IOException {

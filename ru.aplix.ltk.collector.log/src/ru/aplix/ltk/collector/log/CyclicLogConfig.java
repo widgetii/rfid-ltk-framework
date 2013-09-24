@@ -2,8 +2,6 @@ package ru.aplix.ltk.collector.log;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -33,6 +31,10 @@ public class CyclicLogConfig {
 
 	public final Path getPath() {
 		return this.path;
+	}
+
+	public Path getPositionPath() {
+		return getPath().resolveSibling(getPath().getFileName() + ".pos");
 	}
 
 	public final int getRecordSize() {
@@ -76,18 +78,6 @@ public class CyclicLogConfig {
 			this.sync &= ~SYNC_META_MASK;
 		}
 		return this;
-	}
-
-	protected FileChannel openLog() throws IOException {
-		return FileChannel.open(getPath(), openOptions());
-	}
-
-	protected FileChannel openPosition() throws IOException {
-
-		final Path path =
-				getPath().resolveSibling(getPath().getFileName() + ".pos");
-
-		return FileChannel.open(path, openOptions());
 	}
 
 	protected Set<? extends OpenOption> openOptions() {

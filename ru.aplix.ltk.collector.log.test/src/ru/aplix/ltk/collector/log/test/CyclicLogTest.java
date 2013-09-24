@@ -25,8 +25,8 @@ public class CyclicLogTest {
 
 		final File file = File.createTempFile("cyclic-log", "bin");
 
-		this.log =
-				new CyclicLog(new CyclicLogConfig(file.toPath(), 4)
+		this.log = new CyclicLog(
+				new CyclicLogConfig(file.toPath(), 4)
 				.setMaxRecords(3));
 	}
 

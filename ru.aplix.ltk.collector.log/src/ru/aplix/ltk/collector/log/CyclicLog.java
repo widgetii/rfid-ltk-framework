@@ -152,6 +152,7 @@ public class CyclicLog implements Closeable {
 			logChannel().truncate(0);
 			return;
 		}
+		this.positionRecord.clear();
 
 		final long logPosition = this.positionRecord.getLong();
 

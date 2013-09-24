@@ -28,8 +28,12 @@ public final class CyclicLogReader implements Closeable {
 		return this.record;
 	}
 
+	public final FileChannel channel() {
+		return this.channel;
+	}
+
 	public final ByteBuffer read() throws IOException {
-		this.channel.read(record());
+		channel().read(record());
 		return record();
 	}
 
@@ -63,11 +67,14 @@ public final class CyclicLogReader implements Closeable {
 			if (cmp > 0) {
 				lastGreater = end = position;
 			} else {
-				start = nextRecord(position);
+				start = nextRecord(position, end);
 				if (start < 0) {
 					break;
 				}
 				relockFrom(start);
+			}
+			if (position == start) {
+				break;
 			}
 			if (!middle(start, end)) {
 				break;
@@ -94,15 +101,21 @@ public final class CyclicLogReader implements Closeable {
 		}
 	}
 
-	private long nextRecord(long start) throws IOException {
+	private long nextRecord(long start, long end) throws IOException {
+		if (start == end) {
+			return -1;
+		}
 
 		final int recordSize = log().getRecordSize();
 		final long position = start + recordSize;
 
-		if (this.lock.end() == position) {
-			return -1;
+		if (position == end) {
+			return - 1;
 		}
 		if (position + recordSize > log().size()) {
+			if (end == 0) {
+				return -1;
+			}
 			return 0;
 		}
 
@@ -133,20 +146,16 @@ public final class CyclicLogReader implements Closeable {
 		this.lock = null;
 	}
 
-	private final FileChannel channel() {
-		return this.channel;
-	}
-
 	private final boolean middle(long start, long end) throws IOException {
 
 		final int recordSize = log().getRecordSize();
 		final long middle;
 
 		if (start < end) {
-			if (end - start <= recordSize) {
+			if (end - start < recordSize) {
 				return false;
 			}
-			middle = (((end - start) / recordSize) >> 1) * recordSize;
+			middle = start + (((end - start) / recordSize) >> 1) * recordSize;
 		} else {
 
 			final long size = log().size();
@@ -158,7 +167,7 @@ public final class CyclicLogReader implements Closeable {
 			final long tail = size - start;
 			final long mid = (((tail + end) / recordSize) >> 1) * recordSize;
 
-			if (mid < size) {
+			if (mid < tail) {
 				middle = start + mid;
 			} else {
 				middle = mid - tail;

@@ -32,6 +32,8 @@ public class CyclicLogTest {
 
 	@Test
 	public void open() throws IOException {
+		assertThat(this.log.getRecordSize(), is(4));
+		assertThat(this.log.getMaxSize(), is(12L));
 		assertThat(this.log.logChannel().position(), is(0L));
 		assertThat(this.log.logChannel().size(), is(0L));
 		assertThat(this.log.positionChannel().size(), is(0L));

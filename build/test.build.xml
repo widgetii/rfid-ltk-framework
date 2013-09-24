@@ -11,7 +11,9 @@
 			printsummary="withOutAndErr"
 			fork="true"
 			includeantruntime="true"
-			taskname="${ant.project.name}">
+			taskname="${ant.project.name}"
+			haltonerror="true"
+			haltonfailure="true">
 			<classpath>
 				<ivy:resources file="${ivy.file}" conf="test"/>
 				<pathelement path="${classes.dir}"/>

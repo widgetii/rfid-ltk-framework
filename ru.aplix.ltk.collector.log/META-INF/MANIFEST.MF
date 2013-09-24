@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Logging RFID Tags Collector
+Bundle-SymbolicName: ru.aplix.ltk.collector.log
+Bundle-Version: 1.0.0
+Bundle-Vendor: Aplix LLC
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: ru.aplix.ltk.core;bundle-version="1.0.0";visibility:=reexport

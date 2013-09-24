@@ -39,7 +39,11 @@ public final class CyclicLogReader implements Closeable {
 			this.lock = this.log.lock();
 		}
 
-		if (!middle()) {
+		long lastGreater = -1;
+		long start = this.lock.start();
+		long end = this.lock.end();
+
+		if (!middle(start, end)) {
 			doUnlock();
 			return false;
 		}
@@ -56,19 +60,26 @@ public final class CyclicLogReader implements Closeable {
 				channel().position(position);
 				return true;
 			}
-			if (cmp < 0) {
-				if (!relockFrom(position + log().getRecordSize())) {
-					return false;
+			if (cmp > 0) {
+				lastGreater = end = position;
+			} else {
+				start = nextRecord(position);
+				if (start < 0) {
+					break;
 				}
+				relockFrom(start);
 			}
-			if (!middle()) {
-				if (cmp < 0) {
-					doUnlock();
-					return false;
-				}
-				return true;
+			if (!middle(start, end)) {
+				break;
 			}
 		}
+
+		if (lastGreater < 0) {
+			doUnlock();
+			return false;
+		}
+		channel().position(lastGreater);
+		return true;
 	}
 
 	@Override
@@ -83,15 +94,27 @@ public final class CyclicLogReader implements Closeable {
 		}
 	}
 
-	private boolean relockFrom(long position) throws IOException {
+	private long nextRecord(long start) throws IOException {
+
+		final int recordSize = log().getRecordSize();
+		final long position = start + recordSize;
+
+		if (this.lock.end() == position) {
+			return -1;
+		}
+		if (position + recordSize > log().size()) {
+			return 0;
+		}
+
+		return position;
+	}
+
+	private void relockFrom(long position) throws IOException {
 
 		final long end = this.lock.end();
 
 		synchronized (log()) {
 			doUnlock();
-			if (end == position) {
-				return false;
-			}
 
 			final long start;
 
@@ -103,8 +126,6 @@ public final class CyclicLogReader implements Closeable {
 
 			this.lock = log().lock(start, end);
 		}
-
-		return true;
 	}
 
 	private void doUnlock() {
@@ -116,10 +137,8 @@ public final class CyclicLogReader implements Closeable {
 		return this.channel;
 	}
 
-	private final boolean middle() throws IOException {
+	private final boolean middle(long start, long end) throws IOException {
 
-		final long start = this.lock.start();
-		final long end = this.lock.end();
 		final int recordSize = log().getRecordSize();
 		final long middle;
 

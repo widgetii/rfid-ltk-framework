@@ -87,6 +87,10 @@ public class CyclicLog implements Closeable {
 
 		final long position = logChannel().position();
 
+		if (position + getRecordSize() >= size()) {
+			return lock(0, position);
+		}
+
 		return lock(position, position);
 	}
 

@@ -34,8 +34,10 @@ public final class CyclicLogReader implements Closeable {
 	}
 
 	public boolean seek(CyclicLogFilter filter) throws IOException {
-		unlock();
-		this.lock = this.log.lock();
+		synchronized (log()) {
+			unlock();
+			this.lock = this.log.lock();
+		}
 
 		if (!middle()) {
 			doUnlock();
@@ -85,20 +87,22 @@ public final class CyclicLogReader implements Closeable {
 
 		final long end = this.lock.end();
 
-		doUnlock();
-		if (end == position) {
-			return false;
+		synchronized (log()) {
+			doUnlock();
+			if (end == position) {
+				return false;
+			}
+
+			final long start;
+
+			if (position + log().getRecordSize() > log().size()) {
+				start = 0;
+			} else {
+				start = position;
+			}
+
+			this.lock = log().lock(start, end);
 		}
-
-		final long start;
-
-		if (position + log().getRecordSize() > log().size()) {
-			start = 0;
-		} else {
-			start = position;
-		}
-
-		this.lock = log().lock(start, end);
 
 		return true;
 	}

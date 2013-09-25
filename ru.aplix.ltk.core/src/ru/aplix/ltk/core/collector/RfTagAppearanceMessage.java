@@ -22,6 +22,13 @@ public interface RfTagAppearanceMessage {
 	long getEventId();
 
 	/**
+	 * Event time.
+	 *
+	 * @return UNIX time of event.
+	 */
+	long getTimestamp();
+
+	/**
 	 * RFID tag, which appearance has changed.
 	 *
 	 * @return RFID tag instance.

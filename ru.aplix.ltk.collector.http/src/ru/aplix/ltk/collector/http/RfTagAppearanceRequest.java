@@ -19,6 +19,8 @@ public class RfTagAppearanceRequest
 
 	private static final Parameter<Long> EVENT_ID =
 			LONG_PARAMETER_TYPE.parameter("eventId").byDefault(0L);
+	private static final Parameter<Long> TIMESTAMP =
+			LONG_PARAMETER_TYPE.parameter("timestamp").byDefault(0L);
 	private static final Parameter<RfTag> RF_TAG =
 			RF_TAG_PARAMETER_TYPE.parameter("rfTag");
 	private static final Parameter<RfTagAppearance> APPEARANCE =
@@ -28,6 +30,7 @@ public class RfTagAppearanceRequest
 
 	private ClrClientId clientId;
 	private long eventId;
+	private long timestamp;
 	private RfTag rfTag;
 	private RfTagAppearance appearance = APPEARANCE.getDefault();
 
@@ -61,6 +64,11 @@ public class RfTagAppearanceRequest
 	}
 
 	@Override
+	public long getTimestamp() {
+		return this.timestamp;
+	}
+
+	@Override
 	public RfTag getRfTag() {
 		return this.rfTag;
 	}
@@ -73,6 +81,7 @@ public class RfTagAppearanceRequest
 	@Override
 	public void read(Parameters params) {
 		this.eventId = params.valueOf(EVENT_ID, getEventId());
+		this.timestamp = params.valueOf(TIMESTAMP, getTimestamp());
 		this.rfTag = params.valueOf(RF_TAG, getRfTag());
 		this.appearance = params.valueOf(APPEARANCE, getAppearance());
 	}
@@ -82,6 +91,7 @@ public class RfTagAppearanceRequest
 		params.set(CLIENT, this.clientId.getUUID())
 		.set(TYPE, "tag")
 		.set(EVENT_ID, getEventId())
+		.set(TIMESTAMP, getTimestamp())
 		.set(RF_TAG, getRfTag())
 		.set(APPEARANCE, getAppearance());
 	}

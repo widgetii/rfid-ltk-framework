@@ -6,11 +6,13 @@ import ru.aplix.ltk.core.source.RfTag;
 
 final class RfTagAppearanceMessageImpl implements RfTagAppearanceMessage {
 
+	private final long timestamp;
 	private final RfTag rfTag;
 	private final RfTagAppearance appearance;
 
 	RfTagAppearanceMessageImpl(RfTag rfTag, RfTagAppearance appearance) {
 		requireNonNull(rfTag, "RFID tag not specified");
+		this.timestamp = System.currentTimeMillis();
 		this.rfTag = rfTag;
 		this.appearance = appearance;
 	}
@@ -18,6 +20,11 @@ final class RfTagAppearanceMessageImpl implements RfTagAppearanceMessage {
 	@Override
 	public long getEventId() {
 		return 0;
+	}
+
+	@Override
+	public long getTimestamp() {
+		return this.timestamp;
 	}
 
 	@Override

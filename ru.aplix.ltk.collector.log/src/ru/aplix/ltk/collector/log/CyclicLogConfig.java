@@ -80,7 +80,7 @@ public class CyclicLogConfig {
 		return this;
 	}
 
-	protected Set<? extends OpenOption> openOptions() {
+	public Set<? extends OpenOption> openOptions() {
 
 		final HashSet<OpenOption> options = new HashSet<>(4);
 

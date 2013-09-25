@@ -19,9 +19,15 @@ public interface RfProvider<S extends RfSettings> {
 	Class<RfProvider<?>> RF_PROVIDER_CLASS = (Class) RfProvider.class;
 
 	/**
-	 * OSGi property name containing RFID provider identifier.
+	 * OSGi service property name containing RFID provider identifier.
 	 */
 	String RF_PROVIDER_ID = "ru.aplix.ltk.provider.id";
+
+	/**
+	 * OSGi service property name containing a set of RFID providers proxied by
+	 * the given one.
+	 */
+	String RF_PROXIED_PROVIDERS = "ru.aplix.ltk.provider.proxied";
 
 	/**
 	 * Provider's identifier.

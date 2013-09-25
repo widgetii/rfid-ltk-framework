@@ -42,7 +42,7 @@ public class CyclicLog implements Closeable {
 	}
 
 	public final int getRecordSize() {
-		return record().limit();
+		return record().capacity();
 	}
 
 	public final long getMaxSize() {
@@ -82,19 +82,17 @@ public class CyclicLog implements Closeable {
 
 	@Override
 	public void close() throws IOException {
-		this.logChannel.close();
-		this.positionChannel.close();
+		try {
+			this.logChannel.close();
+		} finally {
+			this.positionChannel.close();
+		}
 	}
 
-	public boolean delete() throws IOException {
+	public void delete() throws IOException {
 		close();
-
-		boolean deleted;
-
-		deleted = getPath().toFile().delete();
-		deleted = getPositionPath().toFile().delete() & deleted;
-
-		return deleted;
+		getPath().toFile().delete();
+		getPositionPath().toFile().delete();
 	}
 
 	synchronized CyclicLogLock lock() throws IOException {
@@ -148,7 +146,7 @@ public class CyclicLog implements Closeable {
 
 	private void initPosition() throws IOException {
 		positionChannel().read(this.positionRecord);
-		if (this.positionRecord.position() != 8) {
+		if (this.positionRecord.hasRemaining()) {
 			logChannel().truncate(0);
 			return;
 		}

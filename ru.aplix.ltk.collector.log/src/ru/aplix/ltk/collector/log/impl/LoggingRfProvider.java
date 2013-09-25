@@ -52,7 +52,7 @@ class LoggingRfProvider<S extends RfSettings>
 		final Hashtable<String, Object> properties =
 				new Hashtable<>(2);
 
-		properties.put(RF_PROVIDER_ID, providerId + RF_LOG_PROVIDER_ID_SUFFIX);
+		properties.put(RF_PROVIDER_ID, getId());
 		properties.put(RF_PROXIED_PROVIDERS, newProxied);
 
 		this.registration = context.registerService(

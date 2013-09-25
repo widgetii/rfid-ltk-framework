@@ -16,6 +16,11 @@ final class RfTagAppearanceMessageImpl implements RfTagAppearanceMessage {
 	}
 
 	@Override
+	public long getEventId() {
+		return 0;
+	}
+
+	@Override
 	public final RfTag getRfTag() {
 		return this.rfTag;
 	}

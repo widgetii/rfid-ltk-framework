@@ -63,10 +63,7 @@ public interface RfProvider<S extends RfSettings> {
 	/**
 	 * Opens RFID connection with the given settings.
 	 *
-	 * <p>RFID connection interface could be specific to the provider, but this
-	 * is not generally required.</p>
-	 *
-	 * @param settings RFID settings.
+	 * @param settings RFID settings for the connection.
 	 *
 	 * @return new connection.
 	 */

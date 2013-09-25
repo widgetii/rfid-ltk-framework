@@ -4,6 +4,7 @@ import static ru.aplix.ltk.collector.http.RfStatusRequest.CLIENT;
 import static ru.aplix.ltk.collector.http.RfStatusRequest.TYPE;
 import static ru.aplix.ltk.collector.http.RfTagParameterType.RF_TAG_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
+import static ru.aplix.ltk.core.util.NumericParameterType.LONG_PARAMETER_TYPE;
 import ru.aplix.ltk.core.collector.RfTagAppearance;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.core.source.RfTag;
@@ -16,6 +17,8 @@ import ru.aplix.ltk.core.util.*;
 public class RfTagAppearanceRequest
 		implements RfTagAppearanceMessage, Parameterized {
 
+	private static final Parameter<Long> EVENT_ID =
+			LONG_PARAMETER_TYPE.parameter("eventId").byDefault(0L);
 	private static final Parameter<RfTag> RF_TAG =
 			RF_TAG_PARAMETER_TYPE.parameter("rfTag");
 	private static final Parameter<RfTagAppearance> APPEARANCE =
@@ -24,6 +27,7 @@ public class RfTagAppearanceRequest
 			.byDefault(RF_TAG_APPEARED);
 
 	private ClrClientId clientId;
+	private long eventId;
 	private RfTag rfTag;
 	private RfTagAppearance appearance = APPEARANCE.getDefault();
 
@@ -37,6 +41,7 @@ public class RfTagAppearanceRequest
 			ClrClientId clientId,
 			RfTagAppearanceMessage message) {
 		this.clientId = clientId;
+		this.eventId = message.getEventId();
 		this.rfTag = message.getRfTag();
 		this.appearance = message.getAppearance();
 	}
@@ -51,6 +56,11 @@ public class RfTagAppearanceRequest
 	}
 
 	@Override
+	public long getEventId() {
+		return this.eventId;
+	}
+
+	@Override
 	public RfTag getRfTag() {
 		return this.rfTag;
 	}
@@ -62,6 +72,7 @@ public class RfTagAppearanceRequest
 
 	@Override
 	public void read(Parameters params) {
+		this.eventId = params.valueOf(EVENT_ID, getEventId());
 		this.rfTag = params.valueOf(RF_TAG, getRfTag());
 		this.appearance = params.valueOf(APPEARANCE, getAppearance());
 	}
@@ -70,6 +81,7 @@ public class RfTagAppearanceRequest
 	public void write(Parameters params) {
 		params.set(CLIENT, this.clientId.getUUID())
 		.set(TYPE, "tag")
+		.set(EVENT_ID, getEventId())
 		.set(RF_TAG, getRfTag())
 		.set(APPEARANCE, getAppearance());
 	}

@@ -52,6 +52,9 @@ public class Activator implements BundleActivator {
 		if (providerId == null) {
 			return null;
 		}
+		if (providerId.endsWith(RF_LOG_PROVIDER_ID_SUFFIX)) {
+			return null;
+		}
 
 		final String logId = providerId + RF_LOG_PROVIDER_ID_SUFFIX;
 		@SuppressWarnings("unchecked")
@@ -63,11 +66,6 @@ public class Activator implements BundleActivator {
 		}
 
 		final RfProvider<?> provider = this.context.getService(reference);
-
-		if (providerId.endsWith(RF_LOG_PROVIDER_ID_SUFFIX)) {
-			return null;
-		}
-
 		final TagLog log = createLog(providerId, provider);
 
 		if (log == null) {

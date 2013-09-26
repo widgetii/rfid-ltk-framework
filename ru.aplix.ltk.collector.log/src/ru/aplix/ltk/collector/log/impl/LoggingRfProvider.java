@@ -1,7 +1,8 @@
 package ru.aplix.ltk.collector.log.impl;
 
-import static java.util.Collections.singleton;
 import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_PROVIDER_ID_SUFFIX;
+import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_PROXY_ID;
+import static ru.aplix.ltk.core.util.CollectionUtil.toSet;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.Hashtable;
 import java.util.Set;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import ru.aplix.ltk.core.RfConnection;
@@ -36,24 +38,21 @@ class LoggingRfProvider<S extends RfSettings>
 
 	public void register(
 			BundleContext context,
-			String providerId,
-			Set<String> proxied) {
+			ServiceReference<RfProvider<?>> reference) {
 
-		final Set<String> newProxied;
+		@SuppressWarnings("unchecked")
+		final Set<String> oldProxy =
+				(Set<String>) toSet(reference.getProperty(RF_PROVIDER_PROXY));
+		final Set<String> newProxy =
+				new HashSet<>(oldProxy.size() + 1);
 
-		if (proxied != null) {
-			newProxied = new HashSet<>(proxied.size() + 1);
-			newProxied.addAll(proxied);
-			newProxied.add(providerId);
-		} else {
-			newProxied = singleton(providerId);
-		}
+		newProxy.addAll(oldProxy);
+		newProxy.add(RF_LOG_PROXY_ID);
 
-		final Hashtable<String, Object> properties =
-				new Hashtable<>(2);
+		final Hashtable<String, Object> properties = new Hashtable<>(2);
 
 		properties.put(RF_PROVIDER_ID, getId());
-		properties.put(RF_PROXIED_PROVIDERS, newProxied);
+		properties.put(RF_PROVIDER_PROXY, newProxy);
 
 		this.registration = context.registerService(
 				RF_PROVIDER_CLASS,

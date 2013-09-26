@@ -1,5 +1,6 @@
 package ru.aplix.ltk.collector.log.impl;
 
+import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_PREFIX;
 import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_SIZE;
 import static ru.aplix.ltk.osgi.OSGiUtils.bundleParameters;
 
@@ -88,7 +89,7 @@ class TagLog extends CyclicLog {
 		final Path path =
 				context.getDataFile(provider.getId() + ".tags").toPath();
 		final CyclicLogConfig config = new CyclicLogConfig(path, 32);
-		final Parameters params = bundleParameters(context);
+		final Parameters params = bundleParameters(context).sub(RF_LOG_PREFIX);
 
 		config.setMaxRecords(params.valueOf(RF_LOG_SIZE));
 

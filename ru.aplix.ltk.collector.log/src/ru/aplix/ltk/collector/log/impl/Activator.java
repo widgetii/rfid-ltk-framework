@@ -1,19 +1,19 @@
 package ru.aplix.ltk.collector.log.impl;
 
-import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_PROVIDER_ID_SUFFIX;
+import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_FILTER;
+import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_PREFIX;
+import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_PROXY_ID;
 import static ru.aplix.ltk.collector.log.impl.LoggingRfProvider.loggingRfProvider;
-import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_ID;
-import static ru.aplix.ltk.core.RfProvider.RF_PROXIED_PROVIDERS;
+import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_PROXY;
+import static ru.aplix.ltk.osgi.OSGiUtils.bundleParameters;
 
 import java.io.IOException;
-import java.util.Set;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
 import ru.aplix.ltk.core.RfProvider;
+import ru.aplix.ltk.core.util.Parameters;
 import ru.aplix.ltk.osgi.Logger;
 
 
@@ -46,27 +46,8 @@ public class Activator implements BundleActivator {
 	private LoggingRfProvider<?> createLogingProvider(
 			ServiceReference<RfProvider<?>> reference) {
 
-		final String providerId =
-				(String) reference.getProperty(RF_PROVIDER_ID);
-
-		if (providerId == null) {
-			return null;
-		}
-		if (providerId.endsWith(RF_LOG_PROVIDER_ID_SUFFIX)) {
-			return null;
-		}
-
-		final String logId = providerId + RF_LOG_PROVIDER_ID_SUFFIX;
-		@SuppressWarnings("unchecked")
-		final Set<String> proxied =
-				(Set<String>) reference.getProperty(RF_PROXIED_PROVIDERS);
-
-		if (proxied != null && proxied.contains(logId)) {
-			return null;
-		}
-
 		final RfProvider<?> provider = this.context.getService(reference);
-		final TagLog log = createLog(providerId, provider);
+		final TagLog log = createLog(provider);
 
 		if (log == null) {
 			this.context.ungetService(reference);
@@ -78,14 +59,15 @@ public class Activator implements BundleActivator {
 			final LoggingRfProvider<?> loggingProvider =
 					loggingRfProvider(provider, log);
 
-			loggingProvider.register(this.context, providerId, proxied);
+			loggingProvider.register(this.context, reference);
 
 			return loggingProvider;
 		} catch (Throwable e) {
 			this.log.error(
 					"Failed to register RFID logging provider for "
-							+ provider.getName() + " (" + providerId + ')',
-							e);
+					+ provider.getName()
+					+ " (" + provider.getId() + ')',
+					e);
 			try {
 				log.close();
 			} catch (IOException ex) {
@@ -98,24 +80,41 @@ public class Activator implements BundleActivator {
 		return null;
 	}
 
-	private TagLog createLog(
-			final String providerId,
-			final RfProvider<?> provider) {
+	private TagLog createLog(RfProvider<?> provider) {
 		try {
 			return new TagLog(this.context, provider);
 		} catch (Throwable e) {
 			this.log.error(
 					"Failed to create a log for " + provider.getName()
-					+ " (" + providerId + ')');
+					+ " (" + provider.getId() + ')');
 		}
 		return null;
+	}
+
+	private static Filter providersFilter(
+			BundleContext context)
+	throws InvalidSyntaxException {
+
+		final Parameters params = bundleParameters(context).sub(RF_LOG_PREFIX);
+		final String configFilter = params.valueOf(RF_LOG_FILTER);
+		final String preventRecursion =
+				"(!("+ RF_PROVIDER_PROXY + "=" + RF_LOG_PROXY_ID + "))";
+		final String filter;
+
+		if (configFilter == null) {
+			filter = preventRecursion;
+		} else {
+			filter = "(&" + configFilter + preventRecursion + ")";
+		}
+
+		return context.createFilter(filter);
 	}
 
 	private final class ProviderTracker
 			extends ServiceTracker<RfProvider<?>, LoggingRfProvider<?>> {
 
-		ProviderTracker(BundleContext context) {
-			super(context, RfProvider.RF_PROVIDER_CLASS, null);
+		ProviderTracker(BundleContext context) throws InvalidSyntaxException {
+			super(context, providersFilter(context), null);
 		}
 
 		@Override

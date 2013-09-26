@@ -24,10 +24,16 @@ public interface RfProvider<S extends RfSettings> {
 	String RF_PROVIDER_ID = "ru.aplix.ltk.provider.id";
 
 	/**
-	 * OSGi service property name containing a set of RFID providers proxied by
-	 * the given one.
+	 * OSGi service property name containing a set of proxy identifiers created
+	 * by this service.
+	 *
+	 * <p>This can be used to prevent the proxy to be created for the second
+	 * time, and to prioritize proxy creation.</p>
+	 *
+	 * <p>The value should be a string, a collection (preferably set) of
+	 * strings, or an array of strings.<p>
 	 */
-	String RF_PROXIED_PROVIDERS = "ru.aplix.ltk.provider.proxied";
+	String RF_PROVIDER_PROXY = "ru.aplix.ltk.provider.proxy";
 
 	/**
 	 * Provider's identifier.

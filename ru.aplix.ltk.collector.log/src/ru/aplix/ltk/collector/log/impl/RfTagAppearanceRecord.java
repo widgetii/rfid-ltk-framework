@@ -92,7 +92,7 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 
 		final byte[] tagData = getRfTag().getData();
 
-		if (tagData.length > 16) {
+		if (tagData.length > 12) {
 			throw new IllegalStateException("Tag is too long: " + getRfTag());
 		}
 		out.put((byte) tagData.length);
@@ -103,7 +103,7 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 
 		final int length = data.get();
 
-		if (length > 16) {
+		if (length > 12) {
 			throw new IllegalStateException("Tag data is too long: " + length);
 		}
 

@@ -25,6 +25,11 @@
       conf="runtime->@"/>
     <dependency
       org="bundle"
+      name="ru.aplix.ltk.collector.log"
+      rev="latest.integration"
+      conf="runtime->@"/>
+    <dependency
+      org="bundle"
       name="org.eclipse.osgi"
       rev="3.9.0+"/>
     <dependency

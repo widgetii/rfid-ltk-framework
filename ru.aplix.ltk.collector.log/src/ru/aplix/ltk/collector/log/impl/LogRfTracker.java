@@ -21,7 +21,7 @@ public class LogRfTracker implements RfTracker, RfSource {
 	@Override
 	public void requestRfStatus(RfStatusUpdater updater) {
 		this.statusSubscription =
-				this.collector.subscribe(new LogStatusListener(this.tracking));
+				this.collector.subscribe(new LogStatusListener(updater));
 	}
 
 	@Override
@@ -79,10 +79,10 @@ public class LogRfTracker implements RfTracker, RfSource {
 	private static final class LogStatusListener
 			implements MsgConsumer<RfCollectorHandle, RfStatusMessage> {
 
-		private final RfTracking tracking;
+		private final RfStatusUpdater updater;
 
-		LogStatusListener(RfTracking tracking) {
-			this.tracking = tracking;
+		LogStatusListener(RfStatusUpdater updater) {
+			this.updater = updater;
 		}
 
 		@Override
@@ -91,7 +91,7 @@ public class LogRfTracker implements RfTracker, RfSource {
 
 		@Override
 		public void messageReceived(RfStatusMessage message) {
-			this.tracking.updateStatus(message);
+			this.updater.updateStatus(message);
 		}
 
 		@Override

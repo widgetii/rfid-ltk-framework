@@ -95,19 +95,34 @@ public class Activator implements BundleActivator {
 			BundleContext context)
 	throws InvalidSyntaxException {
 
+		final StringBuilder filter = new StringBuilder();
+
+		filter.append("(&");
+
+		filter.append('(')
+		.append(Constants.OBJECTCLASS)
+		.append('=')
+		.append(RfProvider.class.getName())
+		.append(')');
+
+		filter.append("(!(")
+		.append(RF_PROVIDER_PROXY)
+		.append('=')
+		.append(RF_LOG_PROXY_ID)
+		.append("))");
+
 		final Parameters params = bundleParameters(context).sub(RF_LOG_PREFIX);
 		final String configFilter = params.valueOf(RF_LOG_FILTER);
-		final String preventRecursion =
-				"(!("+ RF_PROVIDER_PROXY + "=" + RF_LOG_PROXY_ID + "))";
-		final String filter;
 
-		if (configFilter == null) {
-			filter = preventRecursion;
-		} else {
-			filter = "(&" + configFilter + preventRecursion + ")";
+		if (configFilter != null) {
+			filter.append(configFilter);
 		}
 
-		return context.createFilter(filter);
+		filter.append(")");
+
+		System.err.println("(!) " + filter);
+
+		return context.createFilter(filter.toString());
 	}
 
 	private final class ProviderTracker

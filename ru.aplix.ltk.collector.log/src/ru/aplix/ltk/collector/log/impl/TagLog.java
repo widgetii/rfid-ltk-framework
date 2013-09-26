@@ -79,6 +79,7 @@ class TagLog extends CyclicLog {
 		this.idRecord.clear();
 		this.idRecord.putLong(record.getEventId());
 		this.idRecord.clear();
+		this.idChannel.position(0);
 		this.idChannel.write(this.idRecord);
 	}
 

@@ -249,7 +249,7 @@ final class CtgReaderThread
 						request,
 						getSettings().getTransactionTimeout());
 
-		if (roSpecId == 0) {
+		if (roSpecId != 0) {
 			return true;
 		}
 

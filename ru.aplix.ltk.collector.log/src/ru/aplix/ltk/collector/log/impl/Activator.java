@@ -120,8 +120,6 @@ public class Activator implements BundleActivator {
 
 		filter.append(")");
 
-		System.err.println("(!) " + filter);
-
 		return context.createFilter(filter.toString());
 	}
 

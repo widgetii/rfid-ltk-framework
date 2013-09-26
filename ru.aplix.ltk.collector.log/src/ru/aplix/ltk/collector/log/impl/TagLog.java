@@ -1,9 +1,9 @@
 package ru.aplix.ltk.collector.log.impl;
 
-import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_PREFIX;
-import static ru.aplix.ltk.collector.log.RfLogConstants.RF_LOG_SIZE;
+import static ru.aplix.ltk.collector.log.RfLogConstants.*;
 import static ru.aplix.ltk.osgi.OSGiUtils.bundleParameters;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -23,23 +23,54 @@ class TagLog extends CyclicLog {
 	private final Path idPath;
 	private final ByteBuffer idRecord;
 	private final FileChannel idChannel;
+	private final boolean logAppearance;
+	private final boolean logDisappearance;
 	private long lastId;
 
 	TagLog(BundleContext context, RfProvider<?> provider) throws IOException {
-		this(config(context, provider));
+		this(context, provider, bundleParameters(context).sub(RF_LOG_PREFIX));
 	}
 
-	private TagLog(CyclicLogConfig config) throws IOException {
+	private TagLog(
+			BundleContext context,
+			RfProvider<?> provider,
+			Parameters params)
+	throws IOException {
+		this(
+				config(context, provider, params),
+				params.valueOf(RF_LOG_APPEARANCE),
+				params.valueOf(RF_LOG_DISAPPEARANCE));
+	}
+
+	private TagLog(
+			CyclicLogConfig config,
+			boolean logAppearance,
+			boolean logDisappearance)
+	throws IOException {
 		super(config);
+		this.logAppearance = logAppearance;
+		this.logDisappearance = logDisappearance;
 		this.idPath = getPath().resolveSibling(getPath().getFileName() + ".id");
 		this.idRecord = ByteBuffer.allocate(8);
 		this.idChannel = FileChannel.open(this.idPath, config.openOptions());
 		initId();
 	}
 
-	public RfTagAppearanceRecord write(
+	public RfTagAppearanceMessage log(
 			RfTagAppearanceMessage message)
 	throws IOException {
+		switch (message.getAppearance()) {
+		case RF_TAG_APPEARED:
+			if (!this.logAppearance) {
+				return message;
+			}
+			break;
+		case RF_TAG_DISAPPEARED:
+			if (!this.logDisappearance) {
+				return message;
+			}
+			break;
+		}
 
 		final RfTagAppearanceRecord record =
 				new RfTagAppearanceRecord(++this.lastId, message);
@@ -85,16 +116,39 @@ class TagLog extends CyclicLog {
 
 	private static CyclicLogConfig config(
 			BundleContext context,
-			RfProvider<?> provider) {
+			RfProvider<?> provider,
+			Parameters params) {
 
-		final Path path =
-				context.getDataFile(provider.getId() + ".tags").toPath();
+		final Path path = logPath(context, provider, params);
 		final CyclicLogConfig config = new CyclicLogConfig(path, 32);
-		final Parameters params = bundleParameters(context).sub(RF_LOG_PREFIX);
 
 		config.setMaxRecords(params.valueOf(RF_LOG_SIZE));
+		config.setSync(params.valueOf(RF_LOG_FSYNC));
+		config.setSyncMeta(params.valueOf(RF_LOG_FSYNC_META));
 
 		return config;
+	}
+
+	private static Path logPath(
+			BundleContext context,
+			RfProvider<?> provider,
+			Parameters params) {
+
+		final String dir = params.valueOf(RF_LOG_DIR, "").trim();
+		final String fileName = provider.getId() + ".tags";
+
+		if (dir.isEmpty()) {
+			return context.getDataFile(fileName).toPath();
+		}
+
+		final File dirFile = new File(dir);
+
+		if (!dirFile.mkdirs()) {
+			throw new IllegalStateException(
+					"Failed to create collector log directory: " + dirFile);
+		}
+
+		return dirFile.toPath().resolve(fileName);
 	}
 
 }

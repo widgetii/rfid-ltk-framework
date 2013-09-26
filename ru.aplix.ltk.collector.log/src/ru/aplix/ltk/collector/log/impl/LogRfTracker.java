@@ -62,10 +62,10 @@ public class LogRfTracker implements RfTracker, RfSource {
 
 	private void logTag(RfTagAppearanceMessage message) {
 
-		final RfTagAppearanceRecord record;
+		final RfTagAppearanceMessage logged;
 
 		try {
-			record = this.log.write(message);
+			logged = this.log.log(message);
 		} catch (Throwable e) {
 			this.tracking.updateTagAppearance(message);
 			this.tracking.updateStatus(
@@ -73,7 +73,7 @@ public class LogRfTracker implements RfTracker, RfSource {
 			return;
 		}
 
-		this.tracking.updateTagAppearance(record);
+		this.tracking.updateTagAppearance(logged);
 	}
 
 	private static final class LogStatusListener

@@ -44,6 +44,9 @@ public final class CyclicLogReader implements Closeable {
 		record.clear();
 		channel().read(record);
 		record.clear();
+		if (channel().position() >= log().getMaxSize()) {
+			channel().position(0);
+		}
 
 		return record;
 	}
@@ -102,9 +105,7 @@ public final class CyclicLogReader implements Closeable {
 
 	public ByteBuffer pull() throws IOException {
 		if (this.lock == null) {
-			throw new IllegalStateException(
-					"Can't read from cyclic log without locking."
-					+ " Invoke seek() first");
+			return null;
 		}
 
 		final ByteBuffer result = read();
@@ -137,7 +138,7 @@ public final class CyclicLogReader implements Closeable {
 		final long position = start + recordSize;
 
 		if (position == end) {
-			return - 1;
+			return -1;
 		}
 		if (position + recordSize > log().size()) {
 			if (end == 0) {
@@ -152,16 +153,7 @@ public final class CyclicLogReader implements Closeable {
 	private void relockFrom(long position) throws IOException {
 		synchronized (log()) {
 			removeLock();
-
-			final long start;
-
-			if (position + log().getRecordSize() > log().size()) {
-				start = 0;
-			} else {
-				start = position;
-			}
-
-			this.lock = log().lock(start, log().channel().position());
+			this.lock = log().lock(position, log().channel().position());
 		}
 	}
 

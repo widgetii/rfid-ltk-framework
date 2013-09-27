@@ -34,6 +34,11 @@ final class RemoteClrExceptionParameterType extends ParameterType<Throwable> {
 		}
 
 		final Throwable cause = values[0];
+
+		if (cause == null) {
+			return;
+		}
+
 		final Parameters causeParams = params.sub("cause");
 
 		causeParams.set("", cause.getClass().getName());

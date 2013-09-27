@@ -113,6 +113,37 @@ public class RfCollector
 		return new RfCollectorHandle(this, consumer);
 	}
 
+	/**
+	 * Constructs a tag appearance message consumer to receive messages since
+	 * one with the given event identifier.
+	 *
+	 * <p>This method is called when historical message reporting
+	 * {@link RfCollectorHandle#requestTagAppearance(MsgConsumer, long)
+	 * requested}. The returned consumer will be subscribed to receive messages
+	 * instead of original one.</p>
+	 *
+	 * <p>The constructed consumer is responsible for sending messages to the
+	 * given one. It may, however, delay the reporting of new messages until
+	 * all requested messages reported.</p>
+	 *
+	 * <p>Returns the same consumer by default.</p>
+	 *
+	 * @param consumer consumer to report changes in tag appearance to.
+	 * @param lastEventId the last event identifier known to the consumer.
+	 * Always positive number.
+	 *
+	 * @return consumer to subscribe on changes in tag appearance.
+	 */
+	protected MsgConsumer<
+			? super RfTagAppearanceHandle,
+			? super RfTagAppearanceMessage> requestTagAppearance(
+					MsgConsumer<
+							? super RfTagAppearanceHandle,
+							? super RfTagAppearanceMessage> consumer,
+			long lastEventId) {
+		return consumer;
+	}
+
 	@Override
 	protected void startService() {
 		this.sourceListener.requestStatus();

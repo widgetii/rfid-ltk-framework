@@ -20,6 +20,11 @@
       rev="latest.integration"/>
     <dependency
       org="bundle"
+      name="ru.aplix.ltk.collector.log"
+      rev="latest.integration"
+      conf="runtime->@"/>
+    <dependency
+      org="bundle"
       name="ru.aplix.ltk.driver.ctg"
       rev="latest.integration"
       conf="runtime->@"/>

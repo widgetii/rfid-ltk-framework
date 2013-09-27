@@ -34,8 +34,8 @@ public class CyclicLogTest {
 	public void open() throws IOException {
 		assertThat(this.log.getRecordSize(), is(4));
 		assertThat(this.log.getMaxSize(), is(12L));
-		assertThat(this.log.logChannel().position(), is(0L));
-		assertThat(this.log.logChannel().size(), is(0L));
+		assertThat(this.log.channel().position(), is(0L));
+		assertThat(this.log.channel().size(), is(0L));
 		assertThat(this.log.positionChannel().size(), is(0L));
 	}
 
@@ -43,12 +43,12 @@ public class CyclicLogTest {
 	public void write() throws IOException {
 		write(1);
 
-		assertThat(this.log.logChannel().position(), is(4L));
-		assertThat(this.log.logChannel().size(), is(4L));
+		assertThat(this.log.channel().position(), is(4L));
+		assertThat(this.log.channel().size(), is(4L));
 		assertThat(this.log.positionChannel().size(), is(8L));
 		assertThat(readPosition(), is(4L));
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(readValue(), is(1));
 	}
@@ -57,12 +57,12 @@ public class CyclicLogTest {
 	public void writeMore() throws IOException {
 		write(1);
 		write(2);
-		assertThat(this.log.logChannel().position(), is(8L));
-		assertThat(this.log.logChannel().size(), is(8L));
+		assertThat(this.log.channel().position(), is(8L));
+		assertThat(this.log.channel().size(), is(8L));
 		assertThat(this.log.positionChannel().size(), is(8L));
 		assertThat(readPosition(), is(8L));
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(readValue(), is(1));
 		assertThat(readValue(), is(2));
@@ -73,12 +73,12 @@ public class CyclicLogTest {
 		write(1);
 		write(2);
 		write(3);
-		assertThat(this.log.logChannel().position(), is(0L));
-		assertThat(this.log.logChannel().size(), is(12L));
+		assertThat(this.log.channel().position(), is(0L));
+		assertThat(this.log.channel().size(), is(12L));
 		assertThat(this.log.positionChannel().size(), is(8L));
 		assertThat(readPosition(), is(0L));
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(readValue(), is(1));
 		assertThat(readValue(), is(2));
@@ -91,12 +91,12 @@ public class CyclicLogTest {
 		write(2);
 		write(3);
 		write(4);
-		assertThat(this.log.logChannel().position(), is(4L));
-		assertThat(this.log.logChannel().size(), is(12L));
+		assertThat(this.log.channel().position(), is(4L));
+		assertThat(this.log.channel().size(), is(12L));
 		assertThat(this.log.positionChannel().size(), is(8L));
 		assertThat(readPosition(), is(4L));
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(readValue(), is(4));
 		assertThat(readValue(), is(2));
@@ -133,7 +133,7 @@ public class CyclicLogTest {
 		final ByteBuffer in = this.log.record();
 
 		in.clear();
-		this.log.logChannel().read(in);
+		this.log.channel().read(in);
 		in.clear();
 
 		return in.getInt();

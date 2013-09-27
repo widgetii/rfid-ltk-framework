@@ -40,7 +40,7 @@ public class ExpandCyclicLogTest {
 		write(13);
 		write(14);
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(this.log.size(), is(20L));
 		assertThat(readValue(), is(14));
@@ -62,7 +62,7 @@ public class ExpandCyclicLogTest {
 		write(16);
 		write(17);
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(this.log.size(), is(16L));
 		assertThat(readValue(), is(14));
@@ -84,7 +84,7 @@ public class ExpandCyclicLogTest {
 		write(13);
 		write(14);
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(this.log.size(), is(20L));
 		assertThat(readValue(), is(4));
@@ -114,7 +114,7 @@ public class ExpandCyclicLogTest {
 		final ByteBuffer in = this.log.record();
 
 		in.clear();
-		this.log.logChannel().read(in);
+		this.log.channel().read(in);
 		in.clear();
 
 		return in.getInt();

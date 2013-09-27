@@ -207,11 +207,7 @@ public class CyclicLogSeekSearchTest {
 		@Override
 		public int filterRecord(CyclicLogReader reader) throws IOException {
 
-			final ByteBuffer in = reader.read();
-
-			in.clear();
-
-			final int value = in.getInt();
+			final int value = reader.read().getInt();
 
 			return value - this.toFind;
 		}

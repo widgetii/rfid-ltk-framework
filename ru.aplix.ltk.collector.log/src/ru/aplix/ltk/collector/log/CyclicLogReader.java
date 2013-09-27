@@ -10,12 +10,17 @@ import java.nio.file.StandardOpenOption;
 public final class CyclicLogReader implements Closeable {
 
 	private final CyclicLog log;
+	private final CyclicLogClient client;
 	private final FileChannel channel;
 	private CyclicLogLock lock;
 	private ByteBuffer record;
 
-	CyclicLogReader(CyclicLog log) throws IOException {
+	CyclicLogReader(
+			CyclicLog log,
+			CyclicLogClient client)
+	throws IOException {
 		this.log = log;
+		this.client = client;
 		this.channel = FileChannel.open(log.getPath(), StandardOpenOption.READ);
 		this.record = ByteBuffer.allocate(log.getRecordSize());
 	}
@@ -33,8 +38,14 @@ public final class CyclicLogReader implements Closeable {
 	}
 
 	public final ByteBuffer read() throws IOException {
-		channel().read(record());
-		return record();
+
+		final ByteBuffer record = record();
+
+		record.clear();
+		channel().read(record);
+		record.clear();
+
+		return record;
 	}
 
 	public boolean seek(CyclicLogFilter filter) throws IOException {
@@ -48,19 +59,17 @@ public final class CyclicLogReader implements Closeable {
 		long end = this.lock.end();
 
 		if (!middle(start, end)) {
-			doUnlock();
+			seekFailed();
 			return false;
 		}
 
 		for (;;) {
 
 			final long position = channel().position();
-
-			record().clear();
-
 			final int cmp = filter.filterRecord(this);
 
 			if (cmp == 0) {
+				relockFrom(position);
 				channel().position(position);
 				return true;
 			}
@@ -82,11 +91,29 @@ public final class CyclicLogReader implements Closeable {
 		}
 
 		if (lastGreater < 0) {
-			doUnlock();
+			seekFailed();
 			return false;
 		}
+		relockFrom(lastGreater);
 		channel().position(lastGreater);
+
 		return true;
+	}
+
+	public ByteBuffer pull() throws IOException {
+		if (this.lock == null) {
+			throw new IllegalStateException(
+					"Can't read from cyclic log without locking."
+					+ " Invoke seek() first");
+		}
+
+		final ByteBuffer result = read();
+
+		synchronized (log()) {
+			checkExhaust(channel().position());
+		}
+
+		return result;
 	}
 
 	@Override
@@ -97,7 +124,7 @@ public final class CyclicLogReader implements Closeable {
 
 	private void unlock() {
 		if (this.lock != null) {
-			doUnlock();
+			removeLock();
 		}
 	}
 
@@ -123,11 +150,8 @@ public final class CyclicLogReader implements Closeable {
 	}
 
 	private void relockFrom(long position) throws IOException {
-
-		final long end = this.lock.end();
-
 		synchronized (log()) {
-			doUnlock();
+			removeLock();
 
 			final long start;
 
@@ -137,11 +161,31 @@ public final class CyclicLogReader implements Closeable {
 				start = position;
 			}
 
-			this.lock = log().lock(start, end);
+			this.lock = log().lock(start, log().channel().position());
 		}
 	}
 
-	private void doUnlock() {
+	private void seekFailed() throws IOException {
+		synchronized (log()) {
+			checkExhaust(this.lock.end());
+		}
+	}
+
+	private void checkExhaust(long position) throws IOException {
+
+		final long logPosition = log().channel().position();
+
+		if (position != logPosition) {
+			relockFrom(position);
+		} else {
+			removeLock();
+			if (this.client != null) {
+				this.client.readerExhausted(this);
+			}
+		}
+	}
+
+	private void removeLock() {
 		this.log.unlock(this.lock);
 		this.lock = null;
 	}

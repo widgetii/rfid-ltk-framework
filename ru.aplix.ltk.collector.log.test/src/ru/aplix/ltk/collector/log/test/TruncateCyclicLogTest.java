@@ -36,7 +36,7 @@ public class TruncateCyclicLogTest {
 		this.log = new CyclicLog(this.config.setMaxRecords(2));
 		write(11);
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(this.log.size(), is(8L));
 		assertThat(readValue(), is(1));
@@ -52,7 +52,7 @@ public class TruncateCyclicLogTest {
 		this.log = new CyclicLog(this.config.setMaxRecords(3));
 		write(11);
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(this.log.size(), is(12L));
 		assertThat(readValue(), is(11));
@@ -72,7 +72,7 @@ public class TruncateCyclicLogTest {
 		write(11);
 		write(12);
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(this.log.size(), is(8L));
 		assertThat(readValue(), is(11));
@@ -90,7 +90,7 @@ public class TruncateCyclicLogTest {
 		this.log = new CyclicLog(this.config.setMaxRecords(2));
 		write(11);
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(this.log.size(), is(20L));
 		assertThat(readValue(), is(11));
@@ -113,7 +113,7 @@ public class TruncateCyclicLogTest {
 		this.log = new CyclicLog(this.config.setMaxRecords(3));
 		write(11);
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(this.log.size(), is(12L));
 		assertThat(readValue(), is(6));
@@ -133,7 +133,7 @@ public class TruncateCyclicLogTest {
 		this.log = new CyclicLog(this.config.setMaxRecords(3));
 		write(11);
 
-		this.log.logChannel().position(0);
+		this.log.channel().position(0);
 
 		assertThat(this.log.size(), is(20L));
 		assertThat(readValue(), is(6));
@@ -163,7 +163,7 @@ public class TruncateCyclicLogTest {
 		final ByteBuffer in = this.log.record();
 
 		in.clear();
-		this.log.logChannel().read(in);
+		this.log.channel().read(in);
 		in.clear();
 
 		return in.getInt();

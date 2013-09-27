@@ -12,7 +12,7 @@ public class CyclicLog implements Closeable {
 
 	private final Path path;
 	private final Path positionPath;
-	private final FileChannel logChannel;
+	private final FileChannel channel;
 	private final FileChannel positionChannel;
 	private final ByteBuffer record;
 	private final ByteBuffer positionRecord;
@@ -27,7 +27,7 @@ public class CyclicLog implements Closeable {
 		this.maxSize = config.getMaxRecords() * config.getRecordSize();
 		this.record = ByteBuffer.allocate(config.getRecordSize());
 		this.positionRecord = ByteBuffer.allocate(8);
-		this.logChannel = FileChannel.open(getPath(), config.openOptions());
+		this.channel = FileChannel.open(getPath(), config.openOptions());
 		this.positionChannel =
 				FileChannel.open(getPositionPath(), config.openOptions());
 		initPosition();
@@ -53,12 +53,12 @@ public class CyclicLog implements Closeable {
 		return this.record;
 	}
 
-	public final FileChannel logChannel() {
-		return this.logChannel;
+	public final FileChannel channel() {
+		return this.channel;
 	}
 
 	public final long size() throws IOException {
-		return logChannel().size();
+		return channel().size();
 	}
 
 	public final FileChannel positionChannel() {
@@ -69,7 +69,7 @@ public class CyclicLog implements Closeable {
 		record().clear();
 		synchronized (this) {
 			waitToWrite();
-			logChannel().write(record());
+			channel().write(record());
 			updatePosition();
 		}
 		storePosition();
@@ -77,13 +77,19 @@ public class CyclicLog implements Closeable {
 	}
 
 	public final CyclicLogReader read() throws IOException {
-		return new CyclicLogReader(this);
+		return read(null);
+	}
+
+	public final CyclicLogReader read(
+			CyclicLogClient client)
+	throws IOException {
+		return new CyclicLogReader(this, client);
 	}
 
 	@Override
 	public void close() throws IOException {
 		try {
-			this.logChannel.close();
+			this.channel.close();
 		} finally {
 			this.positionChannel.close();
 		}
@@ -97,7 +103,7 @@ public class CyclicLog implements Closeable {
 
 	synchronized CyclicLogLock lock() throws IOException {
 
-		final long position = logChannel().position();
+		final long position = channel().position();
 
 		if (position + getRecordSize() >= size()) {
 			return lock(0, position);
@@ -147,7 +153,7 @@ public class CyclicLog implements Closeable {
 	private void initPosition() throws IOException {
 		positionChannel().read(this.positionRecord);
 		if (this.positionRecord.hasRemaining()) {
-			logChannel().truncate(0);
+			channel().truncate(0);
 			return;
 		}
 		this.positionRecord.clear();
@@ -156,29 +162,29 @@ public class CyclicLog implements Closeable {
 
 		if (logPosition >= getMaxSize()) {
 			// Truncate the log.
-			logChannel().truncate(getMaxSize());
+			channel().truncate(getMaxSize());
 			return;
 		}
 		if (logPosition <= size()) {
-			logChannel().position(logPosition);
+			channel().position(logPosition);
 		}
 	}
 
 	private boolean updatePosition() throws IOException {
-		if (logChannel().position() >= getMaxSize()) {
+		if (channel().position() >= getMaxSize()) {
 			// Truncate the log.
 			if (size() > getMaxSize()) {
 				waitToTruncate();
-				logChannel().truncate(getMaxSize());
+				channel().truncate(getMaxSize());
 			}
-			logChannel().position(0);
+			channel().position(0);
 		}
 		return true;
 	}
 
 	private void storePosition() throws IOException {
 		this.positionRecord.clear();
-		this.positionRecord.putLong(logChannel().position());
+		this.positionRecord.putLong(channel().position());
 		this.positionRecord.clear();
 		positionChannel().position(0).write(this.positionRecord);
 	}
@@ -189,7 +195,7 @@ public class CyclicLog implements Closeable {
 				return;
 			}
 
-			final long logPosition = logChannel().position();
+			final long logPosition = channel().position();
 
 			if (this.lockStart >= this.lockEnd) {
 				if (this.lockStart >= logPosition + getRecordSize()

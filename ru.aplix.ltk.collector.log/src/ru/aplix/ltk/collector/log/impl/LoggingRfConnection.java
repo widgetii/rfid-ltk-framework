@@ -20,7 +20,7 @@ final class LoggingRfConnection extends RfConnection {
 
 	@Override
 	protected RfCollector createCollector() {
-		return new RfCollector(getSource(), this.tracker);
+		return new LoggingRfCollector(this.tracker);
 	}
 
 	@Override

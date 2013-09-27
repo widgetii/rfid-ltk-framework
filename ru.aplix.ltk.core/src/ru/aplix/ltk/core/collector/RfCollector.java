@@ -140,7 +140,7 @@ public class RfCollector
 					MsgConsumer<
 							? super RfTagAppearanceHandle,
 							? super RfTagAppearanceMessage> consumer,
-			long lastEventId) {
+					long lastEventId) {
 		return consumer;
 	}
 

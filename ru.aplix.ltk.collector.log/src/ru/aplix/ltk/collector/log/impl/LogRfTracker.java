@@ -12,16 +12,22 @@ public class LogRfTracker implements RfTracker, RfSource {
 	private RfTracking tracking;
 	private RfCollectorHandle statusSubscription;
 	private RfTagAppearanceHandle tagHandle;
+	private RfStatusUpdater updater;
 
 	public LogRfTracker(RfCollector collector, TagLog log) {
 		this.collector = collector;
 		this.log = log;
 	}
 
+	public final TagLog log() {
+		return this.log;
+	}
+
 	@Override
 	public void requestRfStatus(RfStatusUpdater updater) {
+		this.updater = updater;
 		this.statusSubscription =
-				this.collector.subscribe(new LogStatusListener(updater));
+				this.collector.subscribe(new LogStatusListener());
 	}
 
 	@Override
@@ -36,6 +42,7 @@ public class LogRfTracker implements RfTracker, RfSource {
 	public void rejectRfStatus() {
 		this.statusSubscription.unsubscribe();
 		this.statusSubscription = null;
+		this.updater = null;
 	}
 
 	@Override
@@ -60,12 +67,16 @@ public class LogRfTracker implements RfTracker, RfSource {
 		this.tagHandle = null;
 	}
 
+	final void updateStatus(RfStatusMessage status) {
+		this.updater.updateStatus(status);
+	}
+
 	private void logTag(RfTagAppearanceMessage message) {
 
 		final RfTagAppearanceMessage logged;
 
 		try {
-			logged = this.log.log(message);
+			logged = log().log(message);
 		} catch (Throwable e) {
 			this.tracking.updateTagAppearance(message);
 			this.tracking.updateStatus(
@@ -76,14 +87,8 @@ public class LogRfTracker implements RfTracker, RfSource {
 		this.tracking.updateTagAppearance(logged);
 	}
 
-	private static final class LogStatusListener
+	private final class LogStatusListener
 			implements MsgConsumer<RfCollectorHandle, RfStatusMessage> {
-
-		private final RfStatusUpdater updater;
-
-		LogStatusListener(RfStatusUpdater updater) {
-			this.updater = updater;
-		}
 
 		@Override
 		public void consumerSubscribed(RfCollectorHandle handle) {
@@ -91,7 +96,7 @@ public class LogRfTracker implements RfTracker, RfSource {
 
 		@Override
 		public void messageReceived(RfStatusMessage message) {
-			this.updater.updateStatus(message);
+			updateStatus(message);
 		}
 
 		@Override

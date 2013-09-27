@@ -73,7 +73,9 @@ public class ClrClient<S extends RfSettings>
 	public void consumerSubscribed(RfCollectorHandle handle) {
 		this.collectorHandle = handle;
 		this.executor = newSingleThreadScheduledExecutor();
-		handle.requestTagAppearance(new TagListener());
+		handle.requestTagAppearance(
+				new TagListener(),
+				this.clientRequest.getLastTagEventId());
 		this.ping = new PingSender(this, this.executor);
 		this.ping.schedule();
 	}

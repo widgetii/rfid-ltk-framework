@@ -1,5 +1,6 @@
 package ru.aplix.ltk.collector.http;
 
+import static ru.aplix.ltk.core.util.NumericParameterType.LONG_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.util.ParameterType.URL_PARAMETER_TYPE;
 
 import java.net.URL;
@@ -26,8 +27,12 @@ public class ClrClientRequest implements Parameterized {
 
 	private static final Parameter<URL> CLIENT_URL =
 			URL_PARAMETER_TYPE.parameter("clientURL");
+	private static final Parameter<Long> LAST_TAG_EVENT_ID =
+			LONG_PARAMETER_TYPE.parameter("lastTagEventId")
+			.byDefault(0L);
 
 	private URL clientURL;
+	private long lastTagEventId = LAST_TAG_EVENT_ID.getDefault();
 
 	/**
 	 * Constructs an empty request.
@@ -68,14 +73,38 @@ public class ClrClientRequest implements Parameterized {
 		this.clientURL = clientURL;
 	}
 
+	/**
+	 * Last tag appearance event identifier known to the client.
+	 *
+	 * @return event identifier, or non-positive number to request only new
+	 * events.
+	 */
+	public long getLastTagEventId() {
+		return this.lastTagEventId;
+	}
+
+	/**
+	 * Sets the last tag appearance event identifier known to the client.
+	 *
+	 * @param eventId event identifier, or non-positive number to request only
+	 * new events.
+	 */
+	public void setLastTagEventId(long eventId) {
+		this.lastTagEventId = eventId;
+	}
+
 	@Override
 	public void read(Parameters params) {
 		setClientURL(params.valueOf(CLIENT_URL, getClientURL()));
+		setLastTagEventId(params.valueOf(
+				LAST_TAG_EVENT_ID,
+				getLastTagEventId()));
 	}
 
 	@Override
 	public void write(Parameters params) {
 		params.set(CLIENT_URL, getClientURL());
+		params.set(LAST_TAG_EVENT_ID, getLastTagEventId());
 	}
 
 	private void ensureHttpURL(URL clientURL) {

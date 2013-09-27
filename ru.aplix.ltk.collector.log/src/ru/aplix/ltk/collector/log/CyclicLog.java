@@ -71,8 +71,8 @@ public class CyclicLog implements Closeable {
 			waitToWrite();
 			channel().write(record());
 			updatePosition();
+			storePosition();
 		}
-		storePosition();
 		record().clear();
 	}
 
@@ -204,12 +204,6 @@ public class CyclicLog implements Closeable {
 				}
 			} else {
 				if (this.lockStart >= logPosition + getRecordSize()
-						|| this.lockEnd <= logPosition) {
-					return;
-				}
-			}
-			if (this.lockStart >= logPosition + getRecordSize()) {
-				if (this.lockStart < this.lockEnd
 						|| this.lockEnd <= logPosition) {
 					return;
 				}

@@ -16,14 +16,14 @@ import static java.util.Objects.requireNonNull;
 public abstract class MsgProxy<H extends MsgHandle<H, M>, M>
 		implements MsgConsumer<H, M> {
 
-	private final MsgConsumer<H, M> proxied;
+	private final MsgConsumer<? super H, ? super M> proxied;
 
 	/**
 	 * Constructs a proxy.
 	 *
 	 * @param proxied proxied message consumer.
 	 */
-	public MsgProxy(MsgConsumer<H, M> proxied) {
+	public MsgProxy(MsgConsumer<? super H, ? super M> proxied) {
 		requireNonNull(proxied, "Proxied message consumer not specified");
 		this.proxied = proxied;
 	}
@@ -33,7 +33,7 @@ public abstract class MsgProxy<H extends MsgHandle<H, M>, M>
 	 *
 	 * @return the message consumer passed to constructor.
 	 */
-	public final MsgConsumer<H, M> getProxied() {
+	public final MsgConsumer<? super H, ? super M> getProxied() {
 		return this.proxied;
 	}
 

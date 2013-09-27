@@ -72,14 +72,17 @@ class TagLog extends CyclicLog {
 			break;
 		}
 
-		final RfTagAppearanceRecord record =
-				new RfTagAppearanceRecord(++this.lastId, message);
+		synchronized (this) {
 
-		record.write(record());
-		write();
-		storeId(record);
+			final RfTagAppearanceRecord record =
+					new RfTagAppearanceRecord(++this.lastId, message);
 
-		return record;
+			record.write(record());
+			write();
+			storeId(record);
+
+			return record;
+		}
 	}
 
 	@Override

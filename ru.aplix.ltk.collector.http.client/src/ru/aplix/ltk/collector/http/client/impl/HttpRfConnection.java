@@ -17,7 +17,7 @@ import ru.aplix.ltk.core.source.*;
 import ru.aplix.ltk.osgi.Logger;
 
 
-public class HttpRfConnection
+final class HttpRfConnection
 		extends RfConnection
 		implements RfSource, RfTracker {
 
@@ -26,15 +26,24 @@ public class HttpRfConnection
 	private final HttpRfSettings settings;
 	private final HttpReconnector reconnector = new HttpReconnector(this);
 	private UUID clientUUID;
+	private long lastTagEventId;
 	private volatile RfStatusUpdater statusUpdater;
 	private volatile RfTracking tracking;
 	private volatile boolean connected;
 
-	public HttpRfConnection(HttpRfClient client, HttpRfSettings settings) {
+	HttpRfConnection(HttpRfClient client, HttpRfSettings settings) {
 		super(settings);
 		this.client = client;
 		this.settings = settings;
 		generateUUID();
+	}
+
+	public final long getLastTagEventId() {
+		return this.lastTagEventId;
+	}
+
+	public final void setLastTagEventId(long lastTagEventId) {
+		this.lastTagEventId = lastTagEventId;
 	}
 
 	public final ScheduledExecutorService getExecutor() {
@@ -65,9 +74,6 @@ public class HttpRfConnection
 	public void requestRfStatus(RfStatusUpdater updater) {
 		getLogger().debug(this + " Starting");
 		this.statusUpdater = updater;
-		this.executor = newSingleThreadScheduledExecutor();
-		new ConnectRequest(this).send();
-		this.reconnector.schedule();
 	}
 
 	@Override
@@ -81,6 +87,9 @@ public class HttpRfConnection
 
 	@Override
 	public void startRfTracking() {
+		this.executor = newSingleThreadScheduledExecutor();
+		new ConnectRequest(this).send();
+		this.reconnector.schedule();
 	}
 
 	@Override
@@ -89,7 +98,10 @@ public class HttpRfConnection
 
 	@Override
 	public void stopRfTracking() {
-		this.tracking = null;
+		this.reconnector.cancel();
+		new DisconnectRequest(this).send();
+		disconnect();
+		this.executor.shutdown();
 	}
 
 	@Override
@@ -100,10 +112,6 @@ public class HttpRfConnection
 	public void rejectRfStatus() {
 		getLogger().debug(this + " Stopping");
 		this.statusUpdater = null;
-		disconnect();
-		this.reconnector.cancel();
-		new DisconnectRequest(this).send();
-		this.executor.shutdown();
 	}
 
 	public void updateStatus(RfStatusMessage status) {
@@ -148,10 +156,9 @@ public class HttpRfConnection
 				this + " Tag appearance changed (" + tagAppearance.getRfTag()
 				+ "): " + tagAppearance.getAppearance());
 
-		final RfTracking tracking = this.tracking;
-
-		if (tracking != null) {
-			tracking.updateTagAppearance(tagAppearance);
+		if (isConnected()) {
+			this.tracking.updateTagAppearance(tagAppearance);
+			this.lastTagEventId = tagAppearance.getEventId();
 		}
 	}
 
@@ -179,7 +186,7 @@ public class HttpRfConnection
 
 	@Override
 	protected RfCollector createCollector() {
-		return new RfCollector(this, this);
+		return new HttpRfCollector(this);
 	}
 
 	@Override

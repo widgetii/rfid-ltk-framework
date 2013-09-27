@@ -26,6 +26,7 @@ public class ConnectRequest extends MessageSender<Boolean> {
 		final ClrClientRequest request = new ClrClientRequest();
 
 		request.setClientURL(getSettings().getClientURL());
+		request.setLastTagEventId(getConnection().getLastTagEventId());
 
 		return put(request);
 	}

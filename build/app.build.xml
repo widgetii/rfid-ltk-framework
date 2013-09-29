@@ -13,7 +13,7 @@
 	
 	<target name="build-deps">
 		<ivy:buildlist
-			 taskname="${ant.project.name}"
+			taskname="${ant.project.name}"
 			reference="deps.path"
 			root="${ant.project.name}"
 			excluderoot="true">

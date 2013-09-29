@@ -11,8 +11,22 @@
 	<property name="app.dir" value="${basedir}/target"/>
 
 	<ivy:settings file="${root.dir}/ivysettings.xml"/>
-	
-	<target name="build">
+
+	<target name="build-deps">
+		<ivy:buildlist
+			taskname="${ant.project.name}"
+			reference="deps.path"
+			root="${ant.project.name}"
+			excluderoot="true">
+			<fileset dir="." includes="build.xml"/>
+			<fileset dir="${root.dir}" includes="*/build.xml"/>
+		</ivy:buildlist>
+		<subant target="package" buildpathref="deps.path">
+			<property name="without-deps" location="on"/>
+		</subant>
+	</target>
+
+	<target name="build" depends="build-deps">
 		<mkdir taskname="${ant.project.name}" dir="${app.dir}/repository/ext"/>
 		<ivy:retrieve
 			taskname="${ant.project.name}"

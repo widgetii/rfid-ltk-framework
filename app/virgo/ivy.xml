@@ -100,12 +100,19 @@
       org="org.codehaus.jackson"
       name="com.springsource.org.codehaus.jackson.mapper"
       rev="1.4.3"/>
+
     <dependency
       org="org.aspectj"
       name="com.springsource.org.aspectj.weaver"
       rev="1.7.1.RELEASE"
       transitive="false"
       conf="plugins->*"/>
+
+    <dependency
+      org="bundle"
+      name="org.springframework.org.postgresql"
+      rev="9.2.1003.jdbc4"
+      conf="ext->runtime"/>
       
     <exclude type="license"/>
     <exclude type="src"/>

@@ -2,7 +2,7 @@
 
 <ivysettings>
 
-  <settings defaultResolver="com.springsource"/>
+  <settings defaultResolver="default"/>
 
   <caches
     resolutionCacheDir="${ivy.settings.dir}/cache/resolution"
@@ -17,32 +17,37 @@
   <version-matchers usedefaults="true"/>
 
   <resolvers>
-    <chain name="com.springsource" dual="true" returnFirst="true">
-      <url name="com.springsource.repository.bundles.external">
-        <ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
-        <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
-      </url>
-      <url
-        name="com.springsource.repository.bundles.release">
-        <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
-        <artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
-      </url>
+    <chain name="default" dual="true" returnFirst="true">
+      <chain name="com.springsource" dual="true" returnFirst="true">
+        <url name="com.springsource.repository.bundles.external">
+          <ivy pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+          <artifact pattern="http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        </url>
+        <url
+          name="com.springsource.repository.bundles.release">
+          <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+          <artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
+        </url>
+      </chain>
+      <ibiblio name="maven2" m2compatible="true"/>
     </chain>
-    <chain name="updatesites" dual="true" returnFirst="true">
-      <updatesite
-        name="eclipse-updatesite"
-        url="http://download.eclipse.org/eclipse/updates/4.3"
-        requirementStrategy="first"/>
-      <updatesite
-        name="virgo-updatesite"
-        url="http://download.eclipse.org/virgo/release/tooling"
-        requirementStrategy="first"/>
+    <chain name="bundles" dual="true" returnFirst="true">
+      <filesystem name="ltk-bundles" checkmodified="true" cache="ltk-bundles">
+        <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
+        <artifact
+          pattern="${ivy.settings.dir}/target/[artifact]_[revision].[ext]"/>
+      </filesystem>
+      <chain name="updatesites" dual="true" returnFirst="true">
+        <updatesite
+          name="eclipse-updatesite"
+          url="http://download.eclipse.org/eclipse/updates/4.3"
+          requirementStrategy="first"/>
+        <updatesite
+          name="virgo-updatesite"
+          url="http://download.eclipse.org/virgo/release/tooling"
+          requirementStrategy="first"/>
+      </chain>
     </chain>
-    <filesystem name="ltk-bundles" checkmodified="true" cache="ltk-bundles">
-      <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
-      <artifact
-        pattern="${ivy.settings.dir}/target/[artifact]_[revision].[ext]"/>
-    </filesystem>
   </resolvers>
 
   <modules>
@@ -51,19 +56,11 @@
       name="ru.aplix.ltk.*"
       resolver="ltk-bundles"/>
     <module
-      organisation="bundle"
-      name="org.llrp.ltk"
-      resolver="ltk-bundles"/>
-    <module
-      organisation="bundle"
-      name="org.apache.mina"
-      resolver="ltk-bundles"/>
-    <module
-      organisation="bundle"
-      resolver="updatesites"/>
-    <module
       organisation="package"
-      resolver="updatesites"/>
+      name="ru.aplix.ltk.*"
+      resolver="ltk-bundles"/>
+    <module organisation="bundle" resolver="bundles"/>
+    <module organisation="package" resolver="bundles"/>
     <module
       name="com.springsource.*"
       resolver="com.springsource"/>

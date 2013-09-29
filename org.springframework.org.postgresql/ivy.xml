@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="org.springframework.org.postgresql"
+    status="integration"
+    revision="9.2.1003.jdbc4"/>
+  <configurations defaultconf="repack">
+    <conf name="runtime"/>
+    <conf name="repack"/>
+  </configurations>
+  <dependencies>
+    <dependency
+      org="org.postgresql"
+      name="postgresql"
+      rev="9.2-1003-jdbc4"
+      conf="repack->*"
+      transitive="false"/>
+  </dependencies>
+</ivy-module>

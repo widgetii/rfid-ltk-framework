@@ -58,7 +58,8 @@ public final class RfCollectorHandle
 	 *
 	 * @param consumer consumer to subscribe on changes in tag appearance.
 	 * @param lastEventId the last event identifier known to the consumer, or
-	 * non-positive number to subscribe only to new events.
+	 * zero to request all recorded events, or negative number to subscribe
+	 * only to new events.
 	 *
 	 * @return subscription handle.
 	 */
@@ -67,7 +68,7 @@ public final class RfCollectorHandle
 					? super RfTagAppearanceHandle,
 					? super RfTagAppearanceMessage> consumer,
 			long lastEventId) {
-		if (lastEventId <= 0) {
+		if (lastEventId < 0) {
 			return requestTagAppearance(consumer);
 		}
 		return requestTagAppearance(

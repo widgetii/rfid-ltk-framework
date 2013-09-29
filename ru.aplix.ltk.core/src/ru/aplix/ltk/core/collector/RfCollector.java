@@ -129,8 +129,8 @@ public class RfCollector
 	 * <p>Returns the same consumer by default.</p>
 	 *
 	 * @param consumer consumer to report changes in tag appearance to.
-	 * @param lastEventId the last event identifier known to the consumer.
-	 * Always positive number.
+	 * @param lastEventId the last event identifier known to the consumer,
+	 * or zero to request all recorded events.
 	 *
 	 * @return consumer to subscribe on changes in tag appearance.
 	 */

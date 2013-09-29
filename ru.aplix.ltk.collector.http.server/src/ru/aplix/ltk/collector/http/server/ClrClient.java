@@ -51,7 +51,7 @@ public class ClrClient<S extends RfSettings>
 	}
 
 	public final Logger log() {
-		return allProfiles().getCollectorService().log();
+		return allProfiles().log();
 	}
 
 	public synchronized void start(ClrClientRequest clientRequest) {

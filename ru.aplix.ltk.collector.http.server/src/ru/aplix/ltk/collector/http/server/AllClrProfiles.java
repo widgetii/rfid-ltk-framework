@@ -1,6 +1,7 @@
 package ru.aplix.ltk.collector.http.server;
 
 import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_CLASS;
+import static ru.aplix.ltk.core.util.ParameterType.BOOLEAN_PARAMETER_TYPE;
 import static ru.aplix.ltk.osgi.OSGiUtils.bundleParameters;
 
 import java.io.PrintWriter;
@@ -17,12 +18,16 @@ import org.osgi.util.tracker.ServiceTracker;
 import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
+import ru.aplix.ltk.core.util.Parameter;
 import ru.aplix.ltk.core.util.Parameters;
+import ru.aplix.ltk.osgi.Logger;
 
 
 public final class AllClrProfiles {
 
 	private static final String CONFIG_PREFIX = "ru.aplix.ltk.rf";
+	private static final Parameter<Boolean> AUTOSTART =
+			BOOLEAN_PARAMETER_TYPE.parameter("autostart").byDefault(false);
 
 	private final CollectorHttpService collectorService;
 	private final ConcurrentHashMap<ClrProfileId, ClrProfile<?>> profiles =
@@ -36,6 +41,10 @@ public final class AllClrProfiles {
 
 	public final CollectorHttpService getCollectorService() {
 		return this.collectorService;
+	}
+
+	public final Logger log() {
+		return getCollectorService().log();
 	}
 
 	public void init() {
@@ -127,9 +136,20 @@ public final class AllClrProfiles {
 			RfProvider<S> provider,
 			ClrProfileId profileId,
 			Parameters params) {
-		this.profiles.put(
-				profileId,
-				new ClrProfile<>(this, provider, profileId, params));
+
+		final ClrProfile<S> profile =
+				new ClrProfile<>(this, provider, profileId, params);
+		final ClrProfile<?> existing = this.profiles.put(profileId, profile);
+
+		if (existing != null) {
+			this.profiles.put(profileId, existing);
+			log().error("Profile `" + profileId + "` already registered");
+			return;
+		}
+
+		if (params.valueOf(AUTOSTART)) {
+			profile.autostart();
+		}
 	}
 
 	private void removeProvider(RfProvider<?> provider) {

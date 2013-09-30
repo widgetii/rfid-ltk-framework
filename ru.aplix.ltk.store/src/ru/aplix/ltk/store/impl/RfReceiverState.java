@@ -1,12 +1,18 @@
 package ru.aplix.ltk.store.impl;
 
+import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
+
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.collector.RfCollectorHandle;
 import ru.aplix.ltk.core.source.RfStatusMessage;
+import ru.aplix.ltk.core.util.Parameters;
 import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.store.RfReceiverEditor;
+import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 
 
 final class RfReceiverState<S extends RfSettings>
@@ -73,6 +79,26 @@ final class RfReceiverState<S extends RfSettings>
 		}
 	}
 
+	void load(RfReceiverData data) {
+
+		final Parameters params =
+				new Parameters().urlDecode(data.getSettings());
+		final S settings = getRfProvider().newSettings();
+
+		settings.read(params);
+
+		this.settings = settings;
+		if (data.isActive()) {
+			start();
+		}
+	}
+
+	void save(RfReceiverData data) {
+		data.setActive(isActive());
+		data.setProvider(getRfProvider().getId());
+		data.setSettings(new Parameters().setBy(getRfSettings()).urlEncode());
+	}
+
 	RfReceiverState<S> update(RfReceiverEditor<S> editor) {
 
 		final S newSettings =
@@ -95,7 +121,12 @@ final class RfReceiverState<S extends RfSettings>
 			newState.settings = newSettings;
 		}
 		if (editor.isActive() && (stop || !wasActive)) {
-			newState.start();
+			registerSynchronization(new TransactionSynchronizationAdapter() {
+				@Override
+				public void afterCommit() {
+					newState.start();
+				}
+			});
 		}
 
 		return newState;

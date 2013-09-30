@@ -25,10 +25,29 @@
     </dependency>
     <dependency
       org="org.springframework"
+      name="org.springframework.jdbc"
+      rev="3.1.0.RELEASE"
+      conf="compile->*">
+      <artifact name="org.springframework.jdbc" type="jar"/>
+    </dependency>
+    <dependency
+      org="org.springframework"
+      name="org.springframework.transaction"
+      rev="3.1.0.RELEASE"
+      conf="compile->*">
+      <artifact name="org.springframework.transaction" type="jar"/>
+    </dependency>
+    <dependency
+      org="org.springframework"
       name="org.springframework.orm"
       rev="3.1.0.RELEASE"
       conf="compile->*">
       <artifact name="org.springframework.orm" type="jar"/>
     </dependency>
+    <dependency
+      org="org.hibernate"
+      name="hibernate-entitymanager"
+      rev="4.2.6.Final"
+      conf="compile->*"/>
   </dependencies>
 </ivy-module>

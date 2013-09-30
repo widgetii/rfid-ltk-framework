@@ -1,25 +1,50 @@
 package ru.aplix.ltk.store.impl;
 
+import javax.persistence.EntityManager;
+
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.store.RfReceiver;
-import ru.aplix.ltk.store.RfReceiverEditor;
+import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 
 
 final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 
+	static <S extends RfSettings> RfReceiverImpl<S> rfReceiver(
+			RfStoreImpl store,
+			RfReceiverData data) {
+
+		final RfProvider<S> provider = store.providerById(data.getProvider());
+
+		if (provider == null) {
+			return null;
+		}
+
+		return new RfReceiverImpl<>(store, provider, data);
+	}
+
 	private final RfStoreImpl store;
-	private final int id;
+	private int id;
 	private final RfProvider<S> provider;
 	private volatile RfReceiverState<S> state;
 
-	RfReceiverImpl(RfStoreImpl store, int id, RfProvider<S> provider) {
+	RfReceiverImpl(RfStoreImpl store, RfProvider<S> provider) {
 		this.store = store;
-		this.id = id;
 		this.provider = provider;
 		this.state = new RfReceiverState<>(this);
+	}
+
+	private RfReceiverImpl(
+			RfStoreImpl store,
+			RfProvider<S> provider,
+			RfReceiverData data) {
+		this.store = store;
+		this.provider = provider;
+		this.id = data.getId();
+		this.state = new RfReceiverState<>(this);
+		this.state.load(data);
 	}
 
 	public final RfStoreImpl getRfStore() {
@@ -68,8 +93,45 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 		}
 	}
 
-	synchronized void update(RfReceiverEditor<S> editor) {
+	synchronized RfReceiverState<S> update(RfReceiverEditorImpl<S> editor) {
+
+		final RfReceiverState<S> prevState = this.state;
+
 		this.state = this.state.update(editor);
+		if (editor.getRfReceiver() == null) {
+			create();
+		} else {
+			merge();
+		}
+
+		return prevState;
+	}
+
+	synchronized void update(RfReceiverState<S> state) {
+		this.state = state;
+	}
+
+	private void create() {
+
+		final RfReceiverData data = new RfReceiverData();
+
+		this.state.save(data);
+
+		final EntityManager em = getRfStore().getEntityManager();
+
+		em.persist(data);
+		em.refresh(data);
+
+		this.id = data.getId();
+	}
+
+	private void merge() {
+
+		final RfReceiverData data = new RfReceiverData(getId());
+
+		this.state.save(data);
+
+		getRfStore().getEntityManager().merge(data);
 	}
 
 }

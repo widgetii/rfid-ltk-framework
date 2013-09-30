@@ -7,6 +7,17 @@
     http://www.osgi.org/xmlns/blueprint/v1.0.0
     http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
+  <reference-list
+    id="rfProviders"
+    interface="ru.aplix.ltk.core.RfProvider"
+    activation="eager"
+    availability="optional">
+    <reference-listener
+      ref="rfStore"
+      bind-method="providersUpdated"
+      unbind-method="providersUpdated"/>
+  </reference-list>
+
   <service ref="rfStore" interface="ru.aplix.ltk.store.RfStore"/>
 
 </blueprint>

@@ -3,9 +3,8 @@ package ru.aplix.ltk.core.util;
 import static java.util.Objects.requireNonNull;
 import static ru.aplix.ltk.core.util.ParameterType.STRING_PARAMETER_TYPE;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -313,7 +312,28 @@ public final class Parameters implements Parameterized {
 		return add(STRING_PARAMETER_TYPE, name, values);
 	}
 
+	public final Parameters urlDecode(String data) {
+		return urlDecode(data, UTF_8);
+	}
+
+	public final Parameters urlDecode(String data, String encoding) {
+		try (StringReader in = new StringReader(data)) {
+			try {
+				return urlDecode(in, encoding);
+			} catch (IOException e) {
+				throw new IllegalStateException(e);// Should never happen.
+			}
+		}
+	}
+
 	public Parameters urlDecode(Reader in) throws IOException {
+		return urlDecode(in, UTF_8);
+	}
+
+	public Parameters urlDecode(
+			Reader in,
+			String encoding)
+	throws UnsupportedEncodingException, IOException {
 
 		final StringBuilder name = new StringBuilder();
 		final StringBuilder value = new StringBuilder();
@@ -330,7 +350,7 @@ public final class Parameters implements Parameterized {
 
 			switch (c) {
 			case '&':
-				addDecodedParam(name, value, hasValue);
+				addDecodedParam(name, value, encoding, hasValue);
 				name.setLength(0);
 				value.setLength(0);
 				data = name;
@@ -345,43 +365,43 @@ public final class Parameters implements Parameterized {
 			}
 		}
 
-		addDecodedParam(name, value, hasValue);
+		addDecodedParam(name, value, encoding, hasValue);
 
 		return this;
 	}
 
 	@Override
 	public String toString() {
-		try {
-			return urlEncode();
-		} catch (UnsupportedEncodingException e) {
-			return e.getMessage();
-		}
+		return urlEncode();
 	}
 
 	private void addDecodedParam(
 			StringBuilder name,
 			StringBuilder value,
-			boolean hasValue) {
+			String encoding,
+			boolean hasValue)
+	throws UnsupportedEncodingException {
 		if (name.length() == 0 && !hasValue) {
 			return;
 		}
+
+		final String decodedName =
+				URLDecoder.decode(name.toString(), encoding);
+
 		if (!hasValue) {
-			add(name.toString(), new String[0]);
+			add(decodedName, new String[0]);
 			return;
 		}
-		add(name.toString(), value.toString());
+
+		add(name.toString(), URLDecoder.decode(value.toString(), encoding));
 	}
 
 	/**
 	 * URL-encodes these parameters into a string in UTF-8 encoding.
 	 *
 	 * @return a string containing URL-encoded data.
-	 *
-	 * @throws UnsupportedEncodingException if {@code UTF-8} encoding is not
-	 * supported.
 	 */
-	public final String urlEncode() throws UnsupportedEncodingException {
+	public final String urlEncode() {
 		return urlEncode(UTF_8);
 	}
 
@@ -391,22 +411,15 @@ public final class Parameters implements Parameterized {
 	 * @param encoding encoding to use for URL encoding.
 	 *
 	 * @return a string containing URL-encoded data.
-	 *
-	 * @throws UnsupportedEncodingException if {@code encoding} is not
-	 * supported.
 	 */
-	public final String urlEncode(
-			String encoding)
-	throws UnsupportedEncodingException {
+	public final String urlEncode(String encoding) {
 
 		final StringBuilder out = new StringBuilder();
 
 		try {
 			urlEncode(out, encoding);
-		} catch (UnsupportedEncodingException e) {
-			throw e;
 		} catch (IOException e) {
-			new IllegalStateException(e);// Should never be thrown.
+			new IllegalStateException(e);// Should never happen.
 		}
 
 		return out.toString();
@@ -417,14 +430,10 @@ public final class Parameters implements Parameterized {
 	 *
 	 * @param out an appendable to write URL-encoded values to.
 	 *
-	 * @throws UnsupportedEncodingException if {@code UTF-8} encoding is not
-	 * supported.
 	 * @throws IOException if i/o exception happened during the attempt to write
 	 * to the {@code appendable}.
 	 */
-	public final void urlEncode(
-			Appendable out)
-	throws UnsupportedEncodingException, IOException {
+	public final void urlEncode(Appendable out) throws IOException {
 		urlEncode(out, UTF_8);
 	}
 

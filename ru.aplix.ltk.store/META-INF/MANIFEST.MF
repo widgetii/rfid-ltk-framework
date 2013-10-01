@@ -12,8 +12,8 @@ Require-Bundle: ru.aplix.ltk.core;bundle-version="1.0.0";visibility:=reexport,
  org.springframework.aspects;bundle-version="3.1.0",
  org.springframework.transaction;bundle-version="3.1.0",
  org.springframework.jdbc;bundle-version="3.1.0",
- org.springframework.orm;bundle-version="3.1.0",
- org.hibernate.core;bundle-version="4.2.6.Final",
- org.hibernate.entitymanager;bundle-version="4.2.6.Final"
+ org.springframework.orm;bundle-version="3.1.0"
 Export-Package: ru.aplix.ltk.store
 Import-Package: javax.persistence;version="2.1.0"
+Import-Bundle: org.hibernate.core;version="4.2.6.Final";import-scope:=application,
+ org.hibernate.entitymanager;version="4.2.6.Final";import-scope:=application

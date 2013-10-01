@@ -43,6 +43,10 @@
           url="http://download.eclipse.org/eclipse/updates/4.3"
           requirementStrategy="first"/>
         <updatesite
+          name="eclipselink-updatesite"
+          url="http://download.eclipse.org/rt/eclipselink/updates/"
+          requirementStrategy="first"/>
+        <updatesite
           name="virgo-updatesite"
           url="http://download.eclipse.org/virgo/release/tooling"
           requirementStrategy="first"/>

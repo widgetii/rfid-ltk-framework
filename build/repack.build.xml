@@ -10,7 +10,6 @@
 	<property 
 		name="jar.file"
 		value="${target.dir}/${ant.project.name}_${module.version}.jar"/>
-	<property name="classes.dir" value="${basedir}/bin"/>
 
 	<ivy:settings file="${root.dir}/ivysettings.xml"/>
 
@@ -21,7 +20,11 @@
 			destfile="${jar.file}"
 			manifest="META-INF/MANIFEST.MF"
 			encoding="UTF-8">
-			<ivy:resources file="${ivy.file}" conf="repack" type="jar"/>
+			<ivy:resources
+				file="${ivy.file}"
+				conf="repack"
+				type="jar"
+				transitive="false"/>
 		</jar>
 	</target>
 

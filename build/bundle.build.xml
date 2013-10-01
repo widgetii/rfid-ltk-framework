@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+	name="ru.aplix.ltk.build.bundle">
+
+	<import file="setup.build.xml"/>
+
+	<property name="ivy.file" value="${basedir}/ivy.xml"/>
+	<property 
+		name="jar.file"
+		value="${target.dir}/${ant.project.name}_${bundle.version}.jar"/>
+
+	<ivy:settings file="${root.dir}/ivysettings.xml"/>
+
+	<target name="package">
+		<mkdir taskname="${ant.project.name}" dir="${target.dir}"/>
+		<zipfileset id="bundle.files" excludes="META-INF/MANIFEST.MF">
+			<ivy:resources
+				file="${ivy.file}"
+				conf="repack"
+				type="jar"
+				transitive="false"/>
+		</zipfileset>
+		<pathconvert
+			taskname="${ant.project.name}"
+			property="package.export.all"
+			preserveduplicates="false">
+			<zipfileset refid="bundle.files"/>
+			<chainedmapper>
+				<filtermapper>
+					<linecontains>
+					  <contains value=".class"/>
+					</linecontains>
+					<replaceregex pattern=".*\.jar:"/>
+					<replaceregex pattern="[^\w$][\w$]+\.class"/>
+				</filtermapper>
+				<packagemapper from="*" to="*"/>
+			</chainedmapper>
+		</pathconvert>
+		<pathconvert
+			taskname="${ant.project.name}"
+			property="package.export"
+			pathsep=","
+			preserveduplicates="false">
+			<path>
+				<pathelement path="${package.export.all}"/>
+			</path>
+			<chainedmapper>
+				<flattenmapper/>
+				<packagemapper
+					from="*"
+					to="*;version=&quot;${bundle.version}&quot;"/>
+			</chainedmapper>
+		</pathconvert>
+		<jar
+			taskname="${ant.project.name}"
+			destfile="${jar.file}"
+			encoding="UTF-8">
+			<manifest>
+				<attribute name="Bundle-ManifestVersion" value="2"/>
+				<attribute name="Bundle-Name" value="${bundle.name}"/>
+				<attribute
+					name="Bundle-SymbolicName"
+					value="${ant.project.name}"/>
+				<attribute name="Bundle-Version" value="${bundle.version}"/>
+				<attribute name="Bundle-Vendor" value="Aplix LLC"/>
+				<attribute name="Export-Package" value="${package.export}"/>
+			</manifest>
+			<zipfileset refid="bundle.files"/>
+		</jar>
+	</target>
+
+	<target name="test" depends="package"/>
+
+	<target name="clean" description="Cleans everything">
+		<delete taskname="${ant.project.name}" file="${jar.file}"/>
+	</target>
+
+</project>

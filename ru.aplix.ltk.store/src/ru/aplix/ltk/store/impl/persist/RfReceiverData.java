@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 
 @Entity
-@Table(name = "receiver", schema = "rf_store")
+@Table(name = "receiver", schema = "rfstore")
 @NamedQuery(
 		name = "allReceivers",
 		query = "SELECT r FROM RfReceiverData r ORDER BY r.id")

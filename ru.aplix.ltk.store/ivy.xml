@@ -41,43 +41,13 @@
     <dependency
       org="bundle"
       name="javax.persistence"
-      rev="2.1.0+"/>
-    <dependency
-      org="com.fasterxml"
-      name="com.springsource.com.fasterxml.classmate"
-      rev="0.5.4"/>
-    <dependency
-      org="org.antlr"
-      name="com.springsource.antlr"
-      rev="2.7.7"/>
-    <dependency
-      org="org.jboss.javassist"
-      name="com.springsource.javassist"
-      rev="3.15.0.GA"/>
+      rev="2.1.0+"
+      conf="compile->*"/>
     <dependency
       org="org.hibernate"
       name="hibernate-entitymanager"
       rev="4.2.6.Final"
-      conf="compile->*;runtime->default"/>
-    <dependency
-      org="org.dom4j"
-      name="com.springsource.org.dom4j"
-      rev="1.6.1"/>
-    <dependency
-      org="org.jboss"
-      name="com.springsource.org.jboss.jandex"
-      rev="1.0.3.Final"/>
-    <dependency
-      org="org.apache.ant"
-      name="com.springsource.org.apache.tools.ant"
-      rev="1.8.3"/>
-
-    <exclude org="antlr" module="antlr"/>
-    <exclude org="dom4j" module="dom4j"/>
-    <exclude
-      org="org.hibernate.javax.persistence"
-      module="hibernate-jpa-2.0-api"/>
-    <exclude org="org.javassist" module="javassist"/>
+      conf="compile->*"/>
 
     <exclude org="package" module="javax.sql"/>
 

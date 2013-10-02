@@ -20,7 +20,7 @@ import javax.persistence.*;
 public class RfReceiverData {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false, unique = true, updatable = false)
 	private int id;
 

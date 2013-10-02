@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<project name="org.springframework.org.postgresql" default="package">
-
-	<property name="module.version" value="9.2.1003.jdbc4"/>
-
-	<import file="../build/repack.build.xml"/>
-
-</project>

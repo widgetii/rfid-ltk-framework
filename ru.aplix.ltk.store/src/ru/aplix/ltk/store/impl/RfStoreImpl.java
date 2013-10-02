@@ -1,5 +1,6 @@
 package ru.aplix.ltk.store.impl;
 
+import static org.osgi.service.log.LogService.LOG_ERROR;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 import static ru.aplix.ltk.store.impl.RfReceiverImpl.rfReceiver;
 
@@ -7,12 +8,16 @@ import java.util.Collection;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceUnit;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.osgi.service.log.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -29,28 +34,28 @@ import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 @Component("rfStore")
 public class RfStoreImpl implements RfStore {
 
-	private final ConcurrentHashMap<Integer, RfReceiverImpl<?>> receivers =
-			new ConcurrentHashMap<>();
-
-	@PersistenceUnit(unitName = "rfstore")
-	private EntityManager entityManager;
-
 	@Autowired
-	@Qualifier("rfProviders")
-	private List<RfProvider<?>> providerList;
-
+	@Qualifier("log")
+	private LogService log;
+	@PersistenceContext(unitName = "rfstore")
+	private EntityManager entityManager;
+	private final ExecutorService executor =
+			Executors.newSingleThreadExecutor();
+	private final ConcurrentHashMap<Integer, RfReceiverImpl<?>> allReceivers =
+			new ConcurrentHashMap<>();
+	private final
+	ConcurrentHashMap<String, RfProviderReceivers> providerReceivers =
+			new ConcurrentHashMap<>();
 	private volatile boolean loaded;
-
-	private volatile ConcurrentHashMap<String, RfProvider<?>> providers;
 
 	@Override
 	public Collection<? extends RfReceiverImpl<?>> allRfReceivers() {
-		return this.receivers.values();
+		return this.allReceivers.values();
 	}
 
 	@Override
 	public RfReceiver<?> rfReceiverById(int id) {
-		return this.receivers.get(id);
+		return this.allReceivers.get(id);
 	}
 
 	@Override
@@ -59,12 +64,42 @@ public class RfStoreImpl implements RfStore {
 		return new RfReceiverEditorImpl<>(this, provider);
 	}
 
-	public void providersUpdated(
-			@SuppressWarnings("unused") RfProvider<?> target,
+	public final ExecutorService getExecutor() {
+		return this.executor;
+	}
+
+	public final LogService log() {
+		return this.log;
+	}
+
+	public void providerAdded(
+			RfProvider<?> provider,
 			@SuppressWarnings("unused") Dictionary<?, ?> properties) {
-		this.providers = null;
+
+		final String id = provider.getId();
+
+		if (this.allReceivers.containsKey(id)) {
+			return;
+		}
+
+		final RfProviderReceivers receivers =
+				new RfProviderReceivers(this, provider);
+
+		this.providerReceivers.put(id, receivers);
 		if (this.loaded) {
-			loadReceivers();
+			receivers.load();
+		}
+	}
+
+	public void providerRemoved(
+			RfProvider<?> provider,
+			@SuppressWarnings("unused") Dictionary<?, ?> properties) {
+
+		final RfProviderReceivers receivers =
+				this.providerReceivers.remove(provider.getId());
+
+		if (receivers != null) {
+			receivers.shutdown();
 		}
 	}
 
@@ -75,7 +110,35 @@ public class RfStoreImpl implements RfStore {
 	@SuppressWarnings("unchecked")
 	final <S extends RfSettings> RfProvider<S> providerById(
 			String providerId) {
-		return (RfProvider<S>) providersById().get(providerId);
+
+		final RfProviderReceivers receivers =
+				this.providerReceivers.get(providerId);
+
+		if (receivers == null) {
+			return null;
+		}
+
+		return (RfProvider<S>) receivers.getProvider();
+	}
+
+	@Transactional
+	void deleteReceiver(final RfReceiverImpl<?> receiver) {
+		removeReceiver(receiver);
+
+		final Query query =
+				getEntityManager().createNamedQuery("deleteRfReceiver");
+
+		query.setParameter("id", receiver.getId());
+		query.executeUpdate();
+
+		registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCompletion(int status) {
+				if (status != STATUS_COMMITTED) {
+					addReceiver(receiver);
+				}
+			}
+		});
 	}
 
 	@Transactional
@@ -95,23 +158,52 @@ public class RfStoreImpl implements RfStore {
 
 		if (editedReceiver == null) {
 			createReceiver(receiver);
+		} else {
+			updateReceiver(receiver, prevState);
 		}
-
-		updateReceiver(receiver, prevState);
 
 		return receiver;
 	}
 
+	final void addReceivers(List<RfReceiverData> receiversData) {
+		for (RfReceiverData data : receiversData) {
+
+			final RfReceiverImpl<?> receiver = rfReceiver(this, data);
+
+			if (receiver != null) {
+				addReceiver(receiver);
+			}
+		}
+	}
+
+	final RfReceiverImpl<?> removeReceiver(Integer receiverId) {
+		return this.allReceivers.remove(receiverId);
+	}
+
+	@Transactional(readOnly = true)
+	void loadProviderReceivers(RfProvider<?> provider) {
+
+		final Query query =
+				getEntityManager().createNamedQuery("providerRfReceivers");
+
+		query.setParameter("providerId", provider.getId());
+
+		@SuppressWarnings("unchecked")
+		final List<RfReceiverData> receiversData = query.getResultList();
+
+		addReceivers(receiversData);
+	}
+
 	private <S extends RfSettings> void createReceiver(
 			final RfReceiverImpl<S> receiver) {
-		this.receivers.put(receiver.getId(), receiver);
+		this.allReceivers.put(receiver.getId(), receiver);
 		registerSynchronization(new TransactionSynchronizationAdapter() {
 			@Override
 			public void afterCompletion(int status) {
 				if (status == STATUS_COMMITTED) {
 					return;
 				}
-				RfStoreImpl.this.receivers.remove(receiver.getId());
+				RfStoreImpl.this.allReceivers.remove(receiver.getId());
 			}
 		});
 	}
@@ -131,51 +223,60 @@ public class RfStoreImpl implements RfStore {
 		});
 	}
 
-	void deleteReceiver(RfReceiverImpl<?> receiver) {
-		this.receivers.remove(receiver.getId());
-	}
-
 	@PostConstruct
 	private void loadAll() {
-		this.loaded = true;
-		loadReceivers();
+		getExecutor().submit(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					loadReceivers();
+				} catch (Throwable e) {
+					log().log(LOG_ERROR, "Failed to load receivers", e);
+				} finally {
+					RfStoreImpl.this.loaded = true;
+				}
+			}
+		});
 	}
 
-	private ConcurrentHashMap<String, RfProvider<?>> providersById() {
-		if (this.providers != null) {
-			return this.providers;
+	@PreDestroy
+	private void shutdown() {
+		for (RfProviderReceivers receivers : this.providerReceivers.values()) {
+			receivers.shutdown();
 		}
-
-		final ConcurrentHashMap<String, RfProvider<?>> providersById =
-				new ConcurrentHashMap<>(this.providerList.size());
-
-		for (RfProvider<?> provider : this.providerList) {
-			providersById.put(provider.getId(), provider);
-		}
-
-		return this.providers = providersById;
+		this.executor.shutdown();
 	}
 
 	@Transactional(readOnly = true)
 	private void loadReceivers() {
 
-		final Query query = this.entityManager.createNamedQuery("allReceivers");
+		final Query query =
+				this.entityManager.createNamedQuery("allRfReceivers");
 		@SuppressWarnings("unchecked")
-		final List<RfReceiverData> results = query.getResultList();
+		final List<RfReceiverData> receiversData = query.getResultList();
 
-		for (RfReceiverData data : results) {
+		addReceivers(receiversData);
+	}
 
-			final Integer id = data.getId();
+	private void addReceiver(RfReceiverImpl<?> receiver) {
+		this.allReceivers.put(receiver.getId(), receiver);
 
-			if (this.receivers.contains(id)) {
-				continue;
-			}
+		final RfProviderReceivers providerReceivers =
+				this.providerReceivers.get(receiver.getRfProvider().getId());
 
-			final RfReceiverImpl<?> receiver = rfReceiver(this, data);
+		if (providerReceivers != null) {
+			providerReceivers.add(receiver);
+		}
+	}
 
-			if (receiver != null) {
-				this.receivers.put(id, receiver);
-			}
+	private void removeReceiver(RfReceiverImpl<?> receiver) {
+		removeReceiver(receiver.getId());
+
+		final RfProviderReceivers providerReceivers =
+				this.providerReceivers.get(receiver.getRfProvider().getId());
+
+		if (providerReceivers != null) {
+			providerReceivers.remove(receiver);
 		}
 	}
 

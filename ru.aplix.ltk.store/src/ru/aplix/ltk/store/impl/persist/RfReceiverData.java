@@ -5,9 +5,18 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "receiver", schema = "rfstore")
-@NamedQuery(
-		name = "allReceivers",
-		query = "SELECT r FROM RfReceiverData r ORDER BY r.id")
+@NamedQueries({
+	@NamedQuery(
+			name = "allRfReceivers",
+			query = "SELECT r FROM RfReceiverData r"),
+	@NamedQuery(
+			name = "providerRfReceivers",
+			query = "SELECT r FROM RfReceiverData r"
+			+ " WHERE r.provider = :providerId"),
+	@NamedQuery(
+			name = "deleteRfReceiver",
+			query = "DELETE FROM RfReceiverData r WHERE r.id = :id")
+})
 public class RfReceiverData {
 
 	@Id

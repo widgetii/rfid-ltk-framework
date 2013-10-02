@@ -87,10 +87,12 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 
 	@Override
 	public void delete() {
+		shutdown();
 		getRfStore().deleteReceiver(this);
-		synchronized (this) {
-			this.state.shutdown();
-		}
+	}
+
+	synchronized void shutdown() {
+		this.state.shutdown();
 	}
 
 	synchronized RfReceiverState<S> update(RfReceiverEditorImpl<S> editor) {

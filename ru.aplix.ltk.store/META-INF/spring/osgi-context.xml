@@ -14,9 +14,11 @@
     availability="optional">
     <reference-listener
       ref="rfStore"
-      bind-method="providersUpdated"
-      unbind-method="providersUpdated"/>
+      bind-method="providerAdded"
+      unbind-method="providerRemoved"/>
   </reference-list>
+
+  <reference id="log" interface="org.osgi.service.log.LogService"/>
 
   <service ref="rfStore" interface="ru.aplix.ltk.store.RfStore"/>
 

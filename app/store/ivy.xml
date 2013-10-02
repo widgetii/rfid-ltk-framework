@@ -6,7 +6,7 @@
     module="ru.aplix.ltk.app.store"
     status="integration"
     revision="1.0.0"/>
-  <configurations defaultconf="runtime" defaultconfmapping="runtime->*">
+  <configurations defaultconf="runtime">
     <conf name="runtime"/>
   </configurations>
   <publications>
@@ -16,7 +16,10 @@
     <dependency
       org="bundle"
       name="ru.aplix.ltk.store.web"
-      rev="latest.integration"
-      conf="runtime->@"/>
+      rev="latest.integration"/>
+    <dependency
+      org="bundle"
+      name="org.postgresql"
+      rev="9.2.1003.jdbc4aplix"/>
   </dependencies>
 </ivy-module>

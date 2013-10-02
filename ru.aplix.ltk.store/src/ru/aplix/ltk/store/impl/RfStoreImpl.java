@@ -11,15 +11,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.osgi.service.log.LogService;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.*;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -32,7 +34,11 @@ import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 
 
 @Component("rfStore")
-public class RfStoreImpl implements RfStore {
+public class RfStoreImpl
+		implements RfStore,
+		ApplicationContextAware,
+		DisposableBean,
+		ApplicationListener<ContextRefreshedEvent> {
 
 	@Autowired
 	@Qualifier("log")
@@ -46,7 +52,7 @@ public class RfStoreImpl implements RfStore {
 	private final
 	ConcurrentHashMap<String, RfProviderReceivers> providerReceivers =
 			new ConcurrentHashMap<>();
-	private volatile boolean loaded;
+	private volatile int loaded;
 
 	@Override
 	public Collection<? extends RfReceiverImpl<?>> allRfReceivers() {
@@ -72,6 +78,25 @@ public class RfStoreImpl implements RfStore {
 		return this.log;
 	}
 
+	@Override
+	public void setApplicationContext(
+			ApplicationContext applicationContext)
+	throws BeansException {
+		if (!(applicationContext instanceof ConfigurableApplicationContext)) {
+			return;
+		}
+
+		final ConfigurableApplicationContext context =
+				(ConfigurableApplicationContext) applicationContext;
+
+		context.addApplicationListener(this);
+	}
+
+	@Override
+	public void onApplicationEvent(ContextRefreshedEvent event) {
+		loadAll();
+	}
+
 	public void providerAdded(
 			RfProvider<?> provider,
 			@SuppressWarnings("unused") Dictionary<?, ?> properties) {
@@ -82,12 +107,12 @@ public class RfStoreImpl implements RfStore {
 			return;
 		}
 
-		final RfProviderReceivers receivers =
+		final RfProviderReceivers providerReceivers =
 				new RfProviderReceivers(this, provider);
 
-		this.providerReceivers.put(id, receivers);
-		if (this.loaded) {
-			receivers.load();
+		this.providerReceivers.put(id, providerReceivers);
+		if (this.loaded > 0) {
+			providerReceivers.load();
 		}
 	}
 
@@ -98,9 +123,15 @@ public class RfStoreImpl implements RfStore {
 		final RfProviderReceivers receivers =
 				this.providerReceivers.remove(provider.getId());
 
-		if (receivers != null) {
+		if (receivers != null && this.loaded > 0) {
 			receivers.shutdown();
 		}
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		this.loaded = -1;
+		shutdown();
 	}
 
 	final EntityManager getEntityManager() {
@@ -223,7 +254,6 @@ public class RfStoreImpl implements RfStore {
 		});
 	}
 
-	@PostConstruct
 	private void loadAll() {
 		getExecutor().submit(new Runnable() {
 			@Override
@@ -233,13 +263,12 @@ public class RfStoreImpl implements RfStore {
 				} catch (Throwable e) {
 					log().log(LOG_ERROR, "Failed to load receivers", e);
 				} finally {
-					RfStoreImpl.this.loaded = true;
+					RfStoreImpl.this.loaded = 1;
 				}
 			}
 		});
 	}
 
-	@PreDestroy
 	private void shutdown() {
 		for (RfProviderReceivers receivers : this.providerReceivers.values()) {
 			receivers.shutdown();

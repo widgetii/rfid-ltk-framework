@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="org.postgresql" default="package">
+
+	<property name="bundle.name" value="PostgreSQL JDBC Driver"/>
+	<property name="bundle.version" value="9.2.1003.jdbc4aplix"/>
+
+	<import file="../build/bundle.build.xml"/>
+
+</project>

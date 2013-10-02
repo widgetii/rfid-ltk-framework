@@ -110,12 +110,6 @@
 
     <dependency
       org="bundle"
-      name="org.springframework.org.postgresql"
-      rev="9.2.1003.jdbc4"
-      conf="ext->runtime"/>
-    
-    <dependency
-      org="bundle"
       name="javax.persistence"
       rev="2.1.0+"/>
     <dependency

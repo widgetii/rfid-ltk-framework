@@ -139,7 +139,7 @@ angular.module(
 				var r2 = list[i2];
 				if (i1 >= len1) {
 					receivers.list.splice(i1, 0, r2);
-					++r2;
+					++i2;
 					continue;
 				}
 				var r1 = receivers.list[i1];

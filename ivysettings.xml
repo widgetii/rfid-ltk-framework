@@ -32,7 +32,12 @@
       <ibiblio name="maven2" m2compatible="true"/>
     </chain>
     <chain name="bundles" dual="true" returnFirst="true">
-      <filesystem name="ltk-bundles" checkmodified="true" cache="ltk-bundles">
+      <filesystem
+        name="ltk-bundles"
+        checkmodified="true"
+        cache="ltk-bundles"
+        validate="true"
+        descriptor="required">
         <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
         <artifact
           pattern="${ivy.settings.dir}/target/[artifact]_[revision].[ext]"/>

@@ -9,7 +9,6 @@ import ru.aplix.ltk.collector.log.CyclicLogFilter;
 import ru.aplix.ltk.collector.log.CyclicLogReader;
 import ru.aplix.ltk.core.collector.RfTagAppearanceHandle;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
-import ru.aplix.ltk.core.source.RfError;
 import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.message.MsgProxy;
 
@@ -61,7 +60,7 @@ final class LogConsumer
 	@Override
 	public void consumerUnsubscribed(RfTagAppearanceHandle handle) {
 		synchronized (this) {
-			stopSending();
+			stopSending(true);
 		}
 		super.consumerUnsubscribed(handle);
 	}
@@ -69,7 +68,7 @@ final class LogConsumer
 	@Override
 	public synchronized void readerExhausted(CyclicLogReader reader) {
 		this.passthrough = true;
-		stopSending();
+		stopSending(false);
 	}
 
 	@Override
@@ -77,8 +76,7 @@ final class LogConsumer
 		try {
 			requestMessages();
 		} catch (Throwable e) {
-			this.tracker.updateStatus(
-					new RfError(null, "Failed to read messages", e));
+			this.tracker.error("Failed to read messages", e);
 		}
 	}
 
@@ -119,14 +117,13 @@ final class LogConsumer
 		}
 	}
 
-	private void stopSending() {
+	private void stopSending(boolean shutdown) {
 		this.requestThread = null;
 
 		final TagMessageSender sender = this.sender;
 
 		if (sender != null) {
-			this.sender = null;
-			sender.stopSending();
+			sender.stopSending(shutdown);
 		}
 	}
 
@@ -165,28 +162,32 @@ final class LogConsumer
 
 		@Override
 		public void run() {
+			for (;;) {
 
-			final RfTagAppearanceRecord message;
+				final RfTagAppearanceRecord message;
 
-			try {
-				message = this.messages.take();
-			} catch (InterruptedException e) {
-				return;
-			}
-			if (message == null) {
-				return;
-			}
+				try {
+					message = this.messages.take();
+				} catch (InterruptedException e) {
+					break;
+				}
+				if (message.isStop()) {
+					break;
+				}
 
-			try {
-				getProxied().messageReceived(message);
-			} catch (Throwable e) {
-				LogConsumer.this.tracker.updateStatus(new RfError(null, e));
+				try {
+					getProxied().messageReceived(message);
+				} catch (Throwable e) {
+					LogConsumer.this.tracker.error("Failed to send tag", e);
+				}
 			}
 		}
 
-		private void stopSending() {
-			this.messages.clear();
-			this.messages.add(null);
+		private void stopSending(boolean shutdown) {
+			if (shutdown) {
+				this.messages.clear();
+			}
+			this.messages.add(RfTagAppearanceRecord.STOP);
 		}
 
 	}

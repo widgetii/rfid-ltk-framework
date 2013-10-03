@@ -17,23 +17,32 @@ import org.osgi.framework.ServiceRegistration;
 import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
+import ru.aplix.ltk.osgi.Logger;
 
 
 class LoggingRfProvider<S extends RfSettings>
 		implements RfProvider<S>, Closeable {
 
 	public static <S extends RfSettings>
-	LoggingRfProvider<S> loggingRfProvider(RfProvider<S> provider, TagLog log) {
-		return new LoggingRfProvider<>(provider, log);
+	LoggingRfProvider<S> loggingRfProvider(
+			RfProvider<S> provider,
+			TagLog log,
+			Logger logger) {
+		return new LoggingRfProvider<>(provider, log, logger);
 	}
 
 	private final RfProvider<S> provider;
 	private final TagLog log;
+	private final Logger logger;
 	private ServiceRegistration<RfProvider<?>> registration;
 
-	private LoggingRfProvider(RfProvider<S> provider, TagLog log) {
+	private LoggingRfProvider(
+			RfProvider<S> provider,
+			TagLog log,
+			Logger logger) {
 		this.provider = provider;
 		this.log = log;
+		this.logger = logger;
 	}
 
 	public void register(
@@ -94,7 +103,11 @@ class LoggingRfProvider<S extends RfSettings>
 
 		final RfConnection connection = this.provider.connect(settings);
 
-		return new LoggingRfConnection(settings, connection, this.log);
+		return new LoggingRfConnection(
+				settings,
+				connection,
+				this.log,
+				this.logger);
 	}
 
 	@Override

@@ -3,20 +3,23 @@ package ru.aplix.ltk.collector.log.impl;
 import ru.aplix.ltk.core.collector.*;
 import ru.aplix.ltk.core.source.*;
 import ru.aplix.ltk.message.MsgConsumer;
+import ru.aplix.ltk.osgi.Logger;
 
 
-public class LogRfTracker implements RfTracker, RfSource {
+final class LogRfTracker implements RfTracker, RfSource {
 
 	private final RfCollector collector;
 	private final TagLog log;
+	private final Logger logger;
 	private RfTracking tracking;
 	private RfCollectorHandle statusSubscription;
 	private RfTagAppearanceHandle tagHandle;
 	private RfStatusUpdater updater;
 
-	public LogRfTracker(RfCollector collector, TagLog log) {
+	LogRfTracker(RfCollector collector, TagLog log, Logger logger) {
 		this.collector = collector;
 		this.log = log;
+		this.logger = logger;
 	}
 
 	public final TagLog log() {
@@ -48,7 +51,6 @@ public class LogRfTracker implements RfTracker, RfSource {
 	@Override
 	public void initRfTracker(RfTracking tracking) {
 		this.tracking = tracking;
-
 	}
 
 	@Override
@@ -67,8 +69,17 @@ public class LogRfTracker implements RfTracker, RfSource {
 		this.tagHandle = null;
 	}
 
-	final void updateStatus(RfStatusMessage status) {
-		this.updater.updateStatus(status);
+	final void error(String message, Throwable cause) {
+		this.logger.error(message, cause);
+		updateStatus(new RfError(null, message, cause));
+	}
+
+	private void updateStatus(RfStatusMessage status) {
+		if (this.updater != null) {
+			this.updater.updateStatus(status);
+		} else {
+			this.tracking.updateStatus(status);
+		}
 	}
 
 	private void logTag(RfTagAppearanceMessage message) {
@@ -79,8 +90,7 @@ public class LogRfTracker implements RfTracker, RfSource {
 			logged = log().log(message);
 		} catch (Throwable e) {
 			this.tracking.updateTagAppearance(message);
-			this.tracking.updateStatus(
-					new RfError(null, "Failed to log message", e));
+			error("Failed to log message", e);
 			return;
 		}
 

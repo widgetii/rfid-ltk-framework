@@ -57,7 +57,7 @@ public class Activator implements BundleActivator {
 		try {
 
 			final LoggingRfProvider<?> loggingProvider =
-					loggingRfProvider(provider, log);
+					loggingRfProvider(provider, log, this.log);
 
 			loggingProvider.register(this.context, reference);
 

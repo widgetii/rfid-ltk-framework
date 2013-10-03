@@ -136,10 +136,10 @@ public class CyclicLog implements Closeable {
 
 		if (this.lock == lock) {
 			this.lock = next;
-			if (next == null) {
-				notifyAll();
-				return;
-			}
+		}
+		if (this.lock == null) {
+			notifyAll();
+			return;
 		}
 
 		final long[] bounds = this.lock.evalBounds();

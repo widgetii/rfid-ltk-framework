@@ -13,12 +13,21 @@ import ru.aplix.ltk.core.source.RfTag;
 
 final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 
+	static final RfTagAppearanceRecord STOP = new RfTagAppearanceRecord();
+
 	private static final byte PRESENCE_FLAG = 1;
 
 	private final long eventId;
 	private final long timestamp;
 	private final RfTag rfTag;
 	private final RfTagAppearance appearance;
+
+	private RfTagAppearanceRecord() {
+		this.eventId = -1;
+		this.timestamp = 0;
+		this.rfTag = null;
+		this.appearance = null;
+	}
 
 	RfTagAppearanceRecord(long eventId, RfTagAppearanceMessage message) {
 		this.eventId = eventId;
@@ -36,6 +45,10 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 		this.appearance = appearanceByFlags(flags);
 		this.rfTag = readTag(data);
 		checkCRC(data);
+	}
+
+	public final boolean isStop() {
+		return this == STOP;
 	}
 
 	@Override

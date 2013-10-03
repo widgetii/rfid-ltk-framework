@@ -4,6 +4,7 @@ import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.source.RfSource;
+import ru.aplix.ltk.osgi.Logger;
 
 
 final class LoggingRfConnection extends RfConnection {
@@ -13,9 +14,10 @@ final class LoggingRfConnection extends RfConnection {
 	LoggingRfConnection(
 			RfSettings settings,
 			RfConnection connection,
-			TagLog log) {
+			TagLog log,
+			Logger logger) {
 		super(settings);
-		this.tracker = new LogRfTracker(connection.getCollector(), log);
+		this.tracker = new LogRfTracker(connection.getCollector(), log, logger);
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package ru.aplix.ltk.store.impl;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import ru.aplix.ltk.core.collector.RfTagAppearanceHandle;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.message.MsgConsumer;
@@ -10,9 +12,20 @@ final class RfReceiverTagListener
 		implements MsgConsumer<RfTagAppearanceHandle, RfTagAppearanceMessage> {
 
 	private final RfReceiverImpl<?> receiver;
+	private final AtomicLong eventId = new AtomicLong();
 
 	RfReceiverTagListener(RfReceiverImpl<?> receiver) {
 		this.receiver = receiver;
+	}
+
+	public long retrieveLastEventId() {
+
+		final long lastEventId =
+				this.receiver.getRfStore().lastEventId(this.receiver);
+
+		this.eventId.set(lastEventId);
+
+		return lastEventId;
 	}
 
 	@Override
@@ -23,13 +36,24 @@ final class RfReceiverTagListener
 	public void messageReceived(RfTagAppearanceMessage message) {
 
 		final RfTagEventData tagData =
-				new RfTagEventData(this.receiver, message);
+				new RfTagEventData(this.receiver, eventId(message), message);
 
 		this.receiver.getRfStore().saveEvent(tagData);
 	}
 
 	@Override
 	public void consumerUnsubscribed(RfTagAppearanceHandle handle) {
+	}
+
+	private long eventId(RfTagAppearanceMessage message) {
+
+		final long eventId = message.getEventId();
+
+		if (eventId > 0) {
+			return eventId;
+		}
+
+		return this.eventId.incrementAndGet();
 	}
 
 }

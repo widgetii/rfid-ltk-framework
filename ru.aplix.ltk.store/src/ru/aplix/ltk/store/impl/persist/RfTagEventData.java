@@ -10,6 +10,11 @@ import ru.aplix.ltk.store.RfReceiver;
 
 @Entity
 @Table(name = "tag_event", schema = "rfstore")
+@NamedQuery(
+		name = "lastRfTagEventId",
+		query =
+			"SELECT max(e.id.eventId)"
+			+ " FROM RfTagEventData e WHERE e.id.receiverId = :receiverId")
 public class RfTagEventData {
 
 	@EmbeddedId
@@ -29,8 +34,9 @@ public class RfTagEventData {
 
 	public RfTagEventData(
 			RfReceiver<?> receiver,
+			long eventId,
 			RfTagAppearanceMessage message) {
-		this.id = new RfTagEventId(receiver, message);
+		this.id = new RfTagEventId(receiver, eventId);
 		this.tag = message.getRfTag().toHexString();
 		this.timestamp = new Timestamp(message.getTimestamp());
 		this.appeared = message.getAppearance().isPresent();

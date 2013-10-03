@@ -17,7 +17,8 @@ public interface RfTagAppearanceMessage {
 	 * <p>An event identifiers can be used to request events happened before.
 	 * For that a range of event identifiers can be used.</p>
 	 *
-	 * @return identifier.
+	 * @return positive identifier, or non-positive value if not supported by
+	 * provider.
 	 */
 	long getEventId();
 

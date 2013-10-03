@@ -5,7 +5,6 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.store.RfReceiver;
 
 
@@ -23,11 +22,9 @@ public class RfTagEventId implements Serializable {
 	public RfTagEventId() {
 	}
 
-	public RfTagEventId(
-			RfReceiver<?> receiver,
-			RfTagAppearanceMessage message) {
+	public RfTagEventId(RfReceiver<?> receiver, long eventId) {
 		this.receiverId = receiver.getId();
-		this.eventId = message.getEventId();
+		this.eventId = eventId;
 	}
 
 	public int getReceiverId() {

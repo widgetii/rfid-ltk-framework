@@ -214,6 +214,19 @@ public class RfStoreImpl
 		getEntityManager().persist(eventData);
 	}
 
+	@Transactional
+	long lastEventId(RfReceiverImpl<?> receiver) {
+
+		final Query query =
+				getEntityManager().createNamedQuery("lastRfTagEventId");
+
+		query.setParameter("receiverId", receiver.getId());
+
+		final Long result = (Long) query.getSingleResult();
+
+		return result != null ? result.longValue() : 0L;
+	}
+
 	final void addReceivers(List<RfReceiverData> receiversData) {
 		for (RfReceiverData data : receiversData) {
 

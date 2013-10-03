@@ -93,12 +93,6 @@ final class RfReceiverState<S extends RfSettings>
 		}
 	}
 
-	void save(RfReceiverData data) {
-		data.setActive(isActive());
-		data.setProvider(getRfProvider().getId());
-		data.setSettings(new Parameters().setBy(getRfSettings()).urlEncode());
-	}
-
 	RfReceiverState<S> update(RfReceiverEditor<S> editor) {
 
 		final S newSettings =

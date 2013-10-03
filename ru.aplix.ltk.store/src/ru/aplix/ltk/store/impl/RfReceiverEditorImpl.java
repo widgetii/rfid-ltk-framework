@@ -2,8 +2,10 @@ package ru.aplix.ltk.store.impl;
 
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
+import ru.aplix.ltk.core.util.Parameters;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfReceiverEditor;
+import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 
 
 final class RfReceiverEditorImpl<S extends RfSettings>
@@ -68,6 +70,12 @@ final class RfReceiverEditorImpl<S extends RfSettings>
 	@Override
 	public RfReceiver<S> save() {
 		return getRfStore().saveReceiver(this);
+	}
+
+	void save(RfReceiverData data) {
+		data.setActive(isActive());
+		data.setProvider(getRfProvider().getId());
+		data.setSettings(new Parameters().setBy(getRfSettings()).urlEncode());
 	}
 
 }

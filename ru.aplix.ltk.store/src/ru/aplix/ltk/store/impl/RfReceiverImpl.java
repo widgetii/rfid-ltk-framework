@@ -1,6 +1,7 @@
 package ru.aplix.ltk.store.impl;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
@@ -101,9 +102,9 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 
 		this.state = this.state.update(editor);
 		if (editor.getRfReceiver() == null) {
-			create();
+			create(editor);
 		} else {
-			merge();
+			merge(editor);
 		}
 
 		return prevState;
@@ -113,11 +114,11 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 		this.state = state;
 	}
 
-	private void create() {
+	private void create(RfReceiverEditorImpl<S> editor) {
 
 		final RfReceiverData data = new RfReceiverData();
 
-		this.state.save(data);
+		editor.save(data);
 
 		final EntityManager em = getRfStore().getEntityManager();
 
@@ -127,13 +128,14 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 		this.id = data.getId();
 	}
 
-	private void merge() {
+	private void merge(RfReceiverEditorImpl<S> editor) {
 
-		final RfReceiverData data = new RfReceiverData(getId());
+		final RfReceiverData data = getRfStore().getEntityManager().find(
+				RfReceiverData.class,
+				getId(),
+				LockModeType.PESSIMISTIC_WRITE);
 
-		this.state.save(data);
-
-		getRfStore().getEntityManager().merge(data);
+		editor.save(data);
 	}
 
 }

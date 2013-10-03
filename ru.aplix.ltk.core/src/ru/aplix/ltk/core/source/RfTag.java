@@ -55,6 +55,29 @@ public final class RfTag {
 		return Arrays.equals(this.data, other.data);
 	}
 
+	public void toHexString(StringBuilder out) {
+		for (byte b : this.data) {
+
+			final int i = b & 0xff;
+			final String s = Integer.toHexString(i);
+
+			if (s.length() == 1) {
+				out.append('0');
+			}
+			out.append(s);
+		}
+	}
+
+	public String toHexString() {
+
+		final int length = this.data.length;
+		final StringBuilder out = new StringBuilder(length << 1);
+
+		toHexString(out);
+
+		return out.toString();
+	}
+
 	@Override
 	public String toString() {
 		if (this.data == null) {
@@ -70,16 +93,7 @@ public final class RfTag {
 		final StringBuilder out = new StringBuilder(2 + (length << 1));
 
 		out.append("0x");
-		for (byte b : this.data) {
-
-			final int i = b & 0xff;
-			final String s = Integer.toHexString(i);
-
-			if (s.length() == 1) {
-				out.append('0');
-			}
-			out.append(s);
-		}
+		toHexString(out);
 
 		return out.toString();
 	}

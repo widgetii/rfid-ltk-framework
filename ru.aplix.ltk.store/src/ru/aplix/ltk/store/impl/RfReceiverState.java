@@ -56,7 +56,7 @@ final class RfReceiverState<S extends RfSettings>
 	@Override
 	public void consumerSubscribed(RfCollectorHandle handle) {
 		this.handle = handle;
-		handle.requestTagAppearance(new RfReceiverTagListener());
+		handle.requestTagAppearance(new RfReceiverTagListener(getRfReceiver()));
 	}
 
 	@Override

@@ -32,6 +32,7 @@ import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfStore;
 import ru.aplix.ltk.store.impl.persist.RfReceiverData;
+import ru.aplix.ltk.store.impl.persist.RfTagEventData;
 
 
 @Component("rfStore")
@@ -196,6 +197,21 @@ public class RfStoreImpl
 		}
 
 		return receiver;
+	}
+
+	@Transactional
+	void saveEvent(RfTagEventData eventData) {
+
+		final RfTagEventData existing = getEntityManager().find(
+				RfTagEventData.class,
+				eventData.getId());
+
+		if (existing != null) {
+			// Prevent the storing of event for the second time.
+			return;
+		}
+
+		getEntityManager().persist(eventData);
 	}
 
 	final void addReceivers(List<RfReceiverData> receiversData) {

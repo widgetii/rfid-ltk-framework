@@ -54,6 +54,11 @@ public class HttpRfClient {
 	}
 
 	public void shutdown() {
+		synchronized (this.connections) {
+			for (HttpRfConnection connection : this.connections.values()) {
+				connection.shutdown();
+			}
+		}
 		this.httpClient.getConnectionManager().shutdown();
 	}
 

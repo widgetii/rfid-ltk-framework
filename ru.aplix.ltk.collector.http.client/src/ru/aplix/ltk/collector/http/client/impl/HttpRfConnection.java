@@ -98,10 +98,7 @@ final class HttpRfConnection
 
 	@Override
 	public void stopRfTracking() {
-		this.reconnector.cancel();
-		new DisconnectRequest(this).send();
-		disconnect();
-		this.executor.shutdown();
+		shutdown();
 	}
 
 	@Override
@@ -214,6 +211,13 @@ final class HttpRfConnection
 	void connectionLost() {
 		getLogger().error(this + " Connection lost");
 		reconnect();
+	}
+
+	void shutdown() {
+		this.reconnector.cancel();
+		new DisconnectRequest(this).send();
+		disconnect();
+		this.executor.shutdown();
 	}
 
 	private void generateUUID() {

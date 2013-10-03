@@ -45,6 +45,7 @@ public class RfTagAppearanceRequest
 			RfTagAppearanceMessage message) {
 		this.clientId = clientId;
 		this.eventId = message.getEventId();
+		this.timestamp = message.getTimestamp();
 		this.rfTag = message.getRfTag();
 		this.appearance = message.getAppearance();
 	}

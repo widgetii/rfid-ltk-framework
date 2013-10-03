@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -52,7 +53,7 @@ public class RfStoreImpl
 	private final
 	ConcurrentHashMap<String, RfProviderReceivers> providerReceivers =
 			new ConcurrentHashMap<>();
-	private volatile int loaded;
+	private final AtomicInteger loaded = new AtomicInteger();
 
 	@Override
 	public Collection<? extends RfReceiverImpl<?>> allRfReceivers() {
@@ -61,6 +62,7 @@ public class RfStoreImpl
 
 	@Override
 	public RfReceiver<?> rfReceiverById(int id) {
+		loadReceivers();
 		return this.allReceivers.get(id);
 	}
 
@@ -111,7 +113,7 @@ public class RfStoreImpl
 				new RfProviderReceivers(this, provider);
 
 		this.providerReceivers.put(id, providerReceivers);
-		if (this.loaded > 0) {
+		if (this.loaded.get() > 0) {
 			providerReceivers.load();
 		}
 	}
@@ -123,14 +125,14 @@ public class RfStoreImpl
 		final RfProviderReceivers receivers =
 				this.providerReceivers.remove(provider.getId());
 
-		if (receivers != null && this.loaded > 0) {
+		if (receivers != null && this.loaded.get() > 0) {
 			receivers.shutdown();
 		}
 	}
 
 	@Override
 	public void destroy() throws Exception {
-		this.loaded = -1;
+		this.loaded.set(-1);
 		shutdown();
 	}
 
@@ -262,8 +264,6 @@ public class RfStoreImpl
 					loadReceivers();
 				} catch (Throwable e) {
 					log().log(LOG_ERROR, "Failed to load receivers", e);
-				} finally {
-					RfStoreImpl.this.loaded = 1;
 				}
 			}
 		});
@@ -278,6 +278,9 @@ public class RfStoreImpl
 
 	@Transactional(readOnly = true)
 	private void loadReceivers() {
+		if (this.loaded.get() != 0) {
+			return;
+		}
 
 		final Query query =
 				this.entityManager.createNamedQuery("allRfReceivers");
@@ -285,6 +288,8 @@ public class RfStoreImpl
 		final List<RfReceiverData> receiversData = query.getResultList();
 
 		addReceivers(receiversData);
+
+		this.loaded.compareAndSet(0, 1);
 	}
 
 	private void addReceiver(RfReceiverImpl<?> receiver) {

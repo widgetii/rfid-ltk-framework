@@ -25,29 +25,60 @@
 		</subant>
 	</target>
 
-	<target name="resources">
+	<target name="_find_profile">
+		<property name="profile" value="default"/>
+		<available
+			taskname="${ant.project.name}"
+			file="local/${profile}"
+			type="dir"
+			property="profile.dir"
+			value="local/${profile}"/>
+		<available
+			taskname="${ant.project.name}"
+			file="profiles/${profile}"
+			type="dir"
+			property="profile.dir"
+			value="profiles/${profile}"/>
+		<fail
+			message="Build profile '${profile} not found neither in `profiles`, nor in `local`"
+			unless="profile.dir"/>
+	</target>
+
+	<target name="_prepare">
 		<mkdir taskname="${ant.project.name}" dir="${app.dir}"/>
-		<copy taskname="${ant.project.name}" todir="${app.dir}">
+	</target>
+
+	<target
+		name="_profile_resources"
+		depends="_find_profile,_prepare"
+		if="profile.dir">
+		<copy
+			taskname="${ant.project.name}"
+			todir="${app.dir}"
+			overwrite="true">
+			<fileset dir="${profile.dir}"/>
+		</copy>
+	</target>
+
+	<target name="_default_resources" depends="_prepare">
+		<copy
+			taskname="${ant.project.name}"
+			todir="${app.dir}"
+			overwrite="false">
 			<fileset dir=".">
 				<include name="configuration/**"/>
 			</fileset>
 		</copy>
-		<available file="local" type="dir" property="locals.exist"/>
-		<antcall target="_copy_local"/>
 	</target>
-	
+
+	<target name="resources" depends="_profile_resources,_default_resources"/>
+
 	<target name="build" depends="build-deps,resources">
 		<ivy:retrieve
 			taskname="${ant.project.name}"
 			sync="true"
 			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"
 			type="jar"/>
-	</target>
-
-	<target name="_copy_local" if="locals.exist">
-		<copy todir="${app.dir}" overwrite="true">
-			<fileset dir="local"/>
-		</copy>
 	</target>
 
 	<target name="clean" description="Cleans everything">

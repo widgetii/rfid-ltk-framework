@@ -146,7 +146,7 @@ class TagLog extends CyclicLog {
 
 		final File dirFile = new File(dir);
 
-		if (!dirFile.mkdirs()) {
+		if (!dirFile.isDirectory() && !dirFile.mkdirs()) {
 			throw new IllegalStateException(
 					"Failed to create collector log directory: " + dirFile);
 		}

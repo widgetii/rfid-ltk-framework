@@ -17,8 +17,8 @@ DAEMON=/usr/bin/java
 PIDFILE=/var/run/rfcollector.pid
 RFCOLLECTOR_DIR=/opt/rfcollector
 
-cd "$RFCOLLECTOR_DIR"
-LAUNCHER_JAR=$(find plugins -name 'org.eclipse.equinox.launcher_*.jar')
+cd "$RFCOLLECTOR_DIR/plugins"
+LAUNCHER_JAR=$(find -name 'org.eclipse.equinox.launcher_*.jar')
 
 test -x $DAEMON || exit 5
 

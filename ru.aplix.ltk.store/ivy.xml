@@ -36,7 +36,8 @@
       org="org.springframework"
       name="org.springframework.orm"
       rev="3.1.0.RELEASE"
-      conf="compile->*"/>
+      conf="compile->*"
+      transitive="false"/>
 
     <dependency
       org="bundle"
@@ -50,6 +51,8 @@
       conf="compile->*"/>
 
     <exclude org="package" module="javax.sql"/>
+    <exclude org="javax.persistence"/>
+    <exclude module="com.springsource.org.hibernate"/>
 
   </dependencies>
 </ivy-module>

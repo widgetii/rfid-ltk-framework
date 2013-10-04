@@ -15,7 +15,7 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 DAEMON=/usr/bin/java
 PIDFILE=/var/run/rfcollector.pid
-RFCOLLECTOR_DIR=/home/pi/ru.aplix.ltk/app/collector/target
+RFCOLLECTOR_DIR=/opt/rfcollector
 LAUNCHER_JAR=org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar
 
 test -x $DAEMON || exit 5
@@ -44,7 +44,7 @@ unlock_rfcollector() {
 	fi
 }
 
-RUNASUSER=pi
+RUNASUSER=rfcollector
 UGID=$(getent passwd $RUNASUSER | cut -f 3,4 -d:) || true
 
 case $1 in
@@ -67,7 +67,7 @@ case $1 in
 	stop)
 		log_daemon_msg "Stopping RFID collector" "rfcollector"
 		start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE \
-			--retry TERM/5/KILL/2
+			--retry TERM/15/KILL/2
 		log_end_msg $?
 		rm -f $PIDFILE
 		;;

@@ -24,13 +24,16 @@ fi
 
 case "${1}" in
   start)
-	exec start-stop-daemon --start --background --chuid $VIRGO_USER \
-		--exec /usr/bin/authbind -- \
-		--deep "$VIRGO_HOME/opt/bin/startup.sh" $VIRGO_OPTS
+  	log_daemon_msg "Starting Virgo" "virgo"
+	start-stop-daemon --start --background --chuid $VIRGO_USER \
+		--exec $VIRGO_HOME/bin/startup.sh -- $VIRGO_OPTS
+	status=$?
   ;;
 
   stop)
-	exec $VIRGO_HOME/bin/shutdown.sh
+  	log_daemon_msg "Stopping Virgo" "virgo"
+	"$VIRGO_HOME/bin/shutdown.sh"
+	log_end_msg $?
   ;;
  
   restart)

@@ -86,7 +86,8 @@ public class Activator implements BundleActivator {
 		} catch (Throwable e) {
 			this.log.error(
 					"Failed to create a log for " + provider.getName()
-					+ " (" + provider.getId() + ')');
+					+ " (" + provider.getId() + ')',
+					e);
 		}
 		return null;
 	}

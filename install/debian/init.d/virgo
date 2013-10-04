@@ -27,7 +27,7 @@ case "${1}" in
   	log_daemon_msg "Starting Virgo" "virgo"
 	start-stop-daemon --start --background --chuid $VIRGO_USER \
 		--exec $VIRGO_HOME/bin/startup.sh -- $VIRGO_OPTS
-	status=$?
+	log_end_msg $?
   ;;
 
   stop)

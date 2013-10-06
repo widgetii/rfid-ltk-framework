@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: RFID Deriver for Blackbox Testing
+Bundle-SymbolicName: ru.aplix.ltk.driver.blackbox
+Bundle-Version: 1.0.0
+Bundle-Activator: ru.aplix.ltk.driver.blackbox.impl.BlackboxActivator
+Bundle-Vendor: Aplix LLC
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.osgi.framework;version="1.3.0"
+Require-Bundle: ru.aplix.ltk.core;bundle-version="1.0.0";visibility:=reexport
+Export-Package: ru.aplix.ltk.driver.blackbox

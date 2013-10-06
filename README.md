@@ -17,8 +17,8 @@
   ответов.
 - `ru.aplix.ltk.collector.http.client` - HTTP-клиент накопителя.
 - `ru.aplix.ltk.collector.http.server` - HTTP-сервер накопителя.
-- `ru.aplix.ltk.collector.log` - лог отправленных тегов.
-- `ru.aplix.ltk.collector.log.test` - тесты лога отправленных тегов.
+- `ru.aplix.ltk.driver.log` - лог отправленных тегов.
+- `ru.aplix.ltk.driver.log.test` - тесты лога отправленных тегов.
 - `ru.aplix.ltk.core` - основные программные интерфейсы и системы.
 - `ru.aplix.ltk.core.test` - тесты основных программный интерфейсов.
 - `ru.aplix.ltk.driver.ctg` - драйвер непрерывного чтения RFID. Непосредственно

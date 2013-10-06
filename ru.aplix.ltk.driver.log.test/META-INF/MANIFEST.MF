@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Logging RFID Driver Tests
+Bundle-SymbolicName: ru.aplix.ltk.driver.log.test
+Bundle-Version: 1.0.0
+Bundle-Vendor: Aplix LLC
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.junit;bundle-version="4.11.0",
+ ru.aplix.ltk.driver.log;bundle-version="1.0.0"

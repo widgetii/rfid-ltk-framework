@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.driver.log"
+    status="integration"
+    revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="runtime" extends="default"/>
+    <conf name="compile" extends="default"/>
+  </configurations>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.core"
+      rev="latest.integration"/>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.osgi"
+      rev="latest.integration"
+      conf="compile->@;runtime->@"/>
+    <dependency
+      org="bundle"
+      name="org.eclipse.osgi"
+      rev="3.9.0+"
+      conf="compile->*"/>
+  </dependencies>
+</ivy-module>

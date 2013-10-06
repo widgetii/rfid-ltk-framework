@@ -25,7 +25,7 @@
       conf="runtime->@"/>
     <dependency
       org="bundle"
-      name="ru.aplix.ltk.collector.log"
+      name="ru.aplix.ltk.driver.log"
       rev="latest.integration"
       conf="runtime->@"/>
     <dependency

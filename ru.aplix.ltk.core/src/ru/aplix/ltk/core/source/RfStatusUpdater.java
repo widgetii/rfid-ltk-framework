@@ -13,9 +13,11 @@ import ru.aplix.ltk.core.collector.RfCollector;
 public interface RfStatusUpdater {
 
 	/**
-	 * Reports reader status update.
+	 * Reports RFID status update.
 	 *
-	 * @param status status to report.
+	 * <p>This status will be sent to all subscribers.</p>
+	 *
+	 * @param status status update to report.
 	 */
 	void updateStatus(RfStatusMessage status);
 

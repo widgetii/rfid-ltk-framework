@@ -22,14 +22,6 @@ public final class RfTracking implements RfStatusUpdater {
 		this.collector = collector;
 	}
 
-	/**
-	 * Reports unexpected reader status updates.
-	 *
-	 * <p>May be used to report errors occurred in tracker to all subscribers.
-	 * </p>
-	 *
-	 * @param status status to report.
-	 */
 	@Override
 	public final void updateStatus(RfStatusMessage status) {
 		this.collector.updateStatus(status);

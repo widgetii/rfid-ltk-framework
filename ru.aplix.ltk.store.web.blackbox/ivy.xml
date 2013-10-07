@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0">
+  <info
+    organisation="bundle"
+    module="ru.aplix.ltk.store.web.blackbox"
+    status="integration"
+    revision="1.0.0"/>
+  <configurations defaultconf="default">
+    <conf name="default"/>
+    <conf name="compile" extends="default"/>
+    <conf name="runtime" extends="default"/>
+  </configurations>
+  <publications>
+    <artifact ext="war"/>
+  </publications>
+  <dependencies>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.store.web"
+      rev="latest.integration"
+      conf="compile->@;runtime->@"/>
+    <dependency
+      org="bundle"
+      name="org.junit"
+      rev="4.11.0+"
+      conf="runtime->*"/>
+    <dependency
+      org="org.junit"
+      name="com.springsource.org.junit"
+      rev="4.11.0"
+      conf="compile"/>
+  </dependencies>
+</ivy-module>

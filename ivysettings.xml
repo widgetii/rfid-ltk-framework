@@ -36,7 +36,6 @@
         name="ltk-bundles"
         checkmodified="true"
         cache="ltk-bundles"
-        validate="true"
         descriptor="required">
         <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
         <artifact

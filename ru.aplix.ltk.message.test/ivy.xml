@@ -26,8 +26,6 @@
       org="org.junit"
       name="com.springsource.org.junit"
       rev="4.11.0"
-      conf="compile">
-      <artifact name="com.springsource.org.junit" type="jar"/>
-    </dependency>
+      conf="compile"/>
   </dependencies>
 </ivy-module>

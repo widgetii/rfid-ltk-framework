@@ -40,18 +40,27 @@ public class CollectorHttpService implements BundleActivator {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		try {
-			this.httpTracker.close();
+
+			final HttpService httpService = this.httpTracker.getService();
+
+			if (httpService != null) {
+				httpService.unregister(CLR_SERVLET_PATH);
+			}
 		} finally {
-			this.httpTracker = null;
 			try {
-				this.log.close();
+				this.httpTracker.close();
 			} finally {
-				this.log = null;
+				this.httpTracker = null;
+				try {
+					this.log.close();
+				} finally {
+					this.log = null;
+				}
 			}
 		}
 	}
 
-	private void registerServlets(HttpService service) {
+	private void registerServlet(HttpService service) {
 		try {
 			service.registerServlet(
 					CLR_SERVLET_PATH,
@@ -78,7 +87,7 @@ public class CollectorHttpService implements BundleActivator {
 
 			final HttpService service = super.addingService(reference);
 
-			registerServlets(service);
+			registerServlet(service);
 
 			return service;
 		}

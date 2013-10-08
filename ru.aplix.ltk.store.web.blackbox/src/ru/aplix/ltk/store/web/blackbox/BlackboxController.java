@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 
 @Controller("blackboxController")
-@RequestMapping("/blackbox")
+@RequestMapping("/blackbox.do")
 public class BlackboxController {
 
 	@Autowired

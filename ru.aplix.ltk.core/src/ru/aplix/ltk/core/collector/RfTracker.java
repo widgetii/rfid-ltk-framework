@@ -16,6 +16,11 @@ import ru.aplix.ltk.message.MsgConsumer;
 public interface RfTracker {
 
 	/**
+	 * The no-op RFID tracker.
+	 */
+	RfTracker NO_TRACKING = NoRfTracking.INSTANCE;
+
+	/**
 	 * Initializes the RFID tags tracker.
 	 *
 	 * <p>This method is called once before the tracking started.</p>

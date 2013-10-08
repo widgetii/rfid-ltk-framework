@@ -34,6 +34,11 @@ public interface RfTrackingPolicy extends Parameterized {
 	};
 
 	/**
+	 * The no-op RFID tracking policy.
+	 */
+	RfTrackingPolicy NO_TRACKING_POLICY = NoRfTracking.INSTANCE;
+
+	/**
 	 * Creates RFID tracker for the given collector.
 	 *
 	 * @param collector RFID collector to create tracker for.

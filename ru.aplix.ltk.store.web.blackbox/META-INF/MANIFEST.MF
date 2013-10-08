@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: RFID Tag Store Blackbox Tests
-Bundle-SymbolicName: ru.aplix.ltk.store.blackbox
+Bundle-SymbolicName: ru.aplix.ltk.store.web.blackbox
 Bundle-Version: 1.0.0
 Bundle-Vendor: Aplix LLC
 Fragment-Host: ru.aplix.ltk.store.web;bundle-version="1.0.0"

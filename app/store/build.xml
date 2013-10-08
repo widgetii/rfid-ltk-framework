@@ -4,4 +4,11 @@
 
 	<import file="../../build/par.build.xml"/>
 
+	<target
+		name="blackbox"
+		description="Assembles application PAR ready for blackbox testing">
+		<property name="profile" value="blackbox"/>
+		<antcall target="build"/>
+	</target>
+
 </project>

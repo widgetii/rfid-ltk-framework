@@ -8,6 +8,7 @@
     revision="1.0.0"/>
   <configurations defaultconf="runtime">
     <conf name="runtime"/>
+    <conf name="blackbox" extends="runtime"/>
   </configurations>
   <publications>
     <artifact ext="par"/>
@@ -21,5 +22,10 @@
       org="bundle"
       name="org.postgresql"
       rev="9.2.1003.jdbc4aplix"/>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.store.web.blackbox"
+      rev="latest.integration"
+      conf="blackbox->runtime"/>
   </dependencies>
 </ivy-module>

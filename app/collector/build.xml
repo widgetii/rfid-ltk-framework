@@ -4,4 +4,11 @@
 
 	<import file="../../build/app.build.xml"/>
 
+	<target
+		name="blackbox"
+		description="Assembles application ready for blackbox testing">
+		<property name="profile" value="blackbox"/>
+		<antcall target="build"/>
+	</target>
+
 </project>

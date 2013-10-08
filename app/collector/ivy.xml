@@ -8,6 +8,7 @@
     revision="1.0.0"/>
   <configurations defaultconf="runtime" defaultconfmapping="runtime->*">
     <conf name="runtime"/>
+    <conf name="blackbox" extends="runtime"/>
   </configurations>
   <dependencies>
     <dependency
@@ -32,6 +33,18 @@
       org="bundle"
       name="ru.aplix.ltk.osgi.shutdown"
       rev="latest.integration"/>
+
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.driver.blackbox"
+      rev="latest.integration"
+      conf="blackbox->*"/>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.collector.blackbox"
+      rev="latest.integration"
+      conf="blackbox->runtime"/>
+
     <dependency
       org="bundle"
       name="org.eclipse.osgi.services"

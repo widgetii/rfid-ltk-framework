@@ -7,11 +7,10 @@
 	<import file="setup.build.xml"/>
 
 	<property name="ivy.file" value="${basedir}/ivy.xml"/>
-	<property name="app.dir" value="${basedir}/target"/>
 
 	<ivy:settings file="${root.dir}/ivysettings.xml"/>
 	
-	<target name="build-deps">
+	<target name="build-deps" description="Builds application dependencies">
 		<ivy:buildlist
 			taskname="${ant.project.name}"
 			reference="deps.path"
@@ -44,19 +43,22 @@
 			unless="profile.dir"/>
 	</target>
 
-	<target name="_prepare">
+	<target name="_setup" depends="_find_profile">
+		<property file="${profile.dir}/profile.properties"/>
+		<property name="app.dir" value="${basedir}/target"/>
+		<property name="app.conf" value="runtime"/>
+	</target>
+
+	<target name="_prepare" depends="_setup">
 		<mkdir taskname="${ant.project.name}" dir="${app.dir}"/>
 	</target>
 
-	<target
-		name="_profile_resources"
-		depends="_find_profile,_prepare"
-		if="profile.dir">
+	<target name="_profile_resources" depends="_prepare" if="profile.dir">
 		<copy
 			taskname="${ant.project.name}"
 			todir="${app.dir}"
 			overwrite="true">
-			<fileset dir="${profile.dir}"/>
+			<fileset dir="${profile.dir}" excludes="profile.properties"/>
 		</copy>
 	</target>
 
@@ -65,23 +67,28 @@
 			taskname="${ant.project.name}"
 			todir="${app.dir}"
 			overwrite="false">
-			<fileset dir=".">
-				<include name="configuration/**"/>
-			</fileset>
+			<fileset dir="profiles/default" excludes="profile.properties"/>
 		</copy>
 	</target>
 
-	<target name="resources" depends="_profile_resources,_default_resources"/>
+	<target
+		name="resources"
+		depends="_profile_resources,_default_resources"
+		description="Copies application resources"/>
 
-	<target name="build" depends="build-deps,resources">
+	<target
+		name="build"
+		depends="build-deps,resources"
+		description="Assembles application">
 		<ivy:retrieve
 			taskname="${ant.project.name}"
 			sync="true"
 			pattern="${app.dir}/plugins/[artifact]_[revision].[ext]"
+			conf="${app.conf}"
 			type="jar"/>
 	</target>
 
-	<target name="clean" description="Cleans everything">
+	<target name="clean" depends="_setup" description="Cleans everything">
 		<delete
 			taskname="${ant.project.name}"
 			includeemptydirs="true"

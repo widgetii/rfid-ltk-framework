@@ -1,5 +1,6 @@
 package ru.aplix.ltk.driver.blackbox;
 
+import static ru.aplix.ltk.core.collector.RfTrackingPolicy.NO_TRACKING_POLICY;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.collector.RfTracker;
@@ -27,7 +28,7 @@ public class BlackboxRfSettings implements RfSettings, Cloneable {
 	 * @return tracker instance, or <code>null</code> if not set yet.
 	 */
 	public RfTracker getTracker() {
-		return this.trackerPolicy.tracker;
+		return this.trackerPolicy != null ? this.trackerPolicy.tracker : null;
 	}
 
 	/**
@@ -35,7 +36,8 @@ public class BlackboxRfSettings implements RfSettings, Cloneable {
 	 *
 	 * <p>This method also updates the tracking policy.</p>
 	 *
-	 * @param tracker new tracker instance, or <code>null</code>.
+	 * @param tracker new tracker instance, or <code>null</code> set it to
+	 * {@link RfTracker#NO_TRACKING no-tracking} one.
 	 */
 	public void setTracker(RfTracker tracker) {
 		this.trackerPolicy =
@@ -44,7 +46,8 @@ public class BlackboxRfSettings implements RfSettings, Cloneable {
 
 	@Override
 	public RfTrackingPolicy getTrackingPolicy() {
-		return this.trackerPolicy;
+		return this.trackerPolicy != null
+				? this.trackerPolicy : NO_TRACKING_POLICY;
 	}
 
 	@Override

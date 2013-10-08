@@ -49,7 +49,12 @@
 		<property name="app.conf" value="runtime"/>
 	</target>
 
-	<target name="_prepare" depends="_setup">
+	<extension-point name="_properties" depends="_setup"/>
+
+	<target name="_app_properties">
+	</target>
+
+	<target name="_prepare" depends="_properties">
 		<mkdir taskname="${ant.project.name}" dir="${app.dir}"/>
 	</target>
 

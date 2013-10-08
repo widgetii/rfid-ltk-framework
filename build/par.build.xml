@@ -6,17 +6,22 @@
 
 	<import file="app.build.xml"/>
 
-	<property name="par.name" value="${ant.project.name}"/>
-	<property name="par.file" value="${app.dir}/${par.name}.par"/>
+	<target name="_par_properties" extensionOf="_properties">
+		<property name="par.name" value="${ant.project.name}"/>
+		<property name="par.file" value="${app.dir}/${par.name}.par"/>
+		<echo message="${par.file}"/>
+	</target>
 
-	<target name="build" depends="build-deps">
-		<mkdir taskname="${ant.project.name}" dir="${app.dir}"/>
+	<target
+		name="build"
+		depends="build-deps,_prepare"
+		description="Assembles application PAR">
 		<jar
 			taskname="${ant.project.name}"
 			destfile="${par.file}"
 			manifest="META-INF/MANIFEST.MF"
 			encoding="UTF-8">
-			<ivy:resources file="${ivy.file}" conf="runtime" type="jar"/>
+			<ivy:resources file="${ivy.file}" conf="${app.conf}" type="jar"/>
 		</jar>
 	</target>
 

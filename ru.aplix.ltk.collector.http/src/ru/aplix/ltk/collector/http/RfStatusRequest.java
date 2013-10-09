@@ -45,7 +45,13 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 	private Throwable cause;
 
 	/**
-	 * Constructs a request.
+	 * Constructs an empty request.
+	 */
+	public RfStatusRequest() {
+	}
+
+	/**
+	 * Constructs a request from the given status update message.
 	 *
 	 * @param clientId a client identifier to send the request to.
 	 * @param status an RFID status update to send.
@@ -72,14 +78,26 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 		return this.rfReaderId;
 	}
 
+	public void setRfReaderId(String rfReaderId) {
+		this.rfReaderId = rfReaderId;
+	}
+
 	@Override
 	public RfStatus getRfStatus() {
 		return this.rfStatus;
 	}
 
+	public void setRfStatus(RfStatus rfStatus) {
+		this.rfStatus = rfStatus;
+	}
+
 	@Override
 	public String getErrorMessage() {
 		return this.errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
 	}
 
 	/**
@@ -97,18 +115,24 @@ public class RfStatusRequest implements RfStatusMessage, Parameterized {
 		return this.cause;
 	}
 
+	public void setCause(Throwable cause) {
+		this.cause = cause;
+	}
+
 	@Override
 	public void read(Parameters params) {
-		this.rfReaderId = params.valueOf(RF_READER_ID, getRfReaderId());
-		this.rfStatus = params.valueOf(RF_STATUS, getRfStatus());
-		this.errorMessage = params.valueOf(ERROR_MESSAGE, getErrorMessage());
-		this.cause = params.valueOf(CAUSE, getCause());
+		setRfReaderId(params.valueOf(RF_READER_ID, getRfReaderId()));
+		setRfStatus(params.valueOf(RF_STATUS, getRfStatus()));
+		setErrorMessage(params.valueOf(ERROR_MESSAGE, getErrorMessage()));
+		setCause(params.valueOf(CAUSE, getCause()));
 	}
 
 	@Override
 	public void write(Parameters params) {
-		params.set(CLIENT, this.clientId.getUUID())
-		.set(TYPE, "status")
+		if (this.clientId != null) {
+			params.set(CLIENT, this.clientId.getUUID());
+		}
+		params.set(TYPE, "status")
 		.set(RF_READER_ID, getRfReaderId())
 		.set(RF_STATUS, getRfStatus())
 		.set(ERROR_MESSAGE, getErrorMessage())

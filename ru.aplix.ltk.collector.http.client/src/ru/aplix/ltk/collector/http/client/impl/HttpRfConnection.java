@@ -136,7 +136,7 @@ final class HttpRfConnection
 			final RemoteClrException remote = (RemoteClrException) cause;
 
 			getLogger().error(
-					this + "Remote error: " + errorMessage
+					this + " Remote error: " + errorMessage
 					+ ". Remote exception: "
 					+ remote.getRemoteExceptionClassName()
 					+ ": " + remote.getMessage());

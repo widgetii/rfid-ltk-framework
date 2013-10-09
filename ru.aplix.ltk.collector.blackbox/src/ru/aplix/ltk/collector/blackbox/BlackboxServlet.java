@@ -16,14 +16,19 @@ import org.osgi.util.tracker.ServiceTracker;
 import ru.aplix.ltk.collector.http.RfStatusRequest;
 import ru.aplix.ltk.collector.http.RfTagAppearanceRequest;
 import ru.aplix.ltk.core.RfProvider;
+import ru.aplix.ltk.core.collector.RfCollectorHandle;
+import ru.aplix.ltk.core.collector.RfTagAppearanceHandle;
+import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
+import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.core.util.Parameters;
 import ru.aplix.ltk.driver.blackbox.BlackboxRfSettings;
 import ru.aplix.ltk.driver.blackbox.ManualRfTracker;
+import ru.aplix.ltk.message.MsgConsumer;
 
 
 class BlackboxServlet extends HttpServlet {
 
-	private static final long serialVersionUID = 2730967094262307054L;
+	private static final long serialVersionUID = 4506781575156128894L;
 
 	public static final String BLACKBOX_SERVLET_PATH = "/blackbox";
 
@@ -31,6 +36,8 @@ class BlackboxServlet extends HttpServlet {
 	private BlackboxTracker blackboxTracker;
 
 	private ManualRfTracker rfTracker;
+
+	private RfCollectorHandle handle;
 
 	BlackboxServlet(CollectorBlackbox blackbox) {
 		this.blackbox = blackbox;
@@ -82,7 +89,11 @@ class BlackboxServlet extends HttpServlet {
 			final BlackboxRfSettings settings = provider.newSettings();
 
 			settings.setTracker(this.rfTracker);
-			provider.connect(settings);
+
+			this.handle =
+					provider.connect(settings)
+					.getCollector()
+					.subscribe(new DummyStatusListener());
 		} catch (Throwable e) {
 			this.rfTracker = null;
 			getServletContext().log("Failed to connect to blackbox driver", e);
@@ -91,6 +102,10 @@ class BlackboxServlet extends HttpServlet {
 
 	private void disconnect() {
 		this.rfTracker = null;
+		if (this.handle != null) {
+			this.handle.unsubscribe();
+			this.handle = null;
+		}
 	}
 
 	private void updateTagAppearance(
@@ -168,6 +183,43 @@ class BlackboxServlet extends HttpServlet {
 				RfProvider<BlackboxRfSettings> service) {
 			disconnect();
 			super.removedService(reference, service);
+		}
+
+	}
+
+	private static final class DummyStatusListener
+			implements MsgConsumer<RfCollectorHandle, RfStatusMessage> {
+
+		@Override
+		public void consumerSubscribed(RfCollectorHandle handle) {
+			handle.requestTagAppearance(new DummyTagListener());
+		}
+
+		@Override
+		public void messageReceived(RfStatusMessage message) {
+		}
+
+		@Override
+		public void consumerUnsubscribed(RfCollectorHandle handle) {
+		}
+
+	}
+
+	private static final class DummyTagListener
+			implements MsgConsumer<
+					RfTagAppearanceHandle,
+					RfTagAppearanceMessage> {
+
+		@Override
+		public void consumerSubscribed(RfTagAppearanceHandle handle) {
+		}
+
+		@Override
+		public void messageReceived(RfTagAppearanceMessage message) {
+		}
+
+		@Override
+		public void consumerUnsubscribed(RfTagAppearanceHandle handle) {
 		}
 
 	}

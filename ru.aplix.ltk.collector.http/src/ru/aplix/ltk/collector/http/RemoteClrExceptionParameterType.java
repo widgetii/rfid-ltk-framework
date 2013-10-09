@@ -41,9 +41,19 @@ final class RemoteClrExceptionParameterType extends ParameterType<Throwable> {
 
 		final Parameters causeParams = params.sub("cause");
 
-		causeParams.set("", cause.getClass().getName());
-		causeParams.set("message", cause.getMessage());
-		causeParams.set("stackTrace", stackTrace(cause));
+		if (cause instanceof RemoteClrException) {
+
+			final RemoteClrException remote =
+					(RemoteClrException) cause;
+
+			causeParams.set("", remote.getRemoteExceptionClassName());
+			causeParams.set("message", remote.getMessage());
+			causeParams.set("stackTrace", remote.getRemoteStackTrace());
+		} else {
+			causeParams.set("", cause.getClass().getName());
+			causeParams.set("message", cause.getMessage());
+			causeParams.set("stackTrace", stackTrace(cause));
+		}
 	}
 
 	private String stackTrace(Throwable cause) {

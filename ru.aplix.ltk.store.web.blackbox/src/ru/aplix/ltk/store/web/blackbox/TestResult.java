@@ -76,8 +76,8 @@ public final class TestResult {
 		}
 		out.append(this.description.toString());
 		if (this.failure != null) {
-			out.append(": ");
-			out.append(this.failure.toString());
+			out.append(": ").append(this.failure.getMessage()).append('\n');
+			out.append(this.failure.getTrace());
 		}
 	}
 

@@ -1,4 +1,4 @@
-package ru.aplix.ltk.store.web.blackbox;
+package ru.aplix.ltk.store.web.blackbox.test;
 
 import org.junit.Test;
 

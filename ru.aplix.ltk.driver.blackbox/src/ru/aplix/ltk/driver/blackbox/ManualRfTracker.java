@@ -52,7 +52,9 @@ public class ManualRfTracker implements RfTracker, RfStatusUpdater {
 
 	@Override
 	public final void updateStatus(RfStatusMessage status) {
-		this.tracking.updateStatus(status);
+		if (this.tracking != null) {
+			this.tracking.updateStatus(status);
+		}
 	}
 
 	/**
@@ -62,7 +64,9 @@ public class ManualRfTracker implements RfTracker, RfStatusUpdater {
 	 */
 	public final void updateTagAppearance(
 			RfTagAppearanceMessage tagAppearance) {
-		this.tracking.updateTagAppearance(tagAppearance);
+		if (this.tracking != null) {
+			this.tracking.updateTagAppearance(tagAppearance);
+		}
 	}
 
 }

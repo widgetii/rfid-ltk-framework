@@ -39,7 +39,8 @@ class BlackboxServlet extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		try {
-			this.blackboxTracker = new BlackboxTracker(this.blackbox.getContext());
+			this.blackboxTracker =
+					new BlackboxTracker(this.blackbox.getContext());
 		} catch (InvalidSyntaxException e) {
 			throw new ServletException(
 					"Failed to initialize blackbox servlet",

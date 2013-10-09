@@ -17,6 +17,11 @@ import ru.aplix.ltk.message.MsgConsumer;
 public interface RfSource {
 
 	/**
+	 * Empty RFID data source.
+	 */
+	RfSource EMPTY_RF_SOURCE = new EmptyRfSource();
+
+	/**
 	 * Requests an RFID source status updates.
 	 *
 	 * <p>After this method is called, the source may start to report the status

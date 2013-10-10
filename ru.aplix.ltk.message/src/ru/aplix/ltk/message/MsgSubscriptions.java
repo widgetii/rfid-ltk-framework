@@ -118,6 +118,45 @@ public abstract class MsgSubscriptions<H extends MsgHandle<H, M>, M> {
 	}
 
 	/**
+	 * Unsubscribe all subscribers.
+	 */
+	public void unsubscribeAll() {
+
+		Throwable error = null;
+		final WriteLock lock = lock().writeLock();
+
+		lock.lock();
+		try {
+
+			H handle = this.first;
+
+			while (handle != null) {
+
+				final H next = handle.next();
+
+				try {
+					handle.unsubscribe();
+				} catch (Throwable e) {
+					if (error != null) {
+						e.addSuppressed(error);
+					}
+					error = e;
+				}
+
+				handle = next;
+			}
+		} finally {
+			lock.unlock();
+		}
+		if (error != null) {
+			if (error instanceof Error) {
+				throw (Error) error;
+			}
+			throw (RuntimeException) error;
+		}
+	}
+
+	/**
 	 * Creates a subscription handle for the given consumer.
 	 *
 	 * @param consumer consumer to subscribe.

@@ -55,6 +55,31 @@ public class SubscriptionsTest {
 		consumer.ensureAllMessagesReceived();
 	}
 
+	@Test
+	public void unsubscribeAll() {
+
+		final TestConsumer consumer1 = new TestConsumer(TEST_MESSAGE_1);
+		final TestHandle handle1 = this.subscriptions.subscribe(consumer1);
+
+		final TestConsumer consumer2 = new TestConsumer(TEST_MESSAGE_1);
+		final TestHandle handle2 = this.subscriptions.subscribe(consumer2);
+
+		this.subscriptions.sendMessage(TEST_MESSAGE_1);
+
+		this.subscriptions.unsubscribeAll();
+
+		assertThat(consumer1.isUnsubscribed(), is(true));
+		assertThat(handle1.isSubscribed(), is(false));
+		assertThat(consumer2.isUnsubscribed(), is(true));
+		assertThat(handle2.isSubscribed(), is(false));
+		assertThat(this.subscriptions.isEmpty(), is(true));
+
+		this.subscriptions.sendMessage(TEST_MESSAGE_2);
+
+		consumer1.ensureAllMessagesReceived();
+		consumer2.ensureAllMessagesReceived();
+	}
+
 	@Before
 	public void setup() {
 		this.subscriptions = new TestSubscriptions();

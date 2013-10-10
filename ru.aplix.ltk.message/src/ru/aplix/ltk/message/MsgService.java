@@ -28,6 +28,13 @@ public abstract class MsgService<H extends MsgServiceHandle<H, M>, M> {
 	}
 
 	/**
+	 * Unsubscribe all service subscribers.
+	 */
+	public final void unsubscribeAll() {
+		serviceSubscriptions().unsubscribeAll();
+	}
+
+	/**
 	 * Service subscriptions.
 	 *
 	 * @return all subscriptions to this service.

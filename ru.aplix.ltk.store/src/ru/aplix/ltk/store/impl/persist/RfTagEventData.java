@@ -1,27 +1,46 @@
 package ru.aplix.ltk.store.impl.persist;
 
+import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
+import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
+
 import java.sql.Timestamp;
 
 import javax.persistence.*;
 
+import ru.aplix.ltk.core.collector.RfTagAppearance;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
+import ru.aplix.ltk.core.source.RfTag;
 import ru.aplix.ltk.store.RfReceiver;
 
 
 @Entity
 @Table(name = "tag_event", schema = "rfstore")
-@NamedQuery(
-		name = "lastRfTagEventId",
-		query =
-			"SELECT max(e.id.eventId)"
-			+ " FROM RfTagEventData e WHERE e.id.receiverId = :receiverId")
-public class RfTagEventData {
+@NamedQueries({
+	@NamedQuery(
+			name = "lastRfTagEventId",
+			query =
+				"SELECT max(e.id.eventId)"
+				+ " FROM RfTagEventData e"
+				+ " WHERE e.id.receiverId = :receiverId"),
+	@NamedQuery(
+			name = "rfTagEvents",
+			query =
+				"SELECT e"
+				+ " FROM RfTagEventData e"
+				+ " WHERE e.id.receiverId = :receiverId"
+				+ " and e.id.eventId > :fromId"
+				+ " ORDER BY e.id.eventId")
+})
+public class RfTagEventData implements RfTagAppearanceMessage {
 
 	@EmbeddedId
 	private RfTagEventId id;
 
 	@Column(name = "tag", nullable = false, updatable = false)
 	private String tag;
+
+	@Transient
+	private RfTag rfTag;
 
 	@Column(name = "timestamp", nullable = false, updatable = false)
 	private Timestamp timestamp;
@@ -37,7 +56,8 @@ public class RfTagEventData {
 			long eventId,
 			RfTagAppearanceMessage message) {
 		this.id = new RfTagEventId(receiver, eventId);
-		this.tag = message.getRfTag().toHexString();
+		this.rfTag = message.getRfTag();
+		this.tag = this.rfTag.toHexString();
 		this.timestamp = new Timestamp(message.getTimestamp());
 		this.appeared = message.getAppearance().isPresent();
 	}
@@ -46,12 +66,39 @@ public class RfTagEventData {
 		return this.id;
 	}
 
+	@Override
+	public long getEventId() {
+		return getId().getEventId();
+	}
+
+	public Timestamp getSqlTimestamp() {
+		return this.timestamp;
+	}
+
+	@Override
+	public long getTimestamp() {
+		return getSqlTimestamp().getTime();
+	}
+
 	public String getTag() {
 		return this.tag;
 	}
 
-	public Timestamp getTimestamp() {
-		return this.timestamp;
+	@Override
+	public RfTag getRfTag() {
+		if (this.rfTag != null) {
+			return this.rfTag;
+		}
+		return this.rfTag = new RfTag(this.tag);
+	}
+
+	public boolean isAppeared() {
+		return this.appeared;
+	}
+
+	@Override
+	public RfTagAppearance getAppearance() {
+		return isAppeared() ? RF_TAG_APPEARED : RF_TAG_DISAPPEARED;
 	}
 
 	@Override

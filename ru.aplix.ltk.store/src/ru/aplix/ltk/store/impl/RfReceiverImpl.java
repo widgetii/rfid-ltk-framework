@@ -1,5 +1,7 @@
 package ru.aplix.ltk.store.impl;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 
@@ -9,6 +11,7 @@ import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.impl.persist.RfReceiverData;
+import ru.aplix.ltk.store.impl.persist.RfTagEventData;
 
 
 final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
@@ -75,6 +78,11 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 	@Override
 	public RfStatusMessage getLastStatus() {
 		return this.state.getLastStatus();
+	}
+
+	@Override
+	public List<RfTagEventData> loadEvents(long fromEventId, int limit) {
+		return getRfStore().loadEvents(this, fromEventId, limit);
 	}
 
 	@Override

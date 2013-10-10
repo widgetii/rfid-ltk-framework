@@ -227,6 +227,23 @@ public class RfStoreImpl
 		return result != null ? result.longValue() : 0L;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	List<RfTagEventData> loadEvents(
+			RfReceiverImpl<?> receiver,
+			long fromEventId,
+			int limit) {
+
+		final Query query =
+				getEntityManager().createNamedQuery("rfTagEvents");
+
+		query.setParameter("receiverId", receiver.getId());
+		query.setParameter("fromId", fromEventId);
+		query.setMaxResults(limit);
+
+		return query.getResultList();
+	}
+
 	final void addReceivers(List<RfReceiverData> receiversData) {
 		for (RfReceiverData data : receiversData) {
 

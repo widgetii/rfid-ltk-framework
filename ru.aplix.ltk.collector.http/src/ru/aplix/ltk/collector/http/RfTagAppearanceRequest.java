@@ -35,7 +35,13 @@ public class RfTagAppearanceRequest
 	private RfTagAppearance appearance = APPEARANCE.getDefault();
 
 	/**
-	 * Constructs a request.
+	 * Constructs an empty request.
+	 */
+	public RfTagAppearanceRequest() {
+	}
+
+	/**
+	 * Constructs a request by the given message.
 	 *
 	 * @param clientId a client identifier to send the request to.
 	 * @param message a change in RFID tag appearance to send.
@@ -64,9 +70,17 @@ public class RfTagAppearanceRequest
 		return this.eventId;
 	}
 
+	public void setEventId(long eventId) {
+		this.eventId = eventId;
+	}
+
 	@Override
 	public long getTimestamp() {
 		return this.timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	@Override
@@ -74,9 +88,17 @@ public class RfTagAppearanceRequest
 		return this.rfTag;
 	}
 
+	public void setRfTag(RfTag rfTag) {
+		this.rfTag = rfTag;
+	}
+
 	@Override
 	public RfTagAppearance getAppearance() {
 		return this.appearance;
+	}
+
+	public void setAppearance(RfTagAppearance appearance) {
+		this.appearance = appearance;
 	}
 
 	@Override
@@ -89,8 +111,10 @@ public class RfTagAppearanceRequest
 
 	@Override
 	public void write(Parameters params) {
-		params.set(CLIENT, this.clientId.getUUID())
-		.set(TYPE, "tag")
+		if (this.clientId != null) {
+			params.set(CLIENT, this.clientId.getUUID());
+		}
+		params.set(TYPE, "tag")
 		.set(EVENT_ID, getEventId())
 		.set(TIMESTAMP, getTimestamp())
 		.set(RF_TAG, getRfTag())

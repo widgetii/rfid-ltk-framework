@@ -2,7 +2,6 @@ package ru.aplix.ltk.store.web.blackbox.test;
 
 import static java.lang.System.nanoTime;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static ru.aplix.ltk.core.source.RfStatus.RF_ERROR;
 import static ru.aplix.ltk.core.source.RfStatus.RF_READY;
@@ -94,24 +93,10 @@ public class StatusTest {
 			final CollectorConsumer consumer,
 			final RfStatusRequest request) {
 
-		RfStatusMessage status = null;
+		final RfStatusMessage status =
+				consumer.waitFor(request.getRfReaderId());
 
-		for (int i = 0; i < 3; ++i) {
-			status = consumer.nextMessage();
-			if (status == null) {
-				break;
-			}
-			if (status.getRfReaderId().equals(request.getRfReaderId())) {
-				break;
-			}
-		}
-
-		assertThat("No status update received", status, notNullValue());
-
-		if (status != null) {
-			assertThat(status.getRfReaderId(), is(request.getRfReaderId()));
-			assertThat("(!) " + status.getErrorMessage(), status.getRfStatus(), is(request.getRfStatus()));
-		}
+		assertThat(status.getRfStatus(), is(request.getRfStatus()));
 
 		return status;
 	}

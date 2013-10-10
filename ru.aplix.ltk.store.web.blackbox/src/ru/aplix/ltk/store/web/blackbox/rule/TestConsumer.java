@@ -42,9 +42,13 @@ public class TestConsumer<H extends MsgHandle<H, M>, M>
 	}
 
 	public M nextMessage() {
+		return nextMessage(1, TimeUnit.SECONDS);
+	}
+
+	public M nextMessage(long timeout, TimeUnit unit) {
 		try {
 
-			final M message = this.messages.poll(1, TimeUnit.SECONDS);
+			final M message = this.messages.poll(timeout, unit);
 
 			assertThat(message, notNullValue());
 

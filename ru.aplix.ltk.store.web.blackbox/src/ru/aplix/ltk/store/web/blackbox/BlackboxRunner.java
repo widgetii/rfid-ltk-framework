@@ -10,6 +10,7 @@ import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.store.RfStore;
 import ru.aplix.ltk.store.web.blackbox.test.DummyTest;
 import ru.aplix.ltk.store.web.blackbox.test.StatusTest;
+import ru.aplix.ltk.store.web.blackbox.test.TagSendingTest;
 
 
 @Component("blackboxRunner")
@@ -46,7 +47,10 @@ public class BlackboxRunner {
 		final JUnitCore junit = new JUnitCore();
 
 		junit.addListener(result);
-		junit.run(DummyTest.class, StatusTest.class);
+		junit.run(
+				DummyTest.class,
+				StatusTest.class,
+				TagSendingTest.class);
 
 		return result;
 	}

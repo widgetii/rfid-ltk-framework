@@ -21,7 +21,6 @@ final class RfReceiverState<S extends RfSettings>
 	private final RfReceiverImpl<S> receiver;
 	private S settings;
 	private volatile RfCollector collector;
-	private RfCollectorHandle handle;
 	private volatile RfStatusMessage lastStatus;
 
 	RfReceiverState(RfReceiverImpl<S> receiver) {
@@ -55,7 +54,6 @@ final class RfReceiverState<S extends RfSettings>
 
 	@Override
 	public void consumerSubscribed(RfCollectorHandle handle) {
-		this.handle = handle;
 
 		final RfReceiverTagListener tagListener =
 				new RfReceiverTagListener(getRfReceiver());
@@ -72,7 +70,6 @@ final class RfReceiverState<S extends RfSettings>
 
 	@Override
 	public void consumerUnsubscribed(RfCollectorHandle handle) {
-		stop();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -147,8 +144,8 @@ final class RfReceiverState<S extends RfSettings>
 
 	private void stop() {
 		try {
-			if (this.handle != null) {
-				this.handle.unsubscribe();
+			if (this.collector != null) {
+				this.collector.unsubscribeAll();
 			}
 		} finally {
 			this.lastStatus = null;

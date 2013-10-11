@@ -1,23 +1,19 @@
 package ru.aplix.ltk.driver.log.impl;
 
+import static ru.aplix.ltk.core.source.RfSource.EMPTY_RF_SOURCE;
 import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.source.RfSource;
-import ru.aplix.ltk.osgi.Logger;
 
 
 final class LoggingRfConnection extends RfConnection {
 
 	private LogRfTracker tracker;
 
-	LoggingRfConnection(
-			RfSettings settings,
-			RfConnection connection,
-			TagLog log,
-			Logger logger) {
+	LoggingRfConnection(RfSettings settings, LogRfTracker tracker) {
 		super(settings);
-		this.tracker = new LogRfTracker(connection.getCollector(), log, logger);
+		this.tracker = tracker;
 	}
 
 	@Override
@@ -27,7 +23,7 @@ final class LoggingRfConnection extends RfConnection {
 
 	@Override
 	protected RfSource createSource() {
-		return this.tracker;
+		return EMPTY_RF_SOURCE;
 	}
 
 }

@@ -1,5 +1,6 @@
 package ru.aplix.ltk.driver.log.impl;
 
+import static ru.aplix.ltk.core.source.RfSource.EMPTY_RF_SOURCE;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.collector.RfTagAppearanceHandle;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
@@ -11,7 +12,7 @@ final class LoggingRfCollector extends RfCollector {
 	private final LogRfTracker tracker;
 
 	LoggingRfCollector(LogRfTracker tracker) {
-		super(tracker, tracker);
+		super(EMPTY_RF_SOURCE, tracker);
 		this.tracker = tracker;
 	}
 

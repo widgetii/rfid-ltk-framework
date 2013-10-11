@@ -2,7 +2,6 @@ package ru.aplix.ltk.driver.log.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import ru.aplix.ltk.core.collector.RfTagAppearanceHandle;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
@@ -19,8 +18,7 @@ final class LogConsumer
 
 	private final LogRfTracker tracker;
 	private final long lastEventId;
-	private volatile Thread requestThread;
-	private volatile TagMessageSender sender;
+	private volatile Thread sender;
 	private boolean passthrough;
 
 	LogConsumer(
@@ -38,29 +36,26 @@ final class LogConsumer
 	public void consumerSubscribed(RfTagAppearanceHandle handle) {
 		super.consumerSubscribed(handle);
 
-		final TagMessageSender sender = new TagMessageSender();
-		final Thread requestThread = new Thread(this);
+		final Thread sender = new Thread(this);
 
 		synchronized (this) {
 			this.sender = sender;
-			this.requestThread = requestThread;
 		}
 
 		sender.start();
-		requestThread.start();
 	}
 
 	@Override
 	public void messageReceived(RfTagAppearanceMessage message) {
 		if (isPatthrough()) {
-			getProxied().messageReceived(message);
+			updateTagAppearance(message);
 		}
 	}
 
 	@Override
 	public void consumerUnsubscribed(RfTagAppearanceHandle handle) {
 		synchronized (this) {
-			stopSending(true);
+			stopSending();
 		}
 		super.consumerUnsubscribed(handle);
 	}
@@ -68,7 +63,7 @@ final class LogConsumer
 	@Override
 	public synchronized void readerExhausted(CyclicLogReader reader) {
 		this.passthrough = true;
-		stopSending(false);
+		stopSending();
 	}
 
 	@Override
@@ -77,6 +72,9 @@ final class LogConsumer
 			requestMessages();
 		} catch (Throwable e) {
 			this.tracker.error("Failed to read messages", e);
+			synchronized (this) {
+				this.passthrough = true;
+			}
 		}
 	}
 
@@ -84,8 +82,13 @@ final class LogConsumer
 		return this.passthrough;
 	}
 
+	private void updateTagAppearance(RfTagAppearanceMessage tagAppearance) {
+		getProxied().messageReceived(tagAppearance);
+	}
+
 	private void requestMessages() throws IOException {
-		try (CyclicLogReader reader = this.tracker.log().read(this)) {
+		try (CyclicLogReader reader =
+				this.tracker.getProvider().log().read(this)) {
 			if (reader.seek(new TagEventsFilter(this.lastEventId))) {
 				sendMessages(reader);
 			}
@@ -94,7 +97,7 @@ final class LogConsumer
 
 	private void sendMessages(CyclicLogReader reader) throws IOException {
 		for (;;) {
-			if (this.requestThread == null) {
+			if (this.sender == null) {
 				break;
 			}
 
@@ -104,27 +107,16 @@ final class LogConsumer
 				break;
 			}
 
-			final TagMessageSender sender = this.sender;
-
-			if (sender == null) {
-				break;
-			}
 			try {
-				sender.messages.put(new RfTagAppearanceRecord(record));
-			} catch (InterruptedException e) {
-				break;
+				updateTagAppearance(new RfTagAppearanceRecord(record));
+			} catch (Throwable e) {
+				LogConsumer.this.tracker.error("Failed to send tag", e);
 			}
 		}
 	}
 
-	private void stopSending(boolean shutdown) {
-		this.requestThread = null;
-
-		final TagMessageSender sender = this.sender;
-
-		if (sender != null) {
-			sender.stopSending(shutdown);
-		}
+	private void stopSending() {
+		this.sender = null;
 	}
 
 	private static final class TagEventsFilter implements CyclicLogFilter  {
@@ -151,43 +143,6 @@ final class LogConsumer
 			}
 
 			return -1;
-		}
-
-	}
-
-	private final class TagMessageSender extends Thread {
-
-		private final ArrayBlockingQueue<RfTagAppearanceRecord> messages =
-				new ArrayBlockingQueue<>(16);
-
-		@Override
-		public void run() {
-			for (;;) {
-
-				final RfTagAppearanceRecord message;
-
-				try {
-					message = this.messages.take();
-				} catch (InterruptedException e) {
-					break;
-				}
-				if (message.isStop()) {
-					break;
-				}
-
-				try {
-					getProxied().messageReceived(message);
-				} catch (Throwable e) {
-					LogConsumer.this.tracker.error("Failed to send tag", e);
-				}
-			}
-		}
-
-		private void stopSending(boolean shutdown) {
-			if (shutdown) {
-				this.messages.clear();
-			}
-			this.messages.add(RfTagAppearanceRecord.STOP);
 		}
 
 	}

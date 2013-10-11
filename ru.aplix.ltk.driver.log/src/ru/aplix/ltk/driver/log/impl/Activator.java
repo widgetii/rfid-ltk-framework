@@ -43,7 +43,7 @@ public class Activator implements BundleActivator {
 		}
 	}
 
-	private LoggingRfProvider<?> createLogingProvider(
+	private LoggingRfProvider<?> createLoggingProvider(
 			ServiceReference<RfProvider<?>> reference) {
 
 		final RfProvider<?> provider = this.context.getService(reference);
@@ -134,7 +134,7 @@ public class Activator implements BundleActivator {
 		@Override
 		public LoggingRfProvider<?> addingService(
 				ServiceReference<RfProvider<?>> reference) {
-			return createLogingProvider(reference);
+			return createLoggingProvider(reference);
 		}
 
 		@Override

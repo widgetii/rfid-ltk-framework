@@ -37,7 +37,9 @@ public interface RfSettings extends Parameterized {
 	 * <p>Multiple connections can be opened to the same target. This
 	 * identifier is used to determine this fact.</p>
 	 *
-	 * @return a string uniquely identifying the connection target.
+	 * @return a string uniquely identifying the connection target. May be
+	 * <code>null</code> or empty string in case an RFID provider has a single
+	 * target.
 	 */
 	String getTargetId();
 

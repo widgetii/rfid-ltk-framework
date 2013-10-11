@@ -24,7 +24,7 @@ public class BlackboxRfSettings implements RfSettings, Cloneable {
 
 	@Override
 	public String getTargetId() {
-		return "blackbox";
+		return "";
 	}
 
 	/**

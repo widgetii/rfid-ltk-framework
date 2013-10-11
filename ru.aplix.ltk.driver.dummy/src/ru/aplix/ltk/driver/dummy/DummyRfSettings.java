@@ -37,7 +37,7 @@ public class DummyRfSettings implements RfSettings, Cloneable {
 
 	@Override
 	public String getTargetId() {
-		return "dummy";
+		return "";
 	}
 
 	@Override

@@ -95,9 +95,9 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 	}
 
 	@Override
-	public void delete() {
+	public void delete(boolean deleteTags) {
 		shutdown();
-		getRfStore().deleteReceiver(this);
+		getRfStore().deleteReceiver(this, deleteTags);
 	}
 
 	synchronized void shutdown() {

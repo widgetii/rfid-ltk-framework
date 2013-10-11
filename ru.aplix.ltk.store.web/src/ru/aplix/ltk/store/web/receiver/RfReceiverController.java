@@ -120,7 +120,7 @@ public class RfReceiverController {
 
 		requireNonNull(receiver, "Unknown RFID tag store: " + id);
 
-		receiver.delete();
+		receiver.delete(false);
 
 		return new RfReceiverBean(receiver);
 	}

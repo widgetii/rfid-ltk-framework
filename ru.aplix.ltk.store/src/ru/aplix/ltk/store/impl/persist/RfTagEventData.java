@@ -29,7 +29,12 @@ import ru.aplix.ltk.store.RfReceiver;
 				+ " FROM RfTagEventData e"
 				+ " WHERE e.id.receiverId = :receiverId"
 				+ " and e.id.eventId > :fromId"
-				+ " ORDER BY e.id.eventId")
+				+ " ORDER BY e.id.eventId"),
+	@NamedQuery(
+			name = "deleteRfTagEvents",
+			query =
+				"DELETE FROM RfTagEventData e"
+				+ " WHERE e.id.receiverId = :receiverId")
 })
 public class RfTagEventData implements RfTagAppearanceMessage {
 

@@ -63,7 +63,7 @@ public class TestReceiver extends ExternalResource {
 	@Override
 	protected void after() {
 		try {
-			this.rfReceiver.delete();
+			this.rfReceiver.delete(true);
 		} finally {
 			this.rfReceiver = null;
 		}

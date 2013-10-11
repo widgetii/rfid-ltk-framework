@@ -156,14 +156,25 @@ public class RfStoreImpl
 	}
 
 	@Transactional
-	void deleteReceiver(final RfReceiverImpl<?> receiver) {
+	void deleteReceiver(
+			final RfReceiverImpl<?> receiver,
+			boolean deleteTags) {
 		removeReceiver(receiver);
 
-		final Query query =
+		final Query deleteReceiver =
 				getEntityManager().createNamedQuery("deleteRfReceiver");
 
-		query.setParameter("id", receiver.getId());
-		query.executeUpdate();
+		deleteReceiver.setParameter("id", receiver.getId());
+		deleteReceiver.executeUpdate();
+
+		if (deleteTags) {
+
+			final Query deleteEvents =
+					getEntityManager().createNamedQuery("deleteRfTagEvents");
+
+			deleteEvents.setParameter("receiverId", receiver.getId());
+			deleteEvents.executeUpdate();
+		}
 
 		registerSynchronization(new TransactionSynchronizationAdapter() {
 			@Override

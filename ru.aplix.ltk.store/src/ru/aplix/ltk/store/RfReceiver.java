@@ -27,6 +27,6 @@ public interface RfReceiver<S extends RfSettings> {
 
 	RfReceiverEditor<S> modify();
 
-	void delete();
+	void delete(boolean deleteTags);
 
 }

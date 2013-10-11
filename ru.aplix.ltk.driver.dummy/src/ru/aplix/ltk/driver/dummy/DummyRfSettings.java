@@ -36,6 +36,11 @@ public class DummyRfSettings implements RfSettings, Cloneable {
 	private int maxTags = DUMMY_MAX_TAGS.getDefault();
 
 	@Override
+	public String getTargetId() {
+		return "dummy";
+	}
+
+	@Override
 	public RfTrackingPolicy getTrackingPolicy() {
 		return this.trackingPolicy;
 	}

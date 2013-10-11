@@ -32,6 +32,16 @@ public interface RfSettings extends Parameterized {
 			.byDefault(DEFAULT_TRACKING_POLICY);
 
 	/**
+	 * RFID connection target identifier.
+	 *
+	 * <p>Multiple connections can be opened to the same target. This
+	 * identifier is used to determine this fact.</p>
+	 *
+	 * @return a string uniquely identifying the connection target.
+	 */
+	String getTargetId();
+
+	/**
 	 * RFID tracking policy.
 	 *
 	 * @return tracking policy.

@@ -22,6 +22,11 @@ public class BlackboxRfSettings implements RfSettings, Cloneable {
 
 	private TrackerPolicy trackerPolicy;
 
+	@Override
+	public String getTargetId() {
+		return "blackbox";
+	}
+
 	/**
 	 * RFID tracker instance to use for black box testing.
 	 *

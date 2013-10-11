@@ -51,6 +51,11 @@ public class HttpRfSettings extends AbstractRfSettings {
 	private URL clientURL;
 	private long reconnectionDelay = HTTP_RF_RECONNECTION_DELAY.getDefault();
 
+	@Override
+	public String getTargetId() {
+		return getCollectorURL().toExternalForm();
+	}
+
 	/**
 	 * HTTP collector URL
 	 *

@@ -110,6 +110,24 @@ public class CtgRfSettings extends AbstractRfSettings {
 	private int keepAliveRequestPeriod =
 			CTG_RF_KEEP_ALIVE_REQUEST_PERIOD.getDefault();
 
+	@Override
+	public String getTargetId() {
+
+		final String readerHost = getReaderHost();
+
+		if (readerHost == null) {
+			return "unknown";
+		}
+
+		final int readerPort = getReaderPort();
+
+		if (readerPort == CTG_RF_READER_PORT.getDefault().intValue()) {
+			return readerHost;
+		}
+
+		return readerHost + ':' + readerPort;
+	}
+
 	/**
 	 * Reader device host.
 	 *

@@ -18,6 +18,11 @@
       rev="latest.integration"/>
 
     <dependency
+      org="commons-dbcp"
+      name="commons-dbcp"
+      rev="1.4+"/>
+
+    <dependency
       org="org.springframework"
       name="org.springframework.context"
       rev="3.1.0.RELEASE"
@@ -53,6 +58,7 @@
     <exclude org="package" module="javax.sql"/>
     <exclude org="javax.persistence"/>
     <exclude module="com.springsource.org.hibernate"/>
+    <exclude org="org.apache.geronimo.specs"/>
 
   </dependencies>
 </ivy-module>

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.store.RfStore;
-import ru.aplix.ltk.store.web.blackbox.test.TagLoggingTest;
+import ru.aplix.ltk.store.web.blackbox.test.*;
 
 
 @Component("blackboxRunner")
@@ -46,9 +46,9 @@ public class BlackboxRunner {
 
 		junit.addListener(result);
 		junit.run(
-				/*DummyTest.class,
+				DummyTest.class,
 				StatusTest.class,
-				TagSendingTest.class,*/
+				TagSendingTest.class,
 				TagLoggingTest.class);
 
 		return result;

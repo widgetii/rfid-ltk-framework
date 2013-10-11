@@ -75,7 +75,8 @@ public class TestConsumer<H extends MsgHandle<H, M>, M>
 			if (message == null) {
 				break;
 			}
-			System.err.println("(!) message received: " + message);
+
+			last = message;
 		}
 
 		return last;

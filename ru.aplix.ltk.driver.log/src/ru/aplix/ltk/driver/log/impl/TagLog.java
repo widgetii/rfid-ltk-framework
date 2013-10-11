@@ -27,17 +27,22 @@ class TagLog extends CyclicLog {
 	private final boolean logDisappearance;
 	private long lastId;
 
-	TagLog(BundleContext context, RfProvider<?> provider) throws IOException {
-		this(context, provider, bundleParameters(context).sub(RF_LOG_PREFIX));
+	TagLog(LoggingRfProvider<?> provider, String targetId) throws IOException {
+		this(
+				provider.getContext(),
+				provider.getProvider(),
+				targetId,
+				bundleParameters(provider.getContext()).sub(RF_LOG_PREFIX));
 	}
 
 	private TagLog(
 			BundleContext context,
 			RfProvider<?> provider,
+			String targetId,
 			Parameters params)
 	throws IOException {
 		this(
-				config(context, provider, params),
+				config(context, provider, targetId, params),
 				params.valueOf(RF_LOG_APPEARANCE),
 				params.valueOf(RF_LOG_DISAPPEARANCE));
 	}
@@ -120,9 +125,10 @@ class TagLog extends CyclicLog {
 	private static CyclicLogConfig config(
 			BundleContext context,
 			RfProvider<?> provider,
+			String targetId,
 			Parameters params) {
 
-		final Path path = logPath(context, provider, params);
+		final Path path = logPath(context, provider, targetId, params);
 		final CyclicLogConfig config = new CyclicLogConfig(path, 32);
 
 		config.setMaxRecords(params.valueOf(RF_LOG_SIZE));
@@ -135,10 +141,18 @@ class TagLog extends CyclicLog {
 	private static Path logPath(
 			BundleContext context,
 			RfProvider<?> provider,
+			String targetId,
 			Parameters params) {
 
 		final String dir = params.valueOf(RF_LOG_DIR, "").trim();
-		final String fileName = provider.getId() + ".tags";
+		final String providerId = provider.getId();
+		final String fileName;
+
+		if (targetId == null || targetId.isEmpty()) {
+			fileName = providerId + ".tags";
+		} else {
+			fileName = providerId + "." + targetId + ".tags";
+		}
 
 		if (dir.isEmpty()) {
 			return context.getDataFile(fileName).toPath();

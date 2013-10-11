@@ -4,10 +4,7 @@ import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_PROXY;
 import static ru.aplix.ltk.driver.log.RfLogConstants.RF_LOG_FILTER;
 import static ru.aplix.ltk.driver.log.RfLogConstants.RF_LOG_PREFIX;
 import static ru.aplix.ltk.driver.log.RfLogConstants.RF_LOG_PROXY_ID;
-import static ru.aplix.ltk.driver.log.impl.LoggingRfProvider.loggingRfProvider;
 import static ru.aplix.ltk.osgi.OSGiUtils.bundleParameters;
-
-import java.io.IOException;
 
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
@@ -47,17 +44,12 @@ public class Activator implements BundleActivator {
 			ServiceReference<RfProvider<?>> reference) {
 
 		final RfProvider<?> provider = this.context.getService(reference);
-		final TagLog log = createLog(provider);
-
-		if (log == null) {
-			this.context.ungetService(reference);
-			return null;
-		}
 
 		try {
 
+			@SuppressWarnings({"rawtypes", "unchecked"})
 			final LoggingRfProvider<?> loggingProvider =
-					loggingRfProvider(provider, log, this.log);
+					new LoggingRfProvider(this.context, provider, this.log);
 
 			loggingProvider.register(this.context, reference);
 
@@ -69,26 +61,12 @@ public class Activator implements BundleActivator {
 					+ " (" + provider.getId() + ')',
 					e);
 			try {
-				log.close();
-			} catch (IOException ex) {
-				this.log.error("Error closing log", ex);
+				this.log.close();
 			} finally {
 				this.context.ungetService(reference);
 			}
 		}
 
-		return null;
-	}
-
-	private TagLog createLog(RfProvider<?> provider) {
-		try {
-			return new TagLog(this.context, provider);
-		} catch (Throwable e) {
-			this.log.error(
-					"Failed to create a log for " + provider.getName()
-					+ " (" + provider.getId() + ')',
-					e);
-		}
 		return null;
 	}
 

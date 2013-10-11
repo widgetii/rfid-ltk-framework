@@ -88,7 +88,7 @@ final class LogConsumer
 
 	private void requestMessages() throws IOException {
 		try (CyclicLogReader reader =
-				this.tracker.getProvider().log().read(this)) {
+				this.tracker.getTarget().log().read(this)) {
 			if (reader.seek(new TagEventsFilter(this.lastEventId))) {
 				sendMessages(reader);
 			}

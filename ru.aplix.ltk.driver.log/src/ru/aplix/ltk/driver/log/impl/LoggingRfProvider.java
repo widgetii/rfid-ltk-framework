@@ -6,12 +6,7 @@ import static ru.aplix.ltk.driver.log.RfLogConstants.RF_LOG_PROXY_ID;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.*;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -20,42 +15,33 @@ import org.osgi.framework.ServiceRegistration;
 import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
-import ru.aplix.ltk.core.collector.RfCollectorHandle;
-import ru.aplix.ltk.core.collector.RfTagAppearanceHandle;
-import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
-import ru.aplix.ltk.core.source.RfError;
-import ru.aplix.ltk.core.source.RfStatusMessage;
-import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.osgi.Logger;
 
 
 class LoggingRfProvider<S extends RfSettings>
 		implements RfProvider<S>, Closeable {
 
-	public static <S extends RfSettings>
-	LoggingRfProvider<S> loggingRfProvider(
+	private final BundleContext context;
+	private final RfProvider<S> provider;
+	private final Logger logger;
+	private final HashMap<String, LogRfTarget<S>> targets = new HashMap<>();
+	private ServiceRegistration<RfProvider<?>> registration;
+
+	LoggingRfProvider(
+			BundleContext context,
 			RfProvider<S> provider,
-			TagLog log,
 			Logger logger) {
-		return new LoggingRfProvider<>(provider, log, logger);
+		this.context = context;
+		this.provider = provider;
+		this.logger = logger;
 	}
 
-	private final RfProvider<S> provider;
-	private final TagLog log;
-	private final Logger logger;
-	private LogRfTracker firstTracker;
-	private LogRfTracker lastTracker;
-	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-	private ServiceRegistration<RfProvider<?>> registration;
-	private RfCollectorHandle handle;
+	public final BundleContext getContext() {
+		return this.context;
+	}
 
-	private LoggingRfProvider(
-			RfProvider<S> provider,
-			TagLog log,
-			Logger logger) {
-		this.provider = provider;
-		this.log = log;
-		this.logger = logger;
+	public final RfProvider<S> getProvider() {
+		return this.provider;
 	}
 
 	public void register(
@@ -82,10 +68,6 @@ class LoggingRfProvider<S extends RfSettings>
 				properties);
 	}
 
-	public final RfProvider<S> getProvider() {
-		return this.provider;
-	}
-
 	@Override
 	public String getId() {
 		return this.provider.getId() + RF_LOG_PROVIDER_ID_SUFFIX;
@@ -99,10 +81,6 @@ class LoggingRfProvider<S extends RfSettings>
 	@Override
 	public Class<? extends S> getSettingsType() {
 		return this.provider.getSettingsType();
-	}
-
-	public final TagLog log() {
-		return this.log;
 	}
 
 	public final Logger logger() {
@@ -121,26 +99,18 @@ class LoggingRfProvider<S extends RfSettings>
 
 	@Override
 	public RfConnection connect(S settings) {
-
-		final RfConnection connection = getProvider().connect(settings);
-
-		return new LoggingRfConnection(settings, createTracker(connection));
+		return target(settings.getTargetId()).connect(settings);
 	}
 
 	@Override
 	public void close() throws IOException {
-		try {
-			if (this.handle != null) {
-				this.handle.unsubscribe();
+		synchronized (this.targets) {
+			for (LogRfTarget<S> target : this.targets.values()) {
+				target.close();
 			}
-		} finally {
-			this.handle = null;
-			try {
-				this.registration.unregister();
-			} finally {
-				this.log.close();
-			}
+			this.targets.clear();
 		}
+		this.registration.unregister();
 	}
 
 	@Override
@@ -151,158 +121,20 @@ class LoggingRfProvider<S extends RfSettings>
 		return getName() + " (" + getId() + ')';
 	}
 
-	final LogRfTracker createTracker(RfConnection connection) {
+	private LogRfTarget<S> target(String targetId) {
+		synchronized (this.targets) {
 
-		final WriteLock lock = this.lock.writeLock();
+			final LogRfTarget<S> found = this.targets.get(targetId);
 
-		lock.lock();
-		try {
-			if (this.handle == null) {
-				this.handle = connection.getCollector().subscribe(
-						new ProviderStatusListener());
+			if (found != null) {
+				return found;
 			}
-		} finally {
-			lock.unlock();
-		}
 
-		return new LogRfTracker(this);
-	}
+			final LogRfTarget<S> target = new LogRfTarget<>(this, targetId);
 
-	final void addTracker(LogRfTracker tracker) {
+			this.targets.put(targetId, target);
 
-		final WriteLock lock = this.lock.writeLock();
-
-		lock.lock();
-		try {
-			if (this.firstTracker == null) {
-				this.firstTracker = this.lastTracker = tracker;
-				return;
-			}
-			tracker.setPrev(this.lastTracker);
-			this.lastTracker.setNext(tracker);
-			this.lastTracker = tracker;
-		} finally {
-			lock.unlock();
+			return target;
 		}
 	}
-
-	final void removeTracker(LogRfTracker tracker) {
-
-		final WriteLock lock = this.lock.writeLock();
-
-		lock.lock();
-		try {
-
-			final LogRfTracker prev = tracker.getPrev();
-			final LogRfTracker next = tracker.getNext();
-
-			if (prev == null) {
-				this.firstTracker = next;
-			} else {
-				prev.setNext(next);
-			}
-			if (next == null) {
-				this.lastTracker = prev;
-			} else {
-				next.setPrev(prev);
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	private void logTag(RfTagAppearanceMessage message) {
-
-		final RfTagAppearanceMessage logged;
-
-		try {
-			logged = this.log.log(message);
-		} catch (Throwable e) {
-			updateTagAppearance(message);
-			error("Failed to log message", e);
-			return;
-		}
-
-		updateTagAppearance(logged);
-	}
-
-	private void updateStatus(RfStatusMessage status) {
-
-		final ReadLock lock = this.lock.readLock();
-
-		lock.lock();
-		try {
-
-			LogRfTracker tracker = this.firstTracker;
-
-			while (tracker != null) {
-				tracker.updateStatus(status);
-				tracker = tracker.getNext();
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	private void updateTagAppearance(RfTagAppearanceMessage tagAppearance) {
-
-		final ReadLock lock = this.lock.readLock();
-
-		lock.lock();
-		try {
-
-			LogRfTracker tracker = this.firstTracker;
-
-			while (tracker != null) {
-				tracker.updateTagAppearance(tagAppearance);
-				tracker = tracker.getNext();
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	private void error(String message, Throwable cause) {
-		this.logger.error(message, cause);
-		updateStatus(new RfError(null, message, cause));
-	}
-
-	private final class ProviderStatusListener
-			implements MsgConsumer<RfCollectorHandle, RfStatusMessage> {
-
-		@Override
-		public void consumerSubscribed(RfCollectorHandle handle) {
-			handle.requestTagAppearance(new ProviderTagListener());
-		}
-
-		@Override
-		public void messageReceived(RfStatusMessage message) {
-			updateStatus(message);
-		}
-
-		@Override
-		public void consumerUnsubscribed(RfCollectorHandle handle) {
-		}
-
-	}
-
-	private final class ProviderTagListener implements MsgConsumer<
-			RfTagAppearanceHandle,
-			RfTagAppearanceMessage> {
-
-		@Override
-		public void consumerSubscribed(RfTagAppearanceHandle handle) {
-		}
-
-		@Override
-		public void messageReceived(RfTagAppearanceMessage message) {
-			logTag(message);
-		}
-
-		@Override
-		public void consumerUnsubscribed(RfTagAppearanceHandle handle) {
-		}
-
-	}
-
 }

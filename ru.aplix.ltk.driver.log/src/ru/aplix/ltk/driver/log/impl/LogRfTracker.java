@@ -10,18 +10,18 @@ import ru.aplix.ltk.core.source.RfStatusMessage;
 
 final class LogRfTracker implements RfTracker {
 
-	private final LoggingRfProvider<?> provider;
+	private final LogRfTarget<?> target;
 	private LogRfTracker next;
 	private LogRfTracker prev;
 	private RfTracking tracking;
 	private volatile boolean trackingStarted;
 
-	LogRfTracker(LoggingRfProvider<?> provider) {
-		this.provider = provider;
+	LogRfTracker(LogRfTarget<?> target) {
+		this.target = target;
 	}
 
-	public final LoggingRfProvider<?> getProvider() {
-		return this.provider;
+	public final LogRfTarget<?> getTarget() {
+		return this.target;
 	}
 
 	@Override
@@ -31,7 +31,7 @@ final class LogRfTracker implements RfTracker {
 
 	@Override
 	public void startRfTracking() {
-		this.provider.addTracker(this);
+		this.target.addTracker(this);
 		this.trackingStarted = true;
 	}
 
@@ -41,7 +41,7 @@ final class LogRfTracker implements RfTracker {
 
 	@Override
 	public void stopRfTracking() {
-		this.provider.removeTracker(this);
+		this.target.removeTracker(this);
 		this.trackingStarted = false;
 	}
 
@@ -76,7 +76,7 @@ final class LogRfTracker implements RfTracker {
 	}
 
 	final void error(String message, Throwable cause) {
-		this.provider.logger().error(message, cause);
+		this.target.logger().error(message, cause);
 		updateStatus(new RfError(null, message, cause));
 	}
 

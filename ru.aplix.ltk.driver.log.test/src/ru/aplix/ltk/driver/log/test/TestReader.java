@@ -5,12 +5,12 @@ import java.nio.channels.FileChannel;
 
 import org.junit.rules.ExternalResource;
 
-import ru.aplix.ltk.driver.log.CyclicLogConfig;
-import ru.aplix.ltk.driver.log.CyclicLogFilter;
-import ru.aplix.ltk.driver.log.CyclicLogReader;
+import ru.aplix.ltk.driver.log.*;
 
 
-public abstract class TestReader extends ExternalResource {
+public abstract class TestReader
+		extends ExternalResource
+		implements CyclicLogClient {
 
 	private final TestLog log = new TestLog() {
 		@Override
@@ -19,6 +19,7 @@ public abstract class TestReader extends ExternalResource {
 		}
 	};
 	private CyclicLogReader reader;
+	private boolean exhausted;
 
 	public final TestLog log() {
 		return this.log;
@@ -32,14 +33,36 @@ public abstract class TestReader extends ExternalResource {
 		return reader().channel();
 	}
 
+	public final boolean isExhausted() {
+		return this.exhausted;
+	}
+
+	public final void resetExhaust() {
+		this.exhausted = false;
+	}
+
+	public final int read() throws IOException {
+		return reader().read().getInt();
+	}
+
+	public final int pull() throws IOException {
+		return reader().pull().getInt();
+	}
+
 	public final boolean seek(int toFind) throws IOException {
 		return reader().seek(new TestLogFilter(toFind));
 	}
 
 	@Override
+	public void readerExhausted(CyclicLogReader reader) {
+		this.exhausted = true;
+	}
+
+	@Override
 	protected void before() throws Throwable {
 		this.log.before();
-		this.reader = log().log().read();
+		resetExhaust();
+		this.reader = log().log().read(this);
 	}
 
 	protected abstract void configure(CyclicLogConfig config);

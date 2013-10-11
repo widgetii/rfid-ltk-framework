@@ -42,20 +42,43 @@ public class TestConsumer<H extends MsgHandle<H, M>, M>
 	}
 
 	public M nextMessage() {
-		return nextMessage(1, TimeUnit.SECONDS);
+		return nextMessage("");
 	}
 
-	public M nextMessage(long timeout, TimeUnit unit) {
+	public M nextMessage(String error) {
+		return nextMessage(error, 1, TimeUnit.SECONDS);
+	}
+
+	public M nextMessage(String error, long timeout, TimeUnit unit) {
 		try {
 
 			final M message = this.messages.poll(timeout, unit);
 
-			assertThat(message, notNullValue());
+			if (error != null) {
+				assertThat(error, message, notNullValue());
+			}
 
 			return message;
 		} catch (InterruptedException e) {
 			throw new IllegalStateException(e);
 		}
+	}
+
+	public M lastMessage() {
+
+		M last = null;
+
+		for (;;) {
+
+			final M message = nextMessage(null);
+
+			if (message == null) {
+				break;
+			}
+			System.err.println("(!) message received: " + message);
+		}
+
+		return last;
 	}
 
 	public void noMoreMessages() {

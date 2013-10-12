@@ -85,9 +85,7 @@ public class ClrClient<S extends RfSettings>
 
 	@Override
 	public void messageReceived(RfStatusMessage message) {
-		System.err.println("(!) status " + this.executor);
 		this.executor.submit(new StatusSender(this, message));
-		System.err.println("(!) status added " + this.executor);
 	}
 
 	@Override
@@ -108,9 +106,7 @@ public class ClrClient<S extends RfSettings>
 	}
 
 	private void sendTag(RfTagAppearanceMessage message) {
-		System.err.println("(!) tag");
 		this.executor.submit(new TagAppearanceSender(this, message));
-		System.err.println("(!) tag added");
 	}
 
 	private final class TagListener implements MsgConsumer<

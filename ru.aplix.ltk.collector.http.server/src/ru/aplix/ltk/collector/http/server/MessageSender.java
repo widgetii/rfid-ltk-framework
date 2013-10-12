@@ -98,14 +98,11 @@ public abstract class MessageSender<T>
 	protected T sendRequest(
 			HttpUriRequest request)
 	throws IOException, ClientProtocolException {
-		System.err.println("(!) send request " + this + ": " + this.client.getExecutor());
 
 		final T result = httpClient().execute(request, this);
 
-		System.err.println("(!) request sent " + this);
 		getClient().requestSent();
 
-		System.err.println("(!) request processed " + this);
 		return result;
 	}
 

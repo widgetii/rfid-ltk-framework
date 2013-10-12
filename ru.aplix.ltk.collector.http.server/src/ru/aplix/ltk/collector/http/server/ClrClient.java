@@ -1,9 +1,6 @@
 package ru.aplix.ltk.collector.http.server;
 
-import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
-
 import java.net.URL;
-import java.util.concurrent.ScheduledExecutorService;
 
 import ru.aplix.ltk.collector.http.ClrClientId;
 import ru.aplix.ltk.collector.http.ClrClientRequest;
@@ -15,6 +12,7 @@ import ru.aplix.ltk.core.collector.RfCollectorHandle;
 import ru.aplix.ltk.core.collector.RfTagAppearanceHandle;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.core.source.RfStatusMessage;
+import ru.aplix.ltk.core.util.SingleThreadExecutor;
 import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.osgi.Logger;
 
@@ -27,7 +25,7 @@ public class ClrClient<S extends RfSettings>
 	private PingSender ping;
 	private ClrClientRequest clientRequest;
 	private RfCollectorHandle collectorHandle;
-	private ScheduledExecutorService executor;
+	private SingleThreadExecutor executor;
 
 	public ClrClient(ClrProfile<S> profile, ClrClientId id) {
 		this.profile = profile;
@@ -48,6 +46,10 @@ public class ClrClient<S extends RfSettings>
 
 	public final URL getClientURL() {
 		return this.clientRequest.getClientURL();
+	}
+
+	public final SingleThreadExecutor getExecutor() {
+		return this.executor;
 	}
 
 	public final Logger log() {
@@ -72,28 +74,26 @@ public class ClrClient<S extends RfSettings>
 	@Override
 	public void consumerSubscribed(RfCollectorHandle handle) {
 		this.collectorHandle = handle;
-		this.executor = newSingleThreadScheduledExecutor();
+		this.executor = new SingleThreadExecutor(128);
+		this.executor.getThread().setName("ClrClient-" + getId());
+		this.ping = new PingSender(this);
+		this.ping.schedule();
 		handle.requestTagAppearance(
 				new TagListener(),
 				this.clientRequest.getLastTagEventId());
-		this.ping = new PingSender(this, this.executor);
-		this.ping.schedule();
 	}
 
 	@Override
 	public void messageReceived(RfStatusMessage message) {
+		System.err.println("(!) status " + this.executor);
 		this.executor.submit(new StatusSender(this, message));
+		System.err.println("(!) status added " + this.executor);
 	}
 
 	@Override
 	public void consumerUnsubscribed(RfCollectorHandle handle) {
-		if (this.executor != null) {
-			try {
-				this.executor.shutdownNow();
-			} finally {
-				this.executor = null;
-			}
-		}
+		this.ping.cancel();
+		this.executor.close();
 	}
 
 	final void requestSent() {
@@ -108,7 +108,9 @@ public class ClrClient<S extends RfSettings>
 	}
 
 	private void sendTag(RfTagAppearanceMessage message) {
+		System.err.println("(!) tag");
 		this.executor.submit(new TagAppearanceSender(this, message));
+		System.err.println("(!) tag added");
 	}
 
 	private final class TagListener implements MsgConsumer<

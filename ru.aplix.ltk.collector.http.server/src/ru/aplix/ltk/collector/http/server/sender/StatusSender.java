@@ -15,8 +15,8 @@ public class StatusSender extends NoResponseMessageSender {
 	}
 
 	@Override
-	public Boolean call() throws Exception {
-		return post(new RfStatusRequest(getClient().getId(), this.status));
+	public void run() {
+		post(new RfStatusRequest(getClient().getId(), this.status));
 	}
 
 }

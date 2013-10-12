@@ -1,9 +1,8 @@
 package ru.aplix.ltk.collector.http.server.sender;
 
+import static java.lang.System.currentTimeMillis;
+
 import java.io.IOException;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -11,41 +10,47 @@ import org.apache.http.client.methods.HttpUriRequest;
 import ru.aplix.ltk.collector.http.server.ClrClient;
 
 
-public class PingSender extends NoResponseMessageSender implements Runnable {
+public class PingSender extends NoResponseMessageSender {
 
-	private static final long PING_PERIOD = 5;
+	private static final long PING_PERIOD = 5000;
 
-	private final ScheduledExecutorService executor;
-	private ScheduledFuture<?> ping;
+	private Thread thread;
 
-	public PingSender(ClrClient<?> client, ScheduledExecutorService executor) {
+	private long nextExecution;
+
+	public PingSender(ClrClient<?> client) {
 		super(client);
-		this.executor = executor;
+		this.thread = new Thread(this);
 	}
 
 	public void schedule() {
-		this.ping = this.executor.scheduleAtFixedRate(
-				this,
-				PING_PERIOD,
-				PING_PERIOD,
-				TimeUnit.SECONDS);
+		this.thread = new Thread("PingSender-" + getClient().getId()) {
+			@Override
+			public void run() {
+				sendPings();
+			}
+		};
+		reschedule();
+		this.thread.start();
 	}
 
-	public void reschedule() {
-		if (this.ping != null) {
-			this.ping.cancel(false);
+	public synchronized void reschedule() {
+
+		final long nextExecution = currentTimeMillis() + PING_PERIOD;
+
+		if (this.nextExecution < nextExecution) {
+			this.nextExecution = nextExecution;
 		}
-		schedule();
+	}
+
+	public synchronized void cancel() {
+		this.thread = null;
+		notifyAll();
 	}
 
 	@Override
 	public void run() {
-		call();
-	}
-
-	@Override
-	public Boolean call() {
-		return get("?client=" + getClient().getId().getUUID().toString());
+		get("?client=" + getClient().getId().getUUID().toString());
 	}
 
 	@Override
@@ -54,6 +59,34 @@ public class PingSender extends NoResponseMessageSender implements Runnable {
 	throws IOException, ClientProtocolException {
 		// No need to reschedule itself.
 		return httpClient().execute(request, this);
+	}
+
+	private void sendPings() {
+		while (delay()) {
+			reschedule();
+			getClient().getExecutor().offer(this);
+		}
+	}
+
+	private boolean delay() {
+		for (;;) {
+			synchronized (this) {
+				if (this.thread == null) {
+					return false;
+				}
+
+				final long left = this.nextExecution - currentTimeMillis();
+
+				if (left <= 0) {
+					return true;
+				}
+				try {
+					wait(left);
+				} catch (InterruptedException e) {
+					return false;
+				}
+			}
+		}
 	}
 
 }

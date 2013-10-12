@@ -3,7 +3,6 @@ package ru.aplix.ltk.collector.http.server;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.Callable;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -19,7 +18,7 @@ import ru.aplix.ltk.core.util.Parameterized;
 
 
 public abstract class MessageSender<T>
-		implements Callable<T>, ResponseHandler<T> {
+		implements Runnable, ResponseHandler<T> {
 
 	private final ClrClient<?> client;
 
@@ -99,11 +98,14 @@ public abstract class MessageSender<T>
 	protected T sendRequest(
 			HttpUriRequest request)
 	throws IOException, ClientProtocolException {
+		System.err.println("(!) send request " + this + ": " + this.client.getExecutor());
 
 		final T result = httpClient().execute(request, this);
 
+		System.err.println("(!) request sent " + this);
 		getClient().requestSent();
 
+		System.err.println("(!) request processed " + this);
 		return result;
 	}
 

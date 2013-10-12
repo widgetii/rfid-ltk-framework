@@ -17,8 +17,8 @@ public class TagAppearanceSender extends NoResponseMessageSender {
 	}
 
 	@Override
-	public Boolean call() throws Exception {
-		return post(new RfTagAppearanceRequest(
+	public void run() {
+		post(new RfTagAppearanceRequest(
 				getClient().getId(),
 				this.message));
 	}

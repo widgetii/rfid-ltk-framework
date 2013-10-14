@@ -27,7 +27,8 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 	}
 
 	@Override
-	public <M extends Monitoring<?>> M monitoringOf(MonitoringTarget<M> target) {
+	public <M extends Monitoring<?>> M monitoringOf(
+			MonitoringTarget<M> target) {
 		synchronized (this.monitorings) {
 
 			@SuppressWarnings("unchecked")
@@ -38,6 +39,21 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 			}
 
 			return createMonitoring(target);
+		}
+	}
+
+	@Override
+	public void report(MonitoringReports reports) {
+
+		final Monitoring<?>[] monitorings;
+
+		synchronized (this.monitorings) {
+			monitorings = this.monitorings.values().toArray(
+					new Monitoring<?>[this.monitorings.size()]);
+		}
+
+		for (Monitoring<?> monitoring : monitorings) {
+			monitoring.report(reports);
 		}
 	}
 

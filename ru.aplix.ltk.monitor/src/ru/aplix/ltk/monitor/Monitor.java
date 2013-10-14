@@ -28,4 +28,15 @@ public interface Monitor {
 	 */
 	<M extends Monitoring<?>> M monitoringOf(MonitoringTarget<M> target);
 
+	/**
+	 * Build monitoring reports for all known monitoring targets.
+	 *
+	 * <p>This method calls {@link Monitoring#report(MonitoringReports)} methods
+	 * for each created and not {@link Monitoring#report(MonitoringReports)
+	 * stopped yet} monitoring instance.</p>
+	 *
+	 * @param reports reports collection to add reports to.
+	 */
+	void report(MonitoringReports reports);
+
 }

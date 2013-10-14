@@ -6,7 +6,7 @@ package ru.aplix.ltk.monitor;
  *
  * @param <M> a type of monitoring of this target.
  */
-public abstract class MonitoringTarget<M extends Monitoring<?>> {
+public abstract class MonitoringTarget<M extends Monitoring> {
 
 	/**
 	 * Creates new monitoring instance.

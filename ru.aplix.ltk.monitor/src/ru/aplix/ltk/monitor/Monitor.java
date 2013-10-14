@@ -8,9 +8,7 @@ package ru.aplix.ltk.monitor;
  * sub-systems called {@link MonitoringTarget monitoring targets}.</p>
  *
  * <p>Each monitoring target can report events specific to it to dedicated
- * {@link Monitoring} instance, the same way it reports them to the log.
- * Such events will be reported to {@link MonitoringListener monitoring
- * listeners}, which can, for example, generate monitoring reports.</p>
+ * {@link Monitoring} instance, the same way it reports them to the log.</p>
  *
  * <p>This service is thread-safe.</p>
  */
@@ -26,7 +24,7 @@ public interface Monitor {
 	 *
 	 * @return monitoring instance of the given target.
 	 */
-	<M extends Monitoring<?>> M monitoringOf(MonitoringTarget<M> target);
+	<M extends Monitoring> M monitoringOf(MonitoringTarget<M> target);
 
 	/**
 	 * Build monitoring reports for all known monitoring targets.

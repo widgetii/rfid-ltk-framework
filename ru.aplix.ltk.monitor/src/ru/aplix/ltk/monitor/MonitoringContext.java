@@ -40,7 +40,7 @@ public abstract class MonitoringContext {
 	 *
 	 * @return monitoring instance.
 	 */
-	protected final <M extends Monitoring<?>> M createMonitoring(
+	protected final <M extends Monitoring> M createMonitoring(
 			MonitoringTarget<M> target) {
 
 		final M monitoring = target.newMonitoring();
@@ -59,7 +59,7 @@ public abstract class MonitoringContext {
 	 *
 	 * @param monitoring monitoring to start.
 	 */
-	protected abstract void startMonitoring(Monitoring<?> monitoring);
+	protected abstract void startMonitoring(Monitoring monitoring);
 
 	/**
 	 * Stops monitoring.
@@ -69,6 +69,6 @@ public abstract class MonitoringContext {
 	 *
 	 * @param monitoring monitoring to stop.
 	 */
-	protected abstract void stopMonitoring(Monitoring<?> monitoring);
+	protected abstract void stopMonitoring(Monitoring monitoring);
 
 }

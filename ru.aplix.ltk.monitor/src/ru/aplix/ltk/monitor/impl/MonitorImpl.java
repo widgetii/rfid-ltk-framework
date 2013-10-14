@@ -12,7 +12,7 @@ import ru.aplix.ltk.osgi.Logger;
 public class MonitorImpl extends MonitoringContext implements Monitor {
 
 	private Logger logger;
-	private final HashMap<MonitoringTarget<?>, Monitoring<?>> monitorings =
+	private final HashMap<MonitoringTarget<?>, Monitoring> monitorings =
 			new HashMap<>();
 	private ServiceRegistration<Monitor> registration;
 
@@ -27,7 +27,7 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 	}
 
 	@Override
-	public <M extends Monitoring<?>> M monitoringOf(
+	public <M extends Monitoring> M monitoringOf(
 			MonitoringTarget<M> target) {
 		synchronized (this.monitorings) {
 
@@ -45,25 +45,25 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 	@Override
 	public void report(MonitoringReport report) {
 
-		final Monitoring<?>[] monitorings;
+		final Monitoring[] monitorings;
 
 		synchronized (this.monitorings) {
 			monitorings = this.monitorings.values().toArray(
-					new Monitoring<?>[this.monitorings.size()]);
+					new Monitoring[this.monitorings.size()]);
 		}
 
-		for (Monitoring<?> monitoring : monitorings) {
+		for (Monitoring monitoring : monitorings) {
 			monitoring.report(report);
 		}
 	}
 
 	@Override
-	protected void startMonitoring(Monitoring<?> monitoring) {
+	protected void startMonitoring(Monitoring monitoring) {
 		this.monitorings.put(monitoring.getTarget(), monitoring);
 	}
 
 	@Override
-	protected void stopMonitoring(Monitoring<?> monitoring) {
+	protected void stopMonitoring(Monitoring monitoring) {
 		synchronized (this.monitorings) {
 			this.monitorings.remove(monitoring.getTarget());
 		}

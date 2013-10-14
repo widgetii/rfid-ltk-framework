@@ -14,7 +14,7 @@
   <dependencies>
     <dependency
       org="bundle"
-      name="ru.aplix.ltk.osgi"
+      name="ru.aplix.ltk.monitor"
       rev="latest.integration"
       conf="compile->@;runtime->@"/>
     <dependency

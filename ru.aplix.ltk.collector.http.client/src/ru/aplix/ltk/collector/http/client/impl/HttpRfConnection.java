@@ -6,18 +6,19 @@ import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 
-import ru.aplix.ltk.collector.http.RemoteClrException;
 import ru.aplix.ltk.collector.http.RfTagAppearanceRequest;
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
+import ru.aplix.ltk.collector.http.client.impl.monitor.HttpRfClientMtr;
+import ru.aplix.ltk.collector.http.client.impl.monitor.HttpRfClientMtrTarget;
 import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.collector.RfTracker;
 import ru.aplix.ltk.core.collector.RfTracking;
 import ru.aplix.ltk.core.source.*;
-import ru.aplix.ltk.osgi.Logger;
+import ru.aplix.ltk.monitor.MonitoringTracker;
 
 
-final class HttpRfConnection
+public final class HttpRfConnection
 		extends RfConnection
 		implements RfSource, RfTracker {
 
@@ -30,12 +31,17 @@ final class HttpRfConnection
 	private volatile RfStatusUpdater statusUpdater;
 	private volatile RfTracking tracking;
 	private volatile boolean connected;
+	private MonitoringTracker<HttpRfClientMtr> tracker;
 
 	HttpRfConnection(HttpRfClient client, HttpRfSettings settings) {
 		super(settings);
 		this.client = client;
 		this.settings = settings;
 		generateUUID();
+		this.tracker = new MonitoringTracker<>(
+				client.getProvider().getContext(),
+				new HttpRfClientMtrTarget(this));
+		this.tracker.open();
 	}
 
 	public final long getLastTagEventId() {
@@ -66,13 +72,13 @@ final class HttpRfConnection
 		return this.connected;
 	}
 
-	public final Logger getLogger() {
-		return getClient().getProvider().getLogger();
+	public final HttpRfClientMtr getMonitoring() {
+		return this.tracker.getService();
 	}
 
 	@Override
 	public void requestRfStatus(RfStatusUpdater updater) {
-		getLogger().debug(this + " Starting");
+		getMonitoring().statusRequested();
 		this.statusUpdater = updater;
 	}
 
@@ -107,13 +113,13 @@ final class HttpRfConnection
 
 	@Override
 	public void rejectRfStatus() {
-		getLogger().debug(this + " Stopping");
+		getMonitoring().statusRejected();
 		this.statusUpdater = null;
 	}
 
 	public void updateStatus(RfStatusMessage status) {
 		requestReceived();
-		logStatus(status);
+		getMonitoring().status(status);
 
 		final RfStatusUpdater statusUpdater = this.statusUpdater;
 
@@ -122,36 +128,10 @@ final class HttpRfConnection
 		}
 	}
 
-	private void logStatus(RfStatusMessage status) {
-		if (!status.getRfStatus().isError()) {
-			getLogger().debug(this + " Status update: " + status.getRfStatus());
-			return;
-		}
-
-		final String errorMessage = status.getErrorMessage();
-		final Throwable cause = status.getCause();
-
-		if (cause instanceof RemoteClrException) {
-
-			final RemoteClrException remote = (RemoteClrException) cause;
-
-			getLogger().error(
-					this + " Remote error: " + errorMessage
-					+ ". Remote exception: "
-					+ remote.getRemoteExceptionClassName()
-					+ ": " + remote.getMessage());
-			return;
-		}
-
-		getLogger().error(this + " Remote error: " + errorMessage, cause);
-	}
-
 	public void updateTagAppearance(RfTagAppearanceRequest tagAppearance) {
 		requestReceived();
 
-		getLogger().debug(
-				this + " Tag appearance changed (" + tagAppearance.getRfTag()
-				+ "): " + tagAppearance.getAppearance());
+		getMonitoring().tag(tagAppearance);
 
 		if (isConnected()) {
 			this.tracking.updateTagAppearance(tagAppearance);
@@ -160,7 +140,7 @@ final class HttpRfConnection
 	}
 
 	public void ping() {
-		getLogger().debug(this + " Ping");
+		getMonitoring().ping();
 		requestReceived();
 	}
 
@@ -205,19 +185,27 @@ final class HttpRfConnection
 
 	void connectionEstablished() {
 		this.connected = true;
+		getMonitoring().connected();
 		updateStatus(new RfConnected(getClientUUID().toString()));
 	}
 
 	void connectionLost() {
-		getLogger().error(this + " Connection lost");
+		getMonitoring().connectionLost();
 		reconnect();
 	}
 
 	void shutdown() {
-		getLogger().info(this + " Shutting down");
+		getMonitoring().shutdown();
 		this.reconnector.cancel();
 		new DisconnectRequest(this).send();
 		disconnect();
+		getExecutor().submit(new Runnable() {
+			@Override
+			public void run() {
+				getMonitoring().stop();
+				HttpRfConnection.this.tracker.close();
+			}
+		});
 		this.executor.shutdown();
 	}
 
@@ -228,12 +216,12 @@ final class HttpRfConnection
 
 	private void reconnect() {
 		disconnect();
-		getLogger().info(this + " Reconnect");
+		getMonitoring().reconnect();
 		generateUUID();
 	}
 
 	private void disconnect() {
-		getLogger().warning(this + " Disconnected");
+		getMonitoring().disconnected();
 		this.connected = false;
 		getClient().remove(this);
 	}

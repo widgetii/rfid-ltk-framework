@@ -23,9 +23,9 @@ import org.apache.http.util.EntityUtils;
 
 import ru.aplix.ltk.collector.http.ParametersEntity;
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
+import ru.aplix.ltk.collector.http.client.impl.monitor.HttpRfClientMtr;
 import ru.aplix.ltk.core.util.Parameterized;
 import ru.aplix.ltk.core.util.Parameters;
-import ru.aplix.ltk.osgi.Logger;
 
 
 public abstract class MessageSender<T>
@@ -50,8 +50,8 @@ public abstract class MessageSender<T>
 		return getConnection().getClient();
 	}
 
-	public final Logger getLogger() {
-		return getConnection().getLogger();
+	public final HttpRfClientMtr getMonitoring() {
+		return getConnection().getMonitoring();
 	}
 
 	public final HttpClient httpClient() {

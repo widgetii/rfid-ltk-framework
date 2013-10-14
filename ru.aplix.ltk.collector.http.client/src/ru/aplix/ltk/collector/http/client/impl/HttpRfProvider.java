@@ -12,18 +12,21 @@ import ru.aplix.ltk.collector.http.client.HttpRfProcessor;
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.RfConnection;
 import ru.aplix.ltk.core.RfProvider;
-import ru.aplix.ltk.osgi.Logger;
 
 
 final class HttpRfProvider
 		implements RfProvider<HttpRfSettings>, HttpRfProcessor {
 
 	private final HttpRfClient client;
-	private Logger logger;
 	private ServiceRegistration<?> registration;
+	private BundleContext context;
 
 	HttpRfProvider() {
 		this.client = new HttpRfClient(this);
+	}
+
+	public final BundleContext getContext() {
+		return this.context;
 	}
 
 	@Override
@@ -39,10 +42,6 @@ final class HttpRfProvider
 	@Override
 	public Class<? extends HttpRfSettings> getSettingsType() {
 		return HttpRfSettings.class;
-	}
-
-	public final Logger getLogger() {
-		return this.logger;
 	}
 
 	@Override
@@ -79,8 +78,7 @@ final class HttpRfProvider
 	}
 
 	void register(BundleContext context) {
-		this.logger = new Logger(context);
-		this.logger.open();
+		this.context = context;
 
 		final Hashtable<String, String> properties = new Hashtable<>(1);
 
@@ -99,12 +97,9 @@ final class HttpRfProvider
 		try {
 			this.client.shutdown();
 		} finally {
-			try {
-				this.registration.unregister();
-				this.registration = null;
-			} finally {
-				this.logger.close();
-			}
+			this.context = null;
+			this.registration.unregister();
+			this.registration = null;
 		}
 	}
 

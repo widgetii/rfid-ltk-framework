@@ -14,7 +14,7 @@ public class DisconnectRequest extends MessageSender<Void> {
 
 	@Override
 	public Void call() throws Exception {
-		getLogger().info(getConnection() + " Closing connection");
+		getMonitoring().closingConnection();
 		return delete();
 	}
 

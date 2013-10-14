@@ -17,11 +17,11 @@ public class ConnectRequest extends MessageSender<Boolean> {
 	@Override
 	public Boolean call() throws Exception {
 		if (getConnection().isConnected()) {
-			getLogger().warning(getConnection() + " Already connected");
+			getMonitoring().alreadyConnected();
 			return null;// Already connected.
 		}
 
-		getLogger().info(getConnection() + " Connecting");
+		getMonitoring().connecting();
 
 		final ClrClientRequest request = new ClrClientRequest();
 

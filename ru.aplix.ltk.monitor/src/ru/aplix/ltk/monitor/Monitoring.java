@@ -1,5 +1,6 @@
 package ru.aplix.ltk.monitor;
 
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ru.aplix.ltk.osgi.Logger;
@@ -22,6 +23,7 @@ public abstract class Monitoring {
 	private final AtomicBoolean stopped = new AtomicBoolean();
 	private MonitoringTarget<?> target;
 	private MonitoringContext context;
+	private final LinkedList<MonitoringEvent> events = new LinkedList<>();
 
 	/**
 	 * Monitoring context.
@@ -108,7 +110,11 @@ public abstract class Monitoring {
 	 *
 	 * @param report monitoring report to build.
 	 */
-	protected abstract void buildReport(MonitoringReport report);
+	protected void buildReport(MonitoringReport report) {
+		for (MonitoringEvent event : this.events) {
+			event.report(report);
+		}
+	}
 
 	final void initMonitoring(
 			MonitoringContext context,
@@ -119,5 +125,15 @@ public abstract class Monitoring {
 		init();
 	}
 
+	void addEvent(MonitoringEvent event) {
+		this.events.add(event);
+		if (event.getSeverity() == MonitoringSeverity.ERROR) {
+			event.afterTimeout(
+					600000L,
+					new MonitoringEvent(this, MonitoringSeverity.FATAL));
+			event.occurWhenForgot(
+					new MonitoringEvent(this, MonitoringSeverity.WARNING));
+		}
+	}
 
 }

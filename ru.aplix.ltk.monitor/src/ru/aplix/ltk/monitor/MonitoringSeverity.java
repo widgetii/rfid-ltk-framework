@@ -9,7 +9,7 @@ public enum MonitoringSeverity {
 	/**
 	 * Everything operates as expected.
 	 */
-	OK,
+	OK(true),
 
 	/**
 	 * Everything operates as expected, but there are things to remember.
@@ -17,7 +17,7 @@ public enum MonitoringSeverity {
 	 * <p>This can be used as a reminder e.g. when some service is manually
 	 * stopped.</p>
 	 */
-	REMINDER,
+	REMINDER(true),
 
 	/**
 	 * Warning.
@@ -25,7 +25,7 @@ public enum MonitoringSeverity {
 	 * <p>This can be used e.g. to inform that some errors happened in past,
 	 * but it is ok now.</p>
 	 */
-	WARNING,
+	WARNING(false),
 
 	/**
 	 * Error.
@@ -36,13 +36,23 @@ public enum MonitoringSeverity {
 	 * recover from this error, a {@link #FATAL fatal error} should be reported
 	 * instead.</p>
 	 */
-	ERROR,
+	ERROR(true),
 
 	/**
 	 * Fatal error.
 	 *
 	 * <p>This should be used to report unrecoverable, fatal errors.</p>
 	 */
-	FATAL
+	FATAL(true);
+
+	private final boolean ignoresTime;
+
+	MonitoringSeverity(boolean ignoresTime) {
+		this.ignoresTime = ignoresTime;
+	}
+
+	public final boolean ignoresTime() {
+		return this.ignoresTime;
+	}
 
 }

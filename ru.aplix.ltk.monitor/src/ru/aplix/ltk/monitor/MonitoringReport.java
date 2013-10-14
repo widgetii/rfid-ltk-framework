@@ -1,91 +1,71 @@
 package ru.aplix.ltk.monitor;
 
-import static java.util.Objects.requireNonNull;
-
 
 /**
  * Monitoring report.
  *
- * <p>Contains information of some monitoring aspect. Can be constructed by one
- * of {@link MonitoringReports} methods.</p>
+ * <p>An instance of this class can be passed to
+ * {@link Monitoring#report(MonitoringReport)} method to build a report for it.
  */
-public final class MonitoringReport {
+public abstract class MonitoringReport {
 
-	private final MonitoringTarget<?> target;
-	private final MonitoringSeverity severity;
-	private final String message;
-	private final Throwable cause;
-
-	MonitoringReport(
-			MonitoringTarget<?> target,
-			MonitoringSeverity severity,
-			String message,
-			Throwable cause) {
-		requireNonNull(severity, "Monitoring report severity not specified");
-		this.target = target;
-		this.severity = severity;
-		this.message = message;
-		this.cause = cause;
-	}
+	private MonitoringTarget<?> target;
 
 	/**
-	 * Monitoring target.
+	 * Monitoring target to build report for.
 	 *
-	 * @return monitoring target this report is about.
+	 * @return monitoring target.
 	 */
 	public final MonitoringTarget<?> getTarget() {
 		return this.target;
 	}
 
 	/**
-	 * Report severity.
+	 * Appends monitoring report.
 	 *
-	 * @return severity.
+	 * @param severity report severity.
+	 * @param message report message.
 	 */
-	public final MonitoringSeverity getSeverity() {
-		return this.severity;
+	public void report(MonitoringSeverity severity, String message) {
+		report(severity, message, null);
 	}
 
 	/**
-	 * Report message.
+	 * Appends monitoring error report.
 	 *
-	 * @return message string, or <code>null</code>
+	 * @param severity report severity.
+	 * @param cause the cause of error.
 	 */
-	public final String getMessage() {
-		return this.message;
+	public void reportError(MonitoringSeverity severity, Throwable cause) {
+		report(severity, cause.getMessage(), cause);
 	}
 
 	/**
-	 * Error cause.
+	 * Appends monitoring report.
 	 *
-	 * @return a throwable causes this error, or <code>null</code>.
+	 * <p>This method is called by reporting methods to add the constructed
+	 * reports to this reports collection.</p>
+	 *
+	 * @param severity report severity.
+	 * @param message report message.
+	 * @param cause the cause of error.
 	 */
-	public final Throwable getCause() {
-		return this.cause;
+	public abstract void report(
+			MonitoringSeverity severity,
+			String message,
+			Throwable cause);
+
+	final MonitoringTarget<?> startReporting(MonitoringTarget<?> target) {
+
+		final MonitoringTarget<?> previousTarget = this.target;
+
+		this.target = target;
+
+		return previousTarget;
 	}
 
-	@Override
-	public String toString() {
-
-		final StringBuilder out = new StringBuilder();
-
-		out.append(this.target).append("[").append(this.severity);
-
-		if (this.message == null && this.cause == null) {
-			out.append(']');
-			return out.toString();
-		}
-
-		out.append("]: ");
-		if (this.message != null) {
-			out.append(this.message);
-			if (this.cause != null) {
-				out.append(" (Cause: ").append(this.cause).append(')');
-			}
-		} else {
-			out.append(this.cause);
-		}
-
-		return out.toString();
+	final void stopReporting(MonitoringTarget<?> previousTarget) {
+		this.target = previousTarget;
 	}
+
 }

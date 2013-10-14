@@ -109,18 +109,18 @@ public abstract class Monitoring<L extends MonitoringListener> {
 	/**
 	 * Builds monitoring report for this target.
 	 *
-	 * <p>This method updates the {@link MonitoringReports#getTarget() report
-	 * target}, invokes {@link #addReports(MonitoringReports)} method, and
+	 * <p>This method updates the {@link MonitoringReport#getTarget() report
+	 * target}, invokes {@link #buildReport(MonitoringReport)} method, and
 	 * restores the previous report target after that.</p>
 	 *
-	 * @param reports collection to add reports to.
+	 * @param reports monitoring reports to build.
 	 */
-	public final void report(MonitoringReports reports) {
+	public final void report(MonitoringReport reports) {
 
 		final MonitoringTarget<?> previousTarget =
 				reports.startReporting(getTarget());
 
-		addReports(reports);
+		buildReport(reports);
 
 		reports.stopReporting(previousTarget);
 	}
@@ -184,12 +184,12 @@ public abstract class Monitoring<L extends MonitoringListener> {
 	/**
 	 * Implements the monitoring reporting.
 	 *
-	 * <p>This method is invoked from {@link #report(MonitoringReports)} one
-	 * with proper {@link MonitoringReports#getTarget() report target} set.</p>
+	 * <p>This method is invoked from {@link #report(MonitoringReport)} one
+	 * with proper {@link MonitoringReport#getTarget() report target} set.</p>
 	 *
-	 * @param reports collection to add reports to.
+	 * @param report monitoring report to build.
 	 */
-	protected abstract void addReports(MonitoringReports reports);
+	protected abstract void buildReport(MonitoringReport report);
 
 	final void initMonitoring(
 			MonitoringContext context,

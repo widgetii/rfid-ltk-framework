@@ -43,7 +43,7 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 	}
 
 	@Override
-	public void report(MonitoringReports reports) {
+	public void report(MonitoringReport reports) {
 
 		final Monitoring<?>[] monitorings;
 

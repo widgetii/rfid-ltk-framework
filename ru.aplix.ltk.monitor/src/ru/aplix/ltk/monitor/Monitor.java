@@ -31,12 +31,12 @@ public interface Monitor {
 	/**
 	 * Build monitoring reports for all known monitoring targets.
 	 *
-	 * <p>This method calls {@link Monitoring#report(MonitoringReports)} methods
-	 * for each created and not {@link Monitoring#report(MonitoringReports)
+	 * <p>This method calls {@link Monitoring#report(MonitoringReport)} methods
+	 * for each created and not {@link Monitoring#report(MonitoringReport)
 	 * stopped yet} monitoring instance.</p>
 	 *
-	 * @param reports reports collection to add reports to.
+	 * @param report monitoring report to build.
 	 */
-	void report(MonitoringReports reports);
+	void report(MonitoringReport report);
 
 }

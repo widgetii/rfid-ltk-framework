@@ -125,7 +125,18 @@ public abstract class Monitoring {
 	 * @return new monitoring event.
 	 */
 	protected final MonitoringEvent trace() {
-		return new MonitoringEvent(this, MonitoringSeverity.TRACE);
+		return trace(null);
+	}
+
+	/**
+	 * Creates named trace monitoring event.
+	 *
+	 * @param name event name.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent trace(String name) {
+		return new MonitoringEvent(this, MonitoringSeverity.TRACE, name);
 	}
 
 	/**
@@ -134,7 +145,18 @@ public abstract class Monitoring {
 	 * @return new monitoring event.
 	 */
 	protected final MonitoringEvent info() {
-		return new MonitoringEvent(this, MonitoringSeverity.INFO);
+		return info(null);
+	}
+
+	/**
+	 * Creates name info monitoring event.
+	 *
+	 * @param name event name.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent info(String name) {
+		return new MonitoringEvent(this, MonitoringSeverity.INFO, name);
 	}
 
 	/**
@@ -143,7 +165,18 @@ public abstract class Monitoring {
 	 * @return new monitoring event.
 	 */
 	protected final MonitoringEvent reminder() {
-		return new MonitoringEvent(this, MonitoringSeverity.REMINDER);
+		return reminder(null);
+	}
+
+	/**
+	 * Creates named reminder monitoring event.
+	 *
+	 * @param name event name.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent reminder(String name) {
+		return new MonitoringEvent(this, MonitoringSeverity.REMINDER, name);
 	}
 
 	/**
@@ -152,7 +185,18 @@ public abstract class Monitoring {
 	 * @return new monitoring event.
 	 */
 	protected final MonitoringEvent note() {
-		return new MonitoringEvent(this, MonitoringSeverity.NOTE);
+		return note(null);
+	}
+
+	/**
+	 * Creates named note monitoring event.
+	 *
+	 * @param name event name.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent note(String name) {
+		return new MonitoringEvent(this, MonitoringSeverity.NOTE, name);
 	}
 
 	/**
@@ -161,7 +205,18 @@ public abstract class Monitoring {
 	 * @return new monitoring event.
 	 */
 	protected final MonitoringEvent warning() {
-		return new MonitoringEvent(this, MonitoringSeverity.WARNING);
+		return warning(null);
+	}
+
+	/**
+	 * Creates named warning monitoring event.
+	 *
+	 * @param name event name.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent warning(String name) {
+		return new MonitoringEvent(this, MonitoringSeverity.WARNING, name);
 	}
 
 	/**
@@ -171,17 +226,39 @@ public abstract class Monitoring {
 	 * generated when forgotten.</p>
 	 *
 	 * @return new monitoring event.
+	 *
+	 * @see #error(String)
 	 */
 	protected final MonitoringEvent error() {
+		return error(null);
+	}
+
+	/**
+	 * Creates named error monitoring event.
+	 *
+	 * <p>After 10 minutes a fatal error will raise. A warning will be
+	 * generated when forgotten.</p>
+	 *
+	 * @param name event name.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent error(String name) {
 
 		final MonitoringEvent error =
-				new MonitoringEvent(this, MonitoringSeverity.ERROR);
+				new MonitoringEvent(this, MonitoringSeverity.ERROR, name);
 
 		error.afterTimeout(
 				600000L,
-				new MonitoringEvent(this, MonitoringSeverity.FATAL));
+				new MonitoringEvent(
+						this,
+						MonitoringSeverity.FATAL,
+						name != null ? name + " (fatal)" : null));
 		error.occurWhenForgot(
-				new MonitoringEvent(this, MonitoringSeverity.WARNING));
+				new MonitoringEvent(
+						this,
+						MonitoringSeverity.WARNING,
+						name != null ? name + " (warning)" : null));
 
 		return error;
 	}
@@ -192,7 +269,18 @@ public abstract class Monitoring {
 	 * @return new monitoring event.
 	 */
 	protected final MonitoringEvent fatal() {
-		return new MonitoringEvent(this, MonitoringSeverity.FATAL);
+		return fatal(null);
+	}
+
+	/**
+	 * Creates named fatal error monitoring event.
+	 *
+	 * @param name event name.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent fatal(String name) {
+		return new MonitoringEvent(this, MonitoringSeverity.FATAL, name);
 	}
 
 	final void initMonitoring(

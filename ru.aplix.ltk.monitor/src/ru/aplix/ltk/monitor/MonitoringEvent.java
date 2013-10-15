@@ -1,6 +1,7 @@
 package ru.aplix.ltk.monitor;
 
 import static java.lang.System.currentTimeMillis;
+import static java.util.Objects.requireNonNull;
 
 import java.util.LinkedList;
 
@@ -9,6 +10,7 @@ public class MonitoringEvent {
 
 	private final Monitoring monitoring;
 	private final MonitoringSeverity severity;
+	private final String name;
 	private long timestamp;
 	private long eventId;
 	private String message;
@@ -20,8 +22,17 @@ public class MonitoringEvent {
 	private boolean timedOut;
 
 	public MonitoringEvent(Monitoring monitoring, MonitoringSeverity severity) {
+		this(monitoring, severity, null);
+	}
+
+	public MonitoringEvent(
+			Monitoring monitoring,
+			MonitoringSeverity severity,
+			String name) {
+		requireNonNull(severity, "Monitoring severity not specified");
 		this.monitoring = monitoring;
 		this.severity = severity;
+		this.name = name;
 		monitoring.addEvent(this);
 	}
 
@@ -35,6 +46,10 @@ public class MonitoringEvent {
 
 	public final MonitoringSeverity getSeverity() {
 		return this.severity;
+	}
+
+	public final String getName() {
+		return this.name;
 	}
 
 	public final boolean isEventOccurred() {
@@ -80,8 +95,8 @@ public class MonitoringEvent {
 			}
 			this.timedOut = true;
 			this.timeout.occur();
-			return true;
 		}
+		return true;
 	}
 
 	public final MonitoringEvent afterTimeout(
@@ -187,7 +202,11 @@ public class MonitoringEvent {
 
 	public final void forget() {
 		synchronized (this) {
+			if (!isEventOccurred()) {
+				return;
+			}
 			this.eventOccurred = false;
+			this.timedOut = false;
 		}
 		for (MonitoringEventListener listener : this.listeners) {
 			listener.eventForgotten(this);
@@ -203,6 +222,17 @@ public class MonitoringEvent {
 					getMessage(),
 					getCause());
 		}
+	}
+
+	@Override
+	public String toString() {
+		if (this.severity == null) {
+			return super.toString();
+		}
+		if (this.name != null) {
+			return this.name;
+		}
+		return getTarget() + " " + getSeverity();
 	}
 
 	protected final void occur(

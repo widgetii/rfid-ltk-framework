@@ -1,6 +1,7 @@
 package ru.aplix.ltk.monitor.impl;
 
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -45,14 +46,17 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 	@Override
 	public void report(MonitoringReport report) {
 
-		final Monitoring[] monitorings;
+		final TreeMap<TargetKey, Monitoring> monitorings = new TreeMap<>();
 
 		synchronized (this.monitorings) {
-			monitorings = this.monitorings.values().toArray(
-					new Monitoring[this.monitorings.size()]);
+			for (Monitoring monitoring : this.monitorings.values()) {
+				monitorings.put(
+						new TargetKey(monitoring.getTarget()),
+						monitoring);
+			}
 		}
 
-		for (Monitoring monitoring : monitorings) {
+		for (Monitoring monitoring : monitorings.values()) {
 			monitoring.report(report);
 		}
 	}
@@ -84,4 +88,41 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 		}
 	}
 
+	private static final class TargetKey implements Comparable<TargetKey> {
+
+		private final MonitoringTarget<?> target;
+
+		TargetKey(MonitoringTarget<?> target) {
+			this.target = target;
+		}
+
+		@Override
+		public int compareTo(TargetKey o) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+			return this.target.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+
+			final TargetKey other = (TargetKey) obj;
+
+			return this.target.equals(other.target);
+		}
+
+	}
 }

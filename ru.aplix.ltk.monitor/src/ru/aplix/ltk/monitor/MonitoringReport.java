@@ -98,6 +98,22 @@ public abstract class MonitoringReport {
 	}
 
 	/**
+	 * Starts the reporting for the given monitoring target.
+	 *
+	 * @param target reported monitoring target.
+	 *
+	 * @return previously reported monitoring target.
+	 */
+	protected MonitoringTarget<?> startReporting(MonitoringTarget<?> target) {
+
+		final MonitoringTarget<?> previousTarget = this.target;
+
+		this.target = target;
+
+		return previousTarget;
+	}
+
+	/**
 	 * Appends monitoring report.
 	 *
 	 * <p>This method is called by reporting methods to add the constructed
@@ -114,16 +130,13 @@ public abstract class MonitoringReport {
 			String message,
 			Throwable cause);
 
-	final MonitoringTarget<?> startReporting(MonitoringTarget<?> target) {
-
-		final MonitoringTarget<?> previousTarget = this.target;
-
-		this.target = target;
-
-		return previousTarget;
-	}
-
-	final void stopReporting(MonitoringTarget<?> previousTarget) {
+	/**
+	 * Stops the reporting of monitoring target. Resumes the reporting of the
+	 * previous one.
+	 *
+	 * @param previousTarget previous monitoring target.
+	 */
+	protected void stopReporting(MonitoringTarget<?> previousTarget) {
 		this.target = previousTarget;
 	}
 

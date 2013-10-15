@@ -1,5 +1,7 @@
 package ru.aplix.ltk.monitor;
 
+import java.util.HashMap;
+
 import org.osgi.service.log.LogService;
 
 
@@ -13,14 +15,14 @@ public enum MonitoringSeverity {
 	 *
 	 * <p>Mainly used for debugging purposes.</p>
 	 */
-	TRACE(false, LogService.LOG_DEBUG),
+	TRACE("TRACE", LogService.LOG_DEBUG, false),
 
 	/**
 	 * Informational message.
 	 *
 	 * <p>Indicates normal operation.</p>
 	 */
-	INFO(false, LogService.LOG_INFO),
+	INFO("INFO", LogService.LOG_INFO, false),
 
 	/**
 	 * Reminder.
@@ -30,7 +32,7 @@ public enum MonitoringSeverity {
 	 * <p>This can be used e.g. to remind that some service is manually
 	 * stopped.</p>
 	 */
-	REMINDER(true, LogService.LOG_INFO),
+	REMINDER("REM", LogService.LOG_INFO, true),
 
 	/**
 	 * Noticeable event.
@@ -38,7 +40,7 @@ public enum MonitoringSeverity {
 	 * <p>There is no error yet, but something looks suspicious, or should be
 	 * noticed.</p>
 	 */
-	NOTE(false, LogService.LOG_INFO),
+	NOTE("NOTE", LogService.LOG_INFO, false),
 
 	/**
 	 * Warning.
@@ -46,7 +48,7 @@ public enum MonitoringSeverity {
 	 * <p>This can be used e.g. to inform that some errors happened in past,
 	 * but it is ok now.</p>
 	 */
-	WARNING(false, LogService.LOG_WARNING),
+	WARNING("WARN", LogService.LOG_WARNING, false),
 
 	/**
 	 * Error.
@@ -57,21 +59,46 @@ public enum MonitoringSeverity {
 	 * recover from this error, a {@link #FATAL fatal error} should be reported
 	 * instead.</p>
 	 */
-	ERROR(true, LogService.LOG_ERROR),
+	ERROR("ERROR", LogService.LOG_ERROR, true),
 
 	/**
 	 * Fatal error.
 	 *
 	 * <p>This should be used to report unrecoverable, fatal errors.</p>
 	 */
-	FATAL(true, LogService.LOG_ERROR);
+	FATAL("FATAL", LogService.LOG_ERROR, true);
 
+	private final String abbr;
 	private final boolean ignoresTime;
 	private final int logLevel;
 
-	MonitoringSeverity(boolean ignoresTime, int logSeverity) {
+	MonitoringSeverity(String abbr, int logSeverity, boolean ignoresTime) {
+		this.abbr = abbr;
 		this.ignoresTime = ignoresTime;
 		this.logLevel = logSeverity;
+		Registry.byAbbr.put(abbr, this);
+	}
+
+	/**
+	 * Restores monitoring severity by its abbreviation.
+	 *
+	 * @param abbr target {@link #abbr() abbreviation}.
+	 *
+	 * @return corresponding monitoring severity, or <code>null</code> if not
+	 * found.
+	 */
+	public static MonitoringSeverity severityByAbbr(String abbr) {
+		return Registry.byAbbr.get(abbr);
+	}
+
+	/**
+	 * Severity abbreviation.
+	 *
+	 * @return an abbreviation string, containing up to 5 upper-case ASCII
+	 * chars.
+	 */
+	public final String abbr() {
+		return this.abbr;
 	}
 
 	/**
@@ -92,6 +119,13 @@ public enum MonitoringSeverity {
 	 */
 	public final int getLogLevel() {
 		return this.logLevel;
+	}
+
+	private static final class Registry {
+
+		private static final HashMap<String, MonitoringSeverity> byAbbr =
+				new HashMap<>(7);
+
 	}
 
 }

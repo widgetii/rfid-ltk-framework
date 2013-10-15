@@ -18,4 +18,6 @@
     interface="ru.aplix.ltk.core.RfProvider"
     filter="(ru.aplix.ltk.provider.id=http)"/>
 
+  <reference id="monitor" interface="ru.aplix.ltk.monitor.Monitor"/>
+
 </blueprint>

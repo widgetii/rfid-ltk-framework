@@ -10,30 +10,33 @@ import ru.aplix.ltk.monitor.MonitoringEvent;
 
 public class HttpRfClientMtr extends Monitoring {
 
-	private final MonitoringEvent connectionTimeout = error();
 	private final MonitoringEvent reconnect =
-			note()
+			note("reconnect")
 			.afterTimeout(
-					10000L,
-					this.connectionTimeout,
+					45000L,
+					error("reconnection timeout"),
 					"Reconnection timeout");
 	private final MonitoringEvent connecting =
-			info()
+			info("connecting")
 			.forgetOnUpdate(this.reconnect)
 			.afterTimeout(
 					45000L,
-					this.connectionTimeout,
+					error("connection timeout"),
 					"Connection timeout");
-	private final MonitoringEvent connectionLost = error();
+	private final MonitoringEvent connectionLost = error("connection lost");
 	private final MonitoringEvent connected =
-			info()
+			info("connected")
 			.forgetWhenOccurred(this.connecting)
 			.forgetWhenOccurred(this.connectionLost);
-	private final MonitoringEvent disconnected = warning();
-	private final MonitoringEvent alreadyConnected = warning();
+	private final MonitoringEvent disconnected = warning("disconnected");
+	private final MonitoringEvent alreadyConnected =
+			warning("already connected");
 	private final MonitoringEvent shutdown =
-			info()
-			.afterTimeout(10000, error(), "Shutdown timed out");
+			info("shutdown")
+			.afterTimeout(
+					10000,
+					error("shutdown timeout"),
+					"Shutdown timed out");
 
 	HttpRfClientMtr() {
 	}

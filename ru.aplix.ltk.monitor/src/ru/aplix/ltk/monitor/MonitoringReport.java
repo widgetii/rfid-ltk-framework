@@ -15,6 +15,7 @@ public abstract class MonitoringReport {
 
 	private MonitoringTarget<?> target;
 	private long since;
+	private MonitoringSeverity minSeverity = MonitoringSeverity.REMINDER;
 
 	public MonitoringReport() {
 		this.since = System.currentTimeMillis() - ONE_DAY;
@@ -47,6 +48,26 @@ public abstract class MonitoringReport {
 	 */
 	public void setSince(long since) {
 		this.since = since;
+	}
+
+	/**
+	 * The minimum severity of events to report.
+	 *
+	 * @return minimum severity, {@link MonitoringSeverity#REMINDER} by default.
+	 */
+	public MonitoringSeverity getMinSeverity() {
+		return this.minSeverity;
+	}
+
+	/**
+	 * Sets the minimum severity of events to report.
+	 *
+	 * @param minSeverity new minimum severity, or <code>null</code> to set it
+	 * to the {@link MonitoringSeverity#REMINDER}.
+	 */
+	public void setMinSeverity(MonitoringSeverity minSeverity) {
+		this.minSeverity =
+				minSeverity != null ? minSeverity : MonitoringSeverity.REMINDER;
 	}
 
 	/**
@@ -92,9 +113,13 @@ public abstract class MonitoringReport {
 			Throwable cause) {
 		requireNonNull(getTarget(), "Monitoring target not assigned");
 		requireNonNull(severity, "Monitoring severity not specified");
-		if (severity.ignoresTime() || getSince() <= timestamp) {
-			addReport(timestamp, severity, message, cause);
+		if (severity.ordinal() < getMinSeverity().ordinal()) {
+			return;
 		}
+		if (!severity.ignoresTime() && getSince() > timestamp) {
+			return;
+		}
+		addReport(timestamp, severity, message, cause);
 	}
 
 	/**

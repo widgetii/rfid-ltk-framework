@@ -156,12 +156,12 @@ public abstract class MonitoringReport {
 			Throwable cause);
 
 	/**
-	 * Stops the reporting of monitoring target. Resumes the reporting of the
+	 * Ends the reporting of monitoring target. Resumes the reporting of the
 	 * previous one.
 	 *
 	 * @param previousTarget previous monitoring target.
 	 */
-	protected void stopReporting(MonitoringTarget<?> previousTarget) {
+	protected void endReporting(MonitoringTarget<?> previousTarget) {
 		this.target = previousTarget;
 	}
 

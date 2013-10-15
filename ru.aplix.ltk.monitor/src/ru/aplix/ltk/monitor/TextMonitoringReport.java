@@ -36,7 +36,14 @@ public class TextMonitoringReport extends MonitoringReport {
 	@Override
 	protected MonitoringTarget<?> startReporting(MonitoringTarget<?> target) {
 		try {
-			out().append(target.toString()).append('\n');
+
+			final String title = target.toString();
+
+			out().append(title).append('\n');
+			for (int i = title.length(); i > 0; --i) {
+				out().append('-');
+			}
+			out().append('\n');
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -54,6 +61,16 @@ public class TextMonitoringReport extends MonitoringReport {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	protected void endReporting(MonitoringTarget<?> previousTarget) {
+		try {
+			out().append('\n');
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		super.endReporting(previousTarget);
 	}
 
 	private void printReport(

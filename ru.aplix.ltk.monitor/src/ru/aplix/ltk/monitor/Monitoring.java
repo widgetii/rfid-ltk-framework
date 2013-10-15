@@ -90,7 +90,7 @@ public abstract class Monitoring {
 
 		buildReport(reports);
 
-		reports.stopReporting(previousTarget);
+		reports.endReporting(previousTarget);
 	}
 
 	/**

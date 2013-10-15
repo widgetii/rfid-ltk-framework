@@ -18,38 +18,40 @@ public class MonitoringEvent {
 	private boolean eventOccurred;
 	private boolean timedOut;
 
-	public MonitoringEvent(
-			Monitoring monitoring,
-			MonitoringSeverity severity) {
+	public MonitoringEvent(Monitoring monitoring, MonitoringSeverity severity) {
 		this.monitoring = monitoring;
 		this.severity = severity;
 		monitoring.addEvent(this);
 	}
 
-	public MonitoringTarget<?> getTarget() {
-		return this.monitoring.getTarget();
+	public final Monitoring getMonitoring() {
+		return this.monitoring;
 	}
 
-	public MonitoringSeverity getSeverity() {
+	public final MonitoringTarget<?> getTarget() {
+		return getMonitoring().getTarget();
+	}
+
+	public final MonitoringSeverity getSeverity() {
 		return this.severity;
 	}
 
-	public boolean isEventOccurred() {
+	public final boolean isEventOccurred() {
 		if (this.parentTimeout != null) {
 			this.parentTimeout.parentEvent.isTimedOut();
 		}
 		return this.eventOccurred;
 	}
 
-	public long getTimestamp() {
+	public final long getTimestamp() {
 		return this.timestamp;
 	}
 
-	public String getMessage() {
+	public final String getMessage() {
 		return this.message;
 	}
 
-	public Throwable getCause() {
+	public final Throwable getCause() {
 		return this.cause;
 	}
 
@@ -80,7 +82,7 @@ public class MonitoringEvent {
 			long timeout,
 			MonitoringEvent event) {
 		this.timeout = new Timeout(timeout, this, event, null);
-		return forgetWhenForgot(event);
+		return forgetOnUpdate(event);
 	}
 
 	public final MonitoringEvent afterTimeout(
@@ -88,7 +90,7 @@ public class MonitoringEvent {
 			MonitoringEvent event,
 			String message) {
 		this.timeout = new Timeout(timeout, this, event, message);
-		return forgetWhenForgot(event);
+		return forgetOnUpdate(event);
 	}
 
 	public final MonitoringEvent addListener(
@@ -97,7 +99,21 @@ public class MonitoringEvent {
 		return this;
 	}
 
-	public MonitoringEvent forgetWhenForgot(
+	public final MonitoringEvent forgetOnUpdate(
+			final MonitoringEvent eventToForget) {
+		return addListener(new MonitoringEventListener() {
+			@Override
+			public void eventOccurred(MonitoringEvent event) {
+				eventToForget.forget();
+			}
+			@Override
+			public void eventForgotten(MonitoringEvent event) {
+				eventToForget.forget();
+			}
+		});
+	}
+
+	public final MonitoringEvent forgetWhenForgot(
 			final MonitoringEvent eventToForget) {
 		return addListener(new MonitoringEventListener() {
 			@Override
@@ -110,7 +126,7 @@ public class MonitoringEvent {
 		});
 	}
 
-	public MonitoringEvent forgetWhenOccurred(
+	public final MonitoringEvent forgetWhenOccurred(
 			final MonitoringEvent eventToForget) {
 		return addListener(new MonitoringEventListener() {
 			@Override
@@ -123,7 +139,7 @@ public class MonitoringEvent {
 		});
 	}
 
-	public MonitoringEvent occurWhenForgot(
+	public final MonitoringEvent occurWhenForgot(
 			final MonitoringEvent eventToOccur) {
 		return addListener(new MonitoringEventListener() {
 			@Override
@@ -132,12 +148,15 @@ public class MonitoringEvent {
 			}
 			@Override
 			public void eventForgotten(MonitoringEvent event) {
-				eventToOccur.occur(getTimestamp(), getMessage(), getCause());
+				eventToOccur.occur(
+						getTimestamp(),
+						getMessage(),
+						getCause());
 			}
 		});
 	}
 
-	public MonitoringEvent occurWhenForgot(
+	public final MonitoringEvent occurWhenForgot(
 			final MonitoringEvent eventToOccur,
 			final String message) {
 		return addListener(new MonitoringEventListener() {
@@ -147,7 +166,7 @@ public class MonitoringEvent {
 			}
 			@Override
 			public void eventForgotten(MonitoringEvent event) {
-				eventToOccur.occur(getTimestamp(), message, null);
+				eventToOccur.occur(message);
 			}
 		});
 	}
@@ -157,20 +176,7 @@ public class MonitoringEvent {
 	}
 
 	public final void occur(String message, Throwable cause) {
-		occur(currentTimeMillis(), message, cause);
-	}
-
-	public void occur(long timestamp, String message, Throwable cause) {
-		synchronized (this) {
-			this.timedOut = false;
-			this.eventOccurred = true;
-			this.timestamp = timestamp;
-			this.message = message;
-			this.cause = cause;
-		}
-		for (MonitoringEventListener listener : this.listeners) {
-			listener.eventOccurred(this);
-		}
+		occur(currentTimeMillis(), message, cause, true);
 	}
 
 	public final void forget() {
@@ -190,6 +196,41 @@ public class MonitoringEvent {
 					getMessage(),
 					getCause());
 		}
+	}
+
+	protected final void occur(
+			long timestamp,
+			String message,
+			Throwable cause) {
+		occur(timestamp, message, cause, false);
+	}
+
+	protected void occur(
+			long timestamp,
+			String message,
+			Throwable cause,
+			boolean log) {
+		synchronized (this) {
+			this.timedOut = false;
+			this.eventOccurred = true;
+			this.timestamp = timestamp;
+			this.message = message;
+			this.cause = cause;
+			if (log) {
+				log();
+			}
+		}
+		for (MonitoringEventListener listener : this.listeners) {
+			listener.eventOccurred(this);
+		}
+	}
+
+	protected void log() {
+		getMonitoring().getLogger().log(
+				null,
+				getSeverity().getLogLevel(),
+				getTarget() + " " + getMessage(),
+				getCause());
 	}
 
 	private static final class Timeout {
@@ -213,10 +254,7 @@ public class MonitoringEvent {
 
 		void occur() {
 			if (this.message != null) {
-				this.event.occur(
-						this.parentEvent.getTimestamp(),
-						this.message,
-						null);
+				this.event.occur(this.message);
 			} else {
 				this.event.occur(
 						this.parentEvent.getTimestamp(),

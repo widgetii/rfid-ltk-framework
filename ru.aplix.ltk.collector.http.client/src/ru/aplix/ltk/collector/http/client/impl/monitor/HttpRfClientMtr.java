@@ -6,42 +6,36 @@ import ru.aplix.ltk.collector.http.client.impl.HttpRfConnection;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.monitor.Monitoring;
 import ru.aplix.ltk.monitor.MonitoringEvent;
-import ru.aplix.ltk.monitor.MonitoringSeverity;
 
 
 public class HttpRfClientMtr extends Monitoring {
 
-	private final MonitoringEvent connectionTimeout =
-			new MonitoringEvent(this, MonitoringSeverity.ERROR);
+	private final MonitoringEvent connectionTimeout = error();
 	private final MonitoringEvent reconnect =
-			new MonitoringEvent(this, MonitoringSeverity.OK)
+			note()
 			.afterTimeout(
 					10000L,
 					this.connectionTimeout,
 					"Reconnection timeout");
 	private final MonitoringEvent connecting =
-			new MonitoringEvent(this, MonitoringSeverity.OK)
-			.forgetWhenOccurred(this.reconnect)
+			info()
+			.forgetOnUpdate(this.reconnect)
 			.afterTimeout(
 					45000L,
 					this.connectionTimeout,
 					"Connection timeout");
-	private final MonitoringEvent connectionLost =
-			new MonitoringEvent(this, MonitoringSeverity.ERROR);
+	private final MonitoringEvent connectionLost = error();
 	private final MonitoringEvent connected =
-			new MonitoringEvent(this, MonitoringSeverity.OK)
+			info()
 			.forgetWhenOccurred(this.connecting)
 			.forgetWhenOccurred(this.connectionLost);
 	private final MonitoringEvent disconnected =
-			new MonitoringEvent(this, MonitoringSeverity.WARNING)
+			warning()
 			.forgetWhenOccurred(this.connecting);
-	private final MonitoringEvent alreadyConnected =
-			new MonitoringEvent(this, MonitoringSeverity.WARNING);
-	private final MonitoringEvent shutdownTimeout =
-			new MonitoringEvent(this, MonitoringSeverity.ERROR);
+	private final MonitoringEvent alreadyConnected = warning();
 	private final MonitoringEvent shutdown =
-			new MonitoringEvent(this, MonitoringSeverity.OK)
-			.afterTimeout(10000, this.shutdownTimeout, "Shutdown timed out");
+			info()
+			.afterTimeout(10000, error(), "Shutdown timed out");
 
 	HttpRfClientMtr() {
 	}
@@ -97,42 +91,34 @@ public class HttpRfClientMtr extends Monitoring {
 	}
 
 	public void connecting() {
-		getLogger().info(this + " Connecting");
-		this.connected.occur("Connecting");
+		this.connecting.occur("Connecting");
 	}
 
 	public void connected() {
-		getLogger().info(this + " Connected");
 		this.connected.occur("Connected");
 	}
 
 	public void alreadyConnected() {
-		getLogger().warning(this + " Already connected");
 		this.alreadyConnected.occur("Already connected");
 	}
 
 	public void connectionLost() {
-		getLogger().error(this + " Connection lost");
 		this.connectionLost.occur("Connection lost");
 	}
 
 	public void reconnect() {
-		getLogger().info(this + " Reconnecting");
 		this.reconnect.occur("Reconnecting");
 	}
 
 	public void shutdown() {
-		getLogger().info(this + " Shutting down");
 		this.shutdown.occur("Shutting down");
 	}
 
 	public void closingConnection() {
-		getLogger().info(this + " Closing connection");
 		this.shutdown.occur("Closing connection");
 	}
 
 	public void disconnected() {
-		getLogger().info(this + " Disconnected");
 		this.disconnected.occur("Disconnected");
 	}
 

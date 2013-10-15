@@ -116,6 +116,82 @@ public abstract class Monitoring {
 		}
 	}
 
+	/**
+	 * Creates trace monitoring event.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent trace() {
+		return new MonitoringEvent(this, MonitoringSeverity.TRACE);
+	}
+
+	/**
+	 * Creates info monitoring event.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent info() {
+		return new MonitoringEvent(this, MonitoringSeverity.INFO);
+	}
+
+	/**
+	 * Creates reminder monitoring event.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent reminder() {
+		return new MonitoringEvent(this, MonitoringSeverity.REMINDER);
+	}
+
+	/**
+	 * Creates note monitoring event.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent note() {
+		return new MonitoringEvent(this, MonitoringSeverity.NOTE);
+	}
+
+	/**
+	 * Creates warning monitoring event.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent warning() {
+		return new MonitoringEvent(this, MonitoringSeverity.WARNING);
+	}
+
+	/**
+	 * Creates error monitoring event.
+	 *
+	 * <p>After 10 minutes a fatal error will raise. A warning will be
+	 * generated when forgotten.</p>
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent error() {
+
+		final MonitoringEvent error =
+				new MonitoringEvent(this, MonitoringSeverity.ERROR);
+
+		error.afterTimeout(
+				600000L,
+				new MonitoringEvent(this, MonitoringSeverity.FATAL));
+		error.occurWhenForgot(
+				new MonitoringEvent(this, MonitoringSeverity.WARNING));
+
+		return error;
+	}
+
+	/**
+	 * Creates fatal error monitoring event.
+	 *
+	 * @return new monitoring event.
+	 */
+	protected final MonitoringEvent fatal() {
+		return new MonitoringEvent(this, MonitoringSeverity.FATAL);
+	}
+
 	final void initMonitoring(
 			MonitoringContext context,
 			MonitoringTarget<?> target) {
@@ -127,13 +203,6 @@ public abstract class Monitoring {
 
 	void addEvent(MonitoringEvent event) {
 		this.events.add(event);
-		if (event.getSeverity() == MonitoringSeverity.ERROR) {
-			event.afterTimeout(
-					600000L,
-					new MonitoringEvent(this, MonitoringSeverity.FATAL));
-			event.occurWhenForgot(
-					new MonitoringEvent(this, MonitoringSeverity.WARNING));
-		}
 	}
 
 }

@@ -23,6 +23,16 @@ public class HttpRfClientMtr extends Monitoring {
 					45000L,
 					error("connection timeout"),
 					"Connection timeout");
+	private final MonitoringEvent error = error("error");
+	private final MonitoringEvent status =
+			trace("status")
+			.forgetWhenOccurred(this.error);
+	private final MonitoringEvent tag =
+			trace("tag")
+			.forgetWhenOccurred(this.error);
+	private final MonitoringEvent ping =
+			trace("ping")
+			.forgetWhenOccurred(this.error);
 	private final MonitoringEvent connectionLost = error("connection lost");
 	private final MonitoringEvent connected =
 			info("connected")
@@ -50,26 +60,26 @@ public class HttpRfClientMtr extends Monitoring {
 	}
 
 	public void statusRequested() {
-		getLogger().debug(this + " Status requested");
+		this.status.occur("Status requested");
 	}
 
 	public void statusRejected() {
-		getLogger().debug(this + " Status rejected");
+		this.status.occur("Status rejected");
 	}
 
 	public void ping() {
-		getLogger().debug(this + " Ping received");
+		this.ping.occur("Ping received");
 	}
 
 	public void tag(RfTagAppearanceRequest tagAppearance) {
-		getLogger().debug(
-				this + " Tag appearance changed (" + tagAppearance.getRfTag()
+		this.tag.occur(
+				"Tag appearance changed (" + tagAppearance.getRfTag()
 				+ "): " + tagAppearance.getAppearance());
 	}
 
 	public void status(RfStatusMessage status) {
 		if (!status.getRfStatus().isError()) {
-			getLogger().debug(this + " Status update: " + status.getRfStatus());
+			this.status.occur("Status update: " + status.getRfStatus());
 			return;
 		}
 
@@ -80,15 +90,15 @@ public class HttpRfClientMtr extends Monitoring {
 
 			final RemoteClrException remote = (RemoteClrException) cause;
 
-			getLogger().error(
-					this + " Remote error: " + errorMessage
+			this.error.occur(
+					"Remote error: " + errorMessage
 					+ ". Remote exception: "
 					+ remote.getRemoteExceptionClassName()
 					+ ": " + remote.getMessage());
 			return;
 		}
 
-		getLogger().error(this + " Remote error: " + errorMessage, cause);
+		this.error.occur(errorMessage, cause);
 	}
 
 	public void connecting() {

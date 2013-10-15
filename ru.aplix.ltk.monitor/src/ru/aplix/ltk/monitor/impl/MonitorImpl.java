@@ -62,6 +62,10 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 		}
 	}
 
+	public void backup(BundleContext context) {
+		this.logger = new Logger(context);
+	}
+
 	@Override
 	protected void startMonitoring(Monitoring monitoring) {
 		this.monitorings.put(monitoring.getTarget(), monitoring);

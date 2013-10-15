@@ -2,6 +2,8 @@ package ru.aplix.ltk.monitor;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.TreeSet;
+
 
 /**
  * Monitoring report.
@@ -13,6 +15,7 @@ public abstract class MonitoringReport {
 
 	private static final long ONE_DAY = 24 * 60 * 60 * 1000L;
 
+	private final TreeSet<ReportLine> lines = new TreeSet<>();
 	private MonitoringTarget<?> target;
 	private long since;
 	private MonitoringSeverity minSeverity = MonitoringSeverity.REMINDER;
@@ -74,40 +77,14 @@ public abstract class MonitoringReport {
 	 * Appends monitoring report.
 	 *
 	 * @param timestamp UNIX event time in milliseconds.
-	 * @param severity report severity.
-	 * @param message report message.
-	 */
-	public void report(
-			long timestamp,
-			MonitoringSeverity severity,
-			String message) {
-		report(timestamp, severity, message, null);
-	}
-
-	/**
-	 * Appends monitoring error report.
-	 *
-	 * @param timestamp UNIX event time in milliseconds.
-	 * @param severity report severity.
-	 * @param cause the cause of error.
-	 */
-	public void reportError(
-			long timestamp,
-			MonitoringSeverity severity,
-			Throwable cause) {
-		report(timestamp, severity, cause.getMessage(), cause);
-	}
-
-	/**
-	 * Appends full monitoring report.
-	 *
-	 * @param timestamp UNIX event time in milliseconds.
+	 * @param eventId event identifier.
 	 * @param severity report severity.
 	 * @param message report message.
 	 * @param cause the cause of error.
 	 */
 	public final void report(
 			long timestamp,
+			long eventId,
 			MonitoringSeverity severity,
 			String message,
 			Throwable cause) {
@@ -119,7 +96,12 @@ public abstract class MonitoringReport {
 		if (!severity.ignoresTime() && getSince() > timestamp) {
 			return;
 		}
-		addReport(timestamp, severity, message, cause);
+		this.lines.add(new ReportLine(
+				timestamp,
+				eventId,
+				severity,
+				message,
+				cause));
 	}
 
 	/**
@@ -163,6 +145,100 @@ public abstract class MonitoringReport {
 	 */
 	protected void endReporting(MonitoringTarget<?> previousTarget) {
 		this.target = previousTarget;
+	}
+
+	final void printLines() {
+		for (ReportLine line : this.lines) {
+			addReport(line.timestamp, line.severity, line.message, line.cause);
+		}
+		this.lines.clear();
+	}
+
+	private final static class ReportLine implements Comparable<ReportLine> {
+
+		private final long timestamp;
+		private final long eventId;
+		private final MonitoringSeverity severity;
+		private final String message;
+		private final Throwable cause;
+
+		ReportLine(
+				long timestamp,
+				long eventId,
+				MonitoringSeverity severity,
+				String message,
+				Throwable cause) {
+			this.timestamp = timestamp;
+			this.eventId = eventId;
+			this.severity = severity;
+			this.message = message;
+			this.cause = cause;
+		}
+
+		@Override
+		public int compareTo(ReportLine o) {
+
+			final long tdiff = this.timestamp - o.timestamp;
+
+			if (tdiff > 0) {
+				return 1;
+			}
+			if (tdiff < 0) {
+				return -1;
+			}
+
+			final long ediff = this.eventId - o.eventId;
+
+			if (ediff > 0) {
+				return 1;
+			}
+			if (ediff < 0) {
+				return -1;
+			}
+
+			return 0;
+		}
+
+		@Override
+		public int hashCode() {
+
+			final int prime = 31;
+			int result = 1;
+
+			result =
+					prime * result
+					+ (int) (this.eventId ^ (this.eventId >>> 32));
+			result =
+					prime * result
+					+ (int) (this.timestamp ^ (this.timestamp >>> 32));
+
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+
+			final ReportLine other = (ReportLine) obj;
+
+			if (this.eventId != other.eventId) {
+				return false;
+			}
+			if (this.timestamp != other.timestamp) {
+				return false;
+			}
+
+			return true;
+		}
+
 	}
 
 }

@@ -10,6 +10,7 @@ public class MonitoringEvent {
 	private final Monitoring monitoring;
 	private final MonitoringSeverity severity;
 	private long timestamp;
+	private long eventId;
 	private String message;
 	private Throwable cause;
 	private Timeout timeout;
@@ -47,6 +48,10 @@ public class MonitoringEvent {
 		return this.timestamp;
 	}
 
+	public final long getEventId() {
+		return this.eventId;
+	}
+
 	public final String getMessage() {
 		return this.message;
 	}
@@ -73,8 +78,9 @@ public class MonitoringEvent {
 			if (getTimestamp() + getTimeout() > currentTimeMillis()) {
 				return false;
 			}
+			this.timedOut = true;
 			this.timeout.occur();
-			return this.timedOut = true;
+			return true;
 		}
 	}
 
@@ -192,6 +198,7 @@ public class MonitoringEvent {
 		if (isEventOccurred() && !isTimedOut()) {
 			report.report(
 					getTimestamp(),
+					getEventId(),
 					getSeverity(),
 					getMessage(),
 					getCause());
@@ -210,10 +217,14 @@ public class MonitoringEvent {
 			String message,
 			Throwable cause,
 			boolean log) {
+
+		final long eventId = getMonitoring().nextEventId();
+
 		synchronized (this) {
 			this.timedOut = false;
 			this.eventOccurred = true;
 			this.timestamp = timestamp;
+			this.eventId = eventId;
 			this.message = message;
 			this.cause = cause;
 			if (log) {

@@ -29,9 +29,7 @@ public class HttpRfClientMtr extends Monitoring {
 			info()
 			.forgetWhenOccurred(this.connecting)
 			.forgetWhenOccurred(this.connectionLost);
-	private final MonitoringEvent disconnected =
-			warning()
-			.forgetWhenOccurred(this.connecting);
+	private final MonitoringEvent disconnected = warning();
 	private final MonitoringEvent alreadyConnected = warning();
 	private final MonitoringEvent shutdown =
 			info()

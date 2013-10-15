@@ -5,12 +5,17 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /**
  * Textual monitoring report.
  */
 public class TextMonitoringReport extends MonitoringReport {
+
+	private static final SimpleDateFormat TIMESTAMP_FORMAT =
+			new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 	private final Appendable out;
 
@@ -57,7 +62,7 @@ public class TextMonitoringReport extends MonitoringReport {
 			String message,
 			Throwable cause) {
 		try {
-			printReport(severity, message, cause);
+			printReport(timestamp, severity, message, cause);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -74,12 +79,13 @@ public class TextMonitoringReport extends MonitoringReport {
 	}
 
 	private void printReport(
+			long timestamp,
 			MonitoringSeverity severity,
 			String message,
 			Throwable cause)
 	throws IOException {
 		printAbbr(severity);
-
+		out().append(' ').append(TIMESTAMP_FORMAT.format(new Date(timestamp)));
 		if (message != null || cause != null) {
 			out().append(' ');
 			if (message != null) {
@@ -92,7 +98,6 @@ public class TextMonitoringReport extends MonitoringReport {
 				printStackTrace(cause);
 			}
 		}
-
 		out().append('\n');
 	}
 

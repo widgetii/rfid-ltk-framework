@@ -47,11 +47,12 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 	public void report(MonitoringReport report) {
 
 		final TreeMap<TargetKey, Monitoring> monitorings = new TreeMap<>();
+		int index = 0;
 
 		synchronized (this.monitorings) {
 			for (Monitoring monitoring : this.monitorings.values()) {
 				monitorings.put(
-						new TargetKey(monitoring.getTarget()),
+						new TargetKey(index++, monitoring.getTarget()),
 						monitoring);
 			}
 		}
@@ -90,16 +91,28 @@ public class MonitorImpl extends MonitoringContext implements Monitor {
 
 	private static final class TargetKey implements Comparable<TargetKey> {
 
+		private final int index;
 		private final MonitoringTarget<?> target;
 
-		TargetKey(MonitoringTarget<?> target) {
+		TargetKey(int index, MonitoringTarget<?> target) {
+			this.index = index;
 			this.target = target;
 		}
 
 		@Override
 		public int compareTo(TargetKey o) {
-			// TODO Auto-generated method stub
-			return 0;
+			if (this.target.equals(o.target)) {
+				return 0;
+			}
+
+			final int strCmp =
+					this.target.toString().compareTo(o.target.toString());
+
+			if (strCmp != 0) {
+				return strCmp;
+			}
+
+			return this.index - o.index;
 		}
 
 		@Override

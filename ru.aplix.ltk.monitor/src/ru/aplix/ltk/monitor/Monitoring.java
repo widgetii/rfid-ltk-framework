@@ -2,6 +2,7 @@ package ru.aplix.ltk.monitor;
 
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import ru.aplix.ltk.osgi.Logger;
 
@@ -23,6 +24,7 @@ public abstract class Monitoring {
 	private final AtomicBoolean stopped = new AtomicBoolean();
 	private MonitoringTarget<?> target;
 	private MonitoringContext context;
+	private final AtomicLong nextEventId = new AtomicLong();
 	private final LinkedList<MonitoringEvent> events = new LinkedList<>();
 
 	/**
@@ -81,16 +83,17 @@ public abstract class Monitoring {
 	 * target}, invokes {@link #buildReport(MonitoringReport)} method, and
 	 * restores the previous report target after that.</p>
 	 *
-	 * @param reports monitoring reports to build.
+	 * @param report monitoring report to build.
 	 */
-	public final void report(MonitoringReport reports) {
+	public final void report(MonitoringReport report) {
 
 		final MonitoringTarget<?> previousTarget =
-				reports.startReporting(getTarget());
+				report.startReporting(getTarget());
 
-		buildReport(reports);
+		buildReport(report);
+		report.printLines();
 
-		reports.endReporting(previousTarget);
+		report.endReporting(previousTarget);
 	}
 
 	/**
@@ -201,8 +204,12 @@ public abstract class Monitoring {
 		init();
 	}
 
-	void addEvent(MonitoringEvent event) {
+	final void addEvent(MonitoringEvent event) {
 		this.events.add(event);
+	}
+
+	final long nextEventId() {
+		return this.nextEventId.getAndIncrement();
 	}
 
 }

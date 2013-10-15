@@ -30,6 +30,7 @@ public class StatusController {
 			@RequestParam(value = "period", required = false) String period,
 			HttpServletResponse resp)
 	throws IOException {
+		resp.setContentType("text/plain;charset=UTF-8");
 
 		@SuppressWarnings("resource")
 		final PrintWriter out = resp.getWriter();

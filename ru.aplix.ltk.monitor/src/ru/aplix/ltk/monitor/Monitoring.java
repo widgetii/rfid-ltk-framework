@@ -96,6 +96,14 @@ public abstract class Monitoring {
 		report.endReporting(previousTarget);
 	}
 
+	@Override
+	public String toString() {
+		if (this.target == null) {
+			return super.toString();
+		}
+		return this.target.toString();
+	}
+
 	/**
 	 * Initialized monitoring instance.
 	 *

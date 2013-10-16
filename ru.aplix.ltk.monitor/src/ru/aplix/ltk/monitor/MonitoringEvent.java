@@ -11,14 +11,10 @@ public class MonitoringEvent {
 	private final Monitoring monitoring;
 	private final MonitoringSeverity severity;
 	private final String name;
-	private long timestamp;
-	private long eventId;
-	private String message;
-	private Throwable cause;
+	private volatile Content content = new Content();
 	private Timeout timeout;
 	private Timeout parentTimeout;
 	private LinkedList<MonitoringEventListener> listeners = new LinkedList<>();
-	private boolean eventOccurred;
 	private boolean timedOut;
 
 	public MonitoringEvent(Monitoring monitoring, MonitoringSeverity severity) {
@@ -54,49 +50,32 @@ public class MonitoringEvent {
 
 	public final boolean isEventOccurred() {
 		if (this.parentTimeout != null) {
-			this.parentTimeout.parentEvent.isTimedOut();
+			this.parentTimeout.parentEvent.checkTimeout();
 		}
-		return this.eventOccurred;
+		return this.content.isEventOccurred();
 	}
 
-	public final long getTimestamp() {
-		return this.timestamp;
-	}
-
-	public final long getEventId() {
-		return this.eventId;
+	public final Content getContent() {
+		return this.content;
 	}
 
 	public final String getMessage() {
-		return this.message;
+		return getContent().getMessage();
 	}
 
 	public final Throwable getCause() {
-		return this.cause;
+		return getContent().getCause();
 	}
 
 	public final long getTimeout() {
-		return this.timeout.timeout;
+		return this.timeout != null ? this.timeout.timeout : 0;
 	}
 
 	public boolean isTimedOut() {
 		if (this.timeout == null) {
 			return false;
 		}
-		synchronized (this) {
-			if (this.timedOut) {
-				return true;
-			}
-			if (!isEventOccurred()) {
-				return false;
-			}
-			if (getTimestamp() + getTimeout() > currentTimeMillis()) {
-				return false;
-			}
-			this.timedOut = true;
-			this.timeout.occur();
-		}
-		return true;
+		return checkTimeout();
 	}
 
 	public final MonitoringEvent afterTimeout(
@@ -124,11 +103,15 @@ public class MonitoringEvent {
 			final MonitoringEvent eventToForget) {
 		return addListener(new MonitoringEventListener() {
 			@Override
-			public void eventOccurred(MonitoringEvent event) {
+			public void eventOccurred(
+					MonitoringEvent event,
+					Content occurred) {
 				eventToForget.forget();
 			}
 			@Override
-			public void eventForgotten(MonitoringEvent event) {
+			public void eventForgotten(
+					MonitoringEvent event,
+					Content forgotten) {
 				eventToForget.forget();
 			}
 		});
@@ -138,10 +121,14 @@ public class MonitoringEvent {
 			final MonitoringEvent eventToForget) {
 		return addListener(new MonitoringEventListener() {
 			@Override
-			public void eventOccurred(MonitoringEvent event) {
+			public void eventOccurred(
+					MonitoringEvent event,
+					Content occurred) {
 			}
 			@Override
-			public void eventForgotten(MonitoringEvent event) {
+			public void eventForgotten(
+					MonitoringEvent event,
+					Content forgotten) {
 				eventToForget.forget();
 			}
 		});
@@ -151,11 +138,15 @@ public class MonitoringEvent {
 			final MonitoringEvent eventToForget) {
 		return addListener(new MonitoringEventListener() {
 			@Override
-			public void eventOccurred(MonitoringEvent event) {
+			public void eventOccurred(
+					MonitoringEvent event,
+					Content occurred) {
 				eventToForget.forget();
 			}
 			@Override
-			public void eventForgotten(MonitoringEvent event) {
+			public void eventForgotten(
+					MonitoringEvent event,
+					Content forgotten) {
 			}
 		});
 	}
@@ -164,15 +155,16 @@ public class MonitoringEvent {
 			final MonitoringEvent eventToOccur) {
 		return addListener(new MonitoringEventListener() {
 			@Override
-			public void eventOccurred(MonitoringEvent event) {
+			public void eventOccurred(
+					MonitoringEvent event,
+					Content occurred) {
 				eventToOccur.forget();
 			}
 			@Override
-			public void eventForgotten(MonitoringEvent event) {
-				eventToOccur.occur(
-						getTimestamp(),
-						getMessage(),
-						getCause());
+			public void eventForgotten(
+					MonitoringEvent event,
+					Content forgotten) {
+				eventToOccur.occur(forgotten);
 			}
 		});
 	}
@@ -182,11 +174,15 @@ public class MonitoringEvent {
 			final String message) {
 		return addListener(new MonitoringEventListener() {
 			@Override
-			public void eventOccurred(MonitoringEvent event) {
+			public void eventOccurred(
+					MonitoringEvent event,
+					Content occurred) {
 				eventToOccur.forget();
 			}
 			@Override
-			public void eventForgotten(MonitoringEvent event) {
+			public void eventForgotten(
+					MonitoringEvent event,
+					Content forgotten) {
 				eventToOccur.occur(message);
 			}
 		});
@@ -197,30 +193,49 @@ public class MonitoringEvent {
 	}
 
 	public final void occur(String message, Throwable cause) {
-		occur(currentTimeMillis(), message, cause, true);
+		occur(
+				new Content(
+						currentTimeMillis(),
+						getMonitoring().nextEventId(),
+						message,
+						cause),
+				false);
 	}
 
 	public final void forget() {
+
+		final Content content = new Content();
+		final Content forgotten;
+
 		synchronized (this) {
-			if (!isEventOccurred()) {
+			forgotten = this.content;
+			if (!forgotten.isEventOccurred()) {
 				return;
 			}
-			this.eventOccurred = false;
+			this.content = content;
 			this.timedOut = false;
 		}
 		for (MonitoringEventListener listener : this.listeners) {
-			listener.eventForgotten(this);
+			synchronized (this) {
+				if (this.content != content) {
+					break;
+				}
+				listener.eventForgotten(this, forgotten);
+			}
 		}
 	}
 
-	public synchronized void report(MonitoringReport report) {
-		if (isEventOccurred() && !isTimedOut()) {
+	public void report(MonitoringReport report) {
+
+		final Content content = actualContent();
+
+		if (content != null) {
 			report.report(
-					getTimestamp(),
-					getEventId(),
+					content.getTimestamp(),
+					content.getEventId(),
 					getSeverity(),
-					getMessage(),
-					getCause());
+					content.getMessage(),
+					content.getCause());
 		}
 	}
 
@@ -235,43 +250,118 @@ public class MonitoringEvent {
 		return getTarget() + " " + getSeverity();
 	}
 
-	protected final void occur(
-			long timestamp,
-			String message,
-			Throwable cause) {
-		occur(timestamp, message, cause, false);
+	protected void log(Content content) {
+		getMonitoring().getLogger().log(
+				null,
+				getSeverity().getLogLevel(),
+				getTarget() + " " + content.getMessage(),
+				content.getCause());
 	}
 
-	protected void occur(
-			long timestamp,
-			String message,
-			Throwable cause,
-			boolean log) {
+	private final void occur(Content content) {
+		occur(content, false);
+	}
 
-		final long eventId = getMonitoring().nextEventId();
-
+	private final void occur(Content content, boolean log) {
 		synchronized (this) {
 			this.timedOut = false;
-			this.eventOccurred = true;
+			this.content = content;
+		}
+		if (log) {
+			log(content);
+		}
+		for (MonitoringEventListener listener : this.listeners) {
+			synchronized (this) {
+				if (this.content != content) {
+					break;
+				}
+				listener.eventOccurred(this, content);
+			}
+		}
+	}
+
+	private synchronized boolean checkTimeout() {
+		if (this.timedOut) {
+			return true;
+		}
+
+		final Content content = getContent();
+
+		if (content == null) {
+			return false;
+		}
+		if (content.getTimestamp() + getTimeout()
+				> currentTimeMillis()) {
+			return false;
+		}
+		this.timedOut = true;
+		this.timeout.occur();
+
+		return true;
+	}
+
+	private synchronized Content actualContent() {
+
+		final Content content = getContent();
+
+		if (!content.isEventOccurred()) {
+			return null;
+		}
+		if (isTimedOut()) {
+			return null;
+		}
+
+		return content;
+	}
+
+	public static final class Content {
+
+		private final long timestamp;
+		private final long eventId;
+		private final String message;
+		private final Throwable cause;
+		private final boolean eventOccurred;
+
+		Content(
+				long timestamp,
+				long eventId,
+				String message,
+				Throwable cause) {
 			this.timestamp = timestamp;
 			this.eventId = eventId;
 			this.message = message;
 			this.cause = cause;
-			if (log) {
-				log();
-			}
+			this.eventOccurred = true;
 		}
-		for (MonitoringEventListener listener : this.listeners) {
-			listener.eventOccurred(this);
-		}
-	}
 
-	protected void log() {
-		getMonitoring().getLogger().log(
-				null,
-				getSeverity().getLogLevel(),
-				getTarget() + " " + getMessage(),
-				getCause());
+		Content() {
+			this.timestamp = 0;
+			this.eventId = 0;
+			this.message = null;
+			this.cause = null;
+			this.eventOccurred = false;
+		}
+
+		public final boolean isEventOccurred() {
+			return this.eventOccurred;
+		}
+
+		public final long getTimestamp() {
+			return this.timestamp;
+		}
+
+		public final long getEventId() {
+			return this.eventId;
+		}
+
+		public final String getMessage() {
+			return this.message;
+		}
+
+		public final Throwable getCause() {
+			return this.cause;
+		}
+
 	}
 
 	private static final class Timeout {
@@ -297,10 +387,7 @@ public class MonitoringEvent {
 			if (this.message != null) {
 				this.event.occur(this.message);
 			} else {
-				this.event.occur(
-						this.parentEvent.getTimestamp(),
-						this.parentEvent.getMessage(),
-						this.parentEvent.getCause());
+				this.event.occur(this.parentEvent.getContent());
 			}
 		}
 

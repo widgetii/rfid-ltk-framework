@@ -1,8 +1,8 @@
 package ru.aplix.ltk.store.impl;
 
-import static org.osgi.service.log.LogService.LOG_ERROR;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 import static ru.aplix.ltk.store.impl.RfReceiverImpl.rfReceiver;
+import static ru.aplix.ltk.store.impl.monitor.RfStoreMtrTarget.RF_STORE_MTR_TARGET;
 
 import java.util.Collection;
 import java.util.Dictionary;
@@ -16,11 +16,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.osgi.service.log.LogService;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.*;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -29,8 +27,10 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
+import ru.aplix.ltk.monitor.Monitor;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfStore;
+import ru.aplix.ltk.store.impl.monitor.RfStoreMtr;
 import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 import ru.aplix.ltk.store.impl.persist.RfTagEventData;
 
@@ -42,9 +42,8 @@ public class RfStoreImpl
 		DisposableBean,
 		ApplicationListener<ContextRefreshedEvent> {
 
-	@Autowired
-	@Qualifier("log")
-	private LogService log;
+	private Monitor monitor;
+	private RfStoreMtr monitoring;
 	@PersistenceContext(unitName = "rfstore")
 	private EntityManager entityManager;
 	private final ExecutorService executor =
@@ -77,8 +76,12 @@ public class RfStoreImpl
 		return this.executor;
 	}
 
-	public final LogService log() {
-		return this.log;
+	public final Monitor getMonitor() {
+		return this.monitor;
+	}
+
+	public final RfStoreMtr getMonitoring() {
+		return this.monitoring;
 	}
 
 	@Override
@@ -152,7 +155,7 @@ public class RfStoreImpl
 			return null;
 		}
 
-		return (RfProvider<S>) receivers.getProvider();
+		return (RfProvider<S>) receivers.getRfProvider();
 	}
 
 	@Transactional
@@ -181,6 +184,8 @@ public class RfStoreImpl
 			public void afterCompletion(int status) {
 				if (status != STATUS_COMMITTED) {
 					addReceiver(receiver);
+				} else {
+
 				}
 			}
 		});
@@ -194,8 +199,10 @@ public class RfStoreImpl
 		final RfReceiverImpl<S> receiver;
 
 		if (editedReceiver != null) {
+			editedReceiver.getMonitoring().update();
 			receiver = editedReceiver;
 		} else {
+			getMonitoring().createReceiver();
 			receiver = new RfReceiverImpl<>(this, editor.getRfProvider());
 		}
 
@@ -270,8 +277,14 @@ public class RfStoreImpl
 		return this.allReceivers.remove(receiverId);
 	}
 
+	@Autowired
+	private void startMonitoring(Monitor monitor) {
+		this.monitor = monitor;
+		this.monitoring = monitor.monitoringOf(RF_STORE_MTR_TARGET);
+	}
+
 	@Transactional(readOnly = true)
-	void loadProviderReceivers(RfProvider<?> provider) {
+	void requestProviderReceivers(RfProvider<?> provider) {
 
 		final Query query =
 				getEntityManager().createNamedQuery("providerRfReceivers");
@@ -317,27 +330,37 @@ public class RfStoreImpl
 		getExecutor().submit(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					loadReceivers();
-				} catch (Throwable e) {
-					log().log(LOG_ERROR, "Failed to load receivers", e);
-				}
+				loadReceivers();
 			}
 		});
 	}
 
 	private void shutdown() {
+		getMonitoring().shutdown();
 		for (RfProviderReceivers receivers : this.providerReceivers.values()) {
 			receivers.shutdown();
 		}
 		this.executor.shutdown();
 	}
 
-	@Transactional(readOnly = true)
 	private void loadReceivers() {
 		if (this.loaded.get() != 0) {
 			return;
 		}
+		try {
+			getMonitoring().loadReceivers("Load receivers");
+			requestReceivers();
+			this.loaded.compareAndSet(0, 1);
+		} catch (Throwable e) {
+			getMonitoring().failedToLoadReceivers(
+					"Failed to load receivers",
+					e);
+			throw e;
+		}
+	}
+
+	@Transactional(readOnly = true)
+	private void requestReceivers() {
 
 		final Query query =
 				this.entityManager.createNamedQuery("allRfReceivers");
@@ -345,8 +368,6 @@ public class RfStoreImpl
 		final List<RfReceiverData> receiversData = query.getResultList();
 
 		addReceivers(receiversData);
-
-		this.loaded.compareAndSet(0, 1);
 	}
 
 	private void addReceiver(RfReceiverImpl<?> receiver) {

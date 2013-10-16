@@ -18,7 +18,7 @@
       unbind-method="providerRemoved"/>
   </reference-list>
 
-  <reference id="log" interface="org.osgi.service.log.LogService"/>
+  <reference id="monitor" interface="ru.aplix.ltk.monitor.Monitor"/>
 
   <service ref="rfStore" interface="ru.aplix.ltk.store.RfStore"/>
 

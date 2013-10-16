@@ -10,6 +10,8 @@ import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.store.RfReceiver;
+import ru.aplix.ltk.store.impl.monitor.RfReceiverMtr;
+import ru.aplix.ltk.store.impl.monitor.RfReceiverMtrTarget;
 import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 import ru.aplix.ltk.store.impl.persist.RfTagEventData;
 
@@ -32,12 +34,16 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 	private final RfStoreImpl store;
 	private int id;
 	private final RfProvider<S> provider;
+	private volatile RfReceiverMtr monitoring;
 	private volatile RfReceiverState<S> state;
 
 	RfReceiverImpl(RfStoreImpl store, RfProvider<S> provider) {
 		this.store = store;
 		this.provider = provider;
 		this.state = new RfReceiverState<>(this);
+		this.monitoring = null;
+		this.monitoring =
+				store.getMonitor().monitoringOf(new RfReceiverMtrTarget(this));
 	}
 
 	private RfReceiverImpl(
@@ -48,11 +54,17 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 		this.provider = provider;
 		this.id = data.getId();
 		this.state = new RfReceiverState<>(this);
+		this.monitoring =
+				store.getMonitor().monitoringOf(new RfReceiverMtrTarget(this));
 		this.state.load(data);
 	}
 
 	public final RfStoreImpl getRfStore() {
 		return this.store;
+	}
+
+	public final RfReceiverMtr getMonitoring() {
+		return this.monitoring;
 	}
 
 	@Override
@@ -82,7 +94,12 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 
 	@Override
 	public List<RfTagEventData> loadEvents(long fromEventId, int limit) {
-		return getRfStore().loadEvents(this, fromEventId, limit);
+		try {
+			return getRfStore().loadEvents(this, fromEventId, limit);
+		} catch (RuntimeException | Error e) {
+			getMonitoring().unexpectedError("Error while loading events", e);
+			throw e;
+		}
 	}
 
 	@Override
@@ -96,8 +113,27 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 
 	@Override
 	public void delete(boolean deleteTags) {
-		shutdown();
-		getRfStore().deleteReceiver(this, deleteTags);
+		getMonitoring().delete(deleteTags);
+		try {
+			shutdown();
+			getRfStore().deleteReceiver(this, deleteTags);
+		} catch (Throwable e) {
+			getMonitoring().unexpectedError("Failed to delete", e);
+			throw e;
+		}
+	}
+
+	@Override
+	public String toString() {
+		if (this.id == 0) {
+			return "RFID Receiver";
+		}
+		if (this.state == null) {
+			return "RFID Receiver (#" + this.id + ')';
+		}
+		return "RFID Receiver ("
+				+ this.state.getRfSettings().getTargetId()
+				+ " #" + this.id + ')';
 	}
 
 	synchronized void shutdown() {
@@ -134,6 +170,10 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 		em.refresh(data);
 
 		this.id = data.getId();
+		this.monitoring =
+				getRfStore()
+				.getMonitor()
+				.monitoringOf(new RfReceiverMtrTarget(this));
 	}
 
 	private void merge(RfReceiverEditorImpl<S> editor) {

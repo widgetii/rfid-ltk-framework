@@ -12,6 +12,7 @@ import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.core.util.Parameters;
 import ru.aplix.ltk.message.MsgConsumer;
 import ru.aplix.ltk.store.RfReceiverEditor;
+import ru.aplix.ltk.store.impl.monitor.RfReceiverMtr;
 import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 
 
@@ -34,6 +35,10 @@ final class RfReceiverState<S extends RfSettings>
 
 	public final RfReceiverImpl<S> getRfReceiver() {
 		return this.receiver;
+	}
+
+	public final RfReceiverMtr getMonitoring() {
+		return getRfReceiver().getMonitoring();
 	}
 
 	public final S getRfSettings() {
@@ -93,6 +98,8 @@ final class RfReceiverState<S extends RfSettings>
 		this.settings = settings;
 		if (data.isActive()) {
 			start();
+		} else {
+			getMonitoring().stopped();
 		}
 	}
 
@@ -130,27 +137,41 @@ final class RfReceiverState<S extends RfSettings>
 	}
 
 	void shutdown() {
+		getMonitoring().shutdown();
 		if (isActive()) {
 			stop();
 		}
+		getMonitoring().stop();
 	}
 
 	private void start() {
-		this.lastStatus = null;
-		this.collector =
-				getRfProvider().connect(getRfSettings()).getCollector();
-		this.collector.subscribe(this);
+		getMonitoring().starting();
+		try {
+			this.lastStatus = null;
+			this.collector =
+					getRfProvider().connect(getRfSettings()).getCollector();
+			this.collector.subscribe(this);
+		} catch (Throwable e) {
+			getMonitoring().unexpectedError("Error while starting", e);
+			throw e;
+		}
+		getMonitoring().started();
 	}
 
 	private void stop() {
+		getMonitoring().stopping();
 		try {
 			if (this.collector != null) {
 				this.collector.unsubscribeAll();
 			}
+		} catch (Throwable e) {
+			getMonitoring().unexpectedError("Error while stopping", e);
+			throw e;
 		} finally {
 			this.lastStatus = null;
 			this.collector = null;
 		}
+		getMonitoring().stopped();
 	}
 
 }

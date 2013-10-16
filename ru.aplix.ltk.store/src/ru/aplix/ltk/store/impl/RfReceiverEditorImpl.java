@@ -69,7 +69,21 @@ final class RfReceiverEditorImpl<S extends RfSettings>
 
 	@Override
 	public RfReceiver<S> save() {
-		return getRfStore().saveReceiver(this);
+		try {
+			return getRfStore().saveReceiver(this);
+		} catch (Throwable e) {
+
+			final RfReceiverImpl<S> receiver = getRfReceiver();
+
+			if (receiver != null) {
+				receiver.getMonitoring()
+				.unexpectedError("Failed to update receiver", e);
+			} else {
+				getRfStore().getMonitoring()
+				.unexpectedError("Failed to create receiver", e);
+			}
+			throw e;
+		}
 	}
 
 	void save(RfReceiverData data) {

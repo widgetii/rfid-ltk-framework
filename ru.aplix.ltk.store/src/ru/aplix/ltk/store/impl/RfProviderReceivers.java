@@ -1,7 +1,5 @@
 package ru.aplix.ltk.store.impl;
 
-import static org.osgi.service.log.LogService.LOG_ERROR;
-
 import java.util.HashSet;
 
 import ru.aplix.ltk.core.RfProvider;
@@ -18,24 +16,26 @@ final class RfProviderReceivers {
 		this.provider = provider;
 	}
 
-	public final RfStoreImpl getStore() {
+	public final RfStoreImpl getRfStore() {
 		return this.store;
 	}
 
-	public final RfProvider<?> getProvider() {
+	public final RfProvider<?> getRfProvider() {
 		return this.provider;
 	}
 
 	public void load() {
-		getStore().getExecutor().submit(new Runnable() {
+		getRfStore().getExecutor().submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					getStore().loadProviderReceivers(getProvider());
+					getRfStore().getMonitoring().loadReceivers(
+							"Load receivers for " + RfProviderReceivers.this);
+					getRfStore().requestProviderReceivers(getRfProvider());
 				} catch (Throwable e) {
-					getStore().log().log(
-							LOG_ERROR,
-							"Failed to load receivers for " + this,
+					getRfStore().getMonitoring().failedToLoadReceivers(
+							"Failed to load receivers for "
+							+ RfProviderReceivers.this,
 							e);
 				}
 			}
@@ -64,7 +64,7 @@ final class RfProviderReceivers {
 			this.receiverIds.clear();
 		}
 
-		getStore().getExecutor().execute(new Runnable() {
+		getRfStore().getExecutor().execute(new Runnable() {
 			@Override
 			public void run() {
 				shutdownReceivers(ids);
@@ -77,13 +77,13 @@ final class RfProviderReceivers {
 		if (this.provider == null) {
 			return super.toString();
 		}
-		return this.provider.getId() + " (" + this.provider.getName() + ')';
+		return this.provider.getName() + " (" + this.provider.getId() + ')';
 	}
 
 	private void shutdownReceivers(Integer[] ids) {
 		for (Integer id : ids) {
 
-			final RfReceiverImpl<?> removed = getStore().removeReceiver(id);
+			final RfReceiverImpl<?> removed = getRfStore().removeReceiver(id);
 
 			if (removed != null) {
 				removed.shutdown();

@@ -16,6 +16,11 @@
       org="bundle"
       name="ru.aplix.ltk.core"
       rev="latest.integration"/>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.monitor"
+      rev="latest.integration"
+      conf="compile->@;runtime->@"/>
 
     <dependency
       org="commons-dbcp"

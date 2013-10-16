@@ -78,18 +78,33 @@ public class MonitoringEvent {
 		return checkTimeout();
 	}
 
-	public final MonitoringEvent afterTimeout(
+	public final MonitoringEvent afterTimeoutOccur(
 			long timeout,
 			MonitoringEvent event) {
-		this.timeout = new Timeout(timeout, this, event, null);
+		this.timeout = new Timeout(timeout, this, event, null, false);
 		return forgetOnUpdate(event);
 	}
 
-	public final MonitoringEvent afterTimeout(
+	public final MonitoringEvent afterTimeoutOccur(
 			long timeout,
 			MonitoringEvent event,
 			String message) {
-		this.timeout = new Timeout(timeout, this, event, message);
+		this.timeout = new Timeout(timeout, this, event, message, false);
+		return forgetOnUpdate(event);
+	}
+
+	public final MonitoringEvent afterTimeoutActivate(
+			long timeout,
+			MonitoringEvent event) {
+		this.timeout = new Timeout(timeout, this, event, null, true);
+		return forgetOnUpdate(event);
+	}
+
+	public final MonitoringEvent afterTimeoutActivate(
+			long timeout,
+			MonitoringEvent event,
+			String message) {
+		this.timeout = new Timeout(timeout, this, event, message, true);
 		return forgetOnUpdate(event);
 	}
 
@@ -164,7 +179,7 @@ public class MonitoringEvent {
 			public void eventForgotten(
 					MonitoringEvent event,
 					Content forgotten) {
-				eventToOccur.occur(forgotten);
+				eventToOccur.occur(forgotten, false, true);
 			}
 		});
 	}
@@ -188,6 +203,24 @@ public class MonitoringEvent {
 		});
 	}
 
+	public final MonitoringEvent activateWhenOccurred(
+			final MonitoringEvent eventToOccur,
+			final String message) {
+		return addListener(new MonitoringEventListener() {
+			@Override
+			public void eventOccurred(
+					MonitoringEvent event,
+					Content occurred) {
+				eventToOccur.activate(message);
+			}
+			@Override
+			public void eventForgotten(
+					MonitoringEvent event,
+					Content forgotten) {
+			}
+		});
+	}
+
 	public final void occur(String message) {
 		occur(message, null);
 	}
@@ -199,7 +232,19 @@ public class MonitoringEvent {
 						getMonitoring().nextEventId(),
 						message,
 						cause),
-				false);
+				false,
+				true);
+	}
+
+	public final void activate(String message) {
+		occur(
+				new Content(
+						currentTimeMillis(),
+						getMonitoring().nextEventId(),
+						message,
+						null),
+				true,
+				true);
 	}
 
 	public final void forget() {
@@ -258,12 +303,14 @@ public class MonitoringEvent {
 				content.getCause());
 	}
 
-	private final void occur(Content content) {
-		occur(content, false);
-	}
-
-	private final void occur(Content content, boolean log) {
+	private final void occur(
+			Content content,
+			boolean activate,
+			boolean log) {
 		synchronized (this) {
+			if (activate && this.content.isEventOccurred()) {
+				return;
+			}
 			this.timedOut = false;
 			this.content = content;
 		}
@@ -370,24 +417,34 @@ public class MonitoringEvent {
 		private final MonitoringEvent parentEvent;
 		private final MonitoringEvent event;
 		private final String message;
+		private final boolean activate;
 
 		Timeout(
 				long timeout,
 				MonitoringEvent parentEvent,
 				MonitoringEvent event,
-				String message) {
+				String message,
+				boolean activate) {
 			this.timeout = timeout;
 			this.parentEvent = parentEvent;
 			this.event = event;
-			event.parentTimeout = this;
 			this.message = message;
+			this.activate = activate;
+			event.parentTimeout = this;
 		}
 
 		void occur() {
 			if (this.message != null) {
-				this.event.occur(this.message);
+				if (this.activate) {
+					this.event.activate(this.message);
+				} else {
+					this.event.occur(this.message);
+				}
 			} else {
-				this.event.occur(this.parentEvent.getContent());
+				this.event.occur(
+						this.parentEvent.getContent(),
+						this.activate,
+						false);
 			}
 		}
 

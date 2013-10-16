@@ -236,8 +236,8 @@ public abstract class Monitoring {
 	/**
 	 * Creates named error monitoring event.
 	 *
-	 * <p>After 10 minutes a fatal error will raise. A warning will be
-	 * generated when forgotten.</p>
+	 * <p>After 10 minutes a fatal error will be activated instead of this
+	 * error. A warning will be raised when forgotten.</p>
 	 *
 	 * @param name event name.
 	 *
@@ -248,7 +248,7 @@ public abstract class Monitoring {
 		final MonitoringEvent error =
 				new MonitoringEvent(this, MonitoringSeverity.ERROR, name);
 
-		error.afterTimeout(
+		error.afterTimeoutActivate(
 				600000L,
 				new MonitoringEvent(
 						this,
@@ -267,6 +267,8 @@ public abstract class Monitoring {
 	 * Creates fatal error monitoring event.
 	 *
 	 * @return new monitoring event.
+	 *
+	 * @see #fatal(String)
 	 */
 	protected final MonitoringEvent fatal() {
 		return fatal(null);
@@ -275,12 +277,24 @@ public abstract class Monitoring {
 	/**
 	 * Creates named fatal error monitoring event.
 	 *
+	 * <p>A warning will be raised when forgotten.</p>
+	 *
 	 * @param name event name.
 	 *
 	 * @return new monitoring event.
 	 */
 	protected final MonitoringEvent fatal(String name) {
-		return new MonitoringEvent(this, MonitoringSeverity.FATAL, name);
+
+		final MonitoringEvent fatal =
+				new MonitoringEvent(this, MonitoringSeverity.FATAL, name);
+
+		fatal.occurWhenForgot(
+				new MonitoringEvent(
+						this,
+						MonitoringSeverity.WARNING,
+						name != null ? name + " (warning)" : null));
+
+		return fatal;
 	}
 
 	final void initMonitoring(

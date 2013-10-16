@@ -12,14 +12,14 @@ public class HttpRfClientMtr extends Monitoring {
 
 	private final MonitoringEvent reconnect =
 			note("reconnect")
-			.afterTimeout(
+			.afterTimeoutOccur(
 					45000L,
 					error("reconnection timeout"),
 					"Reconnection timeout");
 	private final MonitoringEvent connecting =
 			info("connecting")
 			.forgetOnUpdate(this.reconnect)
-			.afterTimeout(
+			.afterTimeoutOccur(
 					45000L,
 					error("connection timeout"),
 					"Connection timeout");
@@ -33,17 +33,28 @@ public class HttpRfClientMtr extends Monitoring {
 	private final MonitoringEvent ping =
 			trace("ping")
 			.forgetWhenOccurred(this.error);
+	private final MonitoringEvent cantConnect =
+			fatal("can't connect");
+	private final MonitoringEvent notConnected =
+			warning("not connected")
+			.afterTimeoutActivate(
+					600000L,
+					this.cantConnect,
+					"Can not connect");
 	private final MonitoringEvent connectionLost = error("connection lost");
 	private final MonitoringEvent connected =
 			info("connected")
 			.forgetWhenOccurred(this.connecting)
-			.forgetWhenOccurred(this.connectionLost);
-	private final MonitoringEvent disconnected = warning("disconnected");
+			.forgetWhenOccurred(this.connectionLost)
+			.forgetWhenOccurred(this.notConnected);
+	private final MonitoringEvent disconnected =
+			warning("disconnected")
+			.activateWhenOccurred(this.notConnected, "Not connected");
 	private final MonitoringEvent alreadyConnected =
 			warning("already connected");
 	private final MonitoringEvent shutdown =
 			info("shutdown")
-			.afterTimeout(
+			.afterTimeoutOccur(
 					10000,
 					error("shutdown timeout"),
 					"Shutdown timed out");

@@ -39,7 +39,7 @@ class NestedParametersStore implements ParametersStore {
 
 	@Override
 	public ParametersStore nestedStore(String prefix) {
-		return new NestedParametersStore(this, '.' + prefix + '.');
+		return null;
 	}
 
 	private String name(String name) {

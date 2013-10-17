@@ -9,12 +9,19 @@
 	<target name="_par_properties" extensionOf="_properties">
 		<property name="par.name" value="${ant.project.name}"/>
 		<property name="par.file" value="${app.dir}/${par.name}.par"/>
+		<property name="par.config.dir" value="${app.dir}/config"/>
 		<echo message="${par.file}"/>
 	</target>
 
+	<target name="_prepare_par" depends="_prepare">
+		<mkdir taskname="${ant.project.name}" dir="${par.config.dir}"/>
+	</target>
+
+	<extension-point name="_config" depends="_prepare_par"/>
+
 	<target
 		name="build"
-		depends="build-deps,_prepare"
+		depends="build-deps,_config"
 		description="Assembles application PAR">
 		<jar
 			taskname="${ant.project.name}"
@@ -22,6 +29,7 @@
 			manifest="META-INF/MANIFEST.MF"
 			encoding="UTF-8">
 			<ivy:resources file="${ivy.file}" conf="${app.conf}" type="jar"/>
+			<fileset dir="${par.config.dir}" includes="*.jar"/>
 		</jar>
 	</target>
 

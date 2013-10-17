@@ -31,30 +31,28 @@
       </chain>
       <ibiblio name="maven2" m2compatible="true"/>
     </chain>
-    <chain name="bundles" dual="true" returnFirst="true">
-      <filesystem
-        name="ltk-bundles"
-        checkmodified="true"
-        cache="ltk-bundles"
-        descriptor="required">
-        <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
-        <artifact
-          pattern="${ivy.settings.dir}/target/[artifact]_[revision].[ext]"/>
-      </filesystem>
-      <chain name="updatesites" dual="true" returnFirst="true">
-        <updatesite
-          name="eclipse-updatesite"
-          url="http://download.eclipse.org/eclipse/updates/4.3"
-          requirementStrategy="first"/>
-        <updatesite
-          name="eclipselink-updatesite"
-          url="http://download.eclipse.org/rt/eclipselink/updates/"
-          requirementStrategy="first"/>
-        <updatesite
-          name="virgo-updatesite"
-          url="http://download.eclipse.org/virgo/release/tooling"
-          requirementStrategy="first"/>
-      </chain>
+    <filesystem
+      name="ltk-bundles"
+      checkmodified="true"
+      cache="ltk-bundles"
+      descriptor="required">
+      <ivy pattern="${ivy.settings.dir}/[module]/ivy.xml"/>
+      <artifact
+        pattern="${ivy.settings.dir}/target/[artifact]_[revision].[ext]"/>
+    </filesystem>
+    <chain name="updatesites" dual="true" returnFirst="true">
+      <updatesite
+        name="eclipse-updatesite"
+        url="http://download.eclipse.org/eclipse/updates/4.3"
+        requirementStrategy="first"/>
+      <updatesite
+        name="eclipselink-updatesite"
+        url="http://download.eclipse.org/rt/eclipselink/updates/"
+        requirementStrategy="first"/>
+      <updatesite
+        name="virgo-updatesite"
+        url="http://download.eclipse.org/virgo/release/tooling"
+        requirementStrategy="first"/>
     </chain>
   </resolvers>
 
@@ -67,8 +65,20 @@
       organisation="package"
       name="ru.aplix.ltk.*"
       resolver="ltk-bundles"/>
-    <module organisation="bundle" resolver="bundles"/>
-    <module organisation="package" resolver="bundles"/>
+    <module
+      organisation="bundle"
+      name="org.apache.mina"
+      resolver="ltk-bundles"/>
+    <module
+      organisation="bundle"
+      name="org.llrp.ltk"
+      resolver="ltk-bundles"/>
+    <module
+      organisation="bundle"
+      name="org.postgresql"
+      resolver="ltk-bundles"/>
+    <module organisation="bundle" resolver="updatesites"/>
+    <module organisation="package" resolver="updatesites"/>
     <module
       name="com.springsource.*"
       resolver="com.springsource"/>

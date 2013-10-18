@@ -48,7 +48,7 @@ final class ClrAutostart
 
 	public void stop() {
 		if (this.handle != null) {
-			log().debug("Stopping " + this);
+			log().debug("Stopping " + this.profile);
 			this.handle.unsubscribe();
 		}
 	}

@@ -38,6 +38,8 @@
 - `ru.aplix.ltk.message.test` - тесты библиотеки рассылки сообщений.
 - `ru.aplix.ltk.monitor` - служба мониторинга.
 - `ru.aplix.ltk.osgi` - различные утилиты для работы на платформе OSGi.
+- `ru.aplix.ltk.osgi.log4j` - вывод сообщений служб OSGi в лог посредством
+  log4j.
 - `ru.aplix.ltk.osgi.shutdown` - перехватчик сигнала завершения приложения
   (`SIGTERM`), корректно завершающий работу платформы OSGi.
 - `ru.aplix.ltk.store` - хранилище тегов. Основано на Spring и Eclipse Virgo.

@@ -29,7 +29,7 @@ final class CtgReaderThread
 	private final CtgRfReaderDriver driver;
 	private LLRPConnector reader;
 	private volatile long lastUpdate;
-	private boolean connected;
+	private volatile boolean connected;
 	private volatile boolean stopped;
 	private AntennaID lastAntennaID;
 
@@ -98,11 +98,19 @@ final class CtgReaderThread
 
 			final short messageType = message.getTypeNum().toShort();
 
-			getLogger().debug(
-					this + " Message received. Message type: " + messageType);
-
+			if (!this.connected) {
+				getLogger().warning(
+						this
+						+ " Message received before connection established."
+						+ " Message type: " + messageType);
+				return;
+			}
 			if (messageType == RO_ACCESS_REPORT.TYPENUM.toShort()) {
 				tagRecived(message);
+			} else {
+				getLogger().debug(
+						this + " Message received. Message type: "
+						+ messageType);
 			}
 		} catch (Throwable e) {
 			sendError(e);
@@ -445,12 +453,11 @@ final class CtgReaderThread
 	}
 
 	private void tagRecived(LLRPMessage message) {
-		// The message received is an Access Report.
+
 		final RO_ACCESS_REPORT report = (RO_ACCESS_REPORT) message;
-		// Get a list of the tags read.
 		final List<TagReportData> tags = report.getTagReportDataList();
 
-		// Loop through the list and get the EPC of each tag.
+		getLogger().debug(this + " Tags received: " + tags.size());
 		for (TagReportData tag : tags) {
 			try {
 				getContext().sendRfData(new LLRPDataMessage(this, tag));

@@ -7,7 +7,7 @@
     class="org.apache.log4j.RollingFileAppender">
     <param name="File" value="rfcollector.log4j.log"/>
     <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%-5p %d %m%n"/>
+      <param name="ConversionPattern" value="%-5p %d [%c] %m%n"/>
     </layout>
   </appender>
 

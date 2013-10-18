@@ -32,7 +32,7 @@ final class CtgRfReaderDriver implements RfReaderDriver {
 
 	@Override
 	public final String getRfPortId() {
-		return getSettings().getTargetId();
+		return getSettings().getReaderAddress();
 	}
 
 	public final RfReaderContext getContext() {

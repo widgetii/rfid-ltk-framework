@@ -113,6 +113,23 @@ public class CtgRfSettings extends AbstractRfSettings {
 	@Override
 	public String getTargetId() {
 
+		final String address = getReaderAddress();
+		final IntSet antennas = getAntennas();
+
+		if (antennas.isFull()) {
+			return address;
+		}
+
+		return antennas.toString() + '@' + address;
+	}
+
+	/**
+	 * Returns the reader address, including its port.
+	 *
+	 * @return reader address.
+	 */
+	public final String getReaderAddress() {
+
 		final String readerHost = getReaderHost();
 
 		if (readerHost == null) {

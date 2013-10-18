@@ -148,7 +148,8 @@ angular.module(
 					continue;
 				}
 				if (r1.id > r2.id) {
-					receivers.splice(i1, 0, r2);
+					receivers.list.splice(i1, 0, r2);
+					++i1;
 					++i2;
 					continue;
 				}

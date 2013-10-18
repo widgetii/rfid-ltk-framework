@@ -24,27 +24,19 @@
     <dependency
       org="org.apache.log4j"
       name="com.springsource.org.apache.log4j"
-      rev="1.2.16">
-      <artifact name="com.springsource.org.apache.log4j" type="jar"/>
-    </dependency>
+      rev="1.2.16"/>
     <dependency org="bundle" name="org.slf4j.log4j" rev="1.7.2+"/>
     <dependency
       org="org.jdom"
       name="com.springsource.org.jdom"
-      rev="1.1.0">
-      <artifact name="com.springsource.org.jdom" type="jar"/>
-    </dependency>
+      rev="1.1.0"/>
     <dependency
       org="org.apache.xmlcommons"
       name="com.springsource.org.apache.xmlcommons"
-      rev="1.3.4">
-      <artifact name="com.springsource.org.apache.xmlcommons" type="jar"/>
-    </dependency>
+      rev="1.3.4"/>
     <dependency
       org="org.apache.xerces"
       name="com.springsource.org.apache.xerces"
-      rev="2.9.1">
-      <artifact name="com.springsource.org.apache.xerces" type="jar"/>
-    </dependency>
+      rev="2.9.1"/>
   </dependencies>
 </ivy-module>

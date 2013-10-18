@@ -33,6 +33,11 @@
       org="bundle"
       name="ru.aplix.ltk.osgi.shutdown"
       rev="latest.integration"/>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.osgi.log4j"
+      rev="latest.integration"
+      conf="runtime->@"/>
 
     <dependency
       org="bundle"

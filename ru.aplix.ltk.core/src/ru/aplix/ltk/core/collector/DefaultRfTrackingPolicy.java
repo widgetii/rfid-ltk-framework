@@ -28,7 +28,7 @@ public class DefaultRfTrackingPolicy implements RfTrackingPolicy {
 	 * @see #getInvalidationTimeout()
 	 */
 	public static final Parameter<Long> RF_INVALIDATION_TIMEOUT =
-			LONG_PARAMETER_TYPE.parameter("invalidationParameter")
+			LONG_PARAMETER_TYPE.parameter("invalidationTimeout")
 			.byDefault(8000L);
 
 	private long transactionTimeout = RF_TRANSACTION_TIMEOUT.getDefault();

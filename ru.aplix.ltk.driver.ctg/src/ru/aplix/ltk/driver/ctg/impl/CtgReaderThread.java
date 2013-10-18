@@ -88,7 +88,7 @@ final class CtgReaderThread
 
 	@Override
 	public void uncaughtException(Thread t, Throwable e) {
-		sendError(e);
+		sendError("Uncaught exception", e);
 	}
 
 	@Override
@@ -113,7 +113,7 @@ final class CtgReaderThread
 						+ messageType);
 			}
 		} catch (Throwable e) {
-			sendError(e);
+			sendError("Failed to handle LLRP message", e);
 		}
 	}
 
@@ -171,7 +171,7 @@ final class CtgReaderThread
 
 			return ok;
 		} catch (Throwable e) {
-			sendError(e);
+			sendError("Failed to connect", e);
 		}
 		return false;
 	}
@@ -237,6 +237,34 @@ final class CtgReaderThread
 		this.lastUpdate = currentTimeMillis();
 	}
 
+	private boolean setReaderConfig() throws TimeoutException {
+
+		final int keepAlivePeriod =
+				getSettings().getKeepAliveRequestPeriod();
+
+		final SET_READER_CONFIG request = new SET_READER_CONFIG();
+		final KeepaliveSpec keepaliveSpec = new KeepaliveSpec();
+
+		keepaliveSpec.setKeepaliveTriggerType(
+				new KeepaliveTriggerType(KeepaliveTriggerType.Periodic));
+		keepaliveSpec.setPeriodicTriggerValue(
+				new UnsignedInteger(keepAlivePeriod));
+
+		request.setKeepaliveSpec(keepaliveSpec);
+		request.setResetToFactoryDefault(new Bit(0));
+
+		getLogger().debug(
+				this + " Set reader config: keep alive period="
+				+ keepAlivePeriod + "ms");
+
+		final SET_READER_CONFIG_RESPONSE response =
+				(SET_READER_CONFIG_RESPONSE) this.reader.transact(
+						request,
+						getSettings().getTransactionTimeout());
+
+		return checkStatus(response.getLLRPStatus());
+	}
+
 	private boolean deleteROSpecs() throws TimeoutException {
 
 		final DELETE_ROSPEC request = new DELETE_ROSPEC();
@@ -251,6 +279,8 @@ final class CtgReaderThread
 		}
 
 		request.setROSpecID(new UnsignedInteger(roSpecId));
+
+		getLogger().debug(this + " Delete RO spec: " + roSpecId);
 
 		final DELETE_ROSPEC_RESPONSE response =
 				(DELETE_ROSPEC_RESPONSE) this.reader.transact(
@@ -356,36 +386,15 @@ final class CtgReaderThread
 		return roSpec;
 	}
 
-	private boolean setReaderConfig() throws TimeoutException {
-
-		final int keepAlivePeriod =
-				getSettings().getKeepAliveRequestPeriod();
-
-		final SET_READER_CONFIG request = new SET_READER_CONFIG();
-		final KeepaliveSpec keepaliveSpec = new KeepaliveSpec();
-
-		keepaliveSpec.setKeepaliveTriggerType(
-				new KeepaliveTriggerType(KeepaliveTriggerType.Periodic));
-		keepaliveSpec.setPeriodicTriggerValue(
-				new UnsignedInteger(keepAlivePeriod));
-
-		request.setKeepaliveSpec(keepaliveSpec);
-		request.setResetToFactoryDefault(new Bit(0));
-
-		final SET_READER_CONFIG_RESPONSE response =
-				(SET_READER_CONFIG_RESPONSE) this.reader.transact(
-						request,
-						getSettings().getTransactionTimeout());
-
-		return checkStatus(response.getLLRPStatus());
-	}
-
 	// Add the ROSpec to the reader.
 	private boolean addROSpec() throws TimeoutException {
 
 		final ADD_ROSPEC request = new ADD_ROSPEC();
 
 		request.setROSpec(buildROSpec());
+
+		getLogger().debug(
+				this + " Add RO spec " + request.getROSpec().getROSpecID());
 
 		final ADD_ROSPEC_RESPONSE response =
 				(ADD_ROSPEC_RESPONSE) this.reader.transact(
@@ -402,6 +411,8 @@ final class CtgReaderThread
 
 		request.setROSpecID(new UnsignedInteger(getSettings().getROSpecId()));
 
+		getLogger().debug(this + " Enable RO spec");
+
 		final ENABLE_ROSPEC_RESPONSE response =
 				(ENABLE_ROSPEC_RESPONSE) this.reader.transact(
 						request,
@@ -416,6 +427,8 @@ final class CtgReaderThread
 		final START_ROSPEC request = new START_ROSPEC();
 
 		request.setROSpecID(new UnsignedInteger(getSettings().getROSpecId()));
+
+		getLogger().debug(this + " Start RO spec");
 
 		final START_ROSPEC_RESPONSE response =
 				(START_ROSPEC_RESPONSE) this.reader.transact(
@@ -446,8 +459,7 @@ final class CtgReaderThread
 			errorMessage = statusCode.toString();
 		}
 
-		getLogger().error(toString() + ' ' + errorMessage);
-		getContext().updateStatus(new RfError(null, errorMessage));
+		sendError(errorMessage, null);
 
 		return false;
 	}
@@ -456,20 +468,27 @@ final class CtgReaderThread
 
 		final RO_ACCESS_REPORT report = (RO_ACCESS_REPORT) message;
 		final List<TagReportData> tags = report.getTagReportDataList();
+		final int size = tags.size();
 
-		getLogger().debug(this + " Tags received: " + tags.size());
+		if (size > 3) {
+			getLogger().debug(this + " " + size + " tags received");
+		}
 		for (TagReportData tag : tags) {
+			if (size <= 3) {
+				getLogger().debug(
+						this + " Tag received: " + tag.getEPCParameter());
+			}
 			try {
 				getContext().sendRfData(new LLRPDataMessage(this, tag));
 			} catch (Throwable e) {
-				sendError(e);
+				sendError("Failed to send RFID data", e);
 			}
 		}
 	}
 
-	private void sendError(Throwable cause) {
-		getLogger().error(toString(), cause);
-		getContext().updateStatus(new RfError(null, cause));
+	private void sendError(String message, Throwable cause) {
+		getLogger().error(toString() + ' ' + message, cause);
+		getContext().updateStatus(new RfError(null, message, cause));
 	}
 
 	private void disconnect() {
@@ -480,7 +499,7 @@ final class CtgReaderThread
 			getLogger().info(" Closing connection");
 			closeConnection();
 		} catch (TimeoutException e) {
-			sendError(e);
+			sendError("Timeout closing connection", e);
 		} finally {
 			this.reader.disconnect();
 			this.reader = null;
@@ -509,7 +528,7 @@ final class CtgReaderThread
 				IoSession session,
 				Throwable cause)
 		throws Exception {
-			sendError(cause);
+			sendError("LLRP exception", cause);
 		}
 
 	}

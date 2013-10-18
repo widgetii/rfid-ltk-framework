@@ -26,18 +26,21 @@
 
 	<target name="_find_profile">
 		<property name="profile" value="default"/>
-		<available
+		<condition
 			taskname="${ant.project.name}"
-			file="local/${profile}"
-			type="dir"
 			property="profile.dir"
-			value="local/${profile}"/>
-		<available
+			value="local/${profile}">
+			<available file="local/${profile}" type="dir"/>
+		</condition>
+		<condition
 			taskname="${ant.project.name}"
-			file="profiles/${profile}"
-			type="dir"
 			property="profile.dir"
-			value="profiles/${profile}"/>
+			value="profiles/${profile}">
+			<and>
+				<not><isset property="profile.dir"/></not>
+				<available file="profiles/${profile}" type="dir"/>
+			</and>
+		</condition>
 		<fail
 			message="Build profile '${profile} not found neither in `profiles`, nor in `local`"
 			unless="profile.dir"/>

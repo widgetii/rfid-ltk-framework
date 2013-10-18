@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: OSGi Logger via Log4j
+Bundle-SymbolicName: ru.aplix.ltk.osgi.log4j
+Bundle-Version: 1.0.0
+Bundle-Activator: ru.aplix.ltk.osgi.log4j.Log4jLogger
+Bundle-Vendor: Aplix LLC
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.apache.log4j;version="1.2.15",
+ org.osgi.framework;version="1.3.0",
+ org.osgi.service.log;version="1.3.0",
+ org.osgi.util.tracker;version="1.5.1"

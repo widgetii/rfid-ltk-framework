@@ -92,6 +92,21 @@
       rev="3.2.3.RELEASE"
       transitive="false"/>
     <dependency
+      org="org.springframework.security"
+      name="org.springframework.security.core"
+      rev="3.1.4.RELEASE"
+      transitive="false"/>
+    <dependency
+      org="org.springframework.security"
+      name="org.springframework.security.config"
+      rev="3.1.4.RELEASE"
+      transitive="false"/>
+    <dependency
+      org="org.springframework.security"
+      name="org.springframework.security.web"
+      rev="3.1.4.RELEASE"
+      transitive="false"/>
+    <dependency
       org="org.aopalliance"
       name="com.springsource.org.aopalliance"
       rev="1.0.0"

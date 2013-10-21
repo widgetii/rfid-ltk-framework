@@ -16,6 +16,9 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/java
 PIDFILE=/var/run/rfcollector.pid
 RFCOLLECTOR_DIR=/opt/rfcollector
+JAVA_OPTS="$JAVA_OPTS \
+	-Dlog4j.configuration=file:configuration/log4j.xml \
+	-Dlogback.configurationFile=configuration/logback.xml"
 
 cd "$RFCOLLECTOR_DIR/plugins"
 LAUNCHER_JAR=$(find -name 'org.eclipse.equinox.launcher_*.jar')

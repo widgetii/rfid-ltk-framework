@@ -55,4 +55,50 @@
 		</jar>
 	</target>
 	
+	<target name="_web_config" extensionOf="_config">
+		<property
+			name="web.config.root"
+			value="${par.config.dir}/web"/>
+		<property
+			name="web.config.dir"
+			value="${web.config.root}/WEB-INF"/>
+		<mkdir taskname="${ant.project.name}" dir="${web.config.dir}"/>
+		<copy
+			taskname="${ant.project.name}"
+			todir="${web.config.dir}"
+			file="profiles/default/users.properties"
+			overwrite="false"/>
+		<copy
+			taskname="${ant.project.name}"
+			todir="${web.config.dir}"
+			file="${profile.dir}/users.properties"
+			overwrite="true"
+			failonerror="false"
+			quiet="true"/>
+		<copy
+			taskname="${ant.project.name}"
+			todir="${web.config.dir}"
+			file="profiles/default/users.properties"
+			overwrite="false"/>
+		<jar
+			taskname="${ant.project.name}"
+			destfile="${par.config.dir}/ru.aplix.ltk.store.web.config_${app.version}.jar">
+			<manifest>
+				<attribute name="Bundle-ManifestVersion" value="2"/>
+				<attribute
+					name="Bundle-Name"
+					value="RFID Store Web Application Config"/>
+				<attribute
+					name="Bundle-SymbolicName"
+					value="ru.aplix.ltk.store.web.config"/>
+				<attribute name="Bundle-Version" value="${app.version}"/>
+				<attribute name="Bundle-Vendor" value="Aplix LLC"/>
+				<attribute
+					name="Fragment-Host"
+					value="ru.aplix.ltk.store.web"/>
+			</manifest>
+			<fileset dir="${web.config.root}"/>
+		</jar>
+	</target>
+
 </project>

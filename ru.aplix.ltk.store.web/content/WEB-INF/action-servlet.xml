@@ -3,6 +3,7 @@
 <beans
   xmlns="http://www.springframework.org/schema/beans"
   xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:security="http://www.springframework.org/schema/security"
   xmlns:util="http://www.springframework.org/schema/util"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
@@ -10,6 +11,8 @@
     http://www.springframework.org/schema/beans/spring-beans.xsd
     http://www.springframework.org/schema/context
     http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/security
+    http://www.springframework.org/schema/security/spring-security.xsd
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util.xsd">
 
@@ -26,5 +29,17 @@
       </util:list>
     </property>
   </bean>
+
+  <security:http realm="Хранилище тегов RFID">
+    <security:http-basic/>
+    <security:intercept-url pattern="/**/*.json" access="ROLE_USER"/>
+  </security:http>
+
+  <security:authentication-manager>
+    <security:authentication-provider>
+      <security:password-encoder hash="sha-256"/>
+      <security:user-service properties="WEB-INF/users.properties"/>
+    </security:authentication-provider>
+  </security:authentication-manager>
 
 </beans>

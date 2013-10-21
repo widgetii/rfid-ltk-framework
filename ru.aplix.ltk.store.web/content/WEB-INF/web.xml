@@ -12,17 +12,39 @@
 
   <context-param>
     <param-name>contextClass</param-name>
-    <param-value>org.eclipse.virgo.web.dm.ServerOsgiBundleXmlWebApplicationContext</param-value>
+    <param-value>
+      org.eclipse.virgo.web.dm.ServerOsgiBundleXmlWebApplicationContext
+    </param-value>
   </context-param>
 
   <context-param>
     <param-name>contextConfigLocation</param-name>
     <param-value>/WEB-INF/*-context.xml</param-value>
   </context-param>
- 
+
   <listener>
-    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    <listener-class>
+      org.springframework.web.context.ContextLoaderListener
+    </listener-class>
   </listener>
+
+  <filter>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <filter-class>
+      org.springframework.web.filter.DelegatingFilterProxy
+    </filter-class>
+    <init-param>
+      <param-name>contextAttribute</param-name>
+      <param-value>
+        org.springframework.web.servlet.FrameworkServlet.CONTEXT.action
+      </param-value>
+    </init-param>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
   <servlet>
     <servlet-name>action</servlet-name>

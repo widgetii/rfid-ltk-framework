@@ -30,7 +30,7 @@
     </property>
   </bean>
 
-  <security:http realm="Хранилище тегов RFID">
+  <security:http realm="RFID Store">
     <security:http-basic/>
     <security:intercept-url pattern="/**/*.json" access="ROLE_USER"/>
   </security:http>

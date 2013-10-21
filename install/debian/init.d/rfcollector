@@ -16,9 +16,7 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/java
 PIDFILE=/var/run/rfcollector.pid
 RFCOLLECTOR_DIR=/opt/rfcollector
-JAVA_OPTS="$JAVA_OPTS \
-	-Dlog4j.configuration=file:configuration/log4j.xml \
-	-Dlogback.configurationFile=configuration/logback.xml"
+JAVA_OPTS=
 
 cd "$RFCOLLECTOR_DIR/plugins"
 LAUNCHER_JAR=$(find -name 'org.eclipse.equinox.launcher_*.jar')
@@ -29,7 +27,10 @@ if [ -r /etc/default/rfcollector ]; then
 	. /etc/default/rfcollector
 fi
 
-JAVA_OPTS="$JAVA_OPTS -jar "plugins/$LAUNCHER_JAR" $COLLECTOR_OPTS"
+JAVA_OPTS="$JAVA_OPTS \
+	-Dlog4j.configuration=file:configuration/log4j.xml \
+	-Dlogback.configurationFile=configuration/logback.xml \
+	-jar plugins/$LAUNCHER_JAR $COLLECTOR_OPTS"
 
 
 LOCKFILE=/var/lock/rfcollector

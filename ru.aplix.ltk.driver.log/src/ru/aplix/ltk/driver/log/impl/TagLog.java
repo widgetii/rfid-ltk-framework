@@ -82,6 +82,7 @@ class TagLog extends CyclicLog {
 			final RfTagAppearanceRecord record =
 					new RfTagAppearanceRecord(++this.lastId, message);
 
+			record().clear();
 			record.write(record());
 			write();
 			storeId(record);

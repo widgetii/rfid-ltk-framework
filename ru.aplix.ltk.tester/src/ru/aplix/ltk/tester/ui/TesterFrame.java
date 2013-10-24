@@ -7,15 +7,12 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 
 
 public class TesterFrame extends JFrame {
 
-	private static final long serialVersionUID = 4960622669104423471L;
-
+	private static final long serialVersionUID = -6331362881299046299L;
 	private final BundleContext bundleContext;
 	private final TesterContent content;
 
@@ -28,7 +25,7 @@ public class TesterFrame extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				stopApplication();
+				System.exit(0);
 			}
 		});
 		setContentPane(this.content);
@@ -57,20 +54,6 @@ public class TesterFrame extends JFrame {
 		getContent().stop();
 		if (isVisible()) {
 			dispose();
-		}
-	}
-
-	private void stopApplication() {
-
-		final Bundle systemBundle = this.bundleContext.getBundle(0);
-
-		if (systemBundle != null) {
-			try {
-				systemBundle.stop();
-			} catch (BundleException e) {
-				e.printStackTrace();
-				System.exit(1);
-			}
 		}
 	}
 

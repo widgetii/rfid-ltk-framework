@@ -56,8 +56,8 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 		return getSettings().getConnectionTab().getContent();
 	}
 
-	public final LogTab getLogTab() {
-		return getSettings().getLogTab();
+	public final LogPanel getLog() {
+		return getContent().getProgressTab().getLog();
 	}
 
 	public final Action getStartAction() {
@@ -88,7 +88,7 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 	}
 
 	private void startRead() {
-		getContent().getProgressTab().clear();
+		getContent().getProgressTab().getTags().clear();
 		this.collectorHandle = null;
 		this.running = null;
 		try {
@@ -106,7 +106,7 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 					connection.getCollector().subscribe(new StatusConsumer());
 			this.running = selected;
 		} catch (Throwable e) {
-			getLogTab().log(e);
+			getLog().log(e);
 		} finally {
 			updateButton();
 		}
@@ -122,7 +122,7 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 	private void readStopped() {
 		this.collectorHandle = null;
 		this.running = null;
-		getLogTab().log("Соединение закрыто");
+		getLog().log("Соединение закрыто");
 		updateButton();
 	}
 
@@ -140,35 +140,35 @@ class ConnectionControls extends JPanel implements RfProviderItemListener {
 
 	private void statusUpdated(RfStatusMessage status) {
 		if (!status.getRfStatus().isError()) {
-			getLogTab().append("Соединено с " + status.getRfReaderId());
+			getLog().append("Соединено с " + status.getRfReaderId());
 			return;
 		}
 
 		final Throwable cause = status.getCause();
 
 		if (cause != null) {
-			getLogTab().append(cause);
+			getLog().append(cause);
 			return;
 		}
 
 		final String errorMessage = status.getErrorMessage();
 
 		if (errorMessage == null) {
-			getLogTab().append("ОШИБКА");
+			getLog().append("ОШИБКА");
 			return;
 		}
 
-		getLogTab().append("ОШИБКА: " + errorMessage);
+		getLog().append("ОШИБКА: " + errorMessage);
 	}
 
 	private void tagAppearanceChanged(RfTagAppearanceMessage message) {
 
-		final ProgressTab progressTab = getContent().getProgressTab();
+		final TagsPanel tags = getContent().getProgressTab().getTags();
 
 		if (message.getAppearance().isPresent()) {
-			progressTab.addTag(message.getRfTag());
+			tags.addTag(message.getRfTag());
 		} else {
-			progressTab.removeTag(message.getRfTag());
+			tags.removeTag(message.getRfTag());
 		}
 	}
 

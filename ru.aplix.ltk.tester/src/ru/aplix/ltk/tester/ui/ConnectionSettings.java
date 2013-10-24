@@ -37,10 +37,6 @@ class ConnectionSettings extends JPanel implements RfProviderItemListener {
 		return this.connectionTab;
 	}
 
-	public final LogTab getLogTab() {
-		return getConnectionTab().getContent().getLogTab();
-	}
-
 	public final ConnectionControls getConnectionControls() {
 		return this.connectionControls;
 	}

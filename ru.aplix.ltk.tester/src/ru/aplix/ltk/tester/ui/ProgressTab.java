@@ -1,77 +1,59 @@
 package ru.aplix.ltk.tester.ui;
 
-import static javax.swing.BorderFactory.createLineBorder;
+import static javax.swing.JSplitPane.VERTICAL_SPLIT;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.util.HashMap;
+import java.awt.event.ActionEvent;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import ru.aplix.ltk.core.source.RfTag;
+import javax.swing.*;
 
 
 class ProgressTab extends JPanel {
 
 	private static final long serialVersionUID = -5756411271969549347L;
 
-	private final HashMap<RfTag, JLabel> tags = new HashMap<>();
 	private final TesterContent content;
+	private final TagsPanel tags;
+	private final LogPanel log;
+	private final JButton clearButton;
 
 	ProgressTab(TesterContent content) {
-		super(new FlowLayout(FlowLayout.LEFT));
+		super(new BorderLayout());
 		this.content = content;
+		this.tags = new TagsPanel(this);
+		this.log = new LogPanel();
+		this.clearButton = new JButton(new AbstractAction("Очистить лог") {
+			private static final long serialVersionUID = 6716153141110892161L;
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				getLog().clear();
+			}
+		});
+
+		final JSplitPane statusPane = new JSplitPane(VERTICAL_SPLIT);
+
+		statusPane.setLeftComponent(this.tags);
+		statusPane.setRightComponent(this.log);
+
+		add(statusPane, BorderLayout.CENTER);
+
+		final JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+		toolbar.add(this.clearButton);
+		add(toolbar, BorderLayout.SOUTH);
 	}
 
 	public final TesterContent getContent() {
 		return this.content;
 	}
 
-	public void clear() {
-		for (JLabel label : this.tags.values()) {
-			remove(label);
-		}
-		this.tags.clear();
+	public final TagsPanel getTags() {
+		return this.tags;
 	}
 
-	public void addTag(final RfTag tag) {
-
-		final JLabel existingLabel = this.tags.get(tag);
-		final JLabel label;
-
-		if (existingLabel != null) {
-			// Move to the end
-			remove(existingLabel);
-			label = existingLabel;
-			getContent().getLogTab().append("Тег появился вновь: " + tag);
-		} else {
-			label = new JLabel(tag.toString());
-			label.setBorder(
-					createLineBorder(getForeground().brighter(), 1, true));
-			getContent().getLogTab().append("Тег появился: " + tag);
-		}
-
-		this.tags.put(tag, label);
-		add(label);
-
-		validate();
-		repaint();
-	}
-
-	public void removeTag(final RfTag tag) {
-
-		final JLabel label = this.tags.remove(tag);
-
-		if (label == null) {
-			getContent().getLogTab().append("Незамеченный тег исчез: " + tag);
-			return;
-		}
-
-		remove(label);
-		getContent().getLogTab().append("Тег исчез: " + tag);
-
-		validate();
-		repaint();
+	public final LogPanel getLog() {
+		return this.log;
 	}
 
 }

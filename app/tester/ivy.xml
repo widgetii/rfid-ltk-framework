@@ -16,6 +16,11 @@
       rev="latest.integration"/>
     <dependency
       org="bundle"
+      name="ru.aplix.ltk.osgi.shutdown"
+      rev="latest.integration"
+      conf="runtime->@"/>
+    <dependency
+      org="bundle"
       name="ru.aplix.ltk.driver.dummy"
       rev="latest.integration"/>
     <dependency

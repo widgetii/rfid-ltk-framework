@@ -110,7 +110,7 @@ final class LogConsumer
 			try {
 				updateTagAppearance(new RfTagAppearanceRecord(record));
 			} catch (Throwable e) {
-				LogConsumer.this.tracker.error("Failed to send tag", e);
+				this.tracker.error("Failed to send tag", e);
 			}
 		}
 	}

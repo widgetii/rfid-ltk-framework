@@ -1,12 +1,13 @@
 package ru.aplix.ltk.driver.ctg.impl;
 
+import static java.lang.System.currentTimeMillis;
+
 import org.llrp.ltk.generated.interfaces.EPCParameter;
 import org.llrp.ltk.generated.parameters.EPCData;
 import org.llrp.ltk.generated.parameters.EPC_96;
 import org.llrp.ltk.generated.parameters.TagReportData;
 import org.llrp.ltk.types.BitArray_HEX;
 import org.llrp.ltk.types.LLRPBitList;
-import org.llrp.ltk.types.UnsignedLong_DATETIME;
 
 import ru.aplix.ltk.core.source.RfDataMessage;
 import ru.aplix.ltk.core.source.RfTag;
@@ -19,11 +20,7 @@ public class LLRPDataMessage implements RfDataMessage {
 	private final int antennaId;
 
 	public LLRPDataMessage(CtgReaderThread reader, TagReportData tag) {
-
-		final UnsignedLong_DATETIME lastSeenTimestamp =
-				tag.getLastSeenTimestampUTC().getMicroseconds();
-
-		this.timestamp = lastSeenTimestamp.toLong() / 1000L;
+		this.timestamp = currentTimeMillis();
 		this.antennaId = reader.antennaID(tag).getAntennaID().intValue();
 		this.tag = new RfTag(tagData(tag));
 	}

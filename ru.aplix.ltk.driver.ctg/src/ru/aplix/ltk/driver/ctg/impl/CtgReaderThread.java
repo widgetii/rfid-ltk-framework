@@ -375,7 +375,7 @@ final class CtgReaderThread
 		reportContent.setEnableChannelIndex(new Bit(0));
 		reportContent.setEnableFirstSeenTimestamp(new Bit(0));
 		reportContent.setEnableInventoryParameterSpecID(new Bit(0));
-		reportContent.setEnableLastSeenTimestamp(new Bit(1));
+		reportContent.setEnableLastSeenTimestamp(new Bit(0));
 		reportContent.setEnablePeakRSSI(new Bit(0));
 		reportContent.setEnableROSpecID(new Bit(0));
 		reportContent.setEnableSpecIndex(new Bit(0));

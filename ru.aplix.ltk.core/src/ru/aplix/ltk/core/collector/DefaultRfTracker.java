@@ -58,7 +58,7 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 	private long invalidationTimeout = RF_INVALIDATION_TIMEOUT.getDefault();
 	private long transactionStart;
 	private long lastTimestamp;
-	private long localTimeDiff;
+	private volatile long localTimeDiff;
 	private int transactionId;
 	private RfTracking tracking;
 
@@ -120,8 +120,8 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 	public void rfData(RfDataMessage dataMessage) {
 
 		final long timestamp = dataMessage.getTimestamp();
-		final Long lastAppearance = new Long(timestamp);
 		final RfTag tag = dataMessage.getRfTag();
+		final long localTimeDiff = currentTimeMillis() - timestamp;
 		final boolean transactionEnd = dataMessage.isRfTransactionEnd();
 		HashSet<RfTag> obsoleteTags = null;
 		boolean tagAppeared = false;
@@ -129,7 +129,7 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 		synchronized (this) {
 			if (timestamp > this.lastTimestamp) {
 				this.lastTimestamp = timestamp;
-				this.localTimeDiff = currentTimeMillis() - timestamp;
+				this.localTimeDiff = localTimeDiff;
 			}
 
 			final boolean transactionChanged =
@@ -143,7 +143,7 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 				if (obsoleteTags != null) {
 					obsoleteTags.remove(tag);
 				}
-				tagAppeared = cacheTag(tag, lastAppearance);
+				tagAppeared = cacheTag(tag, timestamp);
 			}
 			if (transactionEnd) {
 
@@ -209,9 +209,19 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 		return timestamp - this.transactionStart >= getTransactionTimeout();
 	}
 
-	private boolean cacheTag(RfTag tag, Long lastAppearance) {
-		// Tag is new?
-		return this.tags.put(tag, lastAppearance) == null;
+	private boolean cacheTag(RfTag tag, long timestamp) {
+
+		final Long last = this.tags.put(tag, timestamp);
+
+		if (last == null) {
+			return true;// New tag.
+		}
+		if (last.longValue() > timestamp) {
+			// Event in the past.
+			this.tags.put(tag, last);
+		}
+
+		return false;
 	}
 
 	private HashSet<RfTag> endTransaction(long timestamp) {

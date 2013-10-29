@@ -83,7 +83,7 @@ public final class Parameters implements Parameterized {
 	}
 
 	public final boolean have(String name) {
-		return this.store.getParam(name) != null;
+		return store().getParam(name) != null;
 	}
 
 	public final <T> T[] valuesOf(ParameterType<T> type, String name) {
@@ -456,10 +456,10 @@ public final class Parameters implements Parameterized {
 
 		boolean notFirst = false;
 
-		for (Map.Entry<String, String[]> e : this.store) {
+		for (String name : this.store) {
 
-			final String name = URLEncoder.encode(e.getKey(), encoding);
-			final String[] values = e.getValue();
+			final String encodedName = URLEncoder.encode(name, encoding);
+			final String[] values = valuesOf(name);
 			final int numVals = values.length;
 
 			if (numVals == 0) {
@@ -468,7 +468,7 @@ public final class Parameters implements Parameterized {
 				} else {
 					notFirst = true;
 				}
-				out.append(name);
+				out.append(encodedName);
 				continue;
 			}
 
@@ -484,7 +484,7 @@ public final class Parameters implements Parameterized {
 				} else {
 					notFirst = true;
 				}
-				out.append(name).append('=');
+				out.append(encodedName).append('=');
 				out.append(URLEncoder.encode(value, encoding));
 			}
 		}
@@ -492,8 +492,8 @@ public final class Parameters implements Parameterized {
 
 	@Override
 	public final void read(Parameters params) {
-		for (Map.Entry<String, String[]> e : params.store()) {
-			set(e.getKey(), e.getValue());
+		for (String name : params.store()) {
+			set(name, valuesOf(name));
 		}
 	}
 

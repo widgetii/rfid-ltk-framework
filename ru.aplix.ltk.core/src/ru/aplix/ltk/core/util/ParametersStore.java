@@ -1,7 +1,5 @@
 package ru.aplix.ltk.core.util;
 
-import java.util.Map;
-
 
 /**
  * Parameters store interface.
@@ -12,10 +10,11 @@ import java.util.Map;
  * <p>If a store implementation is read-only, then parameters can not be
  * changed.</p>
  *
- * <p>If a store implementation does not implement an iteration, then parameters
- * can not be listed or serialized, e.g. URL-encoded.</p>
+ * <p>A store implements {@code Iterable} interface to iterate over store
+ * parameter names. If the store implementation does not implement an iteration,
+ * then parameters can not be listed or serialized, e.g. URL-encoded.</p>
  */
-public interface ParametersStore extends Iterable<Map.Entry<String, String[]>> {
+public interface ParametersStore extends Iterable<String> {
 
 	/**
 	 * Returns parameter values.

@@ -4,7 +4,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 
 final class ParametersMap implements ParametersStore {
@@ -17,8 +16,8 @@ final class ParametersMap implements ParametersStore {
 	}
 
 	@Override
-	public Iterator<Entry<String, String[]>> iterator() {
-		return this.map.entrySet().iterator();
+	public Iterator<String> iterator() {
+		return this.map.keySet().iterator();
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package ru.aplix.ltk.core.util;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 
 class NestedParametersStore implements ParametersStore {
@@ -23,7 +23,7 @@ class NestedParametersStore implements ParametersStore {
 	}
 
 	@Override
-	public Iterator<Entry<String, String[]>> iterator() {
+	public Iterator<String> iterator() {
 		return new PrefixedIt(getPrefix(), getParent().iterator());
 	}
 
@@ -55,13 +55,13 @@ class NestedParametersStore implements ParametersStore {
 	}
 
 	private static final class PrefixedIt
-			implements Iterator<Map.Entry<String, String[]>> {
+			implements Iterator<String> {
 
 		private final String prefix;
-		private final Iterator<Map.Entry<String, String[]>> it;
-		private Map.Entry<String, String[]> next;
+		private final Iterator<String> it;
+		private String next;
 
-		PrefixedIt(String prefix, Iterator<Entry<String, String[]>> it) {
+		PrefixedIt(String prefix, Iterator<String> it) {
 			this.prefix = prefix;
 			this.it = it;
 		}
@@ -72,16 +72,16 @@ class NestedParametersStore implements ParametersStore {
 		}
 
 		@Override
-		public Entry<String, String[]> next() {
+		public String next() {
 
-			final Entry<String, String[]> next = this.next;
+			final String next = this.next;
 
 			if (next != null) {
 				this.next = null;
 				return next;
 			}
 
-			final Entry<String, String[]> found = findNext();
+			final String found = findNext();
 
 			if (found == null) {
 				throw new NoSuchElementException();
@@ -99,12 +99,12 @@ class NestedParametersStore implements ParametersStore {
 			throw new IllegalStateException("Nothing to remove");
 		}
 
-		private Map.Entry<String, String[]> findNext() {
+		private String findNext() {
 			while (this.it.hasNext()) {
 
-				final Entry<String, String[]> next = this.it.next();
+				final String next = this.it.next();
 
-				if (next.getKey().startsWith(this.prefix)) {
+				if (next.startsWith(this.prefix)) {
 					return this.next = next;
 				}
 			}

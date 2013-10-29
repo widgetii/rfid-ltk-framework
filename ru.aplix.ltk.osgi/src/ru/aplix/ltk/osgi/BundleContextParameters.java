@@ -3,7 +3,6 @@ package ru.aplix.ltk.osgi;
 import static java.util.Collections.emptyIterator;
 
 import java.util.Iterator;
-import java.util.Map.Entry;
 
 import org.osgi.framework.BundleContext;
 
@@ -19,7 +18,7 @@ final class BundleContextParameters implements ParametersStore {
 	}
 
 	@Override
-	public Iterator<Entry<String, String[]>> iterator() {
+	public Iterator<String> iterator() {
 		return emptyIterator();
 	}
 

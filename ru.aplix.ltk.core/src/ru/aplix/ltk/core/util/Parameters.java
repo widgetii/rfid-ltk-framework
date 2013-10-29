@@ -476,7 +476,7 @@ public final class Parameters implements Parameterized {
 		for (String name : this.store) {
 
 			final String encodedName = URLEncoder.encode(name, encoding);
-			final String[] values = valuesOf(name);
+			final String[] values = store().getParam(name);
 			final int numVals = values.length;
 
 			if (numVals == 0) {
@@ -509,8 +509,11 @@ public final class Parameters implements Parameterized {
 
 	@Override
 	public final void read(Parameters params) {
-		for (String name : params.store()) {
-			set(name, valuesOf(name));
+
+		final ParametersStore store = params.store();
+
+		for (String name : store) {
+			set(name, store.getParam(name));
 		}
 	}
 

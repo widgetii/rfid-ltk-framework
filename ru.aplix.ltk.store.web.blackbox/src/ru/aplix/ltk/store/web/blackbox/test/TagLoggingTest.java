@@ -23,7 +23,8 @@ import ru.aplix.ltk.store.web.blackbox.rule.*;
 public class TagLoggingTest {
 
 	@Rule
-	public TestReceiver receiver = new TestReceiver("blackbox-log", true);
+	public TestReceiver receiver =
+			new TestReceiver("blackbox@blackbox-log", true);
 
 	@Rule
 	public HttpConnection connection = new HttpConnection();

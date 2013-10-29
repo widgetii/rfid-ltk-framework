@@ -23,7 +23,7 @@ import ru.aplix.ltk.store.web.blackbox.rule.TestReceiver;
 public class StatusTest {
 
 	@Rule
-	public TestReceiver receiver = new TestReceiver("blackbox", true);
+	public TestReceiver receiver = new TestReceiver("blackbox@blackbox", true);
 
 	@Rule
 	public HttpConnection connection = new HttpConnection();

@@ -8,6 +8,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -40,7 +41,7 @@ public final class Parameters implements Parameterized {
 	 * Constructs empty parameters stored in {@code HashMap}.
 	 */
 	public Parameters() {
-		this(new HashMap<String, String[]>());
+		this.store = new ParametersMap(new HashMap<String, String[]>());
 	}
 
 	/**
@@ -50,16 +51,32 @@ public final class Parameters implements Parameterized {
 	 * @param capacity initial {@code HashMap} capacity.
 	 */
 	public Parameters(int capacity) {
-		this(new HashMap<String, String[]>(capacity));
+		this.store = new ParametersMap(new HashMap<String, String[]>(capacity));
 	}
 
 	/**
-	 * Construct parameters store in the given map.
+	 * Construct parameters stored in the given map.
 	 *
 	 * @param map map to store parameters in.
 	 */
 	public Parameters(Map<String, String[]> map) {
+		requireNonNull(map, "Parameters map not speicifed");
 		this.store = new ParametersMap(map);
+	}
+
+	/**
+	 * Construct parameters stored in the given properties.
+	 *
+	 * <p>Multiple property values are divided by commas. Commas are escaped
+	 * with backslashes.</p>
+	 *
+	 * @param properties properties to store parameters in.
+	 */
+	public Parameters(Properties properties) {
+		requireNonNull(
+				properties,
+				"A properties to store parameters in not specified");
+		this.store = new PropertiesParameters(properties);
 	}
 
 	/**

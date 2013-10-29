@@ -91,6 +91,7 @@ final class PropertiesParameters implements ParametersStore {
 		final LinkedList<String> values = new LinkedList<>();
 		final StringBuilder value = new StringBuilder(len);
 		boolean escape = false;
+		boolean lastIsComma = false;
 
 		for (int i = 0; i < len; ++i) {
 
@@ -99,18 +100,27 @@ final class PropertiesParameters implements ParametersStore {
 			if (escape) {
 				escape = false;
 				value.append(c);
+				lastIsComma = false;
 				continue;
 			}
 			if (c == '\\') {
 				escape = true;
+				lastIsComma = false;
 				continue;
 			}
 			if (c == ',') {
 				values.add(value.toString());
 				value.setLength(0);
+				lastIsComma = true;
 				continue;
 			}
+			lastIsComma = false;
 			value.append(c);
+		}
+		if (value.length() > 0) {
+			values.add(value.toString());
+		} else if (lastIsComma) {
+			values.add("");
 		}
 
 		return values.toArray(new String[values.size()]);

@@ -1,9 +1,10 @@
 package ru.aplix.ltk.collector.http.server;
 
+import static ru.aplix.ltk.collector.http.server.ClrProfileConfig.PROFILES_FILTER;
 import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_CLASS;
-import static ru.aplix.ltk.core.util.ParameterType.BOOLEAN_PARAMETER_TYPE;
 import static ru.aplix.ltk.osgi.OSGiUtils.bundleParameters;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.TreeMap;
@@ -18,7 +19,6 @@ import org.osgi.util.tracker.ServiceTracker;
 import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
-import ru.aplix.ltk.core.util.Parameter;
 import ru.aplix.ltk.core.util.Parameters;
 import ru.aplix.ltk.osgi.Logger;
 
@@ -26,12 +26,11 @@ import ru.aplix.ltk.osgi.Logger;
 public final class AllClrProfiles {
 
 	private static final String CONFIG_PREFIX = "ru.aplix.ltk.rf";
-	private static final Parameter<Boolean> AUTOSTART =
-			BOOLEAN_PARAMETER_TYPE.parameter("autostart").byDefault(false);
 
 	private final CollectorHttpService collectorService;
 	private final ConcurrentHashMap<ClrProfileId, ClrProfile<?>> profiles =
 			new ConcurrentHashMap<>();
+	private File configDir;
 	private RfProviders rfProviders;
 	private HttpClient httpClient;
 
@@ -48,6 +47,7 @@ public final class AllClrProfiles {
 	}
 
 	public void init() {
+		this.configDir = configDir();
 		this.rfProviders = new RfProviders();
 		this.rfProviders.open();
 	}
@@ -115,30 +115,53 @@ public final class AllClrProfiles {
 		}
 	}
 
-	private void addProvider(RfProvider<?> provider) {
+	private File configDir() {
 
-		final Parameters params = providerParameters(provider);
-		final String[] configs = params.valuesOf("");
+		final String configDirPath =
+				getCollectorService()
+				.getContext()
+				.getProperty("ru.aplix.ltk.rf.configDir");
+		final File configDir;
 
-		if (configs == null) {
-			addProfile(provider, new ClrProfileId(provider.getId()), params);
+		if (configDirPath != null) {
+			configDir = new File(configDirPath);
 		} else {
-			for (String config : configs) {
-				addProfile(
-						provider,
-						new ClrProfileId(provider.getId(), config),
-						params.sub(config));
-			}
+			configDir =
+					getCollectorService().getContext().getDataFile("profiles");
+		}
+		if (!configDir.isDirectory() && !this.configDir.mkdir()) {
+			throw new IllegalStateException(
+					"Can not create collector configuration directory: "
+					+ configDir);
+		}
+
+		return configDir;
+	}
+
+	private void addProvider(RfProvider<?> provider) {
+		log().debug("Add provider: " + provider.getId());
+
+		final String providerId = provider.getId();
+		final File configDir = new File(this.configDir, providerId);
+
+		if (!configDir.isDirectory()) {
+			log().debug("No profiles found for provider " + provider.getId());
+			// No profiles for this provider.
+			return;
+		}
+		for (File file : configDir.listFiles(PROFILES_FILTER)) {
+			loadProfile(provider, file);
 		}
 	}
 
-	private <S extends RfSettings> void addProfile(
+	private <S extends RfSettings> void loadProfile(
 			RfProvider<S> provider,
-			ClrProfileId profileId,
-			Parameters params) {
+			File file) {
 
-		final ClrProfile<S> profile =
-				new ClrProfile<>(this, provider, profileId, params);
+		final ClrProfileConfig<S> config =
+				new ClrProfileConfig<>(provider, file);
+		final ClrProfileId profileId = config.getProfileId();
+		final ClrProfile<S> profile = new ClrProfile<>(this, config);
 		final ClrProfile<?> existing = this.profiles.put(profileId, profile);
 
 		if (existing != null) {
@@ -147,7 +170,15 @@ public final class AllClrProfiles {
 			return;
 		}
 
-		if (params.valueOf(AUTOSTART)) {
+		log().debug("Load profile `" + profileId + "` config from " + file);
+		try {
+			config.load();
+		} catch (Throwable e) {
+			log().error("Failed to load profile `" + profileId + "`", e);
+			this.profiles.remove(profileId);
+		}
+
+		if (config.isAutostart()) {
 			profile.autostart();
 		}
 	}

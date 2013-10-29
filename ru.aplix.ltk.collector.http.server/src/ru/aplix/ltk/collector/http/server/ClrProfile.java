@@ -19,42 +19,38 @@ import ru.aplix.ltk.osgi.Logger;
 public class ClrProfile<S extends RfSettings> {
 
 	private final AllClrProfiles allProfiles;
-	private final RfProvider<S> provider;
-	private final ClrProfileId profileId;
-	private final Parameters parameters;
+	private final ClrProfileConfig<S> config;
 	private final Map<UUID, ClrClient<S>> clients =
 			synchronizedMap(new HashMap<UUID, ClrClient<S>>(1));
 	private ClrAutostart autostart;
 
-	public ClrProfile(
-			AllClrProfiles allProfiles,
-			RfProvider<S> provider,
-			ClrProfileId profileId,
-			Parameters parameters) {
+	public ClrProfile(AllClrProfiles allProfiles, ClrProfileConfig<S> config) {
 		this.allProfiles = allProfiles;
-		this.provider = provider;
-		this.profileId = profileId;
-		this.parameters = parameters;
+		this.config = config;
 	}
 
 	public final AllClrProfiles allProfiles() {
 		return this.allProfiles;
 	}
 
-	public final Logger log() {
-		return allProfiles().log();
+	public final ClrProfileConfig<S> getConfig() {
+		return this.config;
 	}
 
 	public final RfProvider<S> getProvider() {
-		return this.provider;
+		return getConfig().getProvider();
 	}
 
 	public final ClrProfileId getProfileId() {
-		return this.profileId;
+		return getConfig().getProfileId();
 	}
 
 	public final Parameters getParameters() {
-		return this.parameters;
+		return getConfig().getParameters();
+	}
+
+	public final Logger log() {
+		return allProfiles().log();
 	}
 
 	public void autostart() {
@@ -111,10 +107,10 @@ public class ClrProfile<S extends RfSettings> {
 
 	@Override
 	public String toString() {
-		if (this.profileId == null) {
+		if (this.config == null) {
 			return super.toString();
 		}
-		return this.profileId.toString();
+		return this.config.toString();
 	}
 
 	private ClrClient<S> addClient(

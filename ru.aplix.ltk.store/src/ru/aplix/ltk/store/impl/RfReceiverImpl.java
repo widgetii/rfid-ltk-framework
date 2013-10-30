@@ -103,6 +103,16 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 	}
 
 	@Override
+	public List<RfTagEventData> eventsSince(long timestamp, int limit) {
+		try {
+			return getRfStore().eventsSince(this, timestamp, limit);
+		} catch (RuntimeException | Error e) {
+			getMonitoring().unexpectedError("Error while loading events", e);
+			throw e;
+		}
+	}
+
+	@Override
 	public RfReceiverEditorImpl<S> modify() {
 		return new RfReceiverEditorImpl<>(this);
 	}

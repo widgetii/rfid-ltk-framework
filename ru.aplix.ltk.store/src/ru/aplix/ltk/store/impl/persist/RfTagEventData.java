@@ -11,6 +11,8 @@ import ru.aplix.ltk.core.collector.RfTagAppearance;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.core.source.RfTag;
 import ru.aplix.ltk.store.RfReceiver;
+import ru.aplix.ltk.store.RfTagEvent;
+import ru.aplix.ltk.store.impl.RfStoreImpl;
 
 
 @Entity
@@ -31,12 +33,27 @@ import ru.aplix.ltk.store.RfReceiver;
 				+ " and e.id.eventId > :fromId"
 				+ " ORDER BY e.id.eventId"),
 	@NamedQuery(
+			name = "rfTagEventsSince",
+			query =
+				"SELECT e"
+				+ " FROM RfTagEventData e"
+				+ " WHERE e.id.receiverId = :receiverId"
+				+ " and e.timestamp >= :timestamp"
+				+ " ORDER BY e.id.eventId"),
+	@NamedQuery(
+			name = "allRfTagEventsSince",
+			query =
+				"SELECT e"
+				+ " FROM RfTagEventData e"
+				+ " WHERE e.timestamp >= :timestamp"
+				+ " ORDER BY e.timestamp, e.id.eventId"),
+	@NamedQuery(
 			name = "deleteRfTagEvents",
 			query =
 				"DELETE FROM RfTagEventData e"
 				+ " WHERE e.id.receiverId = :receiverId")
 })
-public class RfTagEventData implements RfTagAppearanceMessage {
+public class RfTagEventData implements RfTagEvent {
 
 	@EmbeddedId
 	private RfTagEventId id;
@@ -53,6 +70,9 @@ public class RfTagEventData implements RfTagAppearanceMessage {
 	@Column(name = "appeared", nullable = false, updatable = false)
 	private boolean appeared;
 
+	@Transient
+	private RfReceiver<?> receiver;
+
 	public RfTagEventData() {
 	}
 
@@ -61,6 +81,7 @@ public class RfTagEventData implements RfTagAppearanceMessage {
 			long eventId,
 			RfTagAppearanceMessage message) {
 		this.id = new RfTagEventId(receiver, eventId);
+		this.receiver = receiver;
 		this.rfTag = message.getRfTag();
 		this.tag = this.rfTag.toHexString();
 		this.timestamp = new Timestamp(message.getTimestamp());
@@ -69,6 +90,11 @@ public class RfTagEventData implements RfTagAppearanceMessage {
 
 	public RfTagEventId getId() {
 		return this.id;
+	}
+
+	@Override
+	public RfReceiver<?> getReceiver() {
+		return this.receiver;
 	}
 
 	@Override
@@ -104,6 +130,10 @@ public class RfTagEventData implements RfTagAppearanceMessage {
 	@Override
 	public RfTagAppearance getAppearance() {
 		return isAppeared() ? RF_TAG_APPEARED : RF_TAG_DISAPPEARED;
+	}
+
+	public void init(RfStoreImpl store) {
+		this.receiver = store.rfReceiverById(this.id.getReceiverId());
 	}
 
 	@Override

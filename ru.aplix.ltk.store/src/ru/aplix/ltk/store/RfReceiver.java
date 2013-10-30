@@ -69,13 +69,27 @@ public interface RfReceiver<S extends RfSettings> {
 	 *
 	 * @param fromEventId first {@link RfTagAppearanceMessage#getEventId() event
 	 * identifier} to load.
-	 * @param limit maximum number of events to load.
+	 * @param limit the maximum number of events to load.
 	 *
-	 * @return tag appearance messages ordered by their identifier, starting
+	 * @return tag appearance messages ordered by their identifiers, starting
 	 * from the given one.
 	 */
 	List<? extends RfTagAppearanceMessage> loadEvents(
 			long fromEventId,
+			int limit);
+
+	/**
+	 * Finds RFID tag appearance events occurred since the given time, and
+	 * stored by this receiver.
+	 *
+	 * @param timestamp UNIX time since which the events occurred.
+	 * @param limit the maximum number of events to load.
+	 *
+	 * @return tag appearance messages ordered by their identifiers, occurred
+	 * since the given time.
+	 */
+	List<? extends RfTagAppearanceMessage> eventsSince(
+			long timestamp,
 			int limit);
 
 	/**

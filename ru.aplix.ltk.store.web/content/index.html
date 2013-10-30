@@ -11,6 +11,7 @@
 <script type="text/javascript" src="js/notifier.js"></script>
 <script type="text/javascript" src="js/app.js"></script>
 <script type="text/javascript" src="receivers/receivers.js"></script>
+<script type="text/javascript" src="tags/tags.js"></script>
 </head>
 <body>
   <div class="navbar navbar-fixed-top" ng-controller="NavCtrl">
@@ -19,6 +20,9 @@
       <ul class="nav">
         <li ng-class="navClass('/receivers')">
           <a href="#!/receivers">Приёмники</a>
+        </li>
+        <li ng-class="navClass('/tags')">
+          <a href="#!/tags">Теги</a>
         </li>
       </ul>
     </div>
@@ -41,13 +45,13 @@
 <h4 ng-show="message.title" ng-bind="message.title"></h4>
 {{message.text}}
 </script>
-  
+
 <script type="text/ng-template" id="/error.msg">
 <button class="close" ng-click="message.close()">&#4030;</button>
 <h4 ng-bind="message.title"></h4>
 {{message.text}}
 </script>
-  
+
 <script type="text/ng-template" id="/done.msg">
 <button class="close" ng-click="message.close()">&#4030;</button>
 <h4 ng-show="message.title" ng-bind="message.title"></h4>

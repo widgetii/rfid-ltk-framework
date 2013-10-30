@@ -14,10 +14,29 @@ import ru.aplix.ltk.store.RfReceiverEditor;
 
 public class RfReceiverBean implements Comparable<RfReceiverBean> {
 
+	private static final RfReceiverBean DELETED_RECEIVER_BEAN =
+			new RfReceiverBean();
+
 	private static final String INACTIVE_STATUS = "inactive";
 	private static final String ACTIVE_STATUS = "active";
 	private static final String READY_STATUS = "ready";
 	private static final String ERROR_STATUS = "error";
+
+	public static RfReceiverBean rfReceiverBean(RfReceiver<?> receiver) {
+		if (receiver == null) {
+			return DELETED_RECEIVER_BEAN;
+		}
+		if (receiver.getRfProvider().getSettingsType()
+				!= HttpRfSettings.class) {
+			return new RfReceiverBean(receiver, false);
+		}
+
+		@SuppressWarnings("unchecked")
+		final RfReceiver<HttpRfSettings> httpReceiver =
+				(RfReceiver<HttpRfSettings>) receiver;
+
+		return new RfReceiverBean(httpReceiver);
+	}
 
 	private int id;
 	private String remoteURL;
@@ -30,11 +49,17 @@ public class RfReceiverBean implements Comparable<RfReceiverBean> {
 	}
 
 	public RfReceiverBean(RfReceiver<HttpRfSettings> receiver) {
+		this(receiver, true);
 
 		final RfReceiverEditor<HttpRfSettings> editor = receiver.modify();
 
-		setId(receiver.getId());
 		setRemoteURL(editor.getRfSettings().getCollectorURL().toString());
+	}
+
+	private RfReceiverBean(
+			RfReceiver<?> receiver,
+			@SuppressWarnings("unused") boolean http) {
+		setId(receiver.getId());
 		update(receiver);
 	}
 
@@ -97,7 +122,7 @@ public class RfReceiverBean implements Comparable<RfReceiverBean> {
 		editor.setActive(isActive());
 	}
 
-	public RfReceiverBean update(RfReceiver<HttpRfSettings> receiver) {
+	public RfReceiverBean update(RfReceiver<?> receiver) {
 		setActive(receiver.isActive());
 		updateStatus(receiver);
 		return this;
@@ -108,7 +133,7 @@ public class RfReceiverBean implements Comparable<RfReceiverBean> {
 		return getId() - o.getId();
 	}
 
-	private void updateStatus(RfReceiver<HttpRfSettings> receiver) {
+	private void updateStatus(RfReceiver<?> receiver) {
 		this.error = null;
 		this.cause = null;
 		if (!isActive()) {

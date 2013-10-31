@@ -1,3 +1,51 @@
 <div class="container-fluid" ng-controller="RfTagsCtrl">
-  <h1>Теги</h1>
+<div class="row-fluid">
+  <div class="span3">
+    <form name="queryForm" ng-submit="search()">
+      <legend>Поиск тегов</legend>
+      <fieldset class="form-search">
+        <div class="input-append">
+          <input
+            type="text"
+            name="tag"
+            class="input-medium search-query"
+            ng-model="query.tag"
+            placeholder="Тег">
+          <button
+            class="btn btn-primary"
+            ng-class="{'btn-disabled': state.inProgress}">Найти</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div class="span9">
+    <table class="table table-hover table-striped" ng-show="tags.events.length">
+    <caption>Теги</caption>
+    <thead>
+      <tr>
+        <th><span class="pull-right">#</span></th>
+        <th ng-hide="query.receiver">Приёмник</th>
+        <th>Время</th>
+        <th>Тег</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="event in tags.events">
+        <td><span
+          class="badge pull-right"
+          ng-class="{'badge-success': event.appeared, 'badge-important': !event.appeared}">
+          {{event.id}}
+        </span></td>
+        <td ng-hide="query.receiver">
+          <span ng-class="{deleted: event.receiver.deleted}">
+            {{receiverName(event.receiver)}}
+          </span>
+        </td>
+        <td>{{event.timestamp|date:'yyyy-MM-dd HH:mm:ss'}}.{{event.timestamp % 1000}}</td>
+        <td>{{event.tag}}</td>
+      </tr>
+    </tbody>
+    </table>
+  </div>
+</div>
 </div>

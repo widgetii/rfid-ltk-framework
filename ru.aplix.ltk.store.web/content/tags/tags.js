@@ -1,57 +1,35 @@
-angular.module(
-		'rfid-tag-store.tags',
-		[
-			"notifier"
-		])
-.factory('$rfTags', function($notifier, $http) {
-	function RfTags() {
-		this.pageSize = 50;
-	}
-
-	RfTags.prototype.receiverTagsSince = function(receiverId, since, success) {
-		this.loadTags(
-				"tags/since.json",
-				{
-					receiver: receiverId,
-					since: since
-				},
-				success);
+angular.module('rfid-tag-store.tags', ["notifier"])
+.controller("RfTagsCtrl", function($scope, $http, $notifier) {
+	$scope.query = {};
+	$scope.state = {
+		inProgress: false
 	};
-
-	RfTags.prototype.listTags = function(receiverId, fromId, success) {
-		this.loadTags(
-				"tags/list.json",
-				{
-					receiver: receiverId,
-					fromId: fromId
-				},
-				success);
+	$scope.tags = {totalCount: 0, events: []};
+	$scope.receiverName = function(receiver) {
+		if (!receiver.remoteURL) return "#" + receiver.id;
+		return receiver.remoteURL + " (#" + receiver.id + ")";
 	};
-
-	RfTags.prototype.allTagsSince = function(since, offset, success) {
-		var params = {since: since};
-		if (offset) params.offset = offset;
-		this.loadTags("tags/since.json", params, success);
-	};
-
-	RfTags.prototype.loadTags = function(url, params, success) {
+	$scope.search = function() {
+		var state = $scope.state;
+		if (state.inProgress) return;
+		var query = $scope.query;
+		if (!query.limit) query.limit = 50;
 		var loading = $notifier.info("Загрузка...");
-		if (!params.limit) params.limit = this.pageSize;
-		$http.get(url, {params: params})
-		.success(function(response) {
+		state.inProgress = true;
+		function done() {
+			state.inProgress = false;
 			loading.close();
-			success(response);
+		}
+		$http.post("tags/find.json", query, {requestType: "json"})
+		.success(function(data, status) {
+			done();
+			$scope.tags = data;
 		})
-		.error(function(response) {
-			loading.close();
+		.error(function(data, status) {
+			done();
 			$notifier.error(
-					"ОШИБКА " + response.status,
-					"Не удалось загрузить теги");
+					"Не удалось найти теги",
+					"ОШИБКА " + status);
 		});
 	};
-
-	return new RfTags();
-})
-.controller("RfTagsCtrl", function($scope, $rfTags) {
-	$scope.$rfTags = $rfTags;
 });

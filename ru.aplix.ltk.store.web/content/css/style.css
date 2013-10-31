@@ -14,3 +14,7 @@ body {
   height: auto;
   z-index: 1;
 }
+
+.deleted {
+  text-decoration: line-through;
+}

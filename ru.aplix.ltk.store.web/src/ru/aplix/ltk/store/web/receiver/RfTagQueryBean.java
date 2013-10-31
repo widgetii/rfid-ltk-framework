@@ -27,7 +27,14 @@ public class RfTagQueryBean {
 	}
 
 	public void setTag(String tag) {
-		this.tag = tag;
+		if (tag == null) {
+			this.tag = null;
+			return;
+		}
+
+		final String trimmed = tag.trim();
+
+		this.tag = trimmed.isEmpty() ? null : trimmed;
 	}
 
 	public long getSince() {

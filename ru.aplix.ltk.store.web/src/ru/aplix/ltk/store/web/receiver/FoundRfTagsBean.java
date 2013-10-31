@@ -1,12 +1,9 @@
 package ru.aplix.ltk.store.web.receiver;
 
-import static ru.aplix.ltk.store.web.receiver.RfReceiverBean.rfReceiverBean;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfTagEvent;
 import ru.aplix.ltk.store.RfTagQuery;
 
@@ -32,7 +29,7 @@ public class FoundRfTagsBean {
 	private static ArrayList<RfTagBean> eventBeans(
 			final List<? extends RfTagEvent> events) {
 
-		final HashMap<Integer, RfReceiverBean> receivers = new HashMap<>();
+		final HashMap<Integer, RfReceiverDesc> receivers = new HashMap<>();
 		final ArrayList<RfTagBean> beans = new ArrayList<>(events.size());
 
 		for (RfTagEvent event : events) {
@@ -44,23 +41,23 @@ public class FoundRfTagsBean {
 		return beans;
 	}
 
-	private static RfReceiverBean eventReceiverBean(
-			HashMap<Integer, RfReceiverBean> receivers,
+	private static RfReceiverDesc eventReceiverBean(
+			HashMap<Integer, RfReceiverDesc> receivers,
 			RfTagEvent event) {
 
-		final RfReceiver<?> receiver = event.getReceiver();
-		final Integer receiverId = receiver.getId();
-		final RfReceiverBean found = receivers.get(receiverId);
+		final Integer receiverId = event.getReceiverId();
+		final RfReceiverDesc found = receivers.get(receiverId);
 
 		if (found != null) {
 			return found;
 		}
 
-		final RfReceiverBean receiverBean = rfReceiverBean(receiver);
+		final RfReceiverDesc receiverDesc =
+				RfReceiverDesc.rfReceiverDesc(receiverId, event.getReceiver());
 
-		receivers.put(receiverId, receiverBean);
+		receivers.put(receiverId, receiverDesc);
 
-		return receiverBean;
+		return receiverDesc;
 	}
 
 }

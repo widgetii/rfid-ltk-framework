@@ -14,10 +14,14 @@ angular.module(
 	$routeProvider
 	.when('/receivers', {templateUrl: 'receivers/receivers.html'})
 	.when('/tags', {templateUrl: 'tags/tags.html'})
+	.when('/tags/:receiver', {templateUrl: 'tags/tags.html'})
 	.otherwise({redirectTo: '/receivers'});
 })
 .controller("NavCtrl", function($scope, $location) {
 	$scope.navClass = function(path) {
-		return $location.path() == path ? "active" : null;
+		if ($location.path().substring(0, path.length) == path) {
+			return "active";
+		}
+		return null;
 	};
 });

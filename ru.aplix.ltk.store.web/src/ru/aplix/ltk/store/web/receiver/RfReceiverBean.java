@@ -12,34 +12,15 @@ import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfReceiverEditor;
 
 
-public class RfReceiverBean implements Comparable<RfReceiverBean> {
-
-	private static final RfReceiverBean DELETED_RECEIVER_BEAN =
-			new RfReceiverBean();
+public class RfReceiverBean
+		extends RfReceiverDesc
+		implements Comparable<RfReceiverBean> {
 
 	private static final String INACTIVE_STATUS = "inactive";
 	private static final String ACTIVE_STATUS = "active";
 	private static final String READY_STATUS = "ready";
 	private static final String ERROR_STATUS = "error";
 
-	public static RfReceiverBean rfReceiverBean(RfReceiver<?> receiver) {
-		if (receiver == null) {
-			return DELETED_RECEIVER_BEAN;
-		}
-		if (receiver.getRfProvider().getSettingsType()
-				!= HttpRfSettings.class) {
-			return new RfReceiverBean(receiver, false);
-		}
-
-		@SuppressWarnings("unchecked")
-		final RfReceiver<HttpRfSettings> httpReceiver =
-				(RfReceiver<HttpRfSettings>) receiver;
-
-		return new RfReceiverBean(httpReceiver);
-	}
-
-	private int id;
-	private String remoteURL;
 	private String status = INACTIVE_STATUS;
 	private String error;
 	private String cause;
@@ -49,34 +30,8 @@ public class RfReceiverBean implements Comparable<RfReceiverBean> {
 	}
 
 	public RfReceiverBean(RfReceiver<HttpRfSettings> receiver) {
-		this(receiver, true);
-
-		final RfReceiverEditor<HttpRfSettings> editor = receiver.modify();
-
-		setRemoteURL(editor.getRfSettings().getCollectorURL().toString());
-	}
-
-	private RfReceiverBean(
-			RfReceiver<?> receiver,
-			@SuppressWarnings("unused") boolean http) {
-		setId(receiver.getId());
+		super(receiver);
 		update(receiver);
-	}
-
-	public int getId() {
-		return this.id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public String getRemoteURL() {
-		return this.remoteURL;
-	}
-
-	public void setRemoteURL(String remoteURL) {
-		this.remoteURL = remoteURL;
 	}
 
 	public boolean isActive() {

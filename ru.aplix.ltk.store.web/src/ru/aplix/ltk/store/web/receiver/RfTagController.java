@@ -15,7 +15,7 @@ public class RfTagController {
 
 	@RequestMapping(
 			value = "/tags/find.json",
-			method = RequestMethod.GET)
+			method = RequestMethod.POST)
 	@ResponseBody
 	public FoundRfTagsBean findTags(
 			@RequestBody RfTagQueryBean queryBean) {

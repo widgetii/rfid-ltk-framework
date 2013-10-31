@@ -55,11 +55,11 @@ final class RfTagQueryImpl extends RfTagQuery {
 		where(cb, qb, event);
 
 		if (getReceiver() != null) {
-			qb.orderBy(cb.asc(event.get("id")));
+			qb.orderBy(cb.asc(event.get("id").get("eventId")));
 		} else {
 			qb.orderBy(
 					cb.asc(event.get("timestamp")),
-					cb.asc(event.get("id")));
+					cb.asc(event.get("id").get("eventId")));
 		}
 
 		final TypedQuery<RfTagEventData> listQuery =
@@ -81,7 +81,8 @@ final class RfTagQueryImpl extends RfTagQuery {
 
 		where(cb, qb, event);
 
-		return em.createQuery(qb.select(cb.count(event.get("id"))));
+		return em.createQuery(
+				qb.select(cb.count(event.get("id").get("eventId"))));
 	}
 
 	private void where(
@@ -106,7 +107,7 @@ final class RfTagQueryImpl extends RfTagQuery {
 		}
 
 		if (getTag() != null) {
-			pred = and(cb, pred, cb.equal(event.get("tag"), zeroPadddedTag()));
+			pred = and(cb, pred, cb.equal(event.get("tag"), getTag()));
 		}
 		if (pred != null) {
 			qb.where(pred);
@@ -121,25 +122,6 @@ final class RfTagQueryImpl extends RfTagQuery {
 			return pred2;
 		}
 		return cb.and(pred1, pred2);
-	}
-
-	private String zeroPadddedTag() {
-
-		final int len = getTag().length();
-		final int zeroesToAdd = 24 - len;
-
-		if (zeroesToAdd <= 0) {
-			return getTag();
-		}
-
-		final StringBuilder t = new StringBuilder(24);
-
-		for (int i = zeroesToAdd; i > 0; --i) {
-			t.append('0');
-		}
-		t.append(getTag());
-
-		return t.toString();
 	}
 
 }

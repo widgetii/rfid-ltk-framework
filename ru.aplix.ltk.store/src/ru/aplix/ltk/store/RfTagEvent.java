@@ -16,7 +16,7 @@ public interface RfTagEvent extends RfTagAppearanceMessage {
 	 *
 	 * @return receiver identifier.
 	 */
-	long getReceiverId();
+	int getReceiverId();
 
 	/**
 	 * RFID receiver that storing this event.

@@ -78,7 +78,7 @@ public class RfTagEventData implements RfTagEvent {
 	}
 
 	@Override
-	public long getReceiverId() {
+	public int getReceiverId() {
 		return getId().getReceiverId();
 	}
 

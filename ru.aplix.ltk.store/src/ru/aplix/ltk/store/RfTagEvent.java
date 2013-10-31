@@ -12,9 +12,17 @@ import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 public interface RfTagEvent extends RfTagAppearanceMessage {
 
 	/**
+	 * An identifier of RFID receiver that stored this event.
+	 *
+	 * @return receiver identifier.
+	 */
+	long getReceiverId();
+
+	/**
 	 * RFID receiver that storing this event.
 	 *
-	 * @return receiver instance.
+	 * @return receiver instance, or <code>null</code> if receiver already
+	 * deleted.
 	 */
 	RfReceiver<?> getReceiver();
 

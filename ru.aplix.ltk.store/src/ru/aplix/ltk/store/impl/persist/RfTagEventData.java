@@ -33,21 +33,6 @@ import ru.aplix.ltk.store.impl.RfStoreImpl;
 				+ " and e.id.eventId > :fromId"
 				+ " ORDER BY e.id.eventId"),
 	@NamedQuery(
-			name = "rfTagEventsSince",
-			query =
-				"SELECT e"
-				+ " FROM RfTagEventData e"
-				+ " WHERE e.id.receiverId = :receiverId"
-				+ " and e.timestamp >= :timestamp"
-				+ " ORDER BY e.id.eventId"),
-	@NamedQuery(
-			name = "allRfTagEventsSince",
-			query =
-				"SELECT e"
-				+ " FROM RfTagEventData e"
-				+ " WHERE e.timestamp >= :timestamp"
-				+ " ORDER BY e.timestamp, e.id.eventId"),
-	@NamedQuery(
 			name = "deleteRfTagEvents",
 			query =
 				"DELETE FROM RfTagEventData e"
@@ -90,6 +75,11 @@ public class RfTagEventData implements RfTagEvent {
 
 	public RfTagEventId getId() {
 		return this.id;
+	}
+
+	@Override
+	public long getReceiverId() {
+		return getId().getReceiverId();
 	}
 
 	@Override

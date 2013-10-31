@@ -10,6 +10,7 @@ import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.store.RfReceiver;
+import ru.aplix.ltk.store.RfTagQuery;
 import ru.aplix.ltk.store.impl.monitor.RfReceiverMtr;
 import ru.aplix.ltk.store.impl.monitor.RfReceiverMtrTarget;
 import ru.aplix.ltk.store.impl.persist.RfReceiverData;
@@ -103,13 +104,8 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 	}
 
 	@Override
-	public List<RfTagEventData> eventsSince(long timestamp, int limit) {
-		try {
-			return getRfStore().eventsSince(this, timestamp, limit);
-		} catch (RuntimeException | Error e) {
-			getMonitoring().unexpectedError("Error while loading events", e);
-			throw e;
-		}
+	public RfTagQuery tagQuery() {
+		return new RfTagQueryImpl(getRfStore(), this);
 	}
 
 	@Override

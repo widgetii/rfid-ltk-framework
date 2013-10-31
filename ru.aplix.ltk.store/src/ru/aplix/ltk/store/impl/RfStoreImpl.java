@@ -4,7 +4,6 @@ import static org.springframework.transaction.support.TransactionSynchronization
 import static ru.aplix.ltk.store.impl.RfReceiverImpl.rfReceiver;
 import static ru.aplix.ltk.store.impl.monitor.RfStoreMtrTarget.RF_STORE_MTR_TARGET;
 
-import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.List;
@@ -13,9 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.*;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -31,6 +28,7 @@ import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.monitor.Monitor;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfStore;
+import ru.aplix.ltk.store.RfTagQuery;
 import ru.aplix.ltk.store.impl.monitor.RfStoreMtr;
 import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 import ru.aplix.ltk.store.impl.persist.RfTagEventData;
@@ -56,6 +54,18 @@ public class RfStoreImpl
 			new ConcurrentHashMap<>();
 	private final AtomicInteger loaded = new AtomicInteger();
 
+	public final ExecutorService getExecutor() {
+		return this.executor;
+	}
+
+	public final Monitor getMonitor() {
+		return this.monitor;
+	}
+
+	public final RfStoreMtr getMonitoring() {
+		return this.monitoring;
+	}
+
 	@Override
 	public Collection<? extends RfReceiverImpl<?>> allRfReceivers() {
 		return this.allReceivers.values();
@@ -73,45 +83,9 @@ public class RfStoreImpl
 		return new RfReceiverEditorImpl<>(this, provider);
 	}
 
-	@Transactional
 	@Override
-	public List<RfTagEventData> allEventsSince(
-			long timestamp,
-			int offset,
-			int limit) {
-		try {
-
-			final Query query =
-					getEntityManager().createNamedQuery("allRfTagEventsSince");
-
-			query.setParameter("timestamp", new Timestamp(timestamp));
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
-
-			@SuppressWarnings("unchecked")
-			final List<RfTagEventData> result = query.getResultList();
-
-			for (RfTagEventData event : result) {
-				event.init(this);
-			}
-
-			return result;
-		} catch (Throwable e) {
-			getMonitoring().unexpectedError("Failed to load RFID events", e);
-			throw e;
-		}
-	}
-
-	public final ExecutorService getExecutor() {
-		return this.executor;
-	}
-
-	public final Monitor getMonitor() {
-		return this.monitor;
-	}
-
-	public final RfStoreMtr getMonitoring() {
-		return this.monitoring;
+	public RfTagQuery tagQuery() {
+		return new RfTagQueryImpl(this, null);
 	}
 
 	@Override
@@ -292,21 +266,13 @@ public class RfStoreImpl
 		return query.getResultList();
 	}
 
-	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
-	List<RfTagEventData> eventsSince(
-			RfReceiverImpl<?> receiver,
-			long timestamp,
-			int limit) {
-
-		final Query query =
-				getEntityManager().createNamedQuery("rfTagEventsSince");
-
-		query.setParameter("receiverId", receiver.getId());
-		query.setParameter("timestamp", new Timestamp(timestamp));
-		query.setMaxResults(limit);
-
-		return query.getResultList();
+	@Transactional
+	List<RfTagEventData> findEvents(
+			RfTagQueryImpl query,
+			TypedQuery<Long> totalsQuery,
+			TypedQuery<RfTagEventData> listQuery) {
+		query.setTotalCount(totalsQuery.getSingleResult());
+		return listQuery.getResultList();
 	}
 
 	final void addReceivers(List<RfReceiverData> receiversData) {

@@ -79,18 +79,12 @@ public interface RfReceiver<S extends RfSettings> {
 			int limit);
 
 	/**
-	 * Finds RFID tag appearance events occurred since the given time, and
-	 * stored by this receiver.
+	 * Creates new RFID tag query to search for tag events stored by this
+	 * receiver.
 	 *
-	 * @param timestamp UNIX time since which the events occurred.
-	 * @param limit the maximum number of events to load.
-	 *
-	 * @return tag appearance messages ordered by their identifiers, occurred
-	 * since the given time.
+	 * @return new tag query.
 	 */
-	List<? extends RfTagAppearanceMessage> eventsSince(
-			long timestamp,
-			int limit);
+	RfTagQuery tagQuery();
 
 	/**
 	 * Modifies this receiver.

@@ -4,13 +4,17 @@
     <form name="queryForm" ng-submit="searchIfNotStarted()">
       <legend>Поиск тегов</legend>
       <fieldset class="form-search">
-        <div class="input-append">
+        <div class="input-append controls">
           <input
             type="text"
             name="tag"
             class="input-medium search-query"
             ng-model="query.tag"
             placeholder="Тег">
+          <span
+            class="add-on text-error"
+            title="Стереть"
+            ng-click="resetTag()">&#4030;</span>
           <button
             class="btn btn-primary"
             ng-class="{'btn-disabled': state.inProgress}">Найти</button>

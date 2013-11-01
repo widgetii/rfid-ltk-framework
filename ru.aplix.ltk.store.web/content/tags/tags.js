@@ -47,13 +47,18 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 		$location.path("/tags/" + receiver).search(s);
 	}
 
+	function newSearch() {
+		delete query.page;
+		search();
+	}
+
 	$scope.searchIfNotStarted = function() {
-		if (!state.inProgress) $scope.search();
+		if (!state.inProgress) newSearch();
 	};
 
-	$scope.search = function() {
-		query.page = 0;
-		search();
+	$scope.resetTag = function() {
+		delete query.tag;
+		newSearch();
 	};
 
 	$scope.setPage = function(page) {

@@ -7,6 +7,9 @@ body {
 .pagination a {
   cursor: pointer;
 }
+.add-on {
+  cursor: pointer;
+}
 
 #notifier {
   position: fixed;

@@ -6,77 +6,73 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 				$http,
 				$notifier,
 				$routeParams,
-				$location) {
-	var DEFAULT_PAGE_SIZE = 50;
-	var state = {
-		inProgress: false
-	};
-	var query = {
-		receiver: $routeParams.receiver != "all" ? $routeParams.receiver : null,
-		tag: $routeParams.tag,
-		since: $routeParams.since,
-		page: $routeParams.page,
-		pageSize: $routeParams.pageSize
-			? $routeParams.pageSize : DEFAULT_PAGE_SIZE
-	};
-	var tags = {
-		totalCount: 0,
-		events: []
-	};
+				$location,
+				$timeout,
+				$filter) {
 
-	$scope.state = state;
-	$scope.query = query;
-	$scope.tags = tags;
-
-	$scope.receiverName = function(receiver) {
-		if (!receiver.remoteURL) return "#" + receiver.id;
-		return receiver.remoteURL + " (#" + receiver.id + ")";
-	};
-
-	function search() {
-		if (state.loading) state.loading.close();
-		state.inProgress = true;
-		var receiver = query.receiver ? query.receiver : "all";
-		var s = {};
-		if (query.tag) s.tag = query.tag;
-		if (query.since) s.since = query.since;
-		if (query.page && query.page > 1) s.page = query.page;
-		if (query.pageSize && query.pageSize != DEFAULT_PAGE_SIZE) {
-			s.pageSize = query.pageSize;
+	function Query() {
+		this.DEFAULT_PAGE_SIZE = 50;
+		if ($routeParams.receiver && $routeParams.receiver != "all") {
+			this.receiver = $routeParams.receiver;
 		}
-		$location.path("/tags/" + receiver).search(s);
+		if ($routeParams.tag) this.tag = $routeParams.tag;
+		if ($routeParams.since) {
+			var since = new Date(parseInt($routeParams.since));
+			this.sinceDate = new Date(
+					since.getFullYear(),
+					since.getMonth(),
+					since.getDate());
+		}
+		this.page =
+			$routeParams.page && $routeParams.page > 1 ? $routeParams.page : 1;
+		this.pageSize =
+			$routeParams.pageSize && $routeParams.pageSize > 0
+			? $routeParams.pageSize : this.DEFAULT_PAGE_SIZE;
+
+		this.inProgress = false;
 	}
 
-	function newSearch() {
-		delete query.page;
-		search();
-	}
-
-	$scope.searchIfNotStarted = function() {
-		if (!state.inProgress) newSearch();
+	Query.prototype.toRequest = function() {
+		var req = {};
+		if (this.tag) req.tag = this.tag;
+		if (this.sinceDate) {
+			req.since = this.sinceDate.getTime();
+		}
+		if (this.page && this.page > 1) req.page = this.page;
+		if (this.pageSize && this.pageSize != this.DEFAULT_PAGE_SIZE) {
+			req.pageSize = this.pageSize;
+		}
+		return req;
 	};
 
-	$scope.resetTag = function() {
-		delete query.tag;
-		newSearch();
+	Query.prototype.newSearch = function() {
+		delete this.page;
+		this.search();
 	};
 
-	$scope.setPage = function(page) {
-		query.page = page;
-		search();
+	Query.prototype.search = function() {
+		if (this.loading) this.loading.close();
+		var oldUrl = $location.absUrl();
+		var receiver = this.receiver ? this.receiver : "all";
+		var newUrl =
+			$location.path("/tags/" + receiver)
+			.search(this.toRequest())
+			.absUrl();
+		if (oldUrl == newUrl) this.find();
 	};
 
-	function find() {
+	Query.prototype.find = function() {
+		var self = this;
 		var loading = $notifier.info("Загрузка...");
-		state.loading = loading;
-		state.inProgress = true;
+		this.loading = loading;
+		this.inProgress = true;
 		function done() {
-			if (state.loading != loading) return false;
-			state.inProgress = false;
+			if (self.loading !== loading) return false;
+			self.inProgress = false;
 			loading.close();
 			return true;
 		}
-		$http.post("tags/find.json", query, {responseType: "json"})
+		$http.post("tags/find.json", this.toRequest(), {responseType: "json"})
 		.success(function(data, status) {
 			if (done()) angular.copy(data, tags);
 		})
@@ -86,7 +82,49 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 					"Не удалось найти теги",
 					"ОШИБКА " + status);
 		});
-	}
+	};
 
-	if ($routeParams.receiver) find();
+	var query = new Query();
+	var tags = {
+		totalCount: 0,
+		events: []
+	};
+
+	$scope.query = query;
+	$scope.tags = tags;
+
+	$scope.receiverName = function(receiver) {
+		if (!receiver.remoteURL) return "#" + receiver.id;
+		return receiver.remoteURL + " (#" + receiver.id + ")";
+	};
+
+	$scope.openSinceDate = function() {
+		$timeout(function() {
+			query.sinceDateOpened = true;
+		});
+	};
+
+	$scope.searchIfNotStarted = function() {
+		if (!query.inProgress) query.newSearch();
+	};
+
+	$scope.resetTag = function() {
+		delete query.tag;
+		query.newSearch();
+	};
+
+	$scope.hidePagination = function() {
+		return tags.totalCount <= tags.events.length;
+	};
+
+	$scope.setPage = function(page) {
+		query.page = page;
+		query.search();
+	};
+
+	$scope.$watch('query.sinceDate', function(newValue, oldValue) {
+		if (oldValue !== newValue) query.newSearch();
+	});
+
+	if ($routeParams.receiver) query.find();
 });

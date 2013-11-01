@@ -1,7 +1,7 @@
 <div class="container-fluid" ng-controller="RfTagsCtrl">
 <div class="row-fluid">
   <div class="span3">
-    <form name="queryForm" ng-submit="searchIfNotStarted()">
+    <form name="queryForm">
       <legend>Поиск тегов</legend>
       <fieldset class="form-search">
         <div class="input-append controls">
@@ -14,10 +14,34 @@
           <span
             class="add-on text-error"
             title="Стереть"
-            ng-click="resetTag()">&#4030;</span>
+            ng-click="resetTag()">
+            <i class="icon-remove"></i>
+          </span>
           <button
+            type="submit"
             class="btn btn-primary"
-            ng-class="{'btn-disabled': state.inProgress}">Найти</button>
+            ng-class="{disabled: query.inProgress}"
+            ng-click="searchIfNotStarted()">
+            <i class="icon-search icon-white"></i>
+          </button>
+        </div>
+      </fieldset>
+      <hr/>
+      <fieldset>
+        <label>Начиная с...</label>
+        <div class="input-append controls">
+          <input
+            type="text"
+            class="input-large"
+            datepicker-popup="yyyy-MM-dd"
+            ng-model="query.sinceDate"
+            is-open="query.sinceDateOpened"
+            max="'2015-06-22'"
+            starting-day="1"
+            ng-readonly="true"/>
+          <button class="btn" ng-click="openSinceDate()">
+            <i class="icon-calendar"></i>
+          </button>
         </div>
       </fieldset>
     </form>
@@ -49,19 +73,21 @@
       </tr>
     </tbody>
     </table>
-    <pagination
-      class="pagination-centered"
-      total-items="tags.totalCount"
-      page="query.page"
-      items-per-page="query.pageSize"
-      max-size="9"
-      boundary-links="true"
-      previous-text="&lsaquo;"
-      next-text="&rsaquo;"
-      first-text="&laquo;"
-      last-text="&raquo;"
-      on-select-page="setPage(page)">
-    </pagination>
+    <div ng-hide="hidePagination()">
+      <pagination
+        class="pagination-centered"
+        total-items="tags.totalCount"
+        page="query.page"
+        items-per-page="query.pageSize"
+        max-size="9"
+        boundary-links="true"
+        previous-text="&lsaquo;"
+        next-text="&rsaquo;"
+        first-text="&laquo;"
+        last-text="&raquo;"
+        on-select-page="setPage(page)">
+      </pagination>
+    </div>
   </div>
 </div>
 </div>

@@ -24,4 +24,13 @@ angular.module(
 		}
 		return null;
 	};
+})
+.filter('timestamp', function($filter) {
+	return function(timestamp) {
+		var time = $filter('date')(timestamp, 'yyyy-MM-dd HH:mm:ss');
+		var ms = timestamp % 1000;
+		if (ms < 10) return time + ".00" + ms;
+		if (ms < 100) return time + ".0" + ms;
+		return time + "." + ms;
+	};
 });

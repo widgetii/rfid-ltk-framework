@@ -7,8 +7,34 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 				$notifier,
 				$routeParams,
 				$location,
-				$timeout,
-				$filter) {
+				$timeout) {
+
+	function Timestamp(value) {
+		if (!value) return;
+		var time = new Date(parseInt($routeParams.since));
+		this.date = new Date(
+				time.getFullYear(),
+				time.getMonth(),
+				time.getDate());
+	}
+
+	Timestamp.prototype.toValue = function() {
+		if (!this.date) return;
+		return this.date.getTime();
+	};
+
+	Timestamp.prototype.openDate = function() {
+		var self = this;
+		$timeout(function() {
+			self.dateOpened = true;
+		});
+	};
+
+	Timestamp.prototype.watch = function(path) {
+		$scope.$watch(path + '.date', function(newValue, oldValue) {
+			if (oldValue !== newValue) query.newSearch();
+		});
+	};
 
 	function Query() {
 		this.DEFAULT_PAGE_SIZE = 50;
@@ -16,13 +42,7 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 			this.receiver = $routeParams.receiver;
 		}
 		if ($routeParams.tag) this.tag = $routeParams.tag;
-		if ($routeParams.since) {
-			var since = new Date(parseInt($routeParams.since));
-			this.sinceDate = new Date(
-					since.getFullYear(),
-					since.getMonth(),
-					since.getDate());
-		}
+		this.since = new Timestamp($routeParams.since);
 		this.page =
 			$routeParams.page && $routeParams.page > 1 ? $routeParams.page : 1;
 		this.pageSize =
@@ -35,9 +55,8 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 	Query.prototype.toRequest = function() {
 		var req = {};
 		if (this.tag) req.tag = this.tag;
-		if (this.sinceDate) {
-			req.since = this.sinceDate.getTime();
-		}
+		var sinceVal = this.since.toValue();
+		if (sinceVal) req.since = sinceVal;
 		if (this.page && this.page > 1) req.page = this.page;
 		if (this.pageSize && this.pageSize != this.DEFAULT_PAGE_SIZE) {
 			req.pageSize = this.pageSize;
@@ -98,12 +117,6 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 		return receiver.remoteURL + " (#" + receiver.id + ")";
 	};
 
-	$scope.openSinceDate = function() {
-		$timeout(function() {
-			query.sinceDateOpened = true;
-		});
-	};
-
 	$scope.searchIfNotStarted = function() {
 		if (!query.inProgress) query.newSearch();
 	};
@@ -122,9 +135,7 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 		query.search();
 	};
 
-	$scope.$watch('query.sinceDate', function(newValue, oldValue) {
-		if (oldValue !== newValue) query.newSearch();
-	});
+	query.since.watch('query.since');
 
 	if ($routeParams.receiver) query.find();
 });

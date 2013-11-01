@@ -34,12 +34,12 @@
             type="text"
             class="input-large"
             datepicker-popup="yyyy-MM-dd"
-            ng-model="query.sinceDate"
-            is-open="query.sinceDateOpened"
+            ng-model="query.since.date"
+            is-open="query.since.dateOpened"
             max="'2015-06-22'"
             starting-day="1"
             ng-readonly="true"/>
-          <button class="btn" ng-click="openSinceDate()">
+          <button class="btn" ng-click="query.since.openDate()">
             <i class="icon-calendar"></i>
           </button>
         </div>
@@ -68,7 +68,7 @@
             {{receiverName(event.receiver)}}
           </span>
         </td>
-        <td>{{event.timestamp|date:'yyyy-MM-dd HH:mm:ss'}}.{{event.timestamp % 1000}}</td>
+        <td>{{event.timestamp|timestamp}}</td>
         <td>{{event.tag}}</td>
       </tr>
     </tbody>

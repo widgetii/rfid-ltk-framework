@@ -2,10 +2,9 @@ package ru.aplix.ltk.store.web.receiver;
 
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.store.RfReceiver;
-import ru.aplix.ltk.store.RfReceiverEditor;
 
 
-public class RfReceiverDesc {
+public final class RfReceiverDesc extends AbstractRfReceiverBean {
 
 	public static RfReceiverDesc rfReceiverDesc(
 			int receiverId,
@@ -22,11 +21,9 @@ public class RfReceiverDesc {
 		final RfReceiver<HttpRfSettings> httpReceiver =
 				(RfReceiver<HttpRfSettings>) receiver;
 
-		return new RfReceiverBean(httpReceiver);
+		return new RfReceiverDesc(httpReceiver);
 	}
 
-	private int id;
-	private String remoteURL;
 	private final boolean deleted;
 
 	public RfReceiverDesc() {
@@ -34,43 +31,22 @@ public class RfReceiverDesc {
 	}
 
 	public RfReceiverDesc(RfReceiver<HttpRfSettings> receiver) {
-		this(receiver, true);
-
-		final RfReceiverEditor<HttpRfSettings> editor = receiver.modify();
-
-		this.remoteURL = editor.getRfSettings().getCollectorURL().toString();
+		super(receiver, true);
+		this.deleted = false;
 	}
 
-	private RfReceiverDesc(
-			RfReceiver<?> receiver,
-			@SuppressWarnings("unused") boolean http) {
-		this.id = receiver.getId();
+	private RfReceiverDesc(RfReceiver<?> receiver, boolean http) {
+		super(receiver, http);
 		this.deleted = false;
 	}
 
 	private RfReceiverDesc(int id) {
-		this.id = id;
+		super(id);
 		this.deleted = true;
-	}
-
-	public final int getId() {
-		return this.id;
-	}
-
-	public final void setId(int id) {
-		this.id = id;
 	}
 
 	public final boolean isDeleted() {
 		return this.deleted;
-	}
-
-	public final String getRemoteURL() {
-		return this.remoteURL;
-	}
-
-	public final void setRemoteURL(String remoteURL) {
-		this.remoteURL = remoteURL;
 	}
 
 }

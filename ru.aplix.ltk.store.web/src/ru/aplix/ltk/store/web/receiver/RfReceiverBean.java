@@ -13,7 +13,7 @@ import ru.aplix.ltk.store.RfReceiverEditor;
 
 
 public class RfReceiverBean
-		extends RfReceiverDesc
+		extends AbstractRfReceiverBean
 		implements Comparable<RfReceiverBean> {
 
 	private static final String INACTIVE_STATUS = "inactive";

@@ -38,8 +38,11 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 
 	function Query() {
 		this.DEFAULT_PAGE_SIZE = 50;
-		if ($routeParams.receiver && $routeParams.receiver != "all") {
-			this.receiver = $routeParams.receiver;
+		if ($routeParams.receiver) {
+			this.searchResults = true;
+			if ($routeParams.receiver != "all") {
+				this.receiver = $routeParams.receiver;
+			}
 		}
 		if ($routeParams.tag) this.tag = $routeParams.tag;
 		this.since = new Timestamp($routeParams.since);
@@ -112,6 +115,10 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 	$scope.query = query;
 	$scope.tags = tags;
 
+	$scope.noResults = function() {
+		return query.searchResults && !query.inProgress && !tags.events.length;
+	};
+
 	$scope.receiverName = function(receiver) {
 		if (!receiver.remoteURL) return "#" + receiver.id;
 		return receiver.remoteURL + " (#" + receiver.id + ")";
@@ -137,5 +144,5 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 
 	query.since.watch('query.since');
 
-	if ($routeParams.receiver) query.find();
+	if (query.searchResults) query.find();
 });

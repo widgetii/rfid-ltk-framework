@@ -46,6 +46,21 @@
       </fieldset>
     </form>
   </div>
+
+  <div class="span9" ng-hide="query.searchResults">
+    <div class="hero-unit">
+      <h1>Поиск тегов</h1>
+      <p>Укажите параметры поиска.</p>
+    </div>
+  </div>
+
+  <div class="span9" ng-show="noResults()">
+    <div class="alert alert-info alert-block">
+      <h4>Ничего не найдено</h4>
+      Попробуйте уточнить параметры поиска.
+    </div>
+  </div>
+
   <div class="span9" ng-show="tags.events.length">
     <table class="table table-hover table-striped">
     <thead>

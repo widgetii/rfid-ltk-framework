@@ -134,6 +134,7 @@ angular.module(
 			var i2 = 0;
 			for (;;) {
 				if (i2 >= len2) {
+					receivers.list.splice(i1, len2 - i1);
 					break;
 				}
 				var r2 = list[i2];
@@ -145,7 +146,8 @@ angular.module(
 				}
 				var r1 = receivers.list[i1];
 				if (r1.id < r2.id) {
-					++i1;
+					receiver.list.splice(i1, 1);
+					--len1;
 					continue;
 				}
 				if (r1.id > r2.id) {
@@ -154,7 +156,7 @@ angular.module(
 					++i2;
 					continue;
 				}
-				receivers.list[i1] = r2;
+				angular.copy(r2, r1);
 				++i1;
 				++i2;
 			}

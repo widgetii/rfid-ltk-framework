@@ -34,6 +34,7 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 	};
 
 	function search() {
+		if (state.loading) state.loading.close();
 		state.inProgress = true;
 		var receiver = query.receiver ? query.receiver : "all";
 		var s = {};
@@ -46,8 +47,11 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 		$location.path("/tags/" + receiver).search(s);
 	}
 
+	$scope.searchIfNotStarted = function() {
+		if (!state.inProgress) $scope.search();
+	};
+
 	$scope.search = function() {
-		if (state.inProgress) return;
 		query.page = 0;
 		search();
 	};
@@ -59,15 +63,17 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 
 	function find() {
 		var loading = $notifier.info("Загрузка...");
+		state.loading = loading;
 		state.inProgress = true;
 		function done() {
+			if (state.loading != loading) return false;
 			state.inProgress = false;
 			loading.close();
+			return true;
 		}
-		$http.post("tags/find.json", query, {requestType: "json"})
+		$http.post("tags/find.json", query, {responseType: "json"})
 		.success(function(data, status) {
-			done();
-			angular.copy(data, tags);
+			if (done()) angular.copy(data, tags);
 		})
 		.error(function(data, status) {
 			done();

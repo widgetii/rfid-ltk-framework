@@ -7,6 +7,7 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 				$notifier,
 				$routeParams,
 				$location) {
+	var DEFAULT_PAGE_SIZE = 50;
 	var state = {
 		inProgress: false
 	};
@@ -14,8 +15,9 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 		receiver: $routeParams.receiver != "all" ? $routeParams.receiver : null,
 		tag: $routeParams.tag,
 		since: $routeParams.since,
-		offset: $routeParams.offset,
-		limit: $routeParams.limit
+		page: $routeParams.page,
+		pageSize: $routeParams.pageSize
+			? $routeParams.pageSize : DEFAULT_PAGE_SIZE
 	};
 	var tags = {
 		totalCount: 0,
@@ -31,16 +33,28 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 		return receiver.remoteURL + " (#" + receiver.id + ")";
 	};
 
-	$scope.search = function() {
-		if (state.inProgress) return;
+	function search() {
 		state.inProgress = true;
 		var receiver = query.receiver ? query.receiver : "all";
 		var s = {};
 		if (query.tag) s.tag = query.tag;
 		if (query.since) s.since = query.since;
-		if (query.offset) s.offset = query.offset;
-		if (query.limit) s.limit = query.limit;
+		if (query.page && query.page > 1) s.page = query.page;
+		if (query.pageSize && query.pageSize != DEFAULT_PAGE_SIZE) {
+			s.pageSize = query.pageSize;
+		}
 		$location.path("/tags/" + receiver).search(s);
+	}
+
+	$scope.search = function() {
+		if (state.inProgress) return;
+		query.page = 0;
+		search();
+	};
+
+	$scope.setPage = function(page) {
+		query.page = page;
+		search();
 	};
 
 	function find() {

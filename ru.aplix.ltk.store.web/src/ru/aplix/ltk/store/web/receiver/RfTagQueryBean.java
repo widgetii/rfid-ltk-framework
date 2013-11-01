@@ -11,8 +11,8 @@ public class RfTagQueryBean {
 	private int receiver;
 	private String tag;
 	private long since;
-	private int offset;
-	private int limit = DEFAULT_PAGE_SIZE;
+	private int page = 1;
+	private int pageSize = DEFAULT_PAGE_SIZE;
 
 	public int getReceiver() {
 		return this.receiver;
@@ -45,20 +45,20 @@ public class RfTagQueryBean {
 		this.since = since;
 	}
 
-	public int getOffset() {
-		return this.offset;
+	public int getPage() {
+		return this.page;
 	}
 
-	public void setOffset(int offset) {
-		this.offset = offset;
+	public void setPage(int page) {
+		this.page = page < 1 ? 1 : page;
 	}
 
-	public int getLimit() {
-		return this.limit;
+	public int getPageSize() {
+		return this.pageSize;
 	}
 
-	public void setLimit(int limit) {
-		this.limit = limit;
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize > 0 ? pageSize : DEFAULT_PAGE_SIZE;
 	}
 
 	public RfTagQuery buildQuery(RfStore store) {
@@ -67,8 +67,8 @@ public class RfTagQueryBean {
 
 		return query.setTag(getTag())
 		.setSince(getSince())
-		.setOffset(getOffset())
-		.setLimit(getLimit());
+		.setOffset((getPage() - 1) * getPageSize())
+		.setLimit(getPageSize());
 	}
 
 	private RfTagQuery createQuery(RfStore store) {

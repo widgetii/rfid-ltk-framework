@@ -18,9 +18,8 @@
       </fieldset>
     </form>
   </div>
-  <div class="span9">
-    <table class="table table-hover table-striped" ng-show="tags.events.length">
-    <caption>Теги</caption>
+  <div class="span9" ng-show="tags.events.length">
+    <table class="table table-hover table-striped">
     <thead>
       <tr>
         <th><span class="pull-right">#</span></th>
@@ -46,6 +45,19 @@
       </tr>
     </tbody>
     </table>
+    <pagination
+      class="pagination-centered"
+      total-items="tags.totalCount"
+      page="query.page"
+      items-per-page="query.pageSize"
+      max-size="9"
+      boundary-links="true"
+      previous-text="&lsaquo;"
+      next-text="&rsaquo;"
+      first-text="&laquo;"
+      last-text="&raquo;"
+      on-select-page="setPage(page)">
+    </pagination>
   </div>
 </div>
 </div>

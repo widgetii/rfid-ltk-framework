@@ -4,6 +4,9 @@ body {
 .navbar .brand {
   float: right;
 }
+.pagination a {
+  cursor: pointer;
+}
 
 #notifier {
   position: fixed;

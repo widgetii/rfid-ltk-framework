@@ -59,6 +59,7 @@ final class RfTagQueryImpl extends RfTagQuery {
 		} else {
 			qb.orderBy(
 					cb.asc(event.get("timestamp")),
+					cb.asc(event.get("id").get("receiverId")),
 					cb.asc(event.get("id").get("eventId")));
 		}
 

@@ -62,20 +62,12 @@ public class RfTagQueryBean {
 	}
 
 	public RfTagQuery buildQuery(RfStore store) {
-
-		final RfTagQuery query = createQuery(store);
-
-		return query.setTag(getTag())
-		.setSince(getSince())
-		.setOffset((getPage() - 1) * getPageSize())
-		.setLimit(getPageSize());
-	}
-
-	private RfTagQuery createQuery(RfStore store) {
-		if (getReceiver() > 0) {
-			return store.rfReceiverById(getReceiver()).tagQuery();
-		}
-		return store.tagQuery();
+		return store.tagQuery()
+				.setReceiverId(getReceiver())
+				.setTag(getTag())
+				.setSince(getSince())
+				.setOffset((getPage() - 1) * getPageSize())
+				.setLimit(getPageSize());
 	}
 
 }

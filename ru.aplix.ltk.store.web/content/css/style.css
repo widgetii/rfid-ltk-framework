@@ -24,3 +24,12 @@ body {
 .deleted {
   text-decoration: line-through;
 }
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover,
+.clickable:focus {
+  text-decoration: underline;
+}

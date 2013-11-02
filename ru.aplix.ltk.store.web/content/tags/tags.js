@@ -96,6 +96,33 @@ angular.module(
 		if (oldUrl == newUrl) this.find();
 	};
 
+	Query.prototype.setReceiver = function(receiver) {
+		this.receiver = receiver;
+		this.newSearch();
+	};
+
+	Query.prototype.resetReceiver = function() {
+		if (!this.receiver) return;
+		delete this.receiver;
+		this.newSearch();
+	};
+
+	Query.prototype.setTag = function(tag) {
+		this.tag = tag;
+		this.newSearch();
+	};
+
+	Query.prototype.resetTag = function() {
+		if (!this.tag) return;
+		delete this.tag;
+		this.newSearch();
+	};
+
+	Query.prototype.setPage = function(page) {
+		this.page = page;
+		query.search();
+	};
+
 	Query.prototype.find = function() {
 		var self = this;
 		var loading = $notifier.info("Загрузка...");
@@ -141,18 +168,8 @@ angular.module(
 		if (!query.inProgress) query.newSearch();
 	};
 
-	$scope.resetTag = function() {
-		delete query.tag;
-		query.newSearch();
-	};
-
 	$scope.hidePagination = function() {
 		return tags.totalCount <= tags.events.length;
-	};
-
-	$scope.setPage = function(page) {
-		query.page = page;
-		query.search();
 	};
 
 	query.since.watch('query.since');

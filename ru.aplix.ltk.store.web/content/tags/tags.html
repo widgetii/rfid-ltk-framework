@@ -12,9 +12,9 @@
             ng-model="query.tag"
             placeholder="Тег">
           <span
-            class="add-on text-error"
-            title="Стереть"
-            ng-click="resetTag()">
+            class="add-on"
+            title="Все теги"
+            ng-click="query.resetTag()">
             <i class="icon-remove"></i>
           </span>
           <button
@@ -28,12 +28,21 @@
       </fieldset>
       <hr/>
       <label>Приёмник</label>
-      <select
-        ng-model="query.receiver"
-        ng-options="r.id as receiverName(r) for r in receivers.list"
-        ng-change="query.newSearch()">
-        <option label="" value=""/>
-      </select>
+      <div class="input-append controls">
+        <select
+          class="input-large"
+          ng-model="query.receiver"
+          ng-options="r.id as receiverName(r) for r in receivers.list"
+          ng-change="query.newSearch()">
+          <option label="" value=""/>
+        </select>
+        <button
+          class="btn"
+          title="Все приёмники"
+          ng-click="query.resetReceiver()">
+          <i class="icon-remove"></i>
+        </button>
+      </div>
       <label>Начиная с...</label>
       <div class="input-append controls">
         <input
@@ -77,16 +86,20 @@
     </thead>
     <tbody>
       <tr ng-repeat="event in tags.events">
-        <td>{{event.timestamp|timestamp}}</td>
+        <td ng-bind="event.timestamp|timestamp"></td>
         <td>
-          <span ng-class="{deleted: event.receiver.deleted}">
-            {{receiverName(event.receiver)}}
+          <span
+            class="clickable"
+            ng-class="{deleted: event.receiver.deleted}"
+            ng-click="query.setReceiver(event.receiver.id)"
+            ng-bind="receiverName(event.receiver)">
           </span>
         </td>
         <td><span
-          class="label"
-          ng-class="{'label-success': event.appeared, 'label-important': !event.appeared}">
-          {{event.tag}}
+          class="label clickable"
+          ng-class="{'label-success': event.appeared, 'label-important': !event.appeared}"
+          ng-click="query.setTag(event.tag)"
+          ng-bind="event.tag">
         </span></td>
       </tr>
     </tbody>
@@ -103,7 +116,7 @@
         next-text="&rsaquo;"
         first-text="&laquo;"
         last-text="&raquo;"
-        on-select-page="setPage(page)">
+        on-select-page="query.setPage(page)">
       </pagination>
     </div>
   </div>

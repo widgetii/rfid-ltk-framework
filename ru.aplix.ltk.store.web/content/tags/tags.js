@@ -18,11 +18,7 @@ angular.module(
 
 	function Timestamp(value) {
 		if (!value) return;
-		var time = new Date(parseInt($routeParams.since));
-		this.date = new Date(
-				time.getFullYear(),
-				time.getMonth(),
-				time.getDate());
+		this.date = new Date(parseInt($routeParams.since));
 	}
 
 	Timestamp.prototype.toValue = function() {
@@ -115,6 +111,11 @@ angular.module(
 	Query.prototype.resetTag = function() {
 		if (!this.tag) return;
 		delete this.tag;
+		this.newSearch();
+	};
+
+	Query.prototype.setSince = function(timestamp) {
+		this.since.date = new Date(timestamp);
 		this.newSearch();
 	};
 

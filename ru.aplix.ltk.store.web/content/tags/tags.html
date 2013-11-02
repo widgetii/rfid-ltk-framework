@@ -30,7 +30,7 @@
       <label>Приёмник</label>
       <div class="input-append controls">
         <select
-          class="input-large"
+          class=""
           ng-model="query.receiver"
           ng-options="r.id as receiverName(r) for r in receivers.list"
           ng-change="query.newSearch()">
@@ -86,15 +86,17 @@
     </thead>
     <tbody>
       <tr ng-repeat="event in tags.events">
-        <td ng-bind="event.timestamp|timestamp"></td>
-        <td>
-          <span
+        <td><span
+          class="clickable"
+          ng-click="query.setSince(event.timestamp)"
+          ng-bind="event.timestamp|timestamp">
+        </span></td>
+        <td><span
             class="clickable"
             ng-class="{deleted: event.receiver.deleted}"
             ng-click="query.setReceiver(event.receiver.id)"
             ng-bind="receiverName(event.receiver)">
-          </span>
-        </td>
+        </span></td>
         <td><span
           class="label clickable"
           ng-class="{'label-success': event.appeared, 'label-important': !event.appeared}"

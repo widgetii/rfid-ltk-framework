@@ -1,4 +1,9 @@
-angular.module('rfid-tag-store.tags', ["notifier"])
+angular.module(
+		'rfid-tag-store.tags',
+		[
+			'notifier',
+			'rfid-tag-store.receivers'
+		])
 .controller(
 		"RfTagsCtrl",
 		function(
@@ -7,7 +12,9 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 				$notifier,
 				$routeParams,
 				$location,
-				$timeout) {
+				$timeout,
+				$rfReceivers) {
+	$scope.receivers = $rfReceivers;
 
 	function Timestamp(value) {
 		if (!value) return;
@@ -41,7 +48,7 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 		if ($routeParams.receiver) {
 			this.searchResults = true;
 			if ($routeParams.receiver != "all") {
-				this.receiver = $routeParams.receiver;
+				this.receiver = parseInt($routeParams.receiver);
 			}
 		}
 		if ($routeParams.tag) this.tag = $routeParams.tag;
@@ -56,6 +63,12 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 	}
 
 	Query.prototype.toRequest = function() {
+		var req = this.toSearch();
+		if (this.receiver) req.receiver = this.receiver;
+		return req;
+	};
+
+	Query.prototype.toSearch = function() {
 		var req = {};
 		if (this.tag) req.tag = this.tag;
 		var sinceVal = this.since.toValue();
@@ -78,7 +91,7 @@ angular.module('rfid-tag-store.tags', ["notifier"])
 		var receiver = this.receiver ? this.receiver : "all";
 		var newUrl =
 			$location.path("/tags/" + receiver)
-			.search(this.toRequest())
+			.search(this.toSearch())
 			.absUrl();
 		if (oldUrl == newUrl) this.find();
 	};

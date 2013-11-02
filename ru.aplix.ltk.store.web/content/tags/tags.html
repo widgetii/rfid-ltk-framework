@@ -27,23 +27,28 @@
         </div>
       </fieldset>
       <hr/>
-      <fieldset>
-        <label>Начиная с...</label>
-        <div class="input-append controls">
-          <input
-            type="text"
-            class="input-large"
-            datepicker-popup="yyyy-MM-dd"
-            ng-model="query.since.date"
-            is-open="query.since.dateOpened"
-            max="'2015-06-22'"
-            starting-day="1"
-            ng-readonly="true"/>
-          <button class="btn" ng-click="query.since.openDate()">
-            <i class="icon-calendar"></i>
-          </button>
-        </div>
-      </fieldset>
+      <label>Приёмник</label>
+      <select
+        ng-model="query.receiver"
+        ng-options="r.id as receiverName(r) for r in receivers.list"
+        ng-change="query.newSearch()">
+        <option label="" value=""/>
+      </select>
+      <label>Начиная с...</label>
+      <div class="input-append controls">
+        <input
+          type="text"
+          class="input-large"
+          datepicker-popup="yyyy-MM-dd"
+          ng-model="query.since.date"
+          is-open="query.since.dateOpened"
+          max="'2015-06-22'"
+          starting-day="1"
+          ng-readonly="true"/>
+        <button class="btn" ng-click="query.since.openDate()">
+          <i class="icon-calendar"></i>
+        </button>
+      </div>
     </form>
   </div>
 
@@ -66,14 +71,14 @@
     <thead>
       <tr>
         <th>Время</th>
-        <th ng-hide="query.receiver">Приёмник</th>
+        <th>Приёмник</th>
         <th>Тег</th>
       </tr>
     </thead>
     <tbody>
       <tr ng-repeat="event in tags.events">
         <td>{{event.timestamp|timestamp}}</td>
-        <td ng-hide="query.receiver">
+        <td>
           <span ng-class="{deleted: event.receiver.deleted}">
             {{receiverName(event.receiver)}}
           </span>

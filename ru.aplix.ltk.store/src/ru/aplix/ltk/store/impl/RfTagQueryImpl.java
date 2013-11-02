@@ -95,7 +95,7 @@ final class RfTagQueryImpl extends RfTagQuery {
 
 		if (getReceiver() != null) {
 			pred = cb.equal(
-					event.get("id.receiver"),
+					event.get("id").get("receiverId"),
 					getReceiver().getId());
 		}
 		if (getSince() > 0) {

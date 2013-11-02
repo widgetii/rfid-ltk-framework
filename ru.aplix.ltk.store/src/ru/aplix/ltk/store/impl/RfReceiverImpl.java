@@ -105,7 +105,7 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 
 	@Override
 	public RfTagQuery tagQuery() {
-		return new RfTagQueryImpl(getRfStore(), this);
+		return new RfTagQueryImpl(getRfStore()).setReceiverId(getId());
 	}
 
 	@Override

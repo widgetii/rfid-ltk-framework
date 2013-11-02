@@ -7,7 +7,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 
-import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfTagQuery;
 import ru.aplix.ltk.store.impl.persist.RfTagEventData;
 
@@ -17,8 +16,7 @@ final class RfTagQueryImpl extends RfTagQuery {
 	private final RfStoreImpl store;
 	private long totalCount;
 
-	RfTagQueryImpl(RfStoreImpl store, RfReceiver<?> receiver) {
-		super(receiver);
+	RfTagQueryImpl(RfStoreImpl store) {
 		this.store = store;
 	}
 
@@ -54,7 +52,7 @@ final class RfTagQueryImpl extends RfTagQuery {
 
 		where(cb, qb, event);
 
-		if (getReceiver() != null) {
+		if (getReceiverId() > 0) {
 			qb.orderBy(cb.asc(event.get("id").get("eventId")));
 		} else {
 			qb.orderBy(
@@ -93,10 +91,10 @@ final class RfTagQueryImpl extends RfTagQuery {
 
 		Predicate pred = null;
 
-		if (getReceiver() != null) {
+		if (getReceiverId() > 0) {
 			pred = cb.equal(
 					event.get("id").get("receiverId"),
-					getReceiver().getId());
+					getReceiverId());
 		}
 		if (getSince() > 0) {
 			pred = and(

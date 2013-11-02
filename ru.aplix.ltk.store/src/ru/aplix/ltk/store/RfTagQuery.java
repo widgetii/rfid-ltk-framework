@@ -15,30 +15,33 @@ import java.util.List;
  */
 public abstract class RfTagQuery {
 
-	private final RfReceiver<?> receiver;
+	private int receiverId;
 	private String tag;
 	private long since;
 	private int offset;
 	private int limit;
 
 	/**
-	 * Constructs a query.
+	 * Target RFID receiver.
 	 *
-	 * @param receiver RFID receiver to search for tags events in, or
-	 * <code>null</code> to search among all stored tag events.
+	 * @return RFID receiver identifier, or zero if this query searches among
+	 * all stored tag events.
 	 */
-	public RfTagQuery(RfReceiver<?> receiver) {
-		this.receiver = receiver;
+	public int getReceiverId() {
+		return this.receiverId;
 	}
 
 	/**
-	 * Target RFID receiver.
+	 * Sets target RFID receiver identifier.
 	 *
-	 * @return RFID receiver passed to the constructor, or <code>null</code>
-	 * if this query searches among all stored tag events.
+	 * @param receiverId RFID receiver identifier, or non-positive value to
+	 * search among all stored tag events.
+	 *
+	 * @return this query.
 	 */
-	public final RfReceiver<?> getReceiver() {
-		return this.receiver;
+	public RfTagQuery setReceiverId(int receiverId) {
+		this.receiverId = receiverId > 0 ? receiverId : 0;
+		return this;
 	}
 
 	/**

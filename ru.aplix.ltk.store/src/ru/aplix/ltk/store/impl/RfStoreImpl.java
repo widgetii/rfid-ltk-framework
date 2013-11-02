@@ -85,7 +85,7 @@ public class RfStoreImpl
 
 	@Override
 	public RfTagQuery tagQuery() {
-		return new RfTagQueryImpl(this, null);
+		return new RfTagQueryImpl(this);
 	}
 
 	@Override

@@ -31,7 +31,7 @@ public final class RfReceiverDesc extends AbstractRfReceiverBean {
 	}
 
 	public RfReceiverDesc(RfReceiver<HttpRfSettings> receiver) {
-		super(receiver, true);
+		super(receiver);
 		this.deleted = false;
 	}
 

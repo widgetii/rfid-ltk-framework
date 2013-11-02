@@ -10,7 +10,7 @@ import ru.aplix.ltk.store.RfTagQuery;
 
 public class FoundRfTagsBean {
 
-	private final List<RfTagBean> events;
+	private final List<RfTagEventBean> events;
 	private final long totalCount;
 
 	public FoundRfTagsBean(RfTagQuery query) {
@@ -18,7 +18,7 @@ public class FoundRfTagsBean {
 		this.totalCount = query.getTotalCount();
 	}
 
-	public List<RfTagBean> getEvents() {
+	public List<RfTagEventBean> getEvents() {
 		return this.events;
 	}
 
@@ -26,14 +26,14 @@ public class FoundRfTagsBean {
 		return this.totalCount;
 	}
 
-	private static ArrayList<RfTagBean> eventBeans(
+	private static ArrayList<RfTagEventBean> eventBeans(
 			final List<? extends RfTagEvent> events) {
 
 		final HashMap<Integer, RfReceiverDesc> receivers = new HashMap<>();
-		final ArrayList<RfTagBean> beans = new ArrayList<>(events.size());
+		final ArrayList<RfTagEventBean> beans = new ArrayList<>(events.size());
 
 		for (RfTagEvent event : events) {
-			beans.add(new RfTagBean(
+			beans.add(new RfTagEventBean(
 					eventReceiverBean(receivers, event),
 					event));
 		}

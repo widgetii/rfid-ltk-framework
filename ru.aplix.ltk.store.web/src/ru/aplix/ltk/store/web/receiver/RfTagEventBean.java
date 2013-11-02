@@ -1,32 +1,24 @@
 package ru.aplix.ltk.store.web.receiver;
 
-import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
+import ru.aplix.ltk.store.RfTagEvent;
 
 
-public class RfTagBean {
+public class RfTagEventBean {
 
 	private final RfReceiverDesc receiver;
-	private final long id;
 	private final long timestamp;
 	private final String tag;
 	private final boolean appeared;
 
-	public RfTagBean(
-			RfReceiverDesc receiver,
-			RfTagAppearanceMessage message) {
+	public RfTagEventBean(RfReceiverDesc receiver, RfTagEvent event) {
 		this.receiver = receiver;
-		this.id = message.getEventId();
-		this.timestamp = message.getTimestamp();
-		this.tag = message.getRfTag().toHexString();
-		this.appeared = message.getAppearance().isPresent();
+		this.timestamp = event.getTimestamp();
+		this.tag = event.getRfTag().toHexString();
+		this.appeared = event.getAppearance().isPresent();
 	}
 
 	public final RfReceiverDesc getReceiver() {
 		return this.receiver;
-	}
-
-	public final long getId() {
-		return this.id;
 	}
 
 	public final long getTimestamp() {

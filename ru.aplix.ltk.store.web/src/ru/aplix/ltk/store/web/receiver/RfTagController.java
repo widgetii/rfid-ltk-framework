@@ -17,7 +17,7 @@ public class RfTagController {
 			value = "/tags/find.json",
 			method = RequestMethod.POST)
 	@ResponseBody
-	public FoundRfTagsBean findTags(
+	public FoundRfTagsBean findTagEvents(
 			@RequestBody RfTagQueryBean queryBean) {
 		return new FoundRfTagsBean(queryBean.buildQuery(this.rfStore));
 	}

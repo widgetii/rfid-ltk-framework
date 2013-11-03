@@ -18,12 +18,22 @@ angular.module(
 
 	function Timestamp(value) {
 		if (!value) return;
-		this.date = new Date(parseInt($routeParams.since));
+		this.time = parseInt(value);
+		var timestamp = new Date(this.time);
+		this.date = new Date(
+				timestamp.getFullYear(),
+				timestamp.getMonth(),
+				timestamp.getDate());
 	}
 
 	Timestamp.prototype.toValue = function() {
+		if (this.time) return this.time;
 		if (!this.date) return;
-		return this.date.getTime();
+		var date = new Date(
+				this.date.getFullYear(),
+				this.date.getMonth(),
+				this.date.getDate());
+		return date.getTime();
 	};
 
 	Timestamp.prototype.openDate = function() {
@@ -34,8 +44,11 @@ angular.module(
 	};
 
 	Timestamp.prototype.watch = function(path) {
+		var self = this;
 		$scope.$watch(path + '.date', function(newValue, oldValue) {
-			if (oldValue !== newValue) query.newSearch();
+			if (oldValue === newValue) return;
+			self.time = null;
+			query.newSearch();
 		});
 	};
 
@@ -115,7 +128,7 @@ angular.module(
 	};
 
 	Query.prototype.setSince = function(timestamp) {
-		this.since.date = new Date(timestamp);
+		this.since.time = timestamp;
 		this.newSearch();
 	};
 

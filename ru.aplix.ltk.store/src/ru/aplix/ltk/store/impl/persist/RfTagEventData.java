@@ -21,27 +21,38 @@ import ru.aplix.ltk.store.impl.RfStoreImpl;
 	@NamedQuery(
 			name = "lastRfTagEventId",
 			query =
-				"SELECT max(e.id.eventId)"
+				"SELECT max(e.eventId)"
 				+ " FROM RfTagEventData e"
-				+ " WHERE e.id.receiverId = :receiverId"),
+				+ " WHERE e.receiverId = :receiverId"),
 	@NamedQuery(
 			name = "rfTagEvents",
 			query =
 				"SELECT e"
 				+ " FROM RfTagEventData e"
-				+ " WHERE e.id.receiverId = :receiverId"
-				+ " and e.id.eventId > :fromId"
-				+ " ORDER BY e.id.eventId"),
+				+ " WHERE e.receiverId = :receiverId"
+				+ " and e.eventId > :fromId"
+				+ " ORDER BY e.eventId"),
 	@NamedQuery(
 			name = "deleteRfTagEvents",
 			query =
 				"DELETE FROM RfTagEventData e"
-				+ " WHERE e.id.receiverId = :receiverId")
+				+ " WHERE e.receiverId = :receiverId")
 })
 public class RfTagEventData implements RfTagEvent {
 
-	@EmbeddedId
-	private RfTagEventId id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", nullable = false, unique = true, updatable = false)
+	private long id;
+
+	@Column(name = "receiver_id", nullable = false, updatable = false)
+	protected int receiverId;
+
+	@Column(name = "event_id", nullable = true, updatable = false)
+	protected long eventId;
+
+	@Column(name = "initial_event", nullable = false, updatable = false)
+	private boolean initialEvent;
 
 	@Column(name = "tag", nullable = false, updatable = false)
 	private String tag;
@@ -65,36 +76,38 @@ public class RfTagEventData implements RfTagEvent {
 			RfReceiver<?> receiver,
 			long eventId,
 			RfTagAppearanceMessage message) {
-		this.id = new RfTagEventId(receiver, eventId);
+		this.receiverId = receiver.getId();
 		this.receiver = receiver;
+		this.eventId = eventId;
+		this.initialEvent = message.isInitialEvent();
 		this.rfTag = message.getRfTag();
 		this.tag = this.rfTag.toHexString();
 		this.timestamp = new Timestamp(message.getTimestamp());
 		this.appeared = message.getAppearance().isPresent();
 	}
 
-	public RfTagEventId getId() {
+	public long getId() {
 		return this.id;
 	}
 
 	@Override
 	public int getReceiverId() {
-		return getId().getReceiverId();
+		return this.receiverId;
+	}
+
+	@Override
+	public long getEventId() {
+		return this.eventId;
 	}
 
 	@Override
 	public boolean isInitialEvent() {
-		return false;
+		return this.initialEvent;
 	}
 
 	@Override
 	public RfReceiver<?> getReceiver() {
 		return this.receiver;
-	}
-
-	@Override
-	public long getEventId() {
-		return getId().getEventId();
 	}
 
 	public Timestamp getSqlTimestamp() {
@@ -128,7 +141,7 @@ public class RfTagEventData implements RfTagEvent {
 	}
 
 	public void init(RfStoreImpl store) {
-		this.receiver = store.rfReceiverById(this.id.getReceiverId());
+		this.receiver = store.rfReceiverById(getReceiverId());
 	}
 
 	@Override
@@ -136,8 +149,7 @@ public class RfTagEventData implements RfTagEvent {
 
 		final int prime = 31;
 		int result = 1;
-
-		result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
+		result = prime * result + (int) (this.id ^ (this.id >>> 32));
 
 		return result;
 	}
@@ -156,11 +168,7 @@ public class RfTagEventData implements RfTagEvent {
 
 		final RfTagEventData other = (RfTagEventData) obj;
 
-		if (this.id == null) {
-			if (other.id != null) {
-				return false;
-			}
-		} else if (!this.id.equals(other.id)) {
+		if (this.id != other.id) {
 			return false;
 		}
 

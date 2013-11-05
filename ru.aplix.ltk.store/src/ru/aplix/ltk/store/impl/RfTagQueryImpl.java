@@ -51,15 +51,9 @@ final class RfTagQueryImpl extends RfTagQuery {
 		final Root<RfTagEventData> event = qb.from(RfTagEventData.class);
 
 		where(cb, qb, event);
-
-		if (getReceiverId() > 0) {
-			qb.orderBy(cb.asc(event.get("id").get("eventId")));
-		} else {
-			qb.orderBy(
-					cb.asc(event.get("timestamp")),
-					cb.asc(event.get("id").get("receiverId")),
-					cb.asc(event.get("id").get("eventId")));
-		}
+		qb.orderBy(
+				cb.desc(event.get("timestamp")),
+				cb.desc(event.get("id")));
 
 		final TypedQuery<RfTagEventData> listQuery =
 				em.createQuery(qb.select(event));
@@ -80,8 +74,7 @@ final class RfTagQueryImpl extends RfTagQuery {
 
 		where(cb, qb, event);
 
-		return em.createQuery(
-				qb.select(cb.count(event.get("id").get("eventId"))));
+		return em.createQuery(qb.select(cb.count(event.get("id"))));
 	}
 
 	private void where(
@@ -92,9 +85,7 @@ final class RfTagQueryImpl extends RfTagQuery {
 		Predicate pred = null;
 
 		if (getReceiverId() > 0) {
-			pred = cb.equal(
-					event.get("id").get("receiverId"),
-					getReceiverId());
+			pred = cb.equal(event.get("receiverId"), getReceiverId());
 		}
 		if (getSince() > 0) {
 			pred = and(

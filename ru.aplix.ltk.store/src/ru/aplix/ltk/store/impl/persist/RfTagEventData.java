@@ -83,6 +83,11 @@ public class RfTagEventData implements RfTagEvent {
 	}
 
 	@Override
+	public boolean isInitialEvent() {
+		return false;
+	}
+
+	@Override
 	public RfReceiver<?> getReceiver() {
 		return this.receiver;
 	}

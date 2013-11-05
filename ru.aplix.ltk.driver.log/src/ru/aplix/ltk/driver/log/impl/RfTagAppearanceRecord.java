@@ -13,27 +13,21 @@ import ru.aplix.ltk.core.source.RfTag;
 
 final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 
-	static final RfTagAppearanceRecord STOP = new RfTagAppearanceRecord();
-
 	private static final byte PRESENCE_FLAG = 1;
+	private static final byte INITIAL_EVENT_FLAG = 2;
 
 	private final long eventId;
 	private final long timestamp;
 	private final RfTag rfTag;
 	private final RfTagAppearance appearance;
-
-	private RfTagAppearanceRecord() {
-		this.eventId = -1;
-		this.timestamp = 0;
-		this.rfTag = null;
-		this.appearance = null;
-	}
+	private final boolean initialEvent;
 
 	RfTagAppearanceRecord(long eventId, RfTagAppearanceMessage message) {
 		this.eventId = eventId;
 		this.timestamp = message.getTimestamp();
 		this.rfTag = message.getRfTag();
 		this.appearance = message.getAppearance();
+		this.initialEvent = message.isInitialEvent();
 	}
 
 	RfTagAppearanceRecord(ByteBuffer data) {
@@ -43,17 +37,19 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 		final byte flags = data.get();
 
 		this.appearance = appearanceByFlags(flags);
+		this.initialEvent = (flags & INITIAL_EVENT_FLAG) != 0;
 		this.rfTag = readTag(data);
 		checkCRC(data);
-	}
-
-	public final boolean isStop() {
-		return this == STOP;
 	}
 
 	@Override
 	public final long getEventId() {
 		return this.eventId;
+	}
+
+	@Override
+	public final boolean isInitialEvent() {
+		return this.initialEvent;
 	}
 
 	@Override
@@ -89,6 +85,10 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 			break;
 		case RF_TAG_DISAPPEARED:
 			break;
+		}
+
+		if (isInitialEvent()) {
+			flags |= INITIAL_EVENT_FLAG;
 		}
 
 		return flags;

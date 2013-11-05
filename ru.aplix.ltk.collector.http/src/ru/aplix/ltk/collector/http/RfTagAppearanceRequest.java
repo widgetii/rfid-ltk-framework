@@ -5,6 +5,7 @@ import static ru.aplix.ltk.collector.http.RfStatusRequest.TYPE;
 import static ru.aplix.ltk.collector.http.RfTagParameterType.RF_TAG_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
 import static ru.aplix.ltk.core.util.NumericParameterType.LONG_PARAMETER_TYPE;
+import static ru.aplix.ltk.core.util.ParameterType.BOOLEAN_PARAMETER_TYPE;
 import ru.aplix.ltk.core.collector.RfTagAppearance;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.core.source.RfTag;
@@ -19,6 +20,8 @@ public class RfTagAppearanceRequest
 
 	private static final Parameter<Long> EVENT_ID =
 			LONG_PARAMETER_TYPE.parameter("eventId").byDefault(0L);
+	private static final Parameter<Boolean> INITIAL_EVENT =
+			BOOLEAN_PARAMETER_TYPE.parameter("eventId").byDefault(false);
 	private static final Parameter<Long> TIMESTAMP =
 			LONG_PARAMETER_TYPE.parameter("timestamp").byDefault(0L);
 	private static final Parameter<RfTag> RF_TAG =
@@ -33,6 +36,7 @@ public class RfTagAppearanceRequest
 	private long timestamp;
 	private RfTag rfTag;
 	private RfTagAppearance appearance = APPEARANCE.getDefault();
+	private boolean initialEvent;
 
 	/**
 	 * Constructs an empty request.
@@ -72,6 +76,15 @@ public class RfTagAppearanceRequest
 
 	public void setEventId(long eventId) {
 		this.eventId = eventId;
+	}
+
+	@Override
+	public boolean isInitialEvent() {
+		return this.initialEvent;
+	}
+
+	public void setInitialEvent(boolean initialEvent) {
+		this.initialEvent = initialEvent;
 	}
 
 	@Override
@@ -119,6 +132,9 @@ public class RfTagAppearanceRequest
 		.set(TIMESTAMP, getTimestamp())
 		.set(RF_TAG, getRfTag())
 		.set(APPEARANCE, getAppearance());
+		if (isInitialEvent()) {
+			params.set(INITIAL_EVENT, true);
+		}
 	}
 
 }

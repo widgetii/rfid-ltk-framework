@@ -9,21 +9,31 @@ final class RfTagAppearanceMessageImpl implements RfTagAppearanceMessage {
 	private final long timestamp;
 	private final RfTag rfTag;
 	private final RfTagAppearance appearance;
+	private final boolean initialEvent;
 
-	RfTagAppearanceMessageImpl(RfTag rfTag, RfTagAppearance appearance) {
+	RfTagAppearanceMessageImpl(
+			RfTag rfTag,
+			RfTagAppearance appearance,
+			boolean initialEvent) {
 		requireNonNull(rfTag, "RFID tag not specified");
 		this.timestamp = System.currentTimeMillis();
 		this.rfTag = rfTag;
 		this.appearance = appearance;
+		this.initialEvent = initialEvent;
 	}
 
 	@Override
-	public long getEventId() {
+	public final long getEventId() {
 		return 0;
 	}
 
 	@Override
-	public long getTimestamp() {
+	public final boolean isInitialEvent() {
+		return this.initialEvent;
+	}
+
+	@Override
+	public final long getTimestamp() {
 		return this.timestamp;
 	}
 

@@ -1,6 +1,7 @@
 package ru.aplix.ltk.core.collector;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ru.aplix.ltk.core.source.*;
 
@@ -13,6 +14,7 @@ final class RfSourceListener implements RfStatusUpdater, RfDataReceiver {
 	private boolean cacheInitialized;
 	private volatile RfStatusMessage lastStatus;
 	private volatile RfStatusMessage lastError;
+	private final AtomicBoolean initialEvent = new AtomicBoolean();
 
 	RfSourceListener(RfCollector collector, RfTracker tracker) {
 		this.collector = collector;
@@ -51,6 +53,14 @@ final class RfSourceListener implements RfStatusUpdater, RfDataReceiver {
 		this.receivingStatus = true;
 	}
 
+	final void initiateEvents() {
+		this.initialEvent.set(true);
+	}
+
+	final boolean nextEventIsInitial() {
+		return this.initialEvent.compareAndSet(true, false);
+	}
+
 	final void requestData() {
 		if (!this.cacheInitialized) {
 			tracker().initRfTracker(new RfTracking(this.collector));
@@ -61,6 +71,7 @@ final class RfSourceListener implements RfStatusUpdater, RfDataReceiver {
 	}
 
 	final void rejectData() {
+		this.initialEvent.set(false);
 		try {
 			this.collector.source().rejectRfData();
 		} finally {

@@ -170,6 +170,10 @@ public class RfCollector
 		return serviceSubscriptions();
 	}
 
+	final boolean nextEventIsInitial() {
+		return this.sourceListener.nextEventIsInitial();
+	}
+
 	final void noError() {
 		this.sourceListener.noError();
 	}
@@ -199,6 +203,7 @@ public class RfCollector
 
 		@Override
 		protected void firstSubscribed(RfTagAppearanceHandle handle) {
+			this.collector.sourceListener.initiateEvents();
 			super.firstSubscribed(handle);
 			this.collector.sourceListener.requestData();
 		}

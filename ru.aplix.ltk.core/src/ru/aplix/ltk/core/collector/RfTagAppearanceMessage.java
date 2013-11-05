@@ -23,6 +23,20 @@ public interface RfTagAppearanceMessage {
 	long getEventId();
 
 	/**
+	 * Whether this event is initial.
+	 *
+	 * <p>An initial event is occurred once, after collector startup.</p>
+	 *
+	 * <p>Some tags may disappear while the collector is offline. This flag may
+	 * be used by the client to make disappear of all tags it still considers
+	 * visible.</p>
+	 *
+	 * @return <code>true</code> if this event is initial, or <code>false</code>
+	 * otherwise.
+	 */
+	boolean isInitialEvent();
+
+	/**
 	 * Event time.
 	 *
 	 * @return UNIX time of event.

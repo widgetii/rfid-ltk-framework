@@ -55,7 +55,7 @@ SELECT * FROM rfstore.tag_event_with_next
 WHERE appeared and next_event_id is null;
 	
 CREATE OR REPLACE FUNCTION rfstore.hide_visible_tags (
-	receiver_id int,
+	target_receiver_id int,
 	initial_event_id bigint,
 	initial_event_timestamp timestamp with time zone
 ) RETURNS integer
@@ -67,13 +67,13 @@ $FN$
 		timestamp,
 		appeared
 	) SELECT
-		receiver_id,
+		target_receiver_id,
 		v.tag,
 		initial_event_timestamp,
 		false
 	FROM rfstore.visible_tag v
 	WHERE
-		v.receiver_id = receiver_id
+		v.receiver_id = target_receiver_id
 		and v.event_id < initial_event_id;
 	SELECT 1;
 $FN$;

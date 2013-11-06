@@ -21,7 +21,7 @@ public class RfTagAppearanceRequest
 	private static final Parameter<Long> EVENT_ID =
 			LONG_PARAMETER_TYPE.parameter("eventId").byDefault(0L);
 	private static final Parameter<Boolean> INITIAL_EVENT =
-			BOOLEAN_PARAMETER_TYPE.parameter("eventId").byDefault(false);
+			BOOLEAN_PARAMETER_TYPE.parameter("initialEvent").byDefault(false);
 	private static final Parameter<Long> TIMESTAMP =
 			LONG_PARAMETER_TYPE.parameter("timestamp").byDefault(0L);
 	private static final Parameter<RfTag> RF_TAG =
@@ -55,6 +55,7 @@ public class RfTagAppearanceRequest
 			RfTagAppearanceMessage message) {
 		this.clientId = clientId;
 		this.eventId = message.getEventId();
+		this.initialEvent = message.isInitialEvent();
 		this.timestamp = message.getTimestamp();
 		this.rfTag = message.getRfTag();
 		this.appearance = message.getAppearance();
@@ -120,6 +121,7 @@ public class RfTagAppearanceRequest
 		this.timestamp = params.valueOf(TIMESTAMP, getTimestamp());
 		this.rfTag = params.valueOf(RF_TAG, getRfTag());
 		this.appearance = params.valueOf(APPEARANCE, getAppearance());
+		this.initialEvent = params.valueOf(INITIAL_EVENT, isInitialEvent());
 	}
 
 	@Override

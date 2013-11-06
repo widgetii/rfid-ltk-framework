@@ -5,7 +5,6 @@ import java.util.List;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.collector.RfCollector;
-import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 
 
@@ -65,18 +64,11 @@ public interface RfReceiver<S extends RfSettings> {
 	RfStatusMessage getLastStatus();
 
 	/**
-	 * Loads RFID tag appearance events stored by this receiver.
+	 * Loads all RFID tag appearance events stored by this receiver.
 	 *
-	 * @param fromEventId first {@link RfTagAppearanceMessage#getEventId() event
-	 * identifier} to load.
-	 * @param limit the maximum number of events to load.
-	 *
-	 * @return tag appearance messages ordered by their identifiers, starting
-	 * from the given one.
+	 * @return list of tag appearance messages.
 	 */
-	List<? extends RfTagAppearanceMessage> loadEvents(
-			long fromEventId,
-			int limit);
+	List<? extends RfTagEvent> allEvents();
 
 	/**
 	 * Creates new RFID tag query to search for tag events stored by this

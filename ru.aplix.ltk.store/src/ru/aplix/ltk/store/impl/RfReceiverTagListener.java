@@ -35,25 +35,14 @@ final class RfReceiverTagListener
 	@Override
 	public void messageReceived(RfTagAppearanceMessage message) {
 
-		final RfTagEventData tagData =
-				new RfTagEventData(this.receiver, eventId(message), message);
+		final RfTagEventData event =
+				new RfTagEventData(this.receiver, message);
 
-		this.receiver.getRfStore().saveEvent(tagData);
+		this.receiver.getRfStore().saveEvent(event);
 	}
 
 	@Override
 	public void consumerUnsubscribed(RfTagAppearanceHandle handle) {
-	}
-
-	private long eventId(RfTagAppearanceMessage message) {
-
-		final long eventId = message.getEventId();
-
-		if (eventId > 0) {
-			return eventId;
-		}
-
-		return this.eventId.incrementAndGet();
 	}
 
 }

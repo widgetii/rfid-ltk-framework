@@ -25,13 +25,19 @@ import ru.aplix.ltk.store.impl.RfStoreImpl;
 				+ " FROM RfTagEventData e"
 				+ " WHERE e.receiverId = :receiverId"),
 	@NamedQuery(
-			name = "rfTagEvents",
+			name = "rfTagEventById",
 			query =
 				"SELECT e"
 				+ " FROM RfTagEventData e"
 				+ " WHERE e.receiverId = :receiverId"
-				+ " and e.eventId > :fromId"
-				+ " ORDER BY e.eventId"),
+				+ "   and e.eventId = :eventId"),
+	@NamedQuery(
+			name = "allReceiverRfTagEvents",
+			query =
+				"SELECT e"
+				+ " FROM RfTagEventData e"
+				+ " WHERE e.receiverId = :receiverId"
+				+ " ORDER BY e.id"),
 	@NamedQuery(
 			name = "deleteRfTagEvents",
 			query =
@@ -46,10 +52,10 @@ public class RfTagEventData implements RfTagEvent {
 	private long id;
 
 	@Column(name = "receiver_id", nullable = false, updatable = false)
-	protected int receiverId;
+	private int receiverId;
 
 	@Column(name = "event_id", nullable = true, updatable = false)
-	protected long eventId;
+	private Long eventId;
 
 	@Column(name = "initial_event", nullable = false, updatable = false)
 	private boolean initialEvent;
@@ -74,11 +80,10 @@ public class RfTagEventData implements RfTagEvent {
 
 	public RfTagEventData(
 			RfReceiver<?> receiver,
-			long eventId,
 			RfTagAppearanceMessage message) {
 		this.receiverId = receiver.getId();
 		this.receiver = receiver;
-		this.eventId = eventId;
+		this.eventId = message.getEventId();
 		this.initialEvent = message.isInitialEvent();
 		this.rfTag = message.getRfTag();
 		this.tag = this.rfTag.toHexString();
@@ -97,7 +102,7 @@ public class RfTagEventData implements RfTagEvent {
 
 	@Override
 	public long getEventId() {
-		return this.eventId;
+		return this.eventId == null ? 0 : this.eventId.longValue();
 	}
 
 	@Override

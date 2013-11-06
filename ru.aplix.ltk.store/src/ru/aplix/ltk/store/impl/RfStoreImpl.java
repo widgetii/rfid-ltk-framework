@@ -188,8 +188,6 @@ public class RfStoreImpl
 			public void afterCompletion(int status) {
 				if (status != STATUS_COMMITTED) {
 					addReceiver(receiver);
-				} else {
-
 				}
 			}
 		});
@@ -222,18 +220,42 @@ public class RfStoreImpl
 	}
 
 	@Transactional
-	void saveEvent(RfTagEventData eventData) {
+	void saveEvent(RfTagEventData event) {
+		if (event.isInitialEvent()) {
+			hideVisibleTags(event);
+		}
+		if (!eventExists(event)) {
+			getEntityManager().persist(event);
+		}
+	}
 
-		final RfTagEventData existing = getEntityManager().find(
-				RfTagEventData.class,
-				eventData.getId());
+	private void hideVisibleTags(RfTagEventData event) {
 
-		if (existing != null) {
-			// Prevent the storing of event for the second time.
-			return;
+		final Query query = getEntityManager().createNativeQuery(
+				"SELECT rfstore.hide_visible_tags(?, ?, ?)");
+
+		query.setParameter(1, event.getReceiverId());
+		query.setParameter(2, event.getEventId());
+		query.setParameter(3, event.getSqlTimestamp());
+
+		query.getSingleResult();
+	}
+
+	private boolean eventExists(RfTagEventData event) {
+
+		final long eventId = event.getEventId();
+
+		if (eventId <= 0) {
+			return false;
 		}
 
-		getEntityManager().persist(eventData);
+		final Query query =
+				getEntityManager().createNamedQuery("rfTagEventById");
+
+		query.setParameter("receiverId", event.getReceiverId());
+		query.setParameter("eventId", eventId);
+
+		return !query.getResultList().isEmpty();
 	}
 
 	@Transactional
@@ -251,17 +273,12 @@ public class RfStoreImpl
 
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	List<RfTagEventData> loadEvents(
-			RfReceiverImpl<?> receiver,
-			long fromEventId,
-			int limit) {
+	List<RfTagEventData> allReceiverEvents(RfReceiverImpl<?> receiver) {
 
 		final Query query =
-				getEntityManager().createNamedQuery("rfTagEvents");
+				getEntityManager().createNamedQuery("allReceiverRfTagEvents");
 
 		query.setParameter("receiverId", receiver.getId());
-		query.setParameter("fromId", fromEventId);
-		query.setMaxResults(limit);
 
 		return query.getResultList();
 	}

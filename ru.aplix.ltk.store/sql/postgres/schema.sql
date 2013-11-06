@@ -58,7 +58,7 @@ CREATE OR REPLACE FUNCTION rfstore.hide_visible_tags (
 	receiver_id int,
 	initial_event_id bigint,
 	initial_event_timestamp timestamp with time zone
-) RETURNS void
+) RETURNS integer
 LANGUAGE sql AS
 $FN$
 	INSERT INTO rfstore.tag_event (
@@ -75,4 +75,5 @@ $FN$
 	WHERE
 		v.receiver_id = receiver_id
 		and v.event_id < initial_event_id;
+	SELECT 1;
 $FN$;

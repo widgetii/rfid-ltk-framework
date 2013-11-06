@@ -94,9 +94,9 @@ final class RfReceiverImpl<S extends RfSettings> implements RfReceiver<S> {
 	}
 
 	@Override
-	public List<RfTagEventData> loadEvents(long fromEventId, int limit) {
+	public List<RfTagEventData> allEvents() {
 		try {
-			return getRfStore().loadEvents(this, fromEventId, limit);
+			return getRfStore().allReceiverEvents(this);
 		} catch (RuntimeException | Error e) {
 			getMonitoring().unexpectedError("Error while loading events", e);
 			throw e;

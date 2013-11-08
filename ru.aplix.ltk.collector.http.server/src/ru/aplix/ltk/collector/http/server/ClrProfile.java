@@ -95,14 +95,8 @@ public class ClrProfile<S extends RfSettings> {
 		}
 	}
 
-	public RfConnection connect() {
-
-		final RfProvider<S> provider = getProvider();
-		final S settings = provider.newSettings();
-
-		settings.read(getParameters());
-
-		return provider.connect(settings);
+	public final RfConnection connect() {
+		return getProvider().connect(getConfig().settings());
 	}
 
 	@Override

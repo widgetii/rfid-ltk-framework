@@ -1,6 +1,6 @@
 package ru.aplix.ltk.collector.http.server;
 
-import static ru.aplix.ltk.core.util.ParameterType.BOOLEAN_PARAMETER_TYPE;
+import static ru.aplix.ltk.collector.http.ClrProfileData.AUTOSTART;
 
 import java.io.*;
 import java.util.Properties;
@@ -8,15 +8,12 @@ import java.util.Properties;
 import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
-import ru.aplix.ltk.core.util.Parameter;
 import ru.aplix.ltk.core.util.Parameters;
 
 
 final class ClrProfileConfig<S extends RfSettings> {
 
 	private static final String PROPERTIES_SUFFIX = ".properties";
-	private static final Parameter<Boolean> AUTOSTART =
-			BOOLEAN_PARAMETER_TYPE.parameter("autostart").byDefault(false);
 	static final FilenameFilter PROFILES_FILTER = new FilenameFilter() {
 		@Override
 		public boolean accept(File dir, String name) {
@@ -61,6 +58,16 @@ final class ClrProfileConfig<S extends RfSettings> {
 
 	public final Parameters getParameters() {
 		return this.parameters;
+	}
+
+	public final S settings() {
+
+		final RfProvider<S> provider = getProvider();
+		final S settings = provider.newSettings();
+
+		settings.read(getParameters());
+
+		return settings;
 	}
 
 	public void load() throws IOException {

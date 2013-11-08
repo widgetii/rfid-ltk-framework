@@ -1,6 +1,7 @@
 package ru.aplix.ltk.collector.http.server;
 
 import static ru.aplix.ltk.collector.http.server.ClrClientServlet.CLR_SERVLET_PATH;
+import static ru.aplix.ltk.collector.http.server.ClrProfilesServlet.PROFILES_SERVLET_PATH;
 
 import javax.servlet.ServletException;
 
@@ -16,15 +17,25 @@ import ru.aplix.ltk.osgi.Logger;
 
 public class CollectorHttpService implements BundleActivator {
 
+	private final AllClrProfiles allProfiles;
 	private Logger log;
 	private HttpTracker httpTracker;
 	private BundleContext context;
+
+	public CollectorHttpService() {
+		this.allProfiles = new AllClrProfiles(this);
+	}
+
+	public final AllClrProfiles allProfiles() {
+		return this.allProfiles;
+	}
 
 	@Override
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
 		this.log = new Logger(context);
 		this.log.open();
+		this.allProfiles.init();
 		this.httpTracker = new HttpTracker(context);
 		this.httpTracker.open();
 	}
@@ -45,16 +56,21 @@ public class CollectorHttpService implements BundleActivator {
 
 			if (httpService != null) {
 				httpService.unregister(CLR_SERVLET_PATH);
+				httpService.unregister(PROFILES_SERVLET_PATH);
 			}
 		} finally {
 			try {
-				this.httpTracker.close();
+				this.allProfiles.destroy();
 			} finally {
-				this.httpTracker = null;
 				try {
-					this.log.close();
+					this.httpTracker.close();
 				} finally {
-					this.log = null;
+					this.httpTracker = null;
+					try {
+						this.log.close();
+					} finally {
+						this.log = null;
+					}
 				}
 			}
 		}
@@ -64,7 +80,12 @@ public class CollectorHttpService implements BundleActivator {
 		try {
 			service.registerServlet(
 					CLR_SERVLET_PATH,
-					new ClrClientServlet(this),
+					new ClrClientServlet(allProfiles()),
+					null,
+					null);
+			service.registerServlet(
+					PROFILES_SERVLET_PATH,
+					new ClrProfilesServlet(allProfiles()),
 					null,
 					null);
 		} catch (ServletException | NamespaceException e) {

@@ -29,17 +29,12 @@ public class ClrClientServlet extends HttpServlet {
 
 	private final AllClrProfiles allProfiles;
 
-	public ClrClientServlet(CollectorHttpService collectorService) {
-		this.allProfiles = new AllClrProfiles(collectorService);
+	public ClrClientServlet(AllClrProfiles allProfiles) {
+		this.allProfiles = allProfiles;
 	}
 
 	public final AllClrProfiles allProfiles() {
 		return this.allProfiles;
-	}
-
-	@Override
-	public void init() throws ServletException {
-		allProfiles().init();
 	}
 
 	@Override
@@ -177,7 +172,6 @@ public class ClrClientServlet extends HttpServlet {
 
 	@Override
 	public void destroy() {
-		allProfiles().destroy();
 	}
 
 	private static String rootPath(HttpServletRequest request) {

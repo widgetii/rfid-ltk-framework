@@ -42,15 +42,6 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 	private final String id;
 
 	/**
-	 * Constructs an identifier of HTTP collector profile with empty local id.
-	 *
-	 * @param providerId provider identifier.
-	 */
-	public ClrProfileId(String providerId) {
-		this(providerId, "");
-	}
-
-	/**
 	 * Constructs an identifier of HTTP collector profile.
 	 *
 	 * @param providerId provider identifier.

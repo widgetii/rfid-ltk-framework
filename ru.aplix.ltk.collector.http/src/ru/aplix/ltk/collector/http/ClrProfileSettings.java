@@ -11,16 +11,16 @@ import ru.aplix.ltk.core.util.Parameters;
 
 
 /**
- * RFID collector's profile data.
+ * RFID collector's profile settings.
  *
- * <p>Collector server performs accordingly to profiles stored on it.
- * These profiles can be either preconfigured or managed remotely via dedicated
- * servlet. An instances of this class can be used for interchanging with this
+ * <p>Collector server performs accordingly to profiles stored on it. These
+ * profiles can be either preconfigured or managed remotely via dedicated
+ * servlet. An instances of this class can be used for interchanging with that
  * servlet.</p>
  *
  * @param <S> RFID settings type.
  */
-public class ClrProfileData<S extends RfSettings> implements Parameterized {
+public class ClrProfileSettings<S extends RfSettings> implements Parameterized {
 
 	/**
 	 * Human-readable profile name.
@@ -50,7 +50,7 @@ public class ClrProfileData<S extends RfSettings> implements Parameterized {
 	 *
 	 * @param provider RFID provider of the profile.
 	 */
-	public ClrProfileData(RfProvider<S> provider) {
+	public ClrProfileSettings(RfProvider<S> provider) {
 		requireNonNull(provider, "RFID provider not specified");
 		this.provider = provider;
 		this.settings = provider.newSettings();

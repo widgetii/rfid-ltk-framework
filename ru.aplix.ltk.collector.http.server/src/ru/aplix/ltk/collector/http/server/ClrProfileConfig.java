@@ -1,6 +1,6 @@
 package ru.aplix.ltk.collector.http.server;
 
-import static ru.aplix.ltk.collector.http.ClrProfileData.AUTOSTART;
+import static ru.aplix.ltk.collector.http.ClrProfileSettings.AUTOSTART;
 
 import java.io.*;
 import java.util.Properties;

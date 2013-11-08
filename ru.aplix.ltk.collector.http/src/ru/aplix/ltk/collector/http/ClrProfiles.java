@@ -13,28 +13,28 @@ import ru.aplix.ltk.core.util.Parameters;
 
 
 /**
- * The data of all profiles existing at collector server.
+ * All profiles existing at HTTP RFID collector server.
  */
-public class ClrProfilesData implements Parameterized {
+public class ClrProfiles implements Parameterized {
 
 	private final RfProvidersResolver providerResolver;
-	private final HashMap<ClrProfileId, ClrProfileData<?>> profiles =
+	private final HashMap<ClrProfileId, ClrProfileSettings<?>> profiles =
 			new HashMap<>();
 
 	/**
-	 * Constructs profiles data without RFID providers resolver.
+	 * Constructs profiles without RFID providers resolver.
 	 */
-	public ClrProfilesData() {
+	public ClrProfiles() {
 		this.providerResolver = null;
 	}
 
 	/**
-	 * Constructs profiles data.
+	 * Constructs profiles.
 	 *
 	 * @param providerResolver RFID providers resolver. Required for
 	 * deserialization.
 	 */
-	public ClrProfilesData(RfProvidersResolver providerResolver) {
+	public ClrProfiles(RfProvidersResolver providerResolver) {
 		this.providerResolver = providerResolver;
 	}
 
@@ -52,7 +52,7 @@ public class ClrProfilesData implements Parameterized {
 	 *
 	 * @return a map of collector profiles by their identifiers.
 	 */
-	public final Map<ClrProfileId, ClrProfileData<?>> profiles() {
+	public final Map<ClrProfileId, ClrProfileSettings<?>> profiles() {
 		return this.profiles;
 	}
 
@@ -69,7 +69,7 @@ public class ClrProfilesData implements Parameterized {
 				continue;
 			}
 
-			final ClrProfileData<?> profileData = profileData(profileId);
+			final ClrProfileSettings<?> profileData = profileData(profileId);
 
 			if (profileData == null) {
 				continue;
@@ -81,20 +81,20 @@ public class ClrProfilesData implements Parameterized {
 
 	@Override
 	public void write(Parameters params) {
-		for (Map.Entry<ClrProfileId, ClrProfileData<?>> e :
+		for (Map.Entry<ClrProfileId, ClrProfileSettings<?>> e :
 			profiles().entrySet()) {
 
 			final ClrProfileId id = e.getKey();
-			final ClrProfileData<?> profile = e.getValue();
+			final ClrProfileSettings<?> profile = e.getValue();
 			final Parameters profileParams = params.sub(id.toString());
 
 			profile.write(profileParams);
 		}
 	}
 
-	private ClrProfileData<?> profileData(ClrProfileId profileId) {
+	private ClrProfileSettings<?> profileData(ClrProfileId profileId) {
 
-		final ClrProfileData<?> existing = this.profiles.get(profileId);
+		final ClrProfileSettings<?> existing = this.profiles.get(profileId);
 
 		if (existing != null) {
 			return existing;
@@ -107,7 +107,7 @@ public class ClrProfilesData implements Parameterized {
 			return null;
 		}
 
-		final ClrProfileData<?> profileData = new ClrProfileData<>(provider);
+		final ClrProfileSettings<?> profileData = new ClrProfileSettings<>(provider);
 
 		this.profiles.put(profileId, profileData);
 

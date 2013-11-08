@@ -3,7 +3,7 @@ package ru.aplix.ltk.collector.http.server;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
-import static ru.aplix.ltk.collector.http.ClrProfileId.clrProfileId;
+import static ru.aplix.ltk.collector.http.ClrClientId.clrClientId;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,9 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ru.aplix.ltk.collector.http.ClrProfileData;
-import ru.aplix.ltk.collector.http.ClrProfileId;
-import ru.aplix.ltk.collector.http.ClrProfilesData;
+import ru.aplix.ltk.collector.http.*;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.core.util.Parameterized;
@@ -45,7 +43,7 @@ public class ClrProfilesServlet extends HttpServlet {
 			HttpServletResponse resp)
 	throws ServletException, IOException {
 
-		final ClrProfilesData profilesData = new ClrProfilesData();
+		final ClrProfiles profilesData = new ClrProfiles();
 
 		for (ProviderClrProfiles<?> providerProfiles : allProfiles()) {
 			addProviderProfiles(profilesData, providerProfiles);
@@ -73,8 +71,8 @@ public class ClrProfilesServlet extends HttpServlet {
 			return;
 		}
 
-		final ClrProfileData<?> profileData =
-				new ClrProfileData<>(profiles.getProvider());
+		final ClrProfileSettings<?> profileData =
+				new ClrProfileSettings<>(profiles.getProvider());
 
 		profileData.read(new Parameters(req.getParameterMap()));
 
@@ -125,6 +123,9 @@ public class ClrProfilesServlet extends HttpServlet {
 		}
 
 		profile.delete();
+
+		resp.setStatus(SC_NO_CONTENT);
+		resp.flushBuffer();
 	}
 
 	private static ClrProfileId profileId(
@@ -132,9 +133,9 @@ public class ClrProfilesServlet extends HttpServlet {
 			HttpServletResponse resp)
 	throws IOException {
 
-		final String profileIdParam = req.getParameter("profileId");
+		final ClrClientId clientId = clrClientId(req.getPathInfo());
 
-		if (profileIdParam == null) {
+		if (clientId == null) {
 			sendError(
 					resp,
 					SC_BAD_REQUEST,
@@ -143,15 +144,15 @@ public class ClrProfilesServlet extends HttpServlet {
 			return null;
 		}
 
-		final ClrProfileId profileId = clrProfileId(profileIdParam);
+		final ClrProfileId profileId = clientId.getProfileId();
 
-		if (profileId.getId().isEmpty()) {
+		if (clientId.getUUID() != null || profileId.getId().isEmpty()) {
 			sendError(
 					resp,
 					SC_BAD_REQUEST,
 					"invalid.profile_id",
 					"Invalid profile identifier",
-					profileId.toString());
+					clientId.toString());
 			return null;
 		}
 
@@ -179,7 +180,7 @@ public class ClrProfilesServlet extends HttpServlet {
 	}
 
 	private static <S extends RfSettings> void addProviderProfiles(
-			ClrProfilesData profilesData,
+			ClrProfiles profilesData,
 			ProviderClrProfiles<S> providerProfiles) {
 
 		final RfProvider<S> provider = providerProfiles.getProvider();
@@ -188,8 +189,8 @@ public class ClrProfilesServlet extends HttpServlet {
 		for (ClrProfile<S> profile : providerProfiles) {
 			hasProfiles = true;
 
-			final ClrProfileData<S> profileData =
-					new ClrProfileData<>(provider);
+			final ClrProfileSettings<S> profileData =
+					new ClrProfileSettings<>(provider);
 
 			profileData.read(profile.getParameters());
 			profilesData.profiles().put(profile.getProfileId(), profileData);
@@ -201,11 +202,11 @@ public class ClrProfilesServlet extends HttpServlet {
 	}
 
 	private static <S extends RfSettings> void addDefaultProfile(
-			ClrProfilesData profilesData,
+			ClrProfiles profilesData,
 			RfProvider<S> provider) {
 
-		final ClrProfileData<S> defaultData =
-				new ClrProfileData<>(provider);
+		final ClrProfileSettings<S> defaultData =
+				new ClrProfileSettings<>(provider);
 
 		profilesData.profiles().put(
 				new ClrProfileId(provider.getId(), null),
@@ -240,11 +241,8 @@ public class ClrProfilesServlet extends HttpServlet {
 		resp.setStatus(httpStatus);
 		resp.setHeader("X-Error-Code", errorCode);
 
-		if (args.length != 0) {
-			resp.setHeader("X-Error-Args", Integer.toString(args.length));
-			for (int i = 0; i < args.length; ++i) {
-				resp.setHeader("X-Error-Arg-" + i, args[i]);
-			}
+		for (String arg : args) {
+			resp.addHeader("X-Error-Arg", arg);
 		}
 
 		@SuppressWarnings("resource")

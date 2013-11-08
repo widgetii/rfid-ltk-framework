@@ -5,6 +5,8 @@ import static ru.aplix.ltk.collector.http.ClrClientId.clrClientId;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import ru.aplix.ltk.collector.http.ClrClientId;
 import ru.aplix.ltk.collector.http.ClrClientRequest;
+import ru.aplix.ltk.collector.http.ClrProfileId;
+import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.util.Parameters;
 
 
@@ -45,11 +49,42 @@ public class ClrClientServlet extends HttpServlet {
 	throws ServletException, IOException {
 		resp.setContentType("text/html;charset=UTF-8");
 
+		final String rootPath = rootPath(req);
 		@SuppressWarnings("resource")
 		final PrintWriter out = resp.getWriter();
 
-		allProfiles().statusReport(out, rootPath(req));
+		out.println("<!DOCTYPE html>");
+		out.println("<html>");
+		out.println("<head>");
+		out.println("<title>Накопитель тегов RFID</title>");
+		out.println("</head>");
 
+		out.println("<body>");
+		out.println("<h1>Профили оборудования</h1>");
+
+		RfProvider<?> lastProvider = null;
+
+		for (ClrProfile<?> profile : sortedProfiles()) {
+
+			final RfProvider<?> provider = profile.getProvider();
+
+			if (provider != lastProvider) {
+				if (lastProvider != null) {
+					out.println("<hr/>");
+				}
+				lastProvider = provider;
+
+				out.append("<h2>")
+				.append(html(profile.getProvider().getName()))
+				.append("</h2>")
+				.println();
+			}
+
+			profileReport(out, rootPath, profile);
+		}
+
+		out.println("</body>");
+		out.println("</html>");
 		out.flush();
 	}
 
@@ -159,6 +194,45 @@ public class ClrClientServlet extends HttpServlet {
 		url.append(request.getContextPath()).append(CLR_SERVLET_PATH);
 
 		return url.toString();
+	}
+
+	private Collection<ClrProfile<?>> sortedProfiles() {
+
+		final TreeMap<ClrProfileId, ClrProfile<?>> profiles = new TreeMap<>();
+
+		for (ProviderClrProfiles<?> providerProfiles : allProfiles()) {
+			for (ClrProfile<?> profile : providerProfiles) {
+				profiles.put(profile.getProfileId(), profile);
+			}
+		}
+
+		return profiles.values();
+	}
+
+	private void profileReport(
+			PrintWriter out,
+			String rootPath,
+			ClrProfile<?> profile) {
+
+		final String profileId = profile.getProfileId().toString();
+		final String path = attr(rootPath + '/' + profileId);
+
+		out.append("<a href=\"")
+		.append(path)
+		.append("\">")
+		.append(path)
+		.append("</a>")
+		.println();
+	}
+
+	private static String attr(String text) {
+		return html(text).replace("\"", "&#34;").replace("'", "&#39;");
+	}
+
+	private static String html(String text) {
+		return text.replace("<", "&lt;")
+				.replace(">", "&gt;")
+				.replace("&", "&amp;");
 	}
 
 }

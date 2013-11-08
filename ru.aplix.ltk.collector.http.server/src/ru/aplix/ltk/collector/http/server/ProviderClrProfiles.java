@@ -12,7 +12,7 @@ import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.osgi.Logger;
 
 
-final class ProviderClrProfiles<S extends RfSettings>
+public final class ProviderClrProfiles<S extends RfSettings>
 		implements Iterable<ClrProfile<S>> {
 
 	private final AllClrProfiles allProfiles;

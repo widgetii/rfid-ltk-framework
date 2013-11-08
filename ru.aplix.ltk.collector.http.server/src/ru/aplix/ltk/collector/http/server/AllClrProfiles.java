@@ -3,9 +3,7 @@ package ru.aplix.ltk.collector.http.server;
 import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_CLASS;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.TreeMap;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.client.HttpClient;
@@ -20,7 +18,7 @@ import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.osgi.Logger;
 
 
-public final class AllClrProfiles {
+public final class AllClrProfiles implements Iterable<ProviderClrProfiles<?>> {
 
 	private final CollectorHttpService collectorService;
 	private final ConcurrentHashMap<String, ProviderClrProfiles<?>> profiles =
@@ -74,39 +72,9 @@ public final class AllClrProfiles {
 		return this.httpClient = new DefaultHttpClient(conman);
 	}
 
-	public void statusReport(PrintWriter out, String rootPath) {
-		out.println("<!DOCTYPE html>");
-		out.println("<html>");
-		out.println("<head>");
-		out.println("<title>Накопитель тегов RFID</title>");
-		out.println("</head>");
-
-		out.println("<body>");
-		out.println("<h1>Профили оборудования</h1>");
-
-		RfProvider<?> lastProvider = null;
-
-		for (ClrProfile<?> profile : sortedProfiles()) {
-
-			final RfProvider<?> provider = profile.getProvider();
-
-			if (provider != lastProvider) {
-				if (lastProvider != null) {
-					out.println("<hr/>");
-				}
-				lastProvider = provider;
-
-				out.append("<h2>")
-				.append(html(profile.getProvider().getName()))
-				.append("</h2>")
-				.println();
-			}
-
-			profileReport(out, rootPath, profile);
-		}
-
-		out.println("</body>");
-		out.println("</html>");
+	@Override
+	public Iterator<ProviderClrProfiles<?>> iterator() {
+		return this.profiles.values().iterator();
 	}
 
 	public void destroy() {
@@ -164,45 +132,6 @@ public final class AllClrProfiles {
 		if (providerProfiles != null) {
 			providerProfiles.dispose();
 		}
-	}
-
-	private Collection<ClrProfile<?>> sortedProfiles() {
-
-		final TreeMap<ClrProfileId, ClrProfile<?>> profiles = new TreeMap<>();
-
-		for (ProviderClrProfiles<?> providerProfiles : this.profiles.values()) {
-			for (ClrProfile<?> profile : providerProfiles) {
-				profiles.put(profile.getProfileId(), profile);
-			}
-		}
-
-		return profiles.values();
-	}
-
-	private void profileReport(
-			PrintWriter out,
-			String rootPath,
-			ClrProfile<?> profile) {
-
-		final String profileId = profile.getProfileId().toString();
-		final String path = attr(rootPath + '/' + profileId);
-
-		out.append("<a href=\"")
-		.append(path)
-		.append("\">")
-		.append(path)
-		.append("</a>")
-		.println();
-	}
-
-	private static String attr(String text) {
-		return html(text).replace("\"", "&#34;").replace("'", "&#39;");
-	}
-
-	private static String html(String text) {
-		return text.replace("<", "&lt;")
-				.replace(">", "&gt;")
-				.replace("&", "&amp;");
 	}
 
 	private final class RfProviders

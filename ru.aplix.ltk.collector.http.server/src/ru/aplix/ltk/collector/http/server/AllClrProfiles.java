@@ -1,8 +1,6 @@
 package ru.aplix.ltk.collector.http.server;
 
-import static ru.aplix.ltk.collector.http.server.ClrProfileConfig.PROFILES_FILTER;
 import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_CLASS;
-import static ru.aplix.ltk.osgi.OSGiUtils.bundleParameters;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -19,16 +17,13 @@ import org.osgi.util.tracker.ServiceTracker;
 import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
-import ru.aplix.ltk.core.util.Parameters;
 import ru.aplix.ltk.osgi.Logger;
 
 
 public final class AllClrProfiles {
 
-	private static final String CONFIG_PREFIX = "ru.aplix.ltk.rf";
-
 	private final CollectorHttpService collectorService;
-	private final ConcurrentHashMap<ClrProfileId, ClrProfile<?>> profiles =
+	private final ConcurrentHashMap<String, ProviderClrProfiles<?>> profiles =
 			new ConcurrentHashMap<>();
 	private File configDir;
 	private RfProviders rfProviders;
@@ -42,6 +37,10 @@ public final class AllClrProfiles {
 		return this.collectorService;
 	}
 
+	public final File getConfigDir() {
+		return this.configDir;
+	}
+
 	public final Logger log() {
 		return getCollectorService().log();
 	}
@@ -53,7 +52,15 @@ public final class AllClrProfiles {
 	}
 
 	public final ClrProfile<?> get(ClrProfileId profileId) {
-		return this.profiles.get(profileId);
+
+		final ProviderClrProfiles<?> providerProfiles =
+				this.profiles.get(profileId.getProviderId());
+
+		if (providerProfiles == null) {
+			return null;
+		}
+
+		return providerProfiles.get(profileId.getId());
 	}
 
 	public synchronized final HttpClient httpClient() {
@@ -138,81 +145,38 @@ public final class AllClrProfiles {
 		return configDir;
 	}
 
-	private void addProvider(RfProvider<?> provider) {
+	private <S extends RfSettings> void addProvider(RfProvider<S> provider) {
 		log().debug("Add provider: " + provider.getId());
 
 		final String providerId = provider.getId();
-		final File configDir = new File(this.configDir, providerId);
+		final ProviderClrProfiles<S> providerProfiles =
+				new ProviderClrProfiles<>(this, provider);
 
-		if (!configDir.isDirectory()) {
-			log().debug("No profiles found for provider " + provider.getId());
-			// No profiles for this provider.
-			return;
-		}
-		for (File file : configDir.listFiles(PROFILES_FILTER)) {
-			loadProfile(provider, file);
-		}
-	}
-
-	private <S extends RfSettings> void loadProfile(
-			RfProvider<S> provider,
-			File file) {
-
-		final ClrProfileConfig<S> config =
-				new ClrProfileConfig<>(provider, file);
-		final ClrProfileId profileId = config.getProfileId();
-		final ClrProfile<S> profile = new ClrProfile<>(this, config);
-		final ClrProfile<?> existing = this.profiles.put(profileId, profile);
-
-		if (existing != null) {
-			this.profiles.put(profileId, existing);
-			log().error("Profile `" + profileId + "` already registered");
-			return;
-		}
-
-		log().debug("Load profile `" + profileId + "` config from " + file);
-		try {
-			config.load();
-		} catch (Throwable e) {
-			log().error("Failed to load profile `" + profileId + "`", e);
-			this.profiles.remove(profileId);
-		}
-
-		if (config.isAutostart()) {
-			profile.autostart();
-		}
+		this.profiles.put(providerId, providerProfiles);
+		providerProfiles.load();
 	}
 
 	private void removeProvider(RfProvider<?> provider) {
 
-		final Parameters params = providerParameters(provider);
-		final String[] configs = params.valuesOf("");
+		final ProviderClrProfiles<?> providerProfiles =
+				this.profiles.remove(provider.getId());
 
-		if (configs == null) {
-			removeProfile(new ClrProfileId(provider.getId()));
-		} else {
-			for (String config : configs) {
-				removeProfile(new ClrProfileId(provider.getId(), config));
-			}
+		if (providerProfiles != null) {
+			providerProfiles.dispose();
 		}
-	}
-
-	private void removeProfile(ClrProfileId profileId) {
-
-		final ClrProfile<?> profile = this.profiles.remove(profileId);
-
-		if (profile != null) {
-			profile.dispose();
-		}
-	}
-
-	private Parameters providerParameters(RfProvider<?> provider) {
-		return bundleParameters(getCollectorService().getContext())
-				.sub(CONFIG_PREFIX + '.' + provider.getId());
 	}
 
 	private Collection<ClrProfile<?>> sortedProfiles() {
-		return new TreeMap<>(this.profiles).values();
+
+		final TreeMap<ClrProfileId, ClrProfile<?>> profiles = new TreeMap<>();
+
+		for (ProviderClrProfiles<?> providerProfiles : this.profiles.values()) {
+			for (ClrProfile<?> profile : providerProfiles) {
+				profiles.put(profile.getProfileId(), profile);
+			}
+		}
+
+		return profiles.values();
 	}
 
 	private void profileReport(

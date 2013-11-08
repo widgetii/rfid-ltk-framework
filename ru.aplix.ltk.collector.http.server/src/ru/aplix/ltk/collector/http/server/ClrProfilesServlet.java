@@ -1,7 +1,13 @@
 package ru.aplix.ltk.collector.http.server;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
+import static ru.aplix.ltk.collector.http.ClrProfileId.clrProfileId;
+
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Formatter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +24,8 @@ import ru.aplix.ltk.core.util.Parameters;
 
 
 public class ClrProfilesServlet extends HttpServlet {
+
+	private static final long serialVersionUID = 2244925870470971820L;
 
 	public static final String PROFILES_SERVLET_PATH = "/profiles";
 
@@ -44,6 +52,130 @@ public class ClrProfilesServlet extends HttpServlet {
 		}
 
 		respond(resp, profilesData);
+	}
+
+	@Override
+	protected void doPut(
+			HttpServletRequest req,
+			HttpServletResponse resp)
+	throws ServletException, IOException {
+
+		final ClrProfileId profileId = profileId(req, resp);
+
+		if (profileId == null) {
+			return;
+		}
+
+		final ProviderClrProfiles<?> profiles =
+				providerProfiles(resp, profileId);
+
+		if (profiles == null) {
+			return;
+		}
+
+		final ClrProfileData<?> profileData =
+				new ClrProfileData<>(profiles.getProvider());
+
+		profileData.read(new Parameters(req.getParameterMap()));
+
+		final ClrProfile<?> profile = profiles.createProfile(profileId);
+
+		profileData.write(profile.getConfig().getParameters());
+		try {
+			profile.save();
+		} catch (Exception e) {
+			sendError(
+					resp,
+					SC_INTERNAL_SERVER_ERROR,
+					"unexpected",
+					"Unexpected error: %s",
+					e.getLocalizedMessage());
+		}
+
+		resp.setStatus(SC_NO_CONTENT);
+		resp.flushBuffer();
+	}
+
+	@Override
+	protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+
+		final ClrProfileId profileId = profileId(req, resp);
+
+		if (profileId == null) {
+			return;
+		}
+
+		final ProviderClrProfiles<?> profiles =
+				providerProfiles(resp, profileId);
+
+		if (profiles == null) {
+			return;
+		}
+
+		final ClrProfile<?> profile = profiles.get(profileId.getId());
+
+		if (profile == null) {
+			sendError(
+					resp,
+					SC_BAD_REQUEST,
+					"unknown.profile",
+					"Profile does not exist: %s", profileId.toString());
+			return;
+		}
+
+		profile.delete();
+	}
+
+	private static ClrProfileId profileId(
+			HttpServletRequest req,
+			HttpServletResponse resp)
+	throws IOException {
+
+		final String profileIdParam = req.getParameter("profileId");
+
+		if (profileIdParam == null) {
+			sendError(
+					resp,
+					SC_BAD_REQUEST,
+					"missing.profile_id",
+					"Profile identifier not specified");
+			return null;
+		}
+
+		final ClrProfileId profileId = clrProfileId(profileIdParam);
+
+		if (profileId.getId().isEmpty()) {
+			sendError(
+					resp,
+					SC_BAD_REQUEST,
+					"invalid.profile_id",
+					"Invalid profile identifier",
+					profileId.toString());
+			return null;
+		}
+
+		return profileId;
+	}
+
+	private ProviderClrProfiles<?> providerProfiles(
+			HttpServletResponse resp,
+			ClrProfileId profileId)
+	throws IOException {
+
+		final ProviderClrProfiles<?> profiles =
+				allProfiles().providerProfiles(profileId.getProviderId());
+
+		if (profiles == null) {
+			sendError(
+					resp,
+					SC_BAD_REQUEST,
+					"unknown.provider",
+					"Unsupported RFID provider: %s",
+					profileId.getProviderId());
+		}
+
+		return profiles;
 	}
 
 	private static <S extends RfSettings> void addProviderProfiles(
@@ -94,6 +226,31 @@ public class ClrProfilesServlet extends HttpServlet {
 		final PrintWriter out = resp.getWriter();
 
 		parameters.urlEncode(out);
+		out.flush();
+	}
+
+	private static void sendError(
+			HttpServletResponse resp,
+			int httpStatus,
+			String errorCode,
+			String message,
+			String... args)
+	throws IOException {
+		resp.setContentType("text/plain;charset=UTF-8");
+		resp.setStatus(httpStatus);
+		resp.setHeader("X-Error-Code", errorCode);
+
+		if (args.length != 0) {
+			resp.setHeader("X-Error-Args", Integer.toString(args.length));
+			for (int i = 0; i < args.length; ++i) {
+				resp.setHeader("X-Error-Arg-" + i, args[i]);
+			}
+		}
+
+		@SuppressWarnings("resource")
+		final Formatter out = new Formatter(resp.getWriter());
+
+		out.format(message + "\n", args);
 		out.flush();
 	}
 

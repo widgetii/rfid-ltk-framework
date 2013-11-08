@@ -18,7 +18,8 @@ import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.osgi.Logger;
 
 
-public final class AllClrProfiles implements Iterable<ProviderClrProfiles<?>> {
+public final class AllClrProfiles
+		implements Iterable<ProviderClrProfiles<?>> {
 
 	private final CollectorHttpService collectorService;
 	private final ConcurrentHashMap<String, ProviderClrProfiles<?>> profiles =
@@ -47,6 +48,10 @@ public final class AllClrProfiles implements Iterable<ProviderClrProfiles<?>> {
 		this.configDir = configDir();
 		this.rfProviders = new RfProviders();
 		this.rfProviders.open();
+	}
+
+	public ProviderClrProfiles<?> providerProfiles(String providerId) {
+		return this.profiles.get(providerId);
 	}
 
 	public final ClrProfile<?> get(ClrProfileId profileId) {

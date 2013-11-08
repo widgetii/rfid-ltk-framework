@@ -2,6 +2,7 @@ package ru.aplix.ltk.collector.http.server;
 
 import static java.util.Collections.synchronizedMap;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -18,19 +19,25 @@ import ru.aplix.ltk.osgi.Logger;
 
 public class ClrProfile<S extends RfSettings> {
 
-	private final AllClrProfiles allProfiles;
+	private final ProviderClrProfiles<S> providerProfiles;
 	private final ClrProfileConfig<S> config;
 	private final Map<UUID, ClrClient<S>> clients =
 			synchronizedMap(new HashMap<UUID, ClrClient<S>>(1));
 	private ClrAutostart autostart;
 
-	public ClrProfile(AllClrProfiles allProfiles, ClrProfileConfig<S> config) {
-		this.allProfiles = allProfiles;
+	public ClrProfile(
+			ProviderClrProfiles<S> providerProfiles,
+			ClrProfileConfig<S> config) {
+		this.providerProfiles = providerProfiles;
 		this.config = config;
 	}
 
 	public final AllClrProfiles allProfiles() {
-		return this.allProfiles;
+		return providerProfiles().allProfiles();
+	}
+
+	public final ProviderClrProfiles<S> providerProfiles() {
+		return this.providerProfiles;
 	}
 
 	public final ClrProfileConfig<S> getConfig() {
@@ -38,7 +45,7 @@ public class ClrProfile<S extends RfSettings> {
 	}
 
 	public final RfProvider<S> getProvider() {
-		return getConfig().getProvider();
+		return providerProfiles().getProvider();
 	}
 
 	public final ClrProfileId getProfileId() {
@@ -53,9 +60,10 @@ public class ClrProfile<S extends RfSettings> {
 		return allProfiles().log();
 	}
 
-	public void autostart() {
-		this.autostart = new ClrAutostart(this);
-		this.autostart.start();
+	public void init() {
+		if (getConfig().isAutostart()) {
+			autostart();
+		}
 	}
 
 	public final ClrClient<S> connectClient(
@@ -99,12 +107,31 @@ public class ClrProfile<S extends RfSettings> {
 		return getProvider().connect(getConfig().settings());
 	}
 
+	public void save() throws IOException {
+		providerProfiles().put(this);
+		getConfig().store();
+		init();
+	}
+
+	public void delete() {
+		if (!getConfig().getFile().delete()) {
+			throw new IllegalStateException(
+					"Can not delete file: " + getConfig().getFile());
+		}
+		providerProfiles().remove(this);
+	}
+
 	@Override
 	public String toString() {
 		if (this.config == null) {
 			return super.toString();
 		}
 		return this.config.toString();
+	}
+
+	private void autostart() {
+		this.autostart = new ClrAutostart(this);
+		this.autostart.start();
 	}
 
 	private ClrClient<S> addClient(

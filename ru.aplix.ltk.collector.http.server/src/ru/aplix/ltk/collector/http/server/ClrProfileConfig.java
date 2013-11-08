@@ -13,7 +13,7 @@ import ru.aplix.ltk.core.util.Parameters;
 
 final class ClrProfileConfig<S extends RfSettings> {
 
-	private static final String PROPERTIES_SUFFIX = ".properties";
+	static final String PROPERTIES_SUFFIX = ".properties";
 	static final FilenameFilter PROFILES_FILTER = new FilenameFilter() {
 		@Override
 		public boolean accept(File dir, String name) {

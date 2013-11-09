@@ -15,35 +15,6 @@ import ru.aplix.ltk.core.RfProvider;
 public final class ClrProfileId implements Comparable<ClrProfileId> {
 
 	/**
-	 * Construct the profile identifier from the given string representation.
-	 *
-	 * <p>The string representation of profile may be one of:
-	 * <ul>
-	 * <li>{@code <id> '@' <providerId>} - containing both profile's identifier
-	 * and provider's one, or</li>
-	 * <li>{@code <providerId>} - containing only profile's identifier; in this
-	 * case the profile's identifier is empty string.</li>
-	 * </ul>
-	 * </p>
-	 *
-	 * @param id a string representation of profile identifier.
-	 *
-	 * @return reconstructed profile identifier.
-	 */
-	public static ClrProfileId clrProfileId(String id) {
-
-		final int atIdx = id.indexOf('@');
-
-		if (atIdx < 0) {
-			return new ClrProfileId(id, "");
-		}
-
-		return new ClrProfileId(
-				id.substring(atIdx + 1),
-				id.substring(0, atIdx));
-	}
-
-	/**
 	 * Construct the profile identifier from the given URL-encoded path.
 	 *
 	 * @param path an {@link #urlEncode() URL-encoded} representation of
@@ -112,6 +83,15 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 
 	/**
 	 * URL-encodes this identifier.
+	 *
+	 * <p>The URL-encoded representation of profile identifier may be one of:
+	 * <ul>
+	 * <li>{@code <id> '@' <providerId>} - containing both profile's identifier
+	 * and provider's one, or</li>
+	 * <li>{@code <providerId>} - containing only profile's identifier; in this
+	 * case the profile's identifier is an empty string.</li>
+	 * </ul>
+	 * </p>
 	 *
 	 * @return URL-encoded profile string, which can be included into URL.
 	 */

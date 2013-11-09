@@ -16,8 +16,8 @@ public class ClrClientId {
 	 * Constructs an identifier from the given URL-encoded path.
 	 *
 	 * <p>The path should contain a fragment with a
-	 * {@link ClrProfileId#clrProfileId(String) profile identifier}, and
-	 * optionally - a client UUID, separated from profile identifier with
+	 * {@link ClrProfileId#urlDecodeClrProfileId(String) profile identifier},
+	 * and optionally - a client UUID, separated from profile identifier with
 	 * a {@code '/'} sign.</p>
 	 *
 	 * <p>The path itself may start with a {@code '/'} sign, and may contain

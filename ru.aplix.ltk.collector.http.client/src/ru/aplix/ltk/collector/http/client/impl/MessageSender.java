@@ -5,9 +5,7 @@ import static ru.aplix.ltk.core.util.Parameters.UTF_8;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,6 +19,8 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
 
+import ru.aplix.ltk.collector.http.ClrAddress;
+import ru.aplix.ltk.collector.http.ClrClientId;
 import ru.aplix.ltk.collector.http.ParametersEntity;
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.collector.http.client.impl.monitor.HttpRfClientMtr;
@@ -161,22 +161,14 @@ public abstract class MessageSender<T>
 
 	private URL requestURL() {
 
-		final URL collectorURL = getSettings().getCollectorURL();
+		final ClrAddress address =
+				new ClrAddress(getSettings().getCollectorURL());
 
 		try {
-
-			final UUID clientUUID = getConnection().getClientUUID();
-			final URL baseURL;
-			final String collectorPath = collectorURL.getPath();
-
-			if (collectorPath.endsWith("/")) {
-				baseURL = collectorURL;
-			} else {
-				baseURL = new URL(collectorURL, collectorPath + '/');
-			}
-
-			return new URL(baseURL, clientUUID.toString());
-		} catch (MalformedURLException e) {
+			return address.clientURL(new ClrClientId(
+					address.getProfileId(),
+					getConnection().getClientUUID()));
+		} catch (Exception e) {
 			getConnection().requestFailed("Internal error", e);
 		}
 

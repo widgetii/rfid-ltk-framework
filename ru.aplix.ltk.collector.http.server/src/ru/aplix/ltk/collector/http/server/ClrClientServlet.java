@@ -1,7 +1,8 @@
 package ru.aplix.ltk.collector.http.server;
 
 import static javax.servlet.http.HttpServletResponse.*;
-import static ru.aplix.ltk.collector.http.ClrClientId.clrClientId;
+import static ru.aplix.ltk.collector.http.ClrAddress.COLLECTOR_SERVLET_PATH;
+import static ru.aplix.ltk.collector.http.ClrClientId.urlDecodeClrClientId;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,8 +23,6 @@ import ru.aplix.ltk.core.util.Parameters;
 
 
 public class ClrClientServlet extends HttpServlet {
-
-	public static final String CLR_SERVLET_PATH = "/collector";
 
 	private static final long serialVersionUID = -4825927568800965736L;
 
@@ -89,7 +88,7 @@ public class ClrClientServlet extends HttpServlet {
 			HttpServletResponse resp)
 	throws ServletException, IOException {
 
-		final ClrClientId clientId = clrClientId(req.getPathInfo());
+		final ClrClientId clientId = urlDecodeClrClientId(req.getPathInfo());
 		final ClrClientRequest request =
 				new ClrClientRequest(
 						new Parameters(req.getParameterMap()));
@@ -141,7 +140,7 @@ public class ClrClientServlet extends HttpServlet {
 			HttpServletResponse resp)
 	throws ServletException, IOException {
 
-		final ClrClientId clientId = clrClientId(req.getPathInfo());
+		final ClrClientId clientId = urlDecodeClrClientId(req.getPathInfo());
 
 		if (clientId == null) {
 			resp.sendError(
@@ -185,7 +184,7 @@ public class ClrClientServlet extends HttpServlet {
 				|| port == 443 && "https".equals("scheme"))) {
 			url.append(':').append(port);
 		}
-		url.append(request.getContextPath()).append(CLR_SERVLET_PATH);
+		url.append(request.getContextPath()).append(COLLECTOR_SERVLET_PATH);
 
 		return url.toString();
 	}

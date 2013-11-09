@@ -1,8 +1,9 @@
 package ru.aplix.ltk.collector.http;
 
 import static java.util.Objects.requireNonNull;
-import static ru.aplix.ltk.collector.http.ClrProfileId.clrProfileId;
+import static ru.aplix.ltk.collector.http.ClrProfileId.urlDecodeClrProfileId;
 
+import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 
@@ -12,7 +13,7 @@ import java.util.UUID;
 public class ClrClientId {
 
 	/**
-	 * Constructs an identifier from the given path.
+	 * Constructs an identifier from the given URL-encoded path.
 	 *
 	 * <p>The path should contain a fragment with a
 	 * {@link ClrProfileId#clrProfileId(String) profile identifier}, and
@@ -23,12 +24,12 @@ public class ClrClientId {
 	 * more fragments after the client UUID, separated from the latter by
 	 * the {@code '/'} sign.</p>
 	 *
-	 * @param path path containing identifier.
+	 * @param path {@link #urlEncode() URL-encoded} path containing identifier.
 	 *
 	 * @return new client identifier, or <code>null</code> if {@code path}
 	 * is null.
 	 */
-	public static ClrClientId clrClientId(String path) {
+	public static ClrClientId urlDecodeClrClientId(String path) {
 		if (path == null) {
 			return null;
 		}
@@ -64,11 +65,18 @@ public class ClrClientId {
 			providerProfile = ids;
 			uuid = null;
 		} else {
+
+			final int lastSlashIdx = ids.indexOf('/', slashIdx + 1);
+			final String uuidStr =
+					lastSlashIdx < 0
+					? ids.substring(slashIdx + 1)
+					: ids.substring(slashIdx + 1, lastSlashIdx);
+
 			providerProfile = ids.substring(0, slashIdx);
-			uuid = UUID.fromString(ids.substring(slashIdx + 1));
+			uuid = UUID.fromString(uuidStr);
 		}
 
-		return new ClrClientId(clrProfileId(providerProfile), uuid);
+		return new ClrClientId(urlDecodeClrProfileId(providerProfile), uuid);
 	}
 
 	private final ClrProfileId profileId;
@@ -112,6 +120,19 @@ public class ClrClientId {
 	 */
 	public final UUID getUUID() {
 		return this.uuid;
+	}
+
+	/**
+	 * URL-encodes this identifier.
+	 *
+	 * @return URL-encoded profile string, which can be included into URL.
+	 */
+	public final String urlEncode() {
+		try {
+			return urlEncode("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException("UTF-8 is not supported", e);
+		}
 	}
 
 	@Override
@@ -165,6 +186,19 @@ public class ClrClientId {
 			return this.profileId.toString();
 		}
 		return this.profileId.toString() + '/' + this.uuid;
+	}
+
+	private String urlEncode(
+			String encoding)
+	throws UnsupportedEncodingException {
+
+		final String profileId = this.profileId.urlEncode(encoding);
+
+		if (getUUID() == null) {
+			return profileId;
+		}
+
+		return profileId + '/' + getUUID().toString();
 	}
 
 }

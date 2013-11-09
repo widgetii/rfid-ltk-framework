@@ -3,7 +3,7 @@ package ru.aplix.ltk.collector.http.server;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
-import static ru.aplix.ltk.collector.http.ClrClientId.clrClientId;
+import static ru.aplix.ltk.collector.http.ClrClientId.urlDecodeClrClientId;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,8 +24,6 @@ import ru.aplix.ltk.core.util.Parameters;
 public class ClrProfilesServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 2244925870470971820L;
-
-	public static final String PROFILES_SERVLET_PATH = "/profiles";
 
 	private final AllClrProfiles allProfiles;
 
@@ -133,7 +131,7 @@ public class ClrProfilesServlet extends HttpServlet {
 			HttpServletResponse resp)
 	throws IOException {
 
-		final ClrClientId clientId = clrClientId(req.getPathInfo());
+		final ClrClientId clientId = urlDecodeClrClientId(req.getPathInfo());
 
 		if (clientId == null) {
 			sendError(

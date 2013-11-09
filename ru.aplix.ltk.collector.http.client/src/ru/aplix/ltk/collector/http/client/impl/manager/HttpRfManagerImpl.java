@@ -1,8 +1,8 @@
 package ru.aplix.ltk.collector.http.client.impl.manager;
 
+import static java.util.Objects.requireNonNull;
 import static ru.aplix.ltk.core.RfProvider.RF_PROVIDER_CLASS;
 
-import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.client.HttpClient;
@@ -13,6 +13,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
+import ru.aplix.ltk.collector.http.ClrAddress;
 import ru.aplix.ltk.collector.http.client.HttpRfManager;
 import ru.aplix.ltk.collector.http.client.HttpRfServer;
 import ru.aplix.ltk.core.RfProvider;
@@ -43,8 +44,9 @@ public class HttpRfManagerImpl implements HttpRfManager, RfProvidersResolver {
 	}
 
 	@Override
-	public HttpRfServer httpRfServer(URL url) {
-		return new HttpRfServerImpl(this, url);
+	public HttpRfServer httpRfServer(ClrAddress address) {
+		requireNonNull(address, "Collector server address not specified");
+		return new HttpRfServerImpl(this, address);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package ru.aplix.ltk.collector.http.client;
 
-import java.net.URL;
+import ru.aplix.ltk.collector.http.ClrAddress;
 
 
 /**
@@ -14,15 +14,10 @@ public interface HttpRfManager {
 	/**
 	 * Creates new HTTP RFID collector server.
 	 *
-	 * @param url http/https URL of the collector server. This can be either
-	 * root URL of the server, profile management servlet address, or collector
-	 * servlet address.
+	 * @param address the address of the server.
 	 *
 	 * @return HTTP RFID collector server representation.
-	 *
-	 * @throws IllegalArgumentException if the given URL is not http or https
-	 * one.
 	 */
-	HttpRfServer httpRfServer(URL url);
+	HttpRfServer httpRfServer(ClrAddress address);
 
 }

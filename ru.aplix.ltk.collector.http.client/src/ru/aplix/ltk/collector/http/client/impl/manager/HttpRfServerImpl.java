@@ -5,8 +5,6 @@ import static org.apache.http.util.EntityUtils.getContentMimeType;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,9 +15,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 
-import ru.aplix.ltk.collector.http.ClrProfileId;
-import ru.aplix.ltk.collector.http.ClrProfileSettings;
-import ru.aplix.ltk.collector.http.ClrProfiles;
+import ru.aplix.ltk.collector.http.*;
 import ru.aplix.ltk.collector.http.client.*;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
@@ -41,17 +37,11 @@ final class HttpRfServerImpl implements HttpRfServer {
 			};
 
 	private final HttpRfManagerImpl manager;
-	private final URL serverURL;
-	private final URL profilesURL;
+	private final ClrAddress address;
 
-	HttpRfServerImpl(HttpRfManagerImpl manager, URL url) {
+	HttpRfServerImpl(HttpRfManagerImpl manager, ClrAddress address) {
 		this.manager = manager;
-		this.serverURL = serverURL(url);
-		try {
-			this.profilesURL = new URL(this.serverURL, "/profiles");
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(e);
-		}
+		this.address = address;
 	}
 
 	public final HttpRfManagerImpl getManager() {
@@ -59,12 +49,8 @@ final class HttpRfServerImpl implements HttpRfServer {
 	}
 
 	@Override
-	public final URL getServerURL() {
-		return this.serverURL;
-	}
-
-	public final URL getProfilesURL() {
-		return this.profilesURL;
+	public final ClrAddress getAddress() {
+		return this.address;
 	}
 
 	@Override
@@ -86,7 +72,8 @@ final class HttpRfServerImpl implements HttpRfServer {
 	public Map<ClrProfileId, HttpRfProfile<?>> loadProfiles()
 			throws IOException {
 
-		final HttpGet get = new HttpGet(getProfilesURL().toExternalForm());
+		final HttpGet get =
+				new HttpGet(getAddress().getProfilesURL().toExternalForm());
 		final ClrProfiles response = getManager().httpClient().execute(
 				get,
 				new ResponseHandler<ClrProfiles>() {
@@ -99,55 +86,6 @@ final class HttpRfServerImpl implements HttpRfServer {
 				});
 
 		return profilesMap(response);
-	}
-
-	private static URL serverURL(URL url) {
-
-		final String protocol = url.getProtocol();
-
-		if (!"http".equals(protocol) && !"https".equals(protocol)) {
-			throw new IllegalArgumentException("Not an HTTP URL: " + url);
-		}
-
-		final String path = url.getPath();
-		final String serverPath = serverPath(path);
-
-		if (serverPath == path) {
-			return url;
-		}
-
-		try {
-			return new URL(url, serverPath);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
-
-	private static String serverPath(String path) {
-
-		final String woCollector = serverPath(path, "/collector");
-
-		if (woCollector != path) {
-			return woCollector;
-		}
-
-		return serverPath(path, "/profiles");
-	}
-
-	private static String serverPath(String path, String servletPath) {
-		if (path.endsWith(servletPath)) {
-			return path.substring(
-					0,
-					path.length() - servletPath.length());
-		}
-
-		final int servletIdx = path.indexOf(servletPath + '/');
-
-		if (servletIdx < 0) {
-			return path;
-		}
-
-		return path.substring(0, servletIdx);
 	}
 
 	private ClrProfiles parseProfiles(

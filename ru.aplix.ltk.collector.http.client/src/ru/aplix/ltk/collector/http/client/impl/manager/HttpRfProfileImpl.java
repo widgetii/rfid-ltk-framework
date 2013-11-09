@@ -4,7 +4,6 @@ import static ru.aplix.ltk.collector.http.client.impl.manager.HttpRfServerImpl.E
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLEncoder;
 
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPut;
@@ -54,14 +53,8 @@ class HttpRfProfileImpl<S extends RfSettings> implements HttpRfProfile<S> {
 		return this.settings;
 	}
 
-	public URL profileURL() throws IOException {
-
-		final URL url = getServer().getProfilesURL();
-
-		return new URL(
-				url,
-				url.getPath() + '/'
-				+ URLEncoder.encode(getProfileId().toString(), "UTF-8"));
+	public URL profileURL() {
+		return getServer().getAddress().profileURL(getProfileId());
 	}
 
 	@Override
@@ -80,12 +73,10 @@ class HttpRfProfileImpl<S extends RfSettings> implements HttpRfProfile<S> {
 		this.settings = settings;
 	}
 
-
 	@Override
 	public void delete() throws IOException {
 
-		final HttpDelete delete =
-				new HttpDelete(getServer().getProfilesURL().toExternalForm());
+		final HttpDelete delete = new HttpDelete(profileURL().toExternalForm());
 
 		getServer().getManager().httpClient().execute(
 				delete,

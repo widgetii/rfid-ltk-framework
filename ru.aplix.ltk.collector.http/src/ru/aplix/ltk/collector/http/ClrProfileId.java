@@ -1,6 +1,11 @@
 package ru.aplix.ltk.collector.http;
 
 import static java.util.Objects.requireNonNull;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
 import ru.aplix.ltk.core.RfProvider;
 
 
@@ -38,6 +43,37 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 				id.substring(0, atIdx));
 	}
 
+	/**
+	 * Construct the profile identifier from the given URL-encoded path.
+	 *
+	 * @param path an {@link #urlEncode() URL-encoded} representation of
+	 * profile identifier.
+	 *
+	 * @return reconstructed profile identifier.
+	 */
+	public static ClrProfileId urlDecodeClrProfileId(String path) {
+		try {
+			return urlDecodeClrProfileId(path, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException("UTF-8 is not supported", e);
+		}
+	}
+
+	private static ClrProfileId urlDecodeClrProfileId(
+			String path,
+			String encoding) throws UnsupportedEncodingException {
+
+		final int atIdx = path.indexOf('@');
+
+		if (atIdx < 0) {
+			return new ClrProfileId(URLDecoder.decode(path, encoding), "");
+		}
+
+		return new ClrProfileId(
+				URLDecoder.decode(path.substring(atIdx + 1), encoding),
+				URLDecoder.decode(path.substring(0, atIdx), encoding));
+	}
+
 	private final String providerId;
 	private final String id;
 
@@ -72,6 +108,19 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 	 */
 	public final String getId() {
 		return this.id;
+	}
+
+	/**
+	 * URL-encodes this identifier.
+	 *
+	 * @return URL-encoded profile string, which can be included into URL.
+	 */
+	public String urlEncode() {
+		try {
+			return urlEncode("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException("UTF-8 is not supported", e);
+		}
 	}
 
 	@Override
@@ -131,6 +180,19 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 			return this.providerId;
 		}
 		return this.id + '@' + this.providerId;
+	}
+
+	final String urlEncode(
+			String encoding)
+	throws UnsupportedEncodingException {
+
+		final String providerId = URLEncoder.encode(getProviderId(), encoding);
+
+		if (getId().isEmpty()) {
+			return providerId;
+		}
+
+		return URLEncoder.encode(getId(), encoding) + '@' + providerId;
 	}
 
 }

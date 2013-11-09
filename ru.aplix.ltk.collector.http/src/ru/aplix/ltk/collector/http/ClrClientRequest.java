@@ -16,8 +16,8 @@ import ru.aplix.ltk.core.util.Parameters;
  * <p>The {@link #getClientURL() client URL} is mandatory.</p>
  *
  * <p>This request should be sent by GET request to HTTP collector. The URL
- * should contain a {@link ClrClientId#clrClientId(String) client identifier
- * path} after the collector's servlet path.</p>
+ * should contain a {@link ClrClientId#urlEncode() client identifier path} after
+ * the collector's servlet path.</p>
  *
  * <p>Upon reception, the HTTP collector will start sending data to the client,
  * so the client should be ready to receive it <u>before</u> it initiates this

@@ -1,7 +1,7 @@
 package ru.aplix.ltk.collector.http.server;
 
-import static ru.aplix.ltk.collector.http.server.ClrClientServlet.CLR_SERVLET_PATH;
-import static ru.aplix.ltk.collector.http.server.ClrProfilesServlet.PROFILES_SERVLET_PATH;
+import static ru.aplix.ltk.collector.http.ClrAddress.COLLECTOR_SERVLET_PATH;
+import static ru.aplix.ltk.collector.http.ClrAddress.PROFILES_SERVLET_PATH;
 
 import javax.servlet.ServletException;
 
@@ -55,7 +55,7 @@ public class CollectorHttpService implements BundleActivator {
 			final HttpService httpService = this.httpTracker.getService();
 
 			if (httpService != null) {
-				httpService.unregister(CLR_SERVLET_PATH);
+				httpService.unregister(COLLECTOR_SERVLET_PATH);
 				httpService.unregister(PROFILES_SERVLET_PATH);
 			}
 		} finally {
@@ -79,7 +79,7 @@ public class CollectorHttpService implements BundleActivator {
 	private void registerServlet(HttpService service) {
 		try {
 			service.registerServlet(
-					CLR_SERVLET_PATH,
+					COLLECTOR_SERVLET_PATH,
 					new ClrClientServlet(allProfiles()),
 					null,
 					null);

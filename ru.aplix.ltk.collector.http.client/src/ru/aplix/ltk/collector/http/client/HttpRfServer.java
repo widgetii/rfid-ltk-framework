@@ -1,9 +1,9 @@
 package ru.aplix.ltk.collector.http.client;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Map;
 
+import ru.aplix.ltk.collector.http.ClrAddress;
 import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.collector.http.ClrProfileSettings;
 import ru.aplix.ltk.core.RfProvider;
@@ -16,11 +16,12 @@ import ru.aplix.ltk.core.RfSettings;
 public interface HttpRfServer {
 
 	/**
-	 * The root URL of HTTP RFID collector server.
+	 * The address of HTTP RFID collector server.
 	 *
-	 * @return http/https URL.
+	 * @return server address passed to the {@link HttpRfManager#httpRfServer(
+	 * ClrAddress) manager}.
 	 */
-	URL getServerURL();
+	ClrAddress getAddress();
 
 	/**
 	 * Creates new HTTP RFID profile.

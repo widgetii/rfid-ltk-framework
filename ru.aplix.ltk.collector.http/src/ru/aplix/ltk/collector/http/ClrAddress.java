@@ -39,8 +39,9 @@ public final class ClrAddress {
 
 		final String protocol = url.getProtocol();
 
-		if (!"http".equals("protocol") && !"https".equals(protocol)) {
-			throw new IllegalArgumentException("Not an http(s) URL: " + url);
+		if (!"http".equals(protocol) && !"https".equals(protocol)) {
+			throw new IllegalArgumentException(
+					"Not an http(s) URL: " + url + " (" + protocol + ')');
 		}
 
 		this.url = url;

@@ -2,6 +2,7 @@ package ru.aplix.ltk.collector.http.client.impl.manager;
 
 import static org.apache.http.util.EntityUtils.getContentCharSet;
 import static org.apache.http.util.EntityUtils.getContentMimeType;
+import static ru.aplix.ltk.collector.http.ClrError.clrErrorByCode;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -157,7 +158,7 @@ final class HttpRfServerImpl implements HttpRfServer {
 
 	static void checkResponse(
 			HttpResponse response)
-	throws HttpResponseException {
+	throws HttpResponseException, IOException {
 
 		final StatusLine statusLine = response.getStatusLine();
 
@@ -168,11 +169,13 @@ final class HttpRfServerImpl implements HttpRfServer {
 		final Header[] errorCodeHdr = response.getHeaders("X-Error-Code");
 
 		if (errorCodeHdr.length == 0) {
+			EntityUtils.consume(response.getEntity());
 			throw new HttpResponseException(
 					statusLine.getStatusCode(),
 					statusLine.getReasonPhrase());
 		}
 
+		final ClrError error = clrErrorByCode(headerValue(errorCodeHdr[0]));
 		final Header[] errorArgHdrs = response.getHeaders("X-Error-Arg");
 		final String[] errorArgs = new String[errorArgHdrs.length];
 
@@ -181,9 +184,9 @@ final class HttpRfServerImpl implements HttpRfServer {
 		}
 
 		throw new HttpRfServerException(
-				statusLine.getReasonPhrase(),
+				EntityUtils.toString(response.getEntity()),
 				statusLine.getStatusCode(),
-				headerValue(errorCodeHdr[0]),
+				error,
 				errorArgs);
 	}
 

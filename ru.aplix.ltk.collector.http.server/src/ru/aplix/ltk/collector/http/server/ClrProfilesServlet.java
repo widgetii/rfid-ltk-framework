@@ -83,8 +83,7 @@ public class ClrProfilesServlet extends HttpServlet {
 			sendError(
 					resp,
 					SC_INTERNAL_SERVER_ERROR,
-					"unexpected",
-					"Unexpected error: %s",
+					ClrError.UNEXPECTED,
 					e.getLocalizedMessage());
 		}
 
@@ -115,8 +114,8 @@ public class ClrProfilesServlet extends HttpServlet {
 			sendError(
 					resp,
 					SC_BAD_REQUEST,
-					"unknown.profile",
-					"Profile does not exist: %s", profileId.toString());
+					ClrError.UNKNOWN_PROFILE,
+					profileId.toString());
 			return;
 		}
 
@@ -137,8 +136,7 @@ public class ClrProfilesServlet extends HttpServlet {
 			sendError(
 					resp,
 					SC_BAD_REQUEST,
-					"missing.profile_id",
-					"Profile identifier not specified");
+					ClrError.MISSING_PROFILE_ID);
 			return null;
 		}
 
@@ -148,8 +146,7 @@ public class ClrProfilesServlet extends HttpServlet {
 			sendError(
 					resp,
 					SC_BAD_REQUEST,
-					"invalid.profile_id",
-					"Invalid profile identifier",
+					ClrError.INVALID_PROFILE_ID,
 					clientId.toString());
 			return null;
 		}
@@ -169,8 +166,7 @@ public class ClrProfilesServlet extends HttpServlet {
 			sendError(
 					resp,
 					SC_BAD_REQUEST,
-					"unknown.provider",
-					"Unsupported RFID provider: %s",
+					ClrError.UNKNOWN_PROVIDER,
 					profileId.getProviderId());
 		}
 
@@ -231,13 +227,12 @@ public class ClrProfilesServlet extends HttpServlet {
 	private static void sendError(
 			HttpServletResponse resp,
 			int httpStatus,
-			String errorCode,
-			String message,
+			ClrError error,
 			String... args)
 	throws IOException {
 		resp.setContentType("text/plain;charset=UTF-8");
 		resp.setStatus(httpStatus);
-		resp.setHeader("X-Error-Code", errorCode);
+		resp.setHeader("X-Error-Code", error.code());
 
 		for (String arg : args) {
 			resp.addHeader("X-Error-Arg", arg);
@@ -246,7 +241,7 @@ public class ClrProfilesServlet extends HttpServlet {
 		@SuppressWarnings("resource")
 		final Formatter out = new Formatter(resp.getWriter());
 
-		out.format(message + "\n", args);
+		out.format(error.defaultMessage(), args);
 		out.flush();
 	}
 

@@ -228,7 +228,8 @@ angular.module(
 		$scope,
 		$rfReceivers,
 		$notifier,
-		$modalInstance) {
+		$modalInstance,
+		$http) {
 	$scope.receivers = $rfReceivers;
 
 	function Query() {
@@ -251,30 +252,17 @@ angular.module(
 
 	var query = $scope.query = new Query();
 
-	function Collectors() {
+	function Servers() {
 		this.list = [];
 		this.display = false;
 	}
-	Collectors.prototype.select = function(url) {
+	Servers.prototype.select = function(url) {
 		this.display = false;
 		query.url = url;
 		query.find();
 	};
 
-	var collectors = $scope.collectors = new Collectors();
-
-	$scope.$watch('receivers.list', function(newValue, oldValue) {
-		collectors.list = [];
-		if (!newValue) return;
-		var set = {};
-		for (var i = 0; i < newValue.length; ++i) {
-			var receiver = newValue[i];
-			var url = receiver.remoteURL;
-			if (set[url]) continue;
-			set[url] = true;
-			collectors.list.push(url);
-		}
-	});
+	var servers = $scope.servers = new Servers();
 
 	$scope.cancel = function() {
 		$modalInstance.close();
@@ -304,4 +292,14 @@ angular.module(
 				},
 				endUpdate);
 	};
+
+	$http.get("collectors/servers.json")
+	.success(function(data) {
+		servers.list = data.servers;
+	})
+	.error(function(data, status) {
+		$notifier.error(
+				"Не удалось получить список доступных накопителей",
+				"ОШИБКА " + status);
+	});
 });

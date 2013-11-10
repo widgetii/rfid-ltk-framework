@@ -15,19 +15,18 @@
           placeholder="Адрес накопителя"/>
         <button
           class="btn dropdown-toggle"
-          ng-class="{disabled: !collectors.list.length}">
+          ng-class="{disabled: !servers.list.length}">
           <span class="caret"></span>
         </button>
-        <ul class="dropdown-menu" ng-show="collectors.list.length">
-          <li ng-repeat="url in collectors.list">
-            <a href="" ng-click="collectors.select(url)" ng-bind="url"></a>
+        <ul class="dropdown-menu" ng-show="servers.list.length">
+          <li ng-repeat="url in servers.list">
+            <a href="" ng-click="servers.select(url)" ng-bind="url"></a>
           </li>
         </ul>
       </div>
       <button
         type="submit"
         class="btn btn-primary"
-        ng-class="{disabled: query.inProgress}"
         ng-click="query.find()">
         <i class="icon-search icon-white"></i>
       </button>

@@ -215,16 +215,27 @@ angular.module(
 		$scope.receiver.save(endUpdate, endUpdate);
 	};
 })
+.controller("AddRfReceiverCtrl", function($scope, $modal) {
+	$scope.open = function() {
+		$modal.open({
+			templateUrl: 'receivers/new-receiver.html',
+			controller: 'NewRfReceiverCtrl',
+			windowClass: 'new-receiver-modal'
+		});
+	};
+})
 .controller("NewRfReceiverCtrl", function(
 		$scope,
-		$document,
 		$rfReceivers,
-		$notifier) {
-	$scope.updating = false;
-	$scope.newReceiver = $rfReceivers.newReceiver();
-	$scope.correctRemoteURL = function() {
-		var receiver = $scope.newReceiver;
-		var url = receiver.remoteURL;
+		$notifier,
+		$modalInstance) {
+	$scope.receivers = $rfReceivers;
+
+	function Query() {
+		this.url = "";
+	}
+	Query.prototype.correctURL = function() {
+		var url = this.url;
 		if (typeof url !== "string") return;
 		if (url.indexOf("://") >= 0) return;
 		var len = url.length;
@@ -232,8 +243,46 @@ angular.module(
 				== url.substring(0, Math.min(len, 7))) return;
 		if ("https://".substring(0, len)
 				== url.substring(0, Math.min(len, 8))) return;
-		receiver.remoteURL = "http://" + url;
+		this.url = "http://" + url;
 	};
+	Query.prototype.find = function() {
+		console.log("find!");
+	};
+
+	var query = $scope.query = new Query();
+
+	function Collectors() {
+		this.list = [];
+		this.display = false;
+	}
+	Collectors.prototype.select = function(url) {
+		this.display = false;
+		query.url = url;
+		query.find();
+	};
+
+	var collectors = $scope.collectors = new Collectors();
+
+	$scope.$watch('receivers.list', function(newValue, oldValue) {
+		collectors.list = [];
+		if (!newValue) return;
+		var set = {};
+		for (var i = 0; i < newValue.length; ++i) {
+			var receiver = newValue[i];
+			var url = receiver.remoteURL;
+			if (set[url]) continue;
+			set[url] = true;
+			collectors.list.push(url);
+		}
+	});
+
+	$scope.cancel = function() {
+		$modalInstance.close();
+	};
+	$scope.createReceiver = function() {
+		$modalInstance.close();
+	};
+
 	function startUpdate() {
 		$scope.updating = true;
 	}

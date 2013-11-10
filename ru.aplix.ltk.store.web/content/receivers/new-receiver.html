@@ -1,0 +1,41 @@
+<div class="modal-header">
+  <h3>Новый приёмник</h3>
+</div>
+
+<div class="modal-body">
+  <form class="form-search">
+    <div class="dropdown">
+      <div class="input-append controls">
+        <input
+          type="text"
+          name="tag"
+          class="input-xlarge search-query"
+          ng-model="query.url"
+          ng-change="query.correctURL()"
+          placeholder="Адрес накопителя"/>
+        <button
+          class="btn dropdown-toggle"
+          ng-class="{disabled: !collectors.list.length}">
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" ng-show="collectors.list.length">
+          <li ng-repeat="url in collectors.list">
+            <a href="" ng-click="collectors.select(url)" ng-bind="url"></a>
+          </li>
+        </ul>
+      </div>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        ng-class="{disabled: query.inProgress}"
+        ng-click="query.find()">
+        <i class="icon-search icon-white"></i>
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-click="createReceiver()">Добавить</button>
+  <button class="btn" ng-click="cancel()">Отмена</button>
+</div>

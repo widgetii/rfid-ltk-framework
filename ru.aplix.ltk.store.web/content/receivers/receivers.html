@@ -63,53 +63,10 @@
     </div>
   </div>
 
-  <form
-    class="form-horizontal"
-    ng-controller="NewRfReceiverCtrl"
-    id="newReceiverForm"
-    name="newReceiverForm"
-    ng-submit="create()">
-    <fieldset>
-      <legend>Новый приёмник</legend>
-
-      <div
-        class="control-group"
-        ng-class="{error: newReceiverForm.remoteURL.$dirty && newReceiverForm.remoteURL.$invalid}">
-        <label class="control-label" for="remoteURL">
-          Адрес накопителя
-        </label>
-        <div class="controls">
-          <input
-            type="text"
-            name="remoteURL"
-            placeholder="Адрес накопителя"
-            ng-model="newReceiver.remoteURL"
-            required
-            ng-trim="true"
-            ng-change="correctRemoteURL()"
-            ng-disabled="updating">
-          <span
-            class="help-inline"
-            ng-show="newReceiverForm.remoteURL.$dirty && newReceiverForm.remoteURL.$error.required">
-            адрес обязателен
-          </span>
-        </div>
-      </div>
-    </fieldset>
-
-    <div
-      class="control-group">
-      <div class="controls">
-        <div class="btn-group">
-          <button
-            class="btn btn-primary"
-            type="submit"
-            ng-disabled="updating">
-            Добавить
-          </button>
-        </div>
-      </div>
-    </div>
-  </form>
+  <div ng-controller="AddRfReceiverCtrl">
+    <button class="btn btn-primary" ng-click="open()">
+      Добавить приёмник
+    </button>
+  </div>
 
 </div>

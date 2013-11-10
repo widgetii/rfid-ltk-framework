@@ -33,3 +33,7 @@ body {
 .clickable:focus {
   text-decoration: underline;
 }
+
+.new-receiver-modal .modal-body {
+  height: 400px;
+}

@@ -122,6 +122,15 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 		if (providerIdCmp != 0) {
 			return providerIdCmp;
 		}
+		if (isDefault()) {
+			if (o.isDefault()) {
+				return 0;
+			}
+			return 1;
+		}
+		if (o.isDefault()) {
+			return -1;
+		}
 
 		return this.id.compareTo(o.id);
 	}

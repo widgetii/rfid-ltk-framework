@@ -71,7 +71,7 @@ public class RcmController {
 
 			final ClrProfileId profileId = address.getProfileId();
 
-			if (profileId != null && !profileId.isDefault()) {
+			if (profileId != null) {
 				result.setSelected(profileId.urlEncode());
 			}
 		} catch (InvalidHttpRfResponseException e) {

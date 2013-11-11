@@ -9,7 +9,7 @@
         <input
           type="text"
           name="tag"
-          class="input-xlarge search-query"
+          class="search-query"
           ng-model="query.url"
           ng-change="query.correctURL()"
           placeholder="Адрес накопителя"/>
@@ -50,9 +50,9 @@
   </div>
   <div class=""></div>
   <select
-    size="7"
+    size="15"
     ng-model="profiles.selected"
-    ng-options="p.id as p.name group by p.provider.name for p in profiles.list"
+    ng-options="p.name group by p.provider.name for p in profiles.list"
     ng-show="profiles.list.length">
   </select>
 </div>

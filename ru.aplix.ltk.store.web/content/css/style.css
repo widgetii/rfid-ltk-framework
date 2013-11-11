@@ -37,3 +37,11 @@ body {
 .new-receiver-modal .modal-body {
   height: 400px;
 }
+
+.new-receiver-modal .search-query {
+  width: 420px;
+}
+
+.new-receiver-modal .modal-body select {
+  width: 530px;
+}

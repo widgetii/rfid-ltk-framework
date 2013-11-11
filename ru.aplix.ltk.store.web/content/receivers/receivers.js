@@ -235,7 +235,12 @@ angular.module(
 
 	function Profile(profile) {
 		angular.copy(profile, this);
-		this.defaultProfile = this.id.indexOf('@') <= 0;
+		if (!this.newProfile) {
+			this.defaultProfile = this.id.indexOf('@') <= 0;
+			if (this.defaultProfile) {
+				this.name = "<Новый профиль>";
+			}
+		}
 	}
 
 	function Profiles() {
@@ -243,20 +248,29 @@ angular.module(
 	}
 	Profiles.prototype.reset = function() {
 		this.list = [];
-		this.fullList = [];
 		this.noProfiles = false;
 		this.error = false;
 		this.invalidServer = false;
 		this.selected = null;
 	};
-	Profiles.prototype.set = function(profiles) {
+	Profiles.prototype.set = function(profiles, selected) {
 		this.list = [];
 		for (var i = 0; i < profiles.length; ++i) {
 			var profile = new Profile(profiles[i]);
-			this.fullList.push(profile);
-			if (!profile.defaultProfile) this.list.push(profile);
+			this.list.push(profile);
+			if (profile.id == selected) this.selected = profile;
 		}
 		this.noProfiles = this.list.length == 0;
+		if (!this.selected) {
+			this.selected = new Profile({
+				id: selected || "",
+				name: selected
+					? "Создать профиль <" + selected + ">"
+					: "--- Профиль не выбран ---",
+				newProfile: true
+			});
+			if (!this.noProfiles) this.list.splice(0, 0, this.selected);
+		}
 	};
 
 	var profiles = $scope.profiles = new Profiles();
@@ -285,8 +299,7 @@ angular.module(
 		request.success(function(data) {
 			if (self.inProgress !== request) return;
 			self.inProgress = false;
-			profiles.set(data.profiles);
-			profiles.selected = data.selected;
+			profiles.set(data.profiles, data.selected);
 		})
 		.error(function(data, status) {
 			if (self.inProgress !== request) return;

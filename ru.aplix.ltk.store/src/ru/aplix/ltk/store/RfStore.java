@@ -1,6 +1,7 @@
 package ru.aplix.ltk.store;
 
 import java.util.Collection;
+import java.util.Map;
 
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
@@ -12,6 +13,13 @@ import ru.aplix.ltk.core.RfSettings;
  * <p>A store implementation is registered as OSGi service.</p>
  */
 public interface RfStore {
+
+	/**
+	 * All available RFID providers.
+	 *
+	 * @return a map of RFID providers with their identifiers as keys.
+	 */
+	Map<String, ? extends RfProvider<?>> allRfProviders();
 
 	/**
 	 * All RFID receivers.

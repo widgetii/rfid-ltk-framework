@@ -4,9 +4,7 @@ import static org.springframework.transaction.support.TransactionSynchronization
 import static ru.aplix.ltk.store.impl.RfReceiverImpl.rfReceiver;
 import static ru.aplix.ltk.store.impl.monitor.RfStoreMtrTarget.RF_STORE_MTR_TARGET;
 
-import java.util.Collection;
-import java.util.Dictionary;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,6 +62,20 @@ public class RfStoreImpl
 
 	public final RfStoreMtr getMonitoring() {
 		return this.monitoring;
+	}
+
+	@Override
+	public Map<String, ? extends RfProvider<?>> allRfProviders() {
+
+		final HashMap<String, RfProvider<?>> providers =
+				new HashMap<>(this.providerReceivers.size());
+
+		for (Map.Entry<String, RfProviderReceivers> e :
+			this.providerReceivers.entrySet()) {
+			providers.put(e.getKey(), e.getValue().getRfProvider());
+		}
+
+		return providers;
 	}
 
 	@Override

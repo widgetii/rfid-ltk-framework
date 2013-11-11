@@ -3,12 +3,13 @@
 </div>
 
 <div class="modal-body">
-  <form class="form-search">
+  <form class="form-search" name="profileSearchForm">
     <div class="dropdown">
       <div class="input-append controls">
         <input
           type="text"
-          name="tag"
+          name="url"
+          required
           class="search-query"
           ng-model="query.url"
           ng-change="query.correctURL()"
@@ -48,16 +49,32 @@
     <h4>Ошибка</h4>
     {{profiles.error}}
   </div>
-  <div class=""></div>
   <select
     size="15"
     ng-model="profiles.selected"
-    ng-options="p.name group by p.provider.name for p in profiles.list"
+    ng-options="p.label group by p.provider.name for p in profiles.list"
     ng-show="profiles.list.length">
   </select>
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary" ng-click="createReceiver()">Добавить</button>
+  <span ng-switch="profiles.creationMode()">
+    <button
+      ng-switch-when="new"
+      class="btn btn-primary"
+      ng-click="createProfile()">Создать профиль</button>
+    <button
+      ng-switch-when="connect"
+      class="btn btn-primary"
+      ng-click="createReceiver()">Подключиться</button>
+    <button
+      ng-switch-when="again"
+      class="btn btn-warning"
+      ng-click="createReceiver()">Подключиться ещё раз</button>
+    <button
+      ng-switch-when="anyway"
+      class="btn btn-warning"
+      ng-click="createReceiverAnyway()">Всё равно подключиться</button>
+  </span>
   <button class="btn" ng-click="cancel()">Отмена</button>
 </div>

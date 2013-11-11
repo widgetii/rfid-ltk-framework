@@ -235,10 +235,14 @@ angular.module(
 
 	function Profile(profile) {
 		angular.copy(profile, this);
-		if (!this.newProfile) {
+		if (!profile.newProfile) {
 			this.defaultProfile = this.id.indexOf('@') <= 0;
 			if (this.defaultProfile) {
-				this.name = "<Новый профиль>";
+				this.label = "<Новый профиль>";
+			} else if (this.receiver) {
+				this.label = profile.name + " (приёмник #" + this.receiver.id + ")";
+			} else {
+				this.label = profile.name;
 			}
 		}
 	}
@@ -264,13 +268,22 @@ angular.module(
 		if (!this.selected) {
 			this.selected = new Profile({
 				id: selected || "",
-				name: selected
+				label: selected
 					? "Создать профиль <" + selected + ">"
 					: "--- Профиль не выбран ---",
 				newProfile: true
 			});
 			if (!this.noProfiles) this.list.splice(0, 0, this.selected);
 		}
+	};
+	Profiles.prototype.creationMode = function() {
+		if (this.invalidServer) return "anyway";
+		var selected = this.selected;
+		if (!selected) return null;
+		if (selected.newProfile) return selected.id ? "new" : null;
+		if (selected.defaultProfile) return "new";
+		if (selected.receiver) return "again";
+		return "connect";
 	};
 
 	var profiles = $scope.profiles = new Profiles();

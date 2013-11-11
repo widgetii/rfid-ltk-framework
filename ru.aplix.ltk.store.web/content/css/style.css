@@ -35,7 +35,7 @@ body {
 }
 
 .new-receiver-modal .modal-body {
-  height: 400px;
+  min-height: 200px;
 }
 
 .new-receiver-modal .search-query {

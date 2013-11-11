@@ -410,7 +410,7 @@ public final class Parameters implements Parameterized {
 			return;
 		}
 
-		add(name.toString(), URLDecoder.decode(value.toString(), encoding));
+		add(decodedName, URLDecoder.decode(value.toString(), encoding));
 	}
 
 	/**

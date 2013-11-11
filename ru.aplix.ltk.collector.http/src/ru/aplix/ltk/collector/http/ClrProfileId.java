@@ -32,7 +32,8 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 
 	private static ClrProfileId urlDecodeClrProfileId(
 			String path,
-			String encoding) throws UnsupportedEncodingException {
+			String encoding)
+	throws UnsupportedEncodingException {
 
 		final int atIdx = path.indexOf('@');
 
@@ -79,6 +80,16 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 	 */
 	public final String getId() {
 		return this.id;
+	}
+
+	/**
+	 * Whether this is a default provider profile.
+	 *
+	 * @return <code>true</code> if {@link #getId() local} identifier is
+	 * empty, or <code>false</code> otherwise.
+	 */
+	public final boolean isDefault() {
+		return getId().isEmpty();
 	}
 
 	/**

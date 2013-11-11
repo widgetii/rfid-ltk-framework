@@ -79,11 +79,50 @@ public final class ClrAddress {
 			return this.clientId;
 		}
 
-		final String path = getURL().getPath();
-		final String serverPath = getServerURL().getPath();
-		final String pathInfo = path.substring(serverPath.length());
+		final String pathInfo = getPathInfo();
+
+		if (pathInfo.isEmpty()) {
+			return null;
+		}
 
 		return this.clientId = urlDecodeClrClientId(pathInfo);
+	}
+
+	/**
+	 * Path.
+	 *
+	 * @return part of {@code #getURL() original URL} following the
+	 * {@link #getServerURL() server URL}, including leading slash.
+	 */
+	public final String getPath() {
+
+		final String path = getURL().getPath();
+		final String serverPath = getServerURL().getPath();
+
+		return path.substring(serverPath.length());
+	}
+
+	/**
+	 * Path info after servlet path.
+	 *
+	 * @return path info without leading slash, or empty string.
+	 */
+	public final String getPathInfo() {
+
+		final String path = getPath();
+		final String info1 = pathInfo(COLLECTOR_SERVLET_PATH, path);
+
+		if (info1 != null) {
+			return info1;
+		}
+
+		final String info2 = pathInfo(PROFILES_SERVLET_PATH, path);
+
+		if (info2 != null) {
+			return info2;
+		}
+
+		return "";
 	}
 
 	/**
@@ -283,11 +322,29 @@ public final class ClrAddress {
 		return removeTrailingSlash(path);
 	}
 
+	private static String removeLeadingSlash(String path) {
+		if (!path.startsWith("/")) {
+			return path;
+		}
+		return removeLeadingSlash(path.substring(1));
+	}
+
 	private static String removeTrailingSlash(String path) {
 		if (!path.endsWith("/")) {
 			return path;
 		}
 		return removeTrailingSlash(path.substring(0, path.length() - 1));
+	}
+
+	private static String pathInfo(String servletPath, String path) {
+
+		final String prefix = servletPath + '/';
+
+		if (!path.startsWith(prefix)) {
+			return null;
+		}
+
+		return removeLeadingSlash(path.substring(prefix.length()));
 	}
 
 }

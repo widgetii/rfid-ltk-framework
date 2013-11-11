@@ -69,13 +69,14 @@ public class ClrProfiles implements Parameterized {
 				continue;
 			}
 
-			final ClrProfileSettings<?> profileData = profileData(profileId);
+			final ClrProfileSettings<?> profileData =
+					profileSettings(profileId);
 
 			if (profileData == null) {
 				continue;
 			}
 
-			profileData.read(params.sub(profileId.toString()));
+			profileData.read(params.sub(profileId.urlEncode()));
 		}
 	}
 
@@ -92,7 +93,7 @@ public class ClrProfiles implements Parameterized {
 		}
 	}
 
-	private ClrProfileSettings<?> profileData(ClrProfileId profileId) {
+	private ClrProfileSettings<?> profileSettings(ClrProfileId profileId) {
 
 		final ClrProfileSettings<?> existing = this.profiles.get(profileId);
 
@@ -101,18 +102,18 @@ public class ClrProfiles implements Parameterized {
 		}
 
 		final RfProvider<?> provider =
-				getProviderResolver().rfProviderById(profileId.getId());
+				getProviderResolver().rfProviderById(profileId.getProviderId());
 
 		if (provider == null) {
 			return null;
 		}
 
-		final ClrProfileSettings<?> profileData =
+		final ClrProfileSettings<?> profileSettings =
 				new ClrProfileSettings<>(provider);
 
-		this.profiles.put(profileId, profileData);
+		this.profiles.put(profileId, profileSettings);
 
-		return profileData;
+		return profileSettings;
 	}
 
 	private static ClrProfileId profileId(String name) {

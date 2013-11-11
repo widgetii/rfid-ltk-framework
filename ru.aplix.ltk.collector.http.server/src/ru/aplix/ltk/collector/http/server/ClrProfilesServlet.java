@@ -202,6 +202,7 @@ public class ClrProfilesServlet extends HttpServlet {
 		final ClrProfileSettings<S> defaultData =
 				new ClrProfileSettings<>(provider);
 
+		defaultData.setProfileName(provider.getName());
 		profilesData.profiles().put(
 				new ClrProfileId(provider.getId(), null),
 				defaultData);

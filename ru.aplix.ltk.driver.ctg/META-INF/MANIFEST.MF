@@ -5,7 +5,7 @@ Bundle-SymbolicName: ru.aplix.ltk.driver.ctg
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: ru.aplix.ltk.core;bundle-version="1.0.0";visibility:=reexport,
- org.llrp.ltk;bundle-version="1.0.0.7aplix",
+ org.llrp.ltk;bundle-version="1.0.0.7aplix";resolution:=optional,
  ru.aplix.ltk.osgi;bundle-version="1.0.0"
 Bundle-Activator: ru.aplix.ltk.driver.ctg.impl.CtgActivator
 Export-Package: ru.aplix.ltk.driver.ctg

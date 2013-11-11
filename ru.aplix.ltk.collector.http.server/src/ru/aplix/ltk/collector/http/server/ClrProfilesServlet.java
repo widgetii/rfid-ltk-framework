@@ -178,10 +178,8 @@ public class ClrProfilesServlet extends HttpServlet {
 			ProviderClrProfiles<S> providerProfiles) {
 
 		final RfProvider<S> provider = providerProfiles.getProvider();
-		boolean hasProfiles = false;
 
 		for (ClrProfile<S> profile : providerProfiles) {
-			hasProfiles = true;
 
 			final ClrProfileSettings<S> profileData =
 					new ClrProfileSettings<>(provider);
@@ -189,10 +187,7 @@ public class ClrProfilesServlet extends HttpServlet {
 			profileData.read(profile.getParameters());
 			profilesData.profiles().put(profile.getProfileId(), profileData);
 		}
-
-		if (!hasProfiles) {
-			addDefaultProfile(profilesData, provider);
-		}
+		addDefaultProfile(profilesData, provider);
 	}
 
 	private static <S extends RfSettings> void addDefaultProfile(
@@ -202,7 +197,6 @@ public class ClrProfilesServlet extends HttpServlet {
 		final ClrProfileSettings<S> defaultData =
 				new ClrProfileSettings<>(provider);
 
-		defaultData.setProfileName(provider.getName());
 		profilesData.profiles().put(
 				new ClrProfileId(provider.getId(), null),
 				defaultData);

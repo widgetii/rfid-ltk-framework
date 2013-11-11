@@ -24,6 +24,27 @@
       rev="9.2.1003.jdbc4aplix"/>
     <dependency
       org="bundle"
+      name="ru.aplix.ltk.driver.dummy"
+      rev="latest.integration"
+      conf="runtime->default"/>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.driver.log"
+      rev="latest.integration"
+      conf="runtime->@"/>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.driver.ctg"
+      rev="latest.integration"
+      conf="runtime->@"
+      transitive="false"/>
+    <dependency
+      org="bundle"
+      name="ru.aplix.ltk.driver.blackbox"
+      rev="latest.integration"
+      conf="blackbox->runtime"/>
+    <dependency
+      org="bundle"
       name="ru.aplix.ltk.store.web.blackbox"
       rev="latest.integration"
       conf="blackbox->runtime"/>

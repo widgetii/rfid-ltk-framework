@@ -97,7 +97,7 @@ public final class ClrAddress {
 	public final String getPath() {
 
 		final String path = getURL().getPath();
-		final String serverPath = getServerURL().getPath();
+		final String serverPath = removeTrailingSlash(getServerURL().getPath());
 
 		return path.substring(serverPath.length());
 	}
@@ -147,13 +147,7 @@ public final class ClrAddress {
 	 * @return collector servlet URL.
 	 */
 	public final URL getCollectorURL() {
-		try {
-			return new URL(getServerURL(), COLLECTOR_SERVLET_PATH);
-		} catch (MalformedURLException e) {
-			throw new IllegalStateException(
-					"Can not construct collector servlet URL",
-					e);
-		}
+		return serverURL(COLLECTOR_SERVLET_PATH);
 	}
 
 	/**
@@ -164,11 +158,34 @@ public final class ClrAddress {
 	 * @see #PROFILES_SERVLET_PATH
 	 */
 	public final URL getProfilesURL() {
+		return serverURL(PROFILES_SERVLET_PATH);
+	}
+
+	/**
+	 * Constructs a path on server.
+	 *
+	 * @param path path to append to {@link #getServerURL() server URL}.
+	 * Can start with slash.
+	 *
+	 * @return constructed URL.
+	 */
+	public URL serverURL(String path) {
+
+		final URL serverURL = getServerURL();
+		final String serverPath = removeTrailingSlash(serverURL.getPath());
+		final String result;
+
+		if (path.startsWith("/")) {
+			result = serverPath + path;
+		} else {
+			result = serverPath + '/' + path;
+		}
+
 		try {
-			return new URL(getServerURL(), PROFILES_SERVLET_PATH);
+			return new URL(serverURL, result);
 		} catch (MalformedURLException e) {
-			throw new IllegalStateException(
-					"Can not construct profiles servlet URL",
+			throw new RuntimeException(
+					"Can not construct server URL (" + path + ')',
 					e);
 		}
 	}
@@ -308,15 +325,18 @@ public final class ClrAddress {
 
 	private static String serverPath(String path, String servletPath) {
 		if (path.endsWith(servletPath)) {
-			return path.substring(
+			return removeTrailingSlash(path.substring(
 					0,
-					path.length() - servletPath.length());
+					path.length() - servletPath.length()));
 		}
 
 		final int servletIdx = path.indexOf(servletPath + '/');
 
 		if (servletIdx >= 0) {
-			return path.substring(0, servletIdx);
+			if (servletIdx == 0) {
+				return "/";
+			}
+			return removeTrailingSlash(path.substring(0, servletIdx));
 		}
 
 		return removeTrailingSlash(path);

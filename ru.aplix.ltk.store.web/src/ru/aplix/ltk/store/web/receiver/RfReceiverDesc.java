@@ -6,6 +6,10 @@ import ru.aplix.ltk.store.RfReceiver;
 
 public final class RfReceiverDesc extends AbstractRfReceiverBean {
 
+	public static RfReceiverDesc rfReceiverDesc(RfReceiver<?> receiver) {
+		return rfReceiverDesc(receiver.getId(), receiver);
+	}
+
 	public static RfReceiverDesc rfReceiverDesc(
 			int receiverId,
 			RfReceiver<?> receiver) {

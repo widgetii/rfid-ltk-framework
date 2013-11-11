@@ -20,7 +20,7 @@ import ru.aplix.ltk.store.RfStore;
 
 
 @Controller
-public class HttpRfController {
+public class RcmController {
 
 	@Autowired
 	private RfStore rfStore;
@@ -37,7 +37,7 @@ public class HttpRfController {
 	}
 
 	@RequestMapping(
-			value = "/collectors/servers.json",
+			value = "/rcm/servers.json",
 			method = RequestMethod.GET)
 	@ResponseBody
 	public HttpRfServersBean collectorServers() {
@@ -50,7 +50,7 @@ public class HttpRfController {
 	}
 
 	@RequestMapping(
-			value = "/collector/profiles.json",
+			value = "/rcm/profiles.json",
 			method = RequestMethod.GET)
 	@ResponseBody
 	public HttpRfProfilesBean findProfiles(
@@ -67,12 +67,12 @@ public class HttpRfController {
 		final HttpRfServer server = httpRfManager().httpRfServer(address);
 
 		try {
-			result.addProfiles(server.loadProfiles());
+			result.loadProfiles(server, rfStore());
 
 			final ClrProfileId profileId = address.getProfileId();
 
-			if (profileId != null) {
-				result.setSelectedProfileId(profileId.urlEncode());
+			if (profileId != null && !profileId.isDefault()) {
+				result.setSelected(profileId.urlEncode());
 			}
 		} catch (InvalidHttpRfResponseException e) {
 			result.setError("Не похоже на сервер накопителя");

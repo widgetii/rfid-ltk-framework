@@ -32,6 +32,29 @@
       </button>
     </div>
   </form>
+  <div class="alert alert-info" ng-show="query.inProgress">
+    Поиск профилей...
+  </div>
+  <div class="alert alert-block" ng-show="profiles.invalidServer">
+    <h4>Не похоже на накопитель</h4>
+    {{profiles.error}}
+  </div>
+  <div class="alert alert-block" ng-show="profiles.noProfiles">
+    <h4>Профили не настроены</h4>
+  </div>
+  <div
+    class="alert alert-error alert-block"
+    ng-show="profiles.error && !profiles.invalidServer">
+    <h4>Ошибка</h4>
+    {{profiles.error}}
+  </div>
+  <div class=""></div>
+  <select
+    size="7"
+    ng-model="profiles.selected"
+    ng-options="p.id as p.name group by p.provider.name for p in profiles.list"
+    ng-show="profiles.list.length">
+  </select>
 </div>
 
 <div class="modal-footer">

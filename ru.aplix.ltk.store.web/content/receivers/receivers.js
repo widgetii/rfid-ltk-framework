@@ -220,6 +220,7 @@ angular.module(
 		$modal.open({
 			templateUrl: 'receivers/new-receiver.html',
 			controller: 'NewRfReceiverCtrl',
+			backdrop: 'static',
 			windowClass: 'new-receiver-modal'
 		});
 	};
@@ -232,8 +233,38 @@ angular.module(
 		$http) {
 	$scope.receivers = $rfReceivers;
 
+	function Profile(profile) {
+		angular.copy(profile, this);
+		this.defaultProfile = this.id.indexOf('@') <= 0;
+	}
+
+	function Profiles() {
+		this.reset();
+	}
+	Profiles.prototype.reset = function() {
+		this.list = [];
+		this.fullList = [];
+		this.noProfiles = false;
+		this.error = false;
+		this.invalidServer = false;
+		this.selected = null;
+	};
+	Profiles.prototype.set = function(profiles) {
+		this.list = [];
+		for (var i = 0; i < profiles.length; ++i) {
+			var profile = new Profile(profiles[i]);
+			this.fullList.push(profile);
+			if (!profile.defaultProfile) this.list.push(profile);
+		}
+		this.noProfiles = this.list.length == 0;
+	};
+
+	var profiles = $scope.profiles = new Profiles();
+
 	function Query() {
 		this.url = "";
+		this.profiles = [];
+		this.inProgress= false;
 	}
 	Query.prototype.correctURL = function() {
 		var url = this.url;
@@ -247,7 +278,27 @@ angular.module(
 		this.url = "http://" + url;
 	};
 	Query.prototype.find = function() {
-		console.log("find!");
+		profiles.reset();
+		var self = this;
+		var request = this.inProgress =
+			$http.get("rcm/profiles.json", {params: {server: this.url}});
+		request.success(function(data) {
+			if (self.inProgress !== request) return;
+			self.inProgress = false;
+			profiles.set(data.profiles);
+			profiles.selected = data.selected;
+		})
+		.error(function(data, status) {
+			if (self.inProgress !== request) return;
+			self.inProgress = false;
+			if (!data.error) {
+				profiles.error =
+					"Не удалось получить список профилей. Ошибка " + status;
+			} else {
+				profiles.error = data.error;
+				profiles.invalidServer = data.invalidServer;
+			}
+		});
 	};
 
 	var query = $scope.query = new Query();
@@ -293,7 +344,7 @@ angular.module(
 				endUpdate);
 	};
 
-	$http.get("collectors/servers.json")
+	$http.get("rcm/servers.json")
 	.success(function(data) {
 		servers.list = data.servers;
 	})

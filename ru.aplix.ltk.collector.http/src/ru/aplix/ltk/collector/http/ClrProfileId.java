@@ -38,7 +38,7 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 	 */
 	public static ClrProfileId parseClrProfileId(String in) {
 
-		final int atIdx = in.indexOf('@');
+		final int atIdx = in.lastIndexOf('@');
 
 		if (atIdx < 0) {
 			return new ClrProfileId(decode(in), "");
@@ -70,7 +70,7 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 			String encoding)
 	throws UnsupportedEncodingException {
 
-		final int atIdx = path.indexOf('@');
+		final int atIdx = path.lastIndexOf('@');
 
 		if (atIdx < 0) {
 			return new ClrProfileId(

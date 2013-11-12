@@ -1,10 +1,13 @@
 package ru.aplix.ltk.store.web.rcm;
 
+import static java.util.Collections.emptyMap;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,17 +19,23 @@ import ru.aplix.ltk.collector.http.ClrAddress;
 import ru.aplix.ltk.collector.http.ClrError;
 import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.collector.http.client.*;
+import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.store.RfStore;
+import ru.aplix.ltk.store.web.rcm.ui.RcmUIContext;
+import ru.aplix.ltk.store.web.rcm.ui.RcmUIController;
+import ru.aplix.ltk.store.web.rcm.ui.RcmUIQualifier;
 
 
 @Controller
-public class RcmController {
+public class RcmController implements RcmUIContext {
 
 	@Autowired
 	private RfStore rfStore;
 
 	@Autowired
 	private HttpRfManager httpRfManager;
+
+	private RcmUIController<?, ?>[] uiControllers;
 
 	public final RfStore rfStore() {
 		return this.rfStore;
@@ -88,6 +97,39 @@ public class RcmController {
 		}
 
 		return result;
+	}
+
+	@RequestMapping(
+			value = "/rcm/ui.json",
+			method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, RcmUIDesc> ui() {
+		if (this.uiControllers == null) {
+			return emptyMap();
+		}
+
+		final HashMap<String, RcmUIDesc> uis =
+				new HashMap<>(this.uiControllers.length);
+
+		for (RcmUIController<?, ?> provider : this.uiControllers) {
+
+			final RfProvider<?> rfProvider = provider.getRfProvider();
+
+			uis.put(
+					rfProvider != null ? rfProvider.getId() : "_",
+					new RcmUIDesc(provider));
+		}
+
+		return uis;
+	}
+
+	@Autowired(required = false)
+	@RcmUIQualifier
+	private void setUIControllers(RcmUIController<?, ?>[] uiControllers) {
+		this.uiControllers = uiControllers;
+		for (RcmUIController<?, ?> controller : uiControllers) {
+			controller.init(this);
+		}
 	}
 
 	private ClrAddress address(

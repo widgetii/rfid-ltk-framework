@@ -258,6 +258,7 @@ angular.module(
 		this.reset();
 	}
 	Profiles.prototype.reset = function() {
+		this.collectorURL = null;
 		this.list = [];
 		this.noProfiles = false;
 		this.error = false;
@@ -319,6 +320,7 @@ angular.module(
 		request.success(function(data) {
 			if (self.inProgress !== request) return;
 			self.inProgress = false;
+			profiles.collectorURL = data.collectorURL;
 			profiles.set(data.profiles, data.selected);
 		})
 		.error(function(data, status) {
@@ -328,6 +330,7 @@ angular.module(
 				profiles.error =
 					"Не удалось получить список профилей. Ошибка " + status;
 			} else {
+				profiles.collectorURL = data.collectorURL;
 				profiles.error = data.error;
 				profiles.invalidServer = data.invalidServer;
 			}
@@ -351,31 +354,40 @@ angular.module(
 	$scope.cancel = function() {
 		$modalInstance.close();
 	};
-	$scope.createReceiver = function() {
-		$modalInstance.close();
+
+	function NewReceiver() {
+		this.updating = false;
+		this.error = null;
+	}
+	NewReceiver.prototype.create = function() {
+		if ($scope.updating) return;
+		var selected = profiles.selected;
+		if (!profiles.collectorURL) {
+			this.error = "Адрес накопителя неизвестен";
+			return;
+		}
+		this.error = null;
+		this.updating = false;
+		var newReceiver = $rfReceivers.newReceiver();
+		if (selected && selected.id) {
+			newReceiver.remoteURL = profiles.collectorURL + "/" + selected.id;
+		} else {
+			newReceiver.remoteURL = profiles.collectorURL;
+		}
+		var self = this;
+		newReceiver.create(
+				function() {
+					self.updating = false;
+					self.error = null;
+					$modalInstance.close();
+				},
+				function(data, status) {
+					self.updating = false;
+					self.error = "Неизвестная ошибка (" + status + ")";
+				});
 	};
 
-	function startUpdate() {
-		$scope.updating = true;
-	}
-	function endUpdate(success) {
-		$scope.updating = false;
-		if (success) {
-			angular.element(document.getElementById("newReceiverForm"))
-			.controller("form")
-			.$setDirty(false);
-		}
-	}
-	$scope.create = function() {
-		if ($scope.updating) return;
-		startUpdate();
-		$scope.newReceiver.create(
-				function() {
-					$scope.newReceiver = $rfReceivers.newReceiver();
-					endUpdate(true);
-				},
-				endUpdate);
-	};
+	$scope.newReceiver = new NewReceiver();
 
 	$http.get("rcm/servers.json")
 	.success(function(data) {

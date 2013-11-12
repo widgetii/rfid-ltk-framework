@@ -19,8 +19,13 @@ public class HttpRfProfilesBean {
 
 	private String error;
 	private String selected;
+	private String collectorURL;
 	private final ArrayList<HttpRfProfileBean> profiles = new ArrayList<>();
 	private boolean invalidServer;
+
+	public String getCollectorURL() {
+		return this.collectorURL;
+	}
 
 	public String getError() {
 		return this.error;
@@ -54,6 +59,9 @@ public class HttpRfProfilesBean {
 			HttpRfServer server,
 			RfStore store)
 	throws IOException {
+		// Use original URL in case of request failure.
+		this.collectorURL =
+				server.getAddress().getURL().toExternalForm();
 
 		final Map<ClrProfileId, HttpRfProfile<?>> profiles =
 				server.loadProfiles();
@@ -84,8 +92,11 @@ public class HttpRfProfilesBean {
 			beans.put(profile.getProfileId(), bean);
 		}
 
-		this.profiles.ensureCapacity(this.profiles.size() + beans.size());
 		this.profiles.addAll(beans.values());
+
+		// Use proper collector URL only if request succeed.
+		this.collectorURL =
+				server.getAddress().getCollectorURL().toExternalForm();
 	}
 
 	private static Map<String, RfReceiverDesc> receivers(RfStore store) {
@@ -99,7 +110,12 @@ public class HttpRfProfilesBean {
 			final String url = desc.getRemoteURL();
 
 			if (url != null) {
-				map.put(url, desc);
+
+				final RfReceiverDesc old = map.put(url, desc);
+
+				if (old != null && old.getId() < desc.getId()) {
+					map.put(url, old);
+				}
 			}
 		}
 

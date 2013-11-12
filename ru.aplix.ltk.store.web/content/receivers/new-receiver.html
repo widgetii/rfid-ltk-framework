@@ -3,7 +3,7 @@
 </div>
 
 <div class="modal-body">
-  <form class="form-search" name="profileSearchForm">
+  <form class="form-search" name="profileSearchForm" ng-submit="query.find()">
     <div class="dropdown">
       <div class="input-append controls">
         <input
@@ -25,10 +25,7 @@
           </li>
         </ul>
       </div>
-      <button
-        type="submit"
-        class="btn btn-primary"
-        ng-click="query.find()">
+      <button type="submit" class="btn btn-primary">
         <i class="icon-search icon-white"></i>
       </button>
     </div>
@@ -55,6 +52,13 @@
     ng-options="p.label group by p.provider.name for p in profiles.list"
     ng-show="profiles.list.length">
   </select>
+  <div class="alert alert-info" ng-show="newReceiver.updating">
+    Создаётся приёмник...
+  </div>
+  <div class="alert alert-block alert-error" ng-show="newReceiver.error">
+    <h4>Не удалось создать приёмник</h4>
+    {{newReceiver.error}}
+  </div>
 </div>
 
 <div class="modal-footer">
@@ -62,19 +66,19 @@
     <button
       ng-switch-when="new"
       class="btn btn-primary"
-      ng-click="createProfile()">Создать профиль</button>
+      ng-click="newProfile.create()">Создать профиль</button>
     <button
       ng-switch-when="connect"
       class="btn btn-primary"
-      ng-click="createReceiver()">Подключиться</button>
+      ng-click="newReceiver.create()">Подключиться</button>
     <button
       ng-switch-when="again"
       class="btn btn-warning"
-      ng-click="createReceiver()">Подключиться ещё раз</button>
+      ng-click="newReceiver.create()">Подключиться ещё раз</button>
     <button
       ng-switch-when="anyway"
       class="btn btn-warning"
-      ng-click="createReceiverAnyway()">Всё равно подключиться</button>
+      ng-click="newReceiver.create()">Всё равно подключиться</button>
   </span>
   <button class="btn" ng-click="cancel()">Отмена</button>
 </div>

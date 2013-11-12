@@ -17,7 +17,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.*;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -32,7 +32,7 @@ import ru.aplix.ltk.store.impl.persist.RfReceiverData;
 import ru.aplix.ltk.store.impl.persist.RfTagEventData;
 
 
-@Component("rfStore")
+@Service("rfStore")
 public class RfStoreImpl
 		implements RfStore,
 		ApplicationContextAware,

@@ -66,18 +66,22 @@
     <button
       ng-switch-when="new"
       class="btn btn-primary"
+      ng-disabled="newProfile.updating"
       ng-click="newProfile.create()">Создать профиль</button>
     <button
       ng-switch-when="connect"
       class="btn btn-primary"
+      ng-disabled="newReceiver.updating"
       ng-click="newReceiver.create()">Подключиться</button>
     <button
       ng-switch-when="again"
       class="btn btn-warning"
+      ng-disabled="newReceiver.updating"
       ng-click="newReceiver.create()">Подключиться ещё раз</button>
     <button
       ng-switch-when="anyway"
       class="btn btn-warning"
+      ng-disabled="newReceiver.updating"
       ng-click="newReceiver.create()">Всё равно подключиться</button>
   </span>
   <button class="btn" ng-click="cancel()">Отмена</button>

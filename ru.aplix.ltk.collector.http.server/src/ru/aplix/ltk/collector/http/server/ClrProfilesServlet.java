@@ -92,8 +92,10 @@ public class ClrProfilesServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void doDelete(
+			HttpServletRequest req,
+			HttpServletResponse resp)
+	throws ServletException, IOException {
 
 		final ClrProfileId profileId = profileId(req, resp);
 

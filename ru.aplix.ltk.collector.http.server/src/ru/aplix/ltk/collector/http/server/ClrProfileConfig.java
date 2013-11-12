@@ -1,6 +1,7 @@
 package ru.aplix.ltk.collector.http.server;
 
 import static ru.aplix.ltk.collector.http.ClrProfileSettings.AUTOSTART;
+import static ru.aplix.ltk.collector.http.ClrProfileSettings.PROFILE_NAME;
 
 import java.io.*;
 import java.util.Properties;
@@ -51,9 +52,8 @@ final class ClrProfileConfig<S extends RfSettings> {
 		return getParameters().valueOf(AUTOSTART, false);
 	}
 
-	public final ClrProfileConfig<S> setAutostart(boolean autostart) {
-		getParameters().set(AUTOSTART, autostart);
-		return this;
+	public final String getProfileName() {
+		return getParameters().valueOf(PROFILE_NAME);
 	}
 
 	public final Parameters getParameters() {

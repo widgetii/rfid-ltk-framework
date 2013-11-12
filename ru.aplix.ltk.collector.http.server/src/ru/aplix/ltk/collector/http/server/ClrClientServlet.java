@@ -207,19 +207,28 @@ public class ClrClientServlet extends HttpServlet {
 			String rootPath,
 			ClrProfile<?> profile) {
 
-		final String profileId = profile.getProfileId().toString();
-		final String path = attr(rootPath + '/' + profileId);
+		final String label = profileLabel(profile);
 
-		out.append("<a href=\"")
-		.append(path)
+		out.append("<p><a href=\"")
+		.append(rootPath)
+		.append('/')
+		.append(profile.getProfileId().urlEncode())
 		.append("\">")
-		.append(path)
-		.append("</a>")
+		.append(html(label))
+		.append("</a></p>")
 		.println();
 	}
 
-	private static String attr(String text) {
-		return html(text).replace("\"", "&#34;").replace("'", "&#39;");
+	private static String profileLabel(ClrProfile<?> profile) {
+
+		final ClrProfileId profileId = profile.getProfileId();
+		final String profileName = profile.getConfig().getProfileName();
+
+		if (profileName == null) {
+			return profileId.getId();
+		}
+
+		return profileName + " (" + profileId.getId() + ')';
 	}
 
 	private static String html(String text) {

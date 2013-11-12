@@ -1,8 +1,6 @@
 package ru.aplix.ltk.collector.http.server;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
+import static javax.servlet.http.HttpServletResponse.*;
 import static ru.aplix.ltk.collector.http.ClrClientId.urlDecodeClrClientId;
 
 import java.io.IOException;
@@ -40,14 +38,11 @@ public class ClrProfilesServlet extends HttpServlet {
 			HttpServletRequest req,
 			HttpServletResponse resp)
 	throws ServletException, IOException {
-
-		final ClrProfiles profilesData = new ClrProfiles();
-
-		for (ProviderClrProfiles<?> providerProfiles : allProfiles()) {
-			addProviderProfiles(profilesData, providerProfiles);
+		if (req.getPathInfo() != null) {
+			sendProfile(req, resp);
+		} else {
+			sendAllProfiles(resp);
 		}
-
-		respond(resp, profilesData);
 	}
 
 	@Override
@@ -69,14 +64,14 @@ public class ClrProfilesServlet extends HttpServlet {
 			return;
 		}
 
-		final ClrProfileSettings<?> profileData =
+		final ClrProfileSettings<?> profileSettings =
 				new ClrProfileSettings<>(profiles.getProvider());
 
-		profileData.read(new Parameters(req.getParameterMap()));
+		profileSettings.read(new Parameters(req.getParameterMap()));
 
 		final ClrProfile<?> profile = profiles.createProfile(profileId);
 
-		profileData.write(profile.getConfig().getParameters());
+		profileSettings.write(profile.getConfig().getParameters());
 		try {
 			profile.save();
 		} catch (Exception e) {
@@ -87,7 +82,7 @@ public class ClrProfilesServlet extends HttpServlet {
 					e.getLocalizedMessage());
 		}
 
-		resp.setStatus(SC_NO_CONTENT);
+		resp.setStatus(SC_CREATED);
 		resp.flushBuffer();
 	}
 
@@ -97,17 +92,58 @@ public class ClrProfilesServlet extends HttpServlet {
 			HttpServletResponse resp)
 	throws ServletException, IOException {
 
+		final ClrProfile<?> profile = profile(req, resp);
+
+		if (profile == null) {
+			return;
+		}
+
+		profile.delete();
+
+		resp.setStatus(SC_NO_CONTENT);
+		resp.flushBuffer();
+	}
+
+	private void sendProfile(
+			HttpServletRequest req,
+			HttpServletResponse resp)
+	throws IOException {
+
+		final ClrProfile<?> profile = profile(req, resp);
+
+		if (profile == null) {
+			return;
+		}
+
+		respond(resp, profileSettings(profile));
+	}
+
+	private void sendAllProfiles(HttpServletResponse resp) throws IOException {
+
+		final ClrProfiles profiles = new ClrProfiles();
+
+		for (ProviderClrProfiles<?> providerProfiles : allProfiles()) {
+			addProviderProfiles(profiles, providerProfiles);
+		}
+
+		respond(resp, profiles);
+	}
+
+	private ClrProfile<?> profile(
+			HttpServletRequest req,
+			HttpServletResponse resp) throws IOException {
+
 		final ClrProfileId profileId = profileId(req, resp);
 
 		if (profileId == null) {
-			return;
+			return null;
 		}
 
 		final ProviderClrProfiles<?> profiles =
 				providerProfiles(resp, profileId);
 
 		if (profiles == null) {
-			return;
+			return null;
 		}
 
 		final ClrProfile<?> profile = profiles.get(profileId.getId());
@@ -118,13 +154,10 @@ public class ClrProfilesServlet extends HttpServlet {
 					SC_BAD_REQUEST,
 					ClrError.UNKNOWN_PROFILE,
 					profileId.toString());
-			return;
+			return null;
 		}
 
-		profile.delete();
-
-		resp.setStatus(SC_NO_CONTENT);
-		resp.flushBuffer();
+		return profile;
 	}
 
 	private static ClrProfileId profileId(
@@ -176,32 +209,41 @@ public class ClrProfilesServlet extends HttpServlet {
 	}
 
 	private static <S extends RfSettings> void addProviderProfiles(
-			ClrProfiles profilesData,
+			ClrProfiles profiles,
 			ProviderClrProfiles<S> providerProfiles) {
 
 		final RfProvider<S> provider = providerProfiles.getProvider();
 
 		for (ClrProfile<S> profile : providerProfiles) {
-
-			final ClrProfileSettings<S> profileData =
-					new ClrProfileSettings<>(provider);
-
-			profileData.read(profile.getParameters());
-			profilesData.profiles().put(profile.getProfileId(), profileData);
+			profiles.profiles().put(
+					profile.getProfileId(),
+					profileSettings(profile));
 		}
-		addDefaultProfile(profilesData, provider);
+
+		addDefaultProfile(profiles, provider);
+	}
+
+	private static <S extends RfSettings>
+	ClrProfileSettings<S> profileSettings(ClrProfile<S> profile) {
+
+		final ClrProfileSettings<S> profileSettings =
+				new ClrProfileSettings<>(profile.getProvider());
+
+		profileSettings.read(profile.getParameters());
+
+		return profileSettings;
 	}
 
 	private static <S extends RfSettings> void addDefaultProfile(
 			ClrProfiles profilesData,
 			RfProvider<S> provider) {
 
-		final ClrProfileSettings<S> defaultData =
+		final ClrProfileSettings<S> defaultSettings =
 				new ClrProfileSettings<>(provider);
 
 		profilesData.profiles().put(
 				new ClrProfileId(provider.getId(), null),
-				defaultData);
+				defaultSettings);
 	}
 
 	private static void respond(

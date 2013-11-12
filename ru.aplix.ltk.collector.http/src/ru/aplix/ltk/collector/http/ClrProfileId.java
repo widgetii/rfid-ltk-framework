@@ -14,6 +14,41 @@ import ru.aplix.ltk.core.RfProvider;
  */
 public final class ClrProfileId implements Comparable<ClrProfileId> {
 
+	private static final String ENC_HYPHEN = "--";
+	private static final String ENC_DOT = "-dot-";
+	private static final String ENC_AT = "-at-";
+
+	private static final String ENCS[] = {
+		ENC_HYPHEN,
+		ENC_DOT,
+		ENC_AT
+	};
+
+	/**
+	 * Reconstructs profile identifier from its string representation.
+	 *
+	 * <a>The string representation is constructed by {@link #toString()}
+	 * method. It does not contain dots or {@code '@'} signs inside identifier
+	 * parts. The only {@code '@'} sign separates local identifier from profile,
+	 * unless local identifier {@link #isDefault() is empty}.</p>
+	 *
+	 * @param in string representation to parse.
+	 *
+	 * @return reconstructed profile identifier.
+	 */
+	public static ClrProfileId parseClrProfileId(String in) {
+
+		final int atIdx = in.indexOf('@');
+
+		if (atIdx < 0) {
+			return new ClrProfileId(decode(in), "");
+		}
+
+		return new ClrProfileId(
+				decode(in.substring(atIdx + 1)),
+				decode(in.substring(0, atIdx)));
+	}
+
 	/**
 	 * Construct the profile identifier from the given URL-encoded path.
 	 *
@@ -38,12 +73,13 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 		final int atIdx = path.indexOf('@');
 
 		if (atIdx < 0) {
-			return new ClrProfileId(URLDecoder.decode(path, encoding), "");
+			return new ClrProfileId(
+					decode(URLDecoder.decode(path, encoding)), "");
 		}
 
 		return new ClrProfileId(
-				URLDecoder.decode(path.substring(atIdx + 1), encoding),
-				URLDecoder.decode(path.substring(0, atIdx), encoding));
+				decode(URLDecoder.decode(path.substring(atIdx + 1), encoding)),
+				decode(URLDecoder.decode(path.substring(0, atIdx), encoding)));
 	}
 
 	private final String providerId;
@@ -177,22 +213,126 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 			return super.toString();
 		}
 		if (this.id.isEmpty()) {
-			return this.providerId;
+			return encode(this.providerId);
 		}
-		return this.id + '@' + this.providerId;
+
+		final StringBuilder out = new StringBuilder(
+				this.id.length() + 1 + this.providerId.length());
+
+		encode(this.id, out);
+		out.append('@');
+		encode(this.providerId, out);
+
+		return out.toString();
 	}
 
 	final String urlEncode(
 			String encoding)
 	throws UnsupportedEncodingException {
 
-		final String providerId = URLEncoder.encode(getProviderId(), encoding);
+		final String providerId =
+				URLEncoder.encode(encode(getProviderId()), encoding);
 
 		if (getId().isEmpty()) {
 			return providerId;
 		}
 
-		return URLEncoder.encode(getId(), encoding) + '@' + providerId;
+		return URLEncoder.encode(encode(getId()), encoding) + '@' + providerId;
+	}
+
+	private static String decode(String in) {
+
+		final int len = in.length();
+		StringBuilder out = new StringBuilder(len);
+		int i = 0;
+
+		while (i < len) {
+
+			final char c = in.charAt(i);
+
+			if (c == '-') {
+				if (contains(in, i, ENC_HYPHEN)) {
+					out.append('-');
+					i += ENC_HYPHEN.length();
+					continue;
+				}
+				if (contains(in, i, ENC_DOT)) {
+					out.append('.');
+					i += ENC_DOT.length();
+					continue;
+				}
+				if (contains(in, i, ENC_AT)) {
+					out.append('@');
+					i += ENC_AT.length();
+					continue;
+				}
+			}
+			out.append(c);
+			++i;
+		}
+
+		return out.length() == len ? in : out.toString();
+	}
+
+	private static String encode(String in) {
+
+		final int len = in.length();
+		final StringBuilder out = new StringBuilder(len);
+
+		encode(in, out);
+
+		return out.length() == len ? in : out.toString();
+	}
+
+	private static void encode(String in, StringBuilder out) {
+
+		final int len = in.length();
+		int i = 0;
+
+		while (i < len) {
+
+			final char c = in.charAt(i);
+
+			switch (c) {
+			case '@':
+				out.append(ENC_AT);
+				++i;
+				continue;
+			case '.':
+				out.append(ENC_DOT);
+				++i;
+				continue;
+			case '-':
+				i = encodeHyphen(in, i, out);
+				continue;
+			default:
+				out.append(c);
+				++i;
+				continue;
+			}
+		}
+	}
+
+	private static int encodeHyphen(String in, int i, StringBuilder out) {
+		out.append('-');
+		for (String enc : ENCS) {
+			if (contains(in, i, enc)) {
+				out.append(enc);
+				return i + enc.length();
+			}
+		}
+		return i + 1;
+	}
+
+	private static boolean contains(String str, int start, String substr) {
+
+		final int end = start + substr.length();
+
+		if (end > str.length()) {
+			return false;
+		}
+
+		return str.substring(start, end).equals(substr);
 	}
 
 }

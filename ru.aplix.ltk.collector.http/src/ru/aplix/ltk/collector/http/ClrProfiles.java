@@ -1,6 +1,6 @@
 package ru.aplix.ltk.collector.http;
 
-import static ru.aplix.ltk.collector.http.ClrProfileId.urlDecodeClrProfileId;
+import static ru.aplix.ltk.collector.http.ClrProfileId.parseClrProfileId;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -76,7 +76,7 @@ public class ClrProfiles implements Parameterized {
 				continue;
 			}
 
-			profileData.read(params.sub(profileId.urlEncode()));
+			profileData.read(params.sub(profileId.toString()));
 		}
 	}
 
@@ -87,7 +87,7 @@ public class ClrProfiles implements Parameterized {
 
 			final ClrProfileId profileId = e.getKey();
 			final ClrProfileSettings<?> profile = e.getValue();
-			final Parameters profileParams = params.sub(profileId.urlEncode());
+			final Parameters profileParams = params.sub(profileId.toString());
 
 			profile.write(profileParams);
 		}
@@ -124,7 +124,7 @@ public class ClrProfiles implements Parameterized {
 			return null;
 		}
 
-		return urlDecodeClrProfileId(name.substring(0, dot));
+		return parseClrProfileId(name.substring(0, dot));
 	}
 
 }

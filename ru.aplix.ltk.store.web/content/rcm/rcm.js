@@ -3,6 +3,7 @@ angular.module('rfid-tag-store.rcm', [])
 
 	function Rcm() {
 		this.servers = [];
+		this.uis = null;
 	}
 	Rcm.prototype.loadProfiles = function(server) {
 		return $http.get("rcm/profiles.json", {params: {server: server}});
@@ -31,6 +32,36 @@ angular.module('rfid-tag-store.rcm', [])
 			backdrop: 'static'
 		});
 	};
+	Rcm.prototype.ui = function(providerId) {
+		if (this.uis) {
+			return this._ui(providerId);
+		}
+		var self = this;
+		var ui = {
+			loading: true
+		};
+		$http.get("rcm/ui.json")
+		.success(function(data) {
+			self.uis = data;
+			ui.loading = false;
+			angular.copy(self._ui(providerId), ui);
+		})
+		.error(function(data, status) {
+			ui.loading = false;
+			ui.error =
+				"Не удалось загрузить редакторы профилей. Ошибка " + status;
+		});
+		return ui;
+	};
+	Rcm.prototype._ui = function(providerId) {
+		var ui = this.uis[providerId];
+		if (ui) return ui;
+		var defaultUI = this.uis._;
+		if (defaultUI) return defaultUI;
+		return {
+			error: "Не удалось создать редактор профиля для " + providerId
+		};
+	};
 
 	var rcm = new Rcm();
 
@@ -46,5 +77,6 @@ angular.module('rfid-tag-store.rcm', [])
 
 	return rcm;
 })
-.controller("RfProfileCtrl", function($scope, $modalInstance) {
+.controller("RfProfileCtrl", function($scope, $modalInstance, $rcm) {
+	$scope.ui = $rcm.ui($scope.settings.providerId);
 });

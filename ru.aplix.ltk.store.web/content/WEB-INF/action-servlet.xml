@@ -30,6 +30,8 @@
     </property>
   </bean>
 
+  <security:http pattern="/rcm/ui-scripts.json" security="none"/>
+
   <security:http realm="RFID Store">
     <security:http-basic/>
     <security:intercept-url pattern="/**/*.json" access="ROLE_USER"/>

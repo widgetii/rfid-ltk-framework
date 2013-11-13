@@ -16,6 +16,10 @@ public abstract class RcmUIController<
 
 	public abstract RfProvider<?> getRfProvider();
 
+	public abstract String[] getScriptURLs();
+
+	public abstract String[] getAngularModuleIds();
+
 	public abstract String getSettingsTemplateURL();
 
 	public abstract String getMapping();

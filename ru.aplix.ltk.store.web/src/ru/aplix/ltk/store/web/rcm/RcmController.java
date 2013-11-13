@@ -100,6 +100,23 @@ public class RcmController implements RcmUIContext {
 	}
 
 	@RequestMapping(
+			value = "/rcm/ui-scripts.json",
+			method = RequestMethod.GET)
+	@ResponseBody
+	public RcmUIScriptDesc uiScripts() {
+
+		final RcmUIScriptDesc desc = new RcmUIScriptDesc();
+
+		if (this.uiControllers != null) {
+			for (RcmUIController<?, ?> controller : this.uiControllers) {
+				desc.add(controller);
+			}
+		}
+
+		return desc;
+	}
+
+	@RequestMapping(
 			value = "/rcm/ui.json",
 			method = RequestMethod.GET)
 	@ResponseBody
@@ -111,13 +128,13 @@ public class RcmController implements RcmUIContext {
 		final HashMap<String, RcmUIDesc> uis =
 				new HashMap<>(this.uiControllers.length);
 
-		for (RcmUIController<?, ?> provider : this.uiControllers) {
+		for (RcmUIController<?, ?> controller : this.uiControllers) {
 
-			final RfProvider<?> rfProvider = provider.getRfProvider();
+			final RfProvider<?> rfProvider = controller.getRfProvider();
 
 			uis.put(
 					rfProvider != null ? rfProvider.getId() : "_",
-					new RcmUIDesc(provider));
+					new RcmUIDesc(controller));
 		}
 
 		return uis;

@@ -8,9 +8,9 @@ public final class RcmUIDesc {
 	private final String mapping;
 	private final String settingsTemplateURL;
 
-	RcmUIDesc(RcmUIController<?, ?> provider) {
-		this.mapping = provider.getMapping();
-		this.settingsTemplateURL = provider.getSettingsTemplateURL();
+	RcmUIDesc(RcmUIController<?, ?> controller) {
+		this.mapping = controller.getMapping();
+		this.settingsTemplateURL = controller.getSettingsTemplateURL();
 	}
 
 	public String getMapping() {

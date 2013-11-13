@@ -8,9 +8,24 @@ import ru.aplix.ltk.core.RfSettings;
 public class DefaultRcmUIController
 		extends RcmUIController<RfSettings, RcmUISettings> {
 
+	private static final String[] SCRIPT_URLS =
+			new String[] {"rcm/ui/default.js"};
+	private static final String[] ANGULAR_MODULE_IDS =
+			new String[] {"rfid-tag-store.rcm.ui.default"};
+
 	@Override
 	public RfProvider<?> getRfProvider() {
 		return null;
+	}
+
+	@Override
+	public String[] getScriptURLs() {
+		return SCRIPT_URLS;
+	}
+
+	@Override
+	public String[] getAngularModuleIds() {
+		return ANGULAR_MODULE_IDS;
 	}
 
 	@Override

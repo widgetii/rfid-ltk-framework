@@ -25,8 +25,8 @@ RfidTagStore.prototype.init = function(response) {
 	 "js/angular-resource.js",
 	 "js/ui-bootstrap-tpls.js",
 	 "js/notifier.js",
-	 "js/app.js",
 	 "receivers/receivers.js",
+	 "rcm/rcm.js",
 	 "tags/tags.js"
 	].concat(response.scriptURLs);
 	var head = document.getElementsByTagName("head").item(0);

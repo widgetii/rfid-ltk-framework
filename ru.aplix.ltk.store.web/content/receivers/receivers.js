@@ -2,7 +2,8 @@ angular.module(
 		'rfid-tag-store.receivers',
 		[
 			"ngResource",
-			"notifier"
+			"notifier",
+			"rfid-tag-store.rcm"
 		])
 .factory('$rfReceivers', function($resource, $timeout, $notifier) {
 	function RfReceivers() {
@@ -230,29 +231,28 @@ angular.module(
 		$rfReceivers,
 		$notifier,
 		$modalInstance,
-		$http) {
+		$rcm) {
 	$scope.receivers = $rfReceivers;
 
 	function Profile(profile) {
 		angular.copy(profile, this);
-		if (!profile.newProfile) {
-			if (!this.settings.profileId) {
-				this.label = "<Новый профиль>";
-			} else {
-				var name;
-				if (this.settings.profileName) {
-					name =
-						this.settings.profileName
-						+ " (" + this.settings.profileId + ")";
-				}  else {
-					name = this.settings.profileId;
-				}
-				if (this.receiver) {
-					this.label = name + " - приёмник #" + this.receiver.id;
-				} else {
-					this.label = name;
-				}
-			}
+		if (!this.settings) return;
+		if (!this.settings.profileId) {
+			this.label = "<Новый профиль>";
+			return;
+		}
+		var name;
+		if (this.settings.profileName) {
+			name =
+				this.settings.profileName
+				+ " (" + this.settings.profileId + ")";
+		}  else {
+			name = this.settings.profileId;
+		}
+		if (this.receiver) {
+			this.label = name + " - приёмник #" + this.receiver.id;
+		} else {
+			this.label = name;
 		}
 	}
 
@@ -279,18 +279,23 @@ angular.module(
 			this.selected = new Profile({
 				id: selected || "",
 				label: selected
-					? "Создать профиль <" + selected + ">"
-					: "--- Профиль не выбран ---",
-				newProfile: true
+					? "Неизвестный профиль <" + selected + ">"
+					: "--- Профиль не выбран ---"
 			});
 			if (!this.noProfiles) this.list.splice(0, 0, this.selected);
 		}
+	};
+	Profiles.prototype.addCreated = function(newProfile) {
+		var profile = new Profile(newProfile);
+		var index = this.list.indexOf(this.selected);
+		this.list.splice(index, 0, profile);
+		this.selected = profile;
 	};
 	Profiles.prototype.creationMode = function() {
 		if (this.invalidServer) return "anyway";
 		var selected = this.selected;
 		if (!selected) return null;
-		if (selected.newProfile) return selected.id ? "new" : null;
+		if (!selected.settings) return selected.id ? "anyway" : null;
 		if (!selected.settings.profileId) return "new";
 		if (selected.receiver) return "again";
 		return "connect";
@@ -317,8 +322,7 @@ angular.module(
 	Query.prototype.find = function() {
 		profiles.reset();
 		var self = this;
-		var request = this.inProgress =
-			$http.get("rcm/profiles.json", {params: {server: this.url}});
+		var request = this.inProgress = $rcm.loadProfiles(this.url);
 		request.success(function(data) {
 			if (self.inProgress !== request) return;
 			self.inProgress = false;
@@ -342,7 +346,7 @@ angular.module(
 	var query = $scope.query = new Query();
 
 	function Servers() {
-		this.list = [];
+		this.list = $rcm.servers;
 		this.display = false;
 	}
 	Servers.prototype.select = function(url) {
@@ -351,18 +355,14 @@ angular.module(
 		query.find();
 	};
 
-	var servers = $scope.servers = new Servers();
-
-	$scope.cancel = function() {
-		$modalInstance.close();
-	};
+	$scope.servers = new Servers();
 
 	function NewReceiver() {
 		this.updating = false;
 		this.error = null;
 	}
 	NewReceiver.prototype.create = function() {
-		if ($scope.updating) return;
+		if (this.updating) return;
 		var selected = profiles.selected;
 		if (!profiles.collectorURL) {
 			this.error = "Адрес накопителя неизвестен";
@@ -380,7 +380,6 @@ angular.module(
 		newReceiver.create(
 				function() {
 					self.updating = false;
-					self.error = null;
 					$modalInstance.close();
 				},
 				function(data, status) {
@@ -391,13 +390,38 @@ angular.module(
 
 	$scope.newReceiver = new NewReceiver();
 
-	$http.get("rcm/servers.json")
-	.success(function(data) {
-		servers.list = data.servers;
-	})
-	.error(function(data, status) {
-		$notifier.error(
-				"Не удалось получить список доступных накопителей",
-				"ОШИБКА " + status);
-	});
+	function SelectedProfile() {
+		this.updating = false;
+		this.error = null;
+	}
+	SelectedProfile.prototype.create = function() {
+		if (this.updating) return;
+		var selected = profiles.selected;
+		if (!selected) {
+			this.error = "Провайдер не выбран";
+			return;
+		}
+		var settings = selected.settings;
+		if (!settings || !settings.providerId) {
+			this.error = "Провайдер неивестен";
+			return;
+		}
+		var providerId = settings.providerId;
+		var newSettings = angular.copy(settings);
+		newSettings.profileId = $rcm.newProfileId(profiles.list, providerId);
+		this.error = null;
+		this.updating = true;
+		var self = this;
+		$rcm.editProfile(newSettings, true)
+		.result.then(
+				function(newProfile) {
+					self.updating = false;
+					profiles.addCreated(newProfile);
+				},
+				function() {
+					self.updating = false;
+				});
+	};
+
+	$scope.selectedProfile = new SelectedProfile();
 });

@@ -20,14 +20,15 @@ import ru.aplix.ltk.collector.http.ClrError;
 import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.collector.http.client.*;
 import ru.aplix.ltk.core.RfProvider;
+import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.store.RfStore;
-import ru.aplix.ltk.store.web.rcm.ui.RcmUIContext;
-import ru.aplix.ltk.store.web.rcm.ui.RcmUIController;
-import ru.aplix.ltk.store.web.rcm.ui.RcmUIQualifier;
+import ru.aplix.ltk.store.web.rcm.ui.*;
 
 
 @Controller
 public class RcmController implements RcmUIContext {
+
+	private static final String DEFAULT_PROVIDER_ID = "_";
 
 	@Autowired
 	private RfStore rfStore;
@@ -35,7 +36,8 @@ public class RcmController implements RcmUIContext {
 	@Autowired
 	private HttpRfManager httpRfManager;
 
-	private RcmUIController<?, ?>[] uiControllers;
+	private HashMap<String, RcmUIController<?, ?>> uiControllers =
+			new HashMap<>();
 
 	public final RfStore rfStore() {
 		return this.rfStore;
@@ -76,7 +78,7 @@ public class RcmController implements RcmUIContext {
 		final HttpRfServer server = httpRfManager().httpRfServer(address);
 
 		try {
-			result.loadProfiles(server, rfStore());
+			result.loadProfiles(this, server);
 
 			final ClrProfileId profileId = address.getProfileId();
 
@@ -108,7 +110,8 @@ public class RcmController implements RcmUIContext {
 		final RcmUIScriptDesc desc = new RcmUIScriptDesc();
 
 		if (this.uiControllers != null) {
-			for (RcmUIController<?, ?> controller : this.uiControllers) {
+			for (RcmUIController<?, ?> controller :
+				this.uiControllers.values()) {
 				desc.add(controller);
 			}
 		}
@@ -126,26 +129,44 @@ public class RcmController implements RcmUIContext {
 		}
 
 		final HashMap<String, RcmUIDesc> uis =
-				new HashMap<>(this.uiControllers.length);
+				new HashMap<>(this.uiControllers.size());
 
-		for (RcmUIController<?, ?> controller : this.uiControllers) {
-
-			final RfProvider<?> rfProvider = controller.getRfProvider();
-
-			uis.put(
-					rfProvider != null ? rfProvider.getId() : "_",
-					new RcmUIDesc(controller));
+		for (Map.Entry<String, RcmUIController<?, ?>> e :
+				this.uiControllers.entrySet()) {
+			uis.put(e.getKey(), new RcmUIDesc(e.getValue()));
 		}
 
 		return uis;
 	}
 
+	@SuppressWarnings("unchecked")
+	public <S extends RfSettings, U extends RcmUISettings>
+	RcmUIController<S, U> uiController(String profileId) {
+
+		final RcmUIController<?, ?> found = this.uiControllers.get(profileId);
+
+		if (found != null) {
+			return (RcmUIController<S, U>) found;
+		}
+
+		return (RcmUIController<S, U>) this.uiControllers.get(
+				DEFAULT_PROVIDER_ID);
+	}
+
 	@Autowired(required = false)
 	@RcmUIQualifier
 	private void setUIControllers(RcmUIController<?, ?>[] uiControllers) {
-		this.uiControllers = uiControllers;
+		this.uiControllers.clear();
+
 		for (RcmUIController<?, ?> controller : uiControllers) {
 			controller.init(this);
+
+			final RfProvider<?> rfProvider = controller.getRfProvider();
+
+			this.uiControllers.put(
+					rfProvider != null
+					? rfProvider.getId() : DEFAULT_PROVIDER_ID,
+					controller);
 		}
 	}
 

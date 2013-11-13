@@ -1,47 +1,23 @@
 package ru.aplix.ltk.store.web.rcm;
 
-import ru.aplix.ltk.collector.http.ClrProfileId;
-import ru.aplix.ltk.collector.http.ClrProfileSettings;
 import ru.aplix.ltk.collector.http.client.HttpRfProfile;
+import ru.aplix.ltk.store.web.rcm.ui.RcmUISettings;
 import ru.aplix.ltk.store.web.receiver.RfReceiverDesc;
 
 
 public class HttpRfProfileBean {
 
 	private final String id;
-	private final String providerId;
-	private final String profileId;
-	private final String name;
 	private RfProviderDesc provider;
 	private RfReceiverDesc receiver;
+	private RcmUISettings settings;
 
 	public HttpRfProfileBean(HttpRfProfile<?> profile) {
-
-		final ClrProfileId profileId = profile.getProfileId();
-		
-		this.id = profileId.urlEncode();
-		this.providerId = profileId.getProviderId();
-		this.profileId = profileId.getId();
-
-		final ClrProfileSettings<?> settings = profile.getSettings();
-
-		this.name = settings.getProfileName();
+		this.id = profile.getProfileId().urlEncode();
 	}
 
 	public String getId() {
 		return this.id;
-	}
-
-	public String getProviderId() {
-		return this.providerId;
-	}
-
-	public String getProfileId() {
-		return this.profileId;
-	}
-
-	public String getName() {
-		return this.name;
 	}
 
 	public RfProviderDesc getProvider() {
@@ -58,6 +34,14 @@ public class HttpRfProfileBean {
 
 	public void setReceiver(RfReceiverDesc receiver) {
 		this.receiver = receiver;
+	}
+
+	public RcmUISettings getSettings() {
+		return this.settings;
+	}
+
+	public void setSettings(RcmUISettings settings) {
+		this.settings = settings;
 	}
 
 }

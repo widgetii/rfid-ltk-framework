@@ -1,12 +1,13 @@
 package ru.aplix.ltk.store.web.rcm.ui;
 
+import ru.aplix.ltk.collector.http.client.HttpRfProfile;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 
 
 @RcmUI
 public class DefaultRcmUIController
-		extends RcmUIController<RfSettings, RcmUISettings> {
+		extends RcmUIController<RfSettings, DefaultRcmUISettings> {
 
 	private static final String[] SCRIPT_URLS =
 			new String[] {"rcm/ui/default.js"};
@@ -36,6 +37,11 @@ public class DefaultRcmUIController
 	@Override
 	public String getMapping() {
 		return "rcm/ui/default.json";
+	}
+
+	@Override
+	public DefaultRcmUISettings uiSettings(HttpRfProfile<RfSettings> profile) {
+		return new DefaultRcmUISettings(profile);
 	}
 
 }

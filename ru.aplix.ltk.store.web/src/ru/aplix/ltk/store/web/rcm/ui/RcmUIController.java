@@ -1,5 +1,6 @@
 package ru.aplix.ltk.store.web.rcm.ui;
 
+import ru.aplix.ltk.collector.http.client.HttpRfProfile;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 
@@ -23,6 +24,8 @@ public abstract class RcmUIController<
 	public abstract String getSettingsTemplateURL();
 
 	public abstract String getMapping();
+
+	public abstract U uiSettings(HttpRfProfile<S> profile);
 
 	public void init(RcmUIContext context) {
 		this.context = context;

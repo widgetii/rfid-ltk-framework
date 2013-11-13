@@ -236,14 +236,16 @@ angular.module(
 	function Profile(profile) {
 		angular.copy(profile, this);
 		if (!profile.newProfile) {
-			if (!this.profileId) {
+			if (!this.settings.profileId) {
 				this.label = "<Новый профиль>";
 			} else {
 				var name;
-				if (this.name) {
-					name = this.name + " (" + this.profileId + ")";
+				if (this.settings.profileName) {
+					name =
+						this.settings.profileName
+						+ " (" + this.settings.profileId + ")";
 				}  else {
-					name = this.profileId;
+					name = this.settings.profileId;
 				}
 				if (this.receiver) {
 					this.label = name + " - приёмник #" + this.receiver.id;
@@ -289,7 +291,7 @@ angular.module(
 		var selected = this.selected;
 		if (!selected) return null;
 		if (selected.newProfile) return selected.id ? "new" : null;
-		if (!selected.profileId) return "new";
+		if (!selected.settings.profileId) return "new";
 		if (selected.receiver) return "again";
 		return "connect";
 	};

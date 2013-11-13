@@ -13,6 +13,11 @@ public class RfProviderDesc {
 		this.name = provider.getName();
 	}
 
+	public RfProviderDesc(String id) {
+		this.id = id;
+		this.name = id;
+	}
+
 	public String getId() {
 		return this.id;
 	}

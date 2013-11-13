@@ -10,8 +10,11 @@ import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.collector.http.client.HttpRfProfile;
 import ru.aplix.ltk.collector.http.client.HttpRfServer;
 import ru.aplix.ltk.core.RfProvider;
+import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfStore;
+import ru.aplix.ltk.store.web.rcm.ui.RcmUIController;
+import ru.aplix.ltk.store.web.rcm.ui.RcmUISettings;
 import ru.aplix.ltk.store.web.receiver.RfReceiverDesc;
 
 
@@ -55,10 +58,13 @@ public class HttpRfProfilesBean {
 		this.selected = selected;
 	}
 
-	public void loadProfiles(
-			HttpRfServer server,
-			RfStore store)
+	void loadProfiles(
+			RcmController controller,
+			HttpRfServer server)
 	throws IOException {
+
+		final RfStore rfStore = controller.rfStore();
+
 		// Use original URL in case of request failure.
 		this.collectorURL =
 				server.getAddress().getURL().toExternalForm();
@@ -66,21 +72,21 @@ public class HttpRfProfilesBean {
 		final Map<ClrProfileId, HttpRfProfile<?>> profiles =
 				server.loadProfiles();
 		final Map<String, ? extends RfProvider<?>> providers =
-				store.allRfProviders();
-		final Map<String, RfReceiverDesc> receivers = receivers(store);
+				rfStore.allRfProviders();
+		final Map<String, RfReceiverDesc> receivers = receivers(rfStore);
 		final TreeMap<ClrProfileId, HttpRfProfileBean> beans = new TreeMap<>();
 
 		for (HttpRfProfile<?> profile : profiles.values()) {
 
 			final HttpRfProfileBean bean = new HttpRfProfileBean(profile);
-			final RfProvider<?> provider =
-					providers.get(profile.getProvider().getId());
-
-			if (provider != null) {
-				bean.setProvider(new RfProviderDesc(provider));
-			}
-
 			final ClrProfileId profileId = profile.getProfileId();
+			final String providerId = profileId.getProviderId();
+			final RfProvider<?> provider = providers.get(providerId);
+
+			bean.setProvider(
+					provider != null
+					? new RfProviderDesc(provider)
+					: new RfProviderDesc(providerId));
 
 			if (!profileId.isDefault()) {
 
@@ -89,7 +95,9 @@ public class HttpRfProfilesBean {
 				bean.setReceiver(receivers.get(url.toExternalForm()));
 			}
 
-			beans.put(profile.getProfileId(), bean);
+			bean.setSettings(uiSettings(controller, profile));
+
+			beans.put(profileId, bean);
 		}
 
 		this.profiles.addAll(beans.values());
@@ -99,10 +107,24 @@ public class HttpRfProfilesBean {
 				server.getAddress().getCollectorURL().toExternalForm();
 	}
 
-	private static Map<String, RfReceiverDesc> receivers(RfStore store) {
+	private static <S extends RfSettings, R extends RcmUISettings> R uiSettings(
+			RcmController controller,
+			HttpRfProfile<S> profile) {
 
-		final Collection<? extends RfReceiver<?>> list = store.allRfReceivers();
-		final HashMap<String, RfReceiverDesc> map = new HashMap<>(list.size());
+		@SuppressWarnings("unchecked")
+		final RcmUIController<S, R> uiController =
+				(RcmUIController<S, R>) controller.uiController(
+						profile.getProfileId().getProviderId());
+
+		return uiController.uiSettings(profile);
+	}
+
+	private static Map<String, RfReceiverDesc> receivers(RfStore rfStore) {
+
+		final Collection<? extends RfReceiver<?>> list =
+				rfStore.allRfReceivers();
+		final HashMap<String, RfReceiverDesc> map =
+				new HashMap<>(list.size());
 
 		for (RfReceiver<?> receiver : list) {
 

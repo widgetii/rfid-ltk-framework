@@ -48,10 +48,21 @@
       <label class="control-label">Название</label>
       <div class="controls">
         <input ng-model="settings.profileName"/>
-       </div>
+      </div>
     </div>
 
     <ng-include src="ui.settingsTemplateURL"></ng-include>
+
+    <div class="control-group">
+      <div class="controls">
+        <label
+          class="checkbox inline"
+          popover="Имеет смысл устанавливать лишь для логирующих провайдеров"
+          popover-trigger="mouseenter">
+          <input type="checkbox" ng-model="settings.autostart"/> Автозапуск
+        </label>
+      </div>
+    </div>
 
   </fieldset>
 

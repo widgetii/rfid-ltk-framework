@@ -78,6 +78,7 @@ public class RfReceiverController {
 		bean.edit(editor);
 		editor.getRfSettings().setClientURL(
 				new URL(applicationURL(request) + "/clr-client"));
+		editor.setActive(true);
 
 		final RfReceiver<HttpRfSettings> receiver = editor.save();
 

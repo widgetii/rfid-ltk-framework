@@ -146,7 +146,13 @@ public final class ProviderClrProfiles<S extends RfSettings>
 			this.profiles.remove(profileId);
 		}
 
-		profile.init();
+		try {
+			profile.init();
+		} catch (Throwable e) {
+			log().error(
+					"Failed to initialize profile " + profile.getProfileId(),
+					e);
+		}
 	}
 
 }

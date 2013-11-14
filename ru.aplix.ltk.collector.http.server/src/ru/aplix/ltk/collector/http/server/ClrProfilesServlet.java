@@ -80,6 +80,7 @@ public class ClrProfilesServlet extends HttpServlet {
 					SC_INTERNAL_SERVER_ERROR,
 					ClrError.UNEXPECTED,
 					e.getLocalizedMessage());
+			return;
 		}
 
 		resp.setStatus(SC_CREATED);

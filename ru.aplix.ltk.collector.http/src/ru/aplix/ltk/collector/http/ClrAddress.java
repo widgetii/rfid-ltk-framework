@@ -36,15 +36,26 @@ public final class ClrAddress {
 	 * @throws IllegalArgumentException if the given URL is not an http(s) one.
 	 */
 	public ClrAddress(URL url) {
-
-		final String protocol = url.getProtocol();
-
-		if (!"http".equals(protocol) && !"https".equals(protocol)) {
-			throw new IllegalArgumentException(
-					"Not an http(s) URL: " + url + " (" + protocol + ')');
-		}
-
 		this.url = url;
+		ensureHttp();
+	}
+
+	/**
+	 * Constructs the address by the given string.
+	 *
+	 * @param url http(s) URL string of RFID HTTP server or one of its
+	 * components.
+	 *
+	 * @throws IllegalArgumentException if the given string is not a valid
+	 * http(s) URL.
+	 */
+	public ClrAddress(String url) {
+		try {
+			this.url = new URL(url);
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException(e);
+		}
+		ensureHttp();
 	}
 
 	/**
@@ -294,6 +305,16 @@ public final class ClrAddress {
 		return this.url.toString();
 	}
 
+	private void ensureHttp() {
+
+		final String protocol = this.url.getProtocol();
+
+		if (!"http".equals(protocol) && !"https".equals(protocol)) {
+			throw new IllegalArgumentException(
+					"Not an http(s) URL: " + this.url + " (" + protocol + ')');
+		}
+	}
+
 	private static URL serverURL(URL url) {
 
 		final String path = url.getPath();
@@ -304,7 +325,7 @@ public final class ClrAddress {
 		}
 
 		try {
-			return new URL(url, serverPath);
+			return new URL(url, serverPath.isEmpty() ? "/" : serverPath);
 		} catch (MalformedURLException e) {
 			throw new IllegalStateException(
 					"Can not construct collector server URL",

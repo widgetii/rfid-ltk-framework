@@ -1,3 +1,5 @@
+<form name="settingsForm" ng-submit="profile.save()">
+
 <div class="modal-header">
   <h3 ng-show="newProfile">Новый профиль</h3>
   <h3 ng-hide="newProfile">Настройка профиля</h3>
@@ -11,10 +13,42 @@
     {{ui.error}}
   </div>
 
-  <ng-include src="ui.settingsTemplateURL"></ng-include>
+  <div class="alert alert-info" ng-show="profile.updating">
+    Сохранение...
+  </div>
+  <div class="alert alert-block alert-error" ng-show="profile.error">
+    <h4 ng-show="newProfile">Не удалось создать профиль</h4>
+    <h4 ng-hide="newProfile">Не удалось сохранить профиль</h4>
+    {{profile.error}}
+  </div>
+
+  <fieldset class="form-horizontal">
+
+    <div class="control-group" ng-show="newProfile">
+      <label class="control-label">Идентификатор</label>
+      <input ng-model="settings.profileId" ng-required="newProfile"/>
+      <span class="help-inline">@{{settings.providerId}}</span>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">Название</label>
+      <input ng-model="settings.profileName"/>
+    </div>
+
+    <ng-include src="ui.settingsTemplateURL"></ng-include>
+
+  </fieldset>
 
 </div>
 
 <div class="modal-footer">
+  <button
+    type="submit"
+    class="btn btn-primary"
+    ng-disabled="settingsForm.$invalid || profile.updating">
+    Сохранить
+  </button>
   <button class="btn" ng-click="$dismiss()">Отмена</button>
 </div>
+
+</form>

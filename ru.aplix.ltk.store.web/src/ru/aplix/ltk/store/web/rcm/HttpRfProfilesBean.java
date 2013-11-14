@@ -9,7 +9,6 @@ import java.util.*;
 import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.collector.http.client.HttpRfProfile;
 import ru.aplix.ltk.collector.http.client.HttpRfServer;
-import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfStore;
@@ -71,8 +70,6 @@ public class HttpRfProfilesBean {
 
 		final Map<ClrProfileId, HttpRfProfile<?>> profiles =
 				server.loadProfiles();
-		final Map<String, ? extends RfProvider<?>> providers =
-				rfStore.allRfProviders();
 		final Map<String, RfReceiverDesc> receivers = receivers(rfStore);
 		final TreeMap<ClrProfileId, HttpRfProfileBean> beans = new TreeMap<>();
 
@@ -80,13 +77,6 @@ public class HttpRfProfilesBean {
 
 			final HttpRfProfileBean bean = new HttpRfProfileBean(profile);
 			final ClrProfileId profileId = profile.getProfileId();
-			final String providerId = profileId.getProviderId();
-			final RfProvider<?> provider = providers.get(providerId);
-
-			bean.setProvider(
-					provider != null
-					? new RfProviderDesc(provider)
-					: new RfProviderDesc(providerId));
 
 			if (!profileId.isDefault()) {
 

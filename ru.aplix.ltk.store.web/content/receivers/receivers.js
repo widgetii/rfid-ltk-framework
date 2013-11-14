@@ -403,7 +403,7 @@ angular.module(
 		}
 		var settings = selected.settings;
 		if (!settings || !settings.providerId) {
-			this.error = "Провайдер неивестен";
+			this.error = "Провайдер неизвестен";
 			return;
 		}
 		var providerId = settings.providerId;
@@ -412,7 +412,7 @@ angular.module(
 		this.error = null;
 		this.updating = true;
 		var self = this;
-		$rcm.editProfile(newSettings, true)
+		$rcm.editProfile(profiles.collectorURL, newSettings, true)
 		.result.then(
 				function(newProfile) {
 					self.updating = false;

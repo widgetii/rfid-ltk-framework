@@ -1,6 +1,15 @@
 package ru.aplix.ltk.store.web.rcm.ui;
 
+import javax.servlet.http.HttpServletResponse;
 
-public interface RcmUIContext {
+import ru.aplix.ltk.core.RfSettings;
+
+
+public interface RcmUIContext<S extends RfSettings, U extends RcmUISettings> {
+
+	RcmUIResponseBean save(
+			String serverURL,
+			U settings,
+			HttpServletResponse resp);
 
 }

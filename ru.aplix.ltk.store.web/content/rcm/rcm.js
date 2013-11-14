@@ -21,8 +21,9 @@ angular.module('rfid-tag-store.rcm', [])
 		}
 		return (largestId + 1).toString();
 	};
-	Rcm.prototype.editProfile = function(settings, newProfile) {
+	Rcm.prototype.editProfile = function(serverURL, settings, newProfile) {
 		var scope = $rootScope.$new();
+		scope.serverURL = serverURL;
 		scope.settings = settings;
 		scope.newProfile = newProfile;
 		return $modal.open({
@@ -77,6 +78,39 @@ angular.module('rfid-tag-store.rcm', [])
 
 	return rcm;
 })
-.controller("RfProfileCtrl", function($scope, $modalInstance, $rcm) {
-	$scope.ui = $rcm.ui($scope.settings.providerId);
+.controller("RfProfileCtrl", function(
+		$scope,
+		$modalInstance,
+		$rcm,
+		$http) {
+	var ui = $scope.ui = $rcm.ui($scope.settings.providerId);
+
+	function ProfileEditor() {
+		this.updating = false;
+		this.error = null;
+	}
+	ProfileEditor.prototype.save = function() {
+		if (this.updating) return;
+		this.updating = true;
+		this.error = null;
+		var self = this;
+		$http.put(
+				ui.mapping,
+				$scope.settings,
+				{params: {server: $scope.serverURL}})
+		.success(function(data) {
+			self.updating = false;
+			$modalInstance.close(data);
+		})
+		.error(function(data, status) {
+			self.updating = false;
+			if (data.error) {
+				self.error = data.error;
+			} else {
+				self.error = "Ошибка " + status;
+			}
+		});
+	};
+
+	$scope.profile = new ProfileEditor();
 });

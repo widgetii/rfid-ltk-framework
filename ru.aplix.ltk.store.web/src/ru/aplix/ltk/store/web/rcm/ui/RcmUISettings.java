@@ -2,6 +2,7 @@ package ru.aplix.ltk.store.web.rcm.ui;
 
 import ru.aplix.ltk.collector.http.ClrProfileSettings;
 import ru.aplix.ltk.collector.http.client.HttpRfProfile;
+import ru.aplix.ltk.core.RfSettings;
 
 
 public abstract class RcmUISettings {
@@ -54,6 +55,13 @@ public abstract class RcmUISettings {
 
 	public void setAutostart(boolean autostart) {
 		this.autostart = autostart;
+	}
+
+	public final <S extends RfSettings> ClrProfileSettings<S> fill(
+			ClrProfileSettings<S> settings) {
+		settings.setProfileName(getProfileName());
+		settings.setAutostart(isAutostart());
+		return settings;
 	}
 
 }

@@ -15,9 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import ru.aplix.ltk.collector.http.ClrAddress;
-import ru.aplix.ltk.collector.http.ClrError;
-import ru.aplix.ltk.collector.http.ClrProfileId;
+import ru.aplix.ltk.collector.http.*;
 import ru.aplix.ltk.collector.http.client.*;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
@@ -26,7 +24,7 @@ import ru.aplix.ltk.store.web.rcm.ui.*;
 
 
 @Controller
-public class RcmController implements RcmUIContext {
+public class RcmController {
 
 	private static final String DEFAULT_PROVIDER_ID = "_";
 
@@ -158,16 +156,25 @@ public class RcmController implements RcmUIContext {
 	private void setUIControllers(RcmUIController<?, ?>[] uiControllers) {
 		this.uiControllers.clear();
 
-		for (RcmUIController<?, ?> controller : uiControllers) {
-			controller.init(this);
+		for (RcmUIController<?, ?> uiController : uiControllers) {
+			initUI(uiController);
 
-			final RfProvider<?> rfProvider = controller.getRfProvider();
+			final RfProvider<?> rfProvider = uiController.getRfProvider();
 
 			this.uiControllers.put(
 					rfProvider != null
 					? rfProvider.getId() : DEFAULT_PROVIDER_ID,
-					controller);
+					uiController);
 		}
+	}
+
+	private <S extends RfSettings, U extends RcmUISettings> void initUI(
+			RcmUIController<S, U> uiController) {
+
+		final RcmUIContextImpl<S, U> context =
+				new RcmUIContextImpl<>(this, uiController);
+
+		uiController.init(context);
 	}
 
 	private ClrAddress address(
@@ -183,7 +190,7 @@ public class RcmController implements RcmUIContext {
 		}
 	}
 
-	private static String errorMessage(HttpRfServerException ex) {
+	static String errorMessage(HttpRfServerException ex) {
 
 		final ClrError error = ex.getError();
 

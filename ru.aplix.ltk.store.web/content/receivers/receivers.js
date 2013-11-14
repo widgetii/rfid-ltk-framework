@@ -223,6 +223,9 @@ angular.module(
 			controller: 'NewRfReceiverCtrl',
 			backdrop: 'static',
 			windowClass: 'new-receiver-modal'
+		})
+		.result.then(function(receiver) {
+			$scope.expanded[receiver.id] = true;
 		});
 	};
 })
@@ -378,9 +381,9 @@ angular.module(
 		}
 		var self = this;
 		newReceiver.create(
-				function() {
+				function(receiver) {
 					self.updating = false;
-					$modalInstance.close();
+					$modalInstance.close(receiver);
 				},
 				function(data, status) {
 					self.updating = false;

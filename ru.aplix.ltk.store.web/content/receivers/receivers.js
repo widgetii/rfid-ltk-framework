@@ -406,13 +406,17 @@ angular.module(
 			this.error = "Провайдер неизвестен";
 			return;
 		}
-		var providerId = settings.providerId;
 		var newSettings = angular.copy(settings);
-		newSettings.profileId = $rcm.newProfileId(profiles.list, providerId);
 		this.error = null;
 		this.updating = true;
 		var self = this;
-		$rcm.editProfile(profiles.collectorURL, newSettings, true)
+		$rcm.editProfile(
+				newSettings,
+				{
+					newProfile: true,
+					serverURL: profiles.collectorURL,
+					allProfiles: profiles.list
+				})
 		.result.then(
 				function(newProfile) {
 					self.updating = false;

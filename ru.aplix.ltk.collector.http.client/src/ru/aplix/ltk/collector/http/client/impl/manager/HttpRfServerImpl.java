@@ -55,7 +55,7 @@ final class HttpRfServerImpl implements HttpRfServer {
 	}
 
 	@Override
-	public <S extends RfSettings> HttpRfProfile<S> newProfile(
+	public <S extends RfSettings> HttpRfProfile<S> profile(
 			RfProvider<S> provider,
 			String profileId) {
 

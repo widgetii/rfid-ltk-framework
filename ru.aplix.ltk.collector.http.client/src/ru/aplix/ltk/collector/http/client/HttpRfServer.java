@@ -24,7 +24,7 @@ public interface HttpRfServer {
 	ClrAddress getAddress();
 
 	/**
-	 * Creates new HTTP RFID profile.
+	 * Creates HTTP RFID profile.
 	 *
 	 * <p>To actually create it on the server, invoke its
 	 * {@link HttpRfProfile#updateSettings(ClrProfileSettings)} method.
@@ -37,7 +37,7 @@ public interface HttpRfServer {
 	 *
 	 * @return new profile instance.
 	 */
-	<S extends RfSettings> HttpRfProfile<S> newProfile(
+	<S extends RfSettings> HttpRfProfile<S> profile(
 			RfProvider<S> provider,
 			String profileId);
 

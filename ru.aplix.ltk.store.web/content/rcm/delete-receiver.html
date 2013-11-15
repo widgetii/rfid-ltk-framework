@@ -1,0 +1,42 @@
+<div class="modal-header">
+  <h3>Удалить приёмник?</h3>
+</div>
+
+<div class="modal-body">
+  <div class="alert alert-block alert-error" ng-show="error">
+    <h4>Не удалось удалить приёмник</h4>
+    {{error}}
+  </div>
+  <p class="lead">Удаление приёмника невозможно отменить</p>
+  <dl class="dl-horizontal">
+    <dt>Приёмник</dt>
+    <dd>{{receiver.remoteURL}} (#{{receiver.id}})</dd>
+    <dt ng-show="profileName">Профиль</dt>
+    <dd ng-show="profileName">{{profileName}}</dd>
+  </dl>
+</div>
+
+<div class="modal-footer">
+  <button
+    class="btn btn-danger"
+    ng-click="deleteReceiver()"
+    ng-diabled="deleting"
+    ng-hide="settings || config.providerId">
+    Удалить
+  </button>
+  <button
+    class="btn btn-danger"
+    ng-click="deleteReceiver(true)"
+    ng-diabled="deleting"
+    ng-show="settings || config.providerId">
+    Вместе с профилем
+  </button>
+  <button
+    class="btn btn-danger"
+    ng-click="deleteReceiver()"
+    ng-diabled="deleting"
+    ng-show="settings || config.providerId">
+    Только приёмник
+  </button>
+  <button class="btn" ng-click="$dismiss()">Отмена</button>
+</div>

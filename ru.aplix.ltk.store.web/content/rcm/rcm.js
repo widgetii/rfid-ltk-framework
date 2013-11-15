@@ -64,10 +64,26 @@ angular.module('rfid-tag-store.rcm', [])
 		scope.config = config;
 
 		return $modal.open({
-			controller: "RfProfileCtrl",
+			controller: 'RfProfileCtrl',
 			scope: scope,
 			templateUrl: 'rcm/profile.html',
 			backdrop: 'static'
+		});
+	};
+	Rcm.prototype.deleteProfile = function(config, settings) {
+
+		var scope = $rootScope.$new();
+
+		scope.config = config;
+		scope.settings = settings;
+		scope.receiver = config.receiver;
+
+		return $modal.open({
+			controller: 'DeleteRfProfileCtrl',
+			scope: scope,
+			templateUrl:
+				config.receiver
+				? 'rcm/delete-receiver.html' : 'rcm/delete-profile.html'
 		});
 	};
 	Rcm.prototype.ui = function(providerId) {
@@ -115,7 +131,7 @@ angular.module('rfid-tag-store.rcm', [])
 
 	return rcm;
 })
-.controller("RfProfileCtrl", function(
+.controller('RfProfileCtrl', function(
 		$scope,
 		$modalInstance,
 		$rcm,
@@ -169,6 +185,63 @@ angular.module('rfid-tag-store.rcm', [])
 			}
 		});
 	};
+	ProfileEditor.prototype.del = function() {
+		if (this.updating) return;
+		$rcm.deleteProfile(angular.copy($scope.config), $scope.settings);
+	};
 
 	$scope.profile = new ProfileEditor();
+})
+.controller('DeleteRfProfileCtrl', function($scope, $modalInstance, $http) {
+	var config = $scope.config;
+	var settings = $scope.settings;
+	if (settings) {
+		var name = settings.profileName;
+		var id = settings.profileId + '@' + settings.providerId;
+		if (name) {
+			$scope.profileName = name + " (" + id + ")";
+		} else {
+			$scope.profileName = id;
+		}
+	} else if (config.providerId) {
+		$scope.profileName = config.profileId + '@' + config.providerId;
+	}
+
+	$scope.error = null;
+	$scope.deleting = false;
+
+	$scope.deleteProfile = function() {
+		this.del(true);
+	};
+	$scope.deleteReceiver = function(withProfile) {
+		this.del(withProfile);
+	};
+	$scope.del = function(deleteProfile) {
+		$scope.error = false;
+		$scope.deleting = true;
+		var params = {
+			server: config.serverURL,
+		};
+		if ($scope.receiver) params.receiverId = $scope.receiver.id;
+		if (deleteProfile) {
+			params.providerId =
+				(settings ? settings.providerId : config.providerId);
+			params.profileId =
+				(settings ? settings.profileId : config.profileId);
+		}
+		$http['delete']('rcm/profile.json', {params: params})
+		.success(function() {
+			$scope.deleting = true;
+			$modalInstance.close(deleteProfile);
+		})
+		.error(function(data, status) {
+			$scope.deleting = true;
+			if (data.error) {
+				$scope.error = data.error;
+			} else {
+				$scope.error = "Ошибка " + status;
+			}
+		});
+	};
+
 });

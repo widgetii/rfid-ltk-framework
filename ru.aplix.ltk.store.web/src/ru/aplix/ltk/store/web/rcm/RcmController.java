@@ -28,6 +28,7 @@ import ru.aplix.ltk.core.RfSettings;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfStore;
 import ru.aplix.ltk.store.web.ErrorBean;
+import ru.aplix.ltk.store.web.ResponseBean;
 import ru.aplix.ltk.store.web.rcm.ui.*;
 import ru.aplix.ltk.store.web.receiver.RfReceiverDesc;
 
@@ -78,18 +79,16 @@ public class RcmController {
 			HttpServletResponse resp) {
 
 		final HttpRfProfilesBean result = new HttpRfProfilesBean();
-		final ClrAddress address = address(serverURL, resp, result);
+		final HttpRfServer server = server(serverURL, result, resp);
 
-		if (address == null) {
-			return result;
+		if (server == null) {
+			return null;
 		}
-
-		final HttpRfServer server = httpRfManager().httpRfServer(address);
 
 		try {
 			result.loadProfiles(this, server);
 
-			final ClrProfileId profileId = address.getProfileId();
+			final ClrProfileId profileId = server.getAddress().getProfileId();
 
 			if (profileId != null) {
 				result.setSelected(profileId.urlEncode());
@@ -115,24 +114,12 @@ public class RcmController {
 			HttpServletResponse resp) {
 
 		final RcmUIResponseBean result = new RcmUIResponseBean();
-		final ClrAddress address = address(serverURL, resp, result);
+		final HttpRfProfile<?> profile =
+				profile(serverURL, providerId, profileId, result, resp);
 
-		if (address == null) {
-			return result;
+		if (profile == null) {
+			return null;
 		}
-
-		final RfProvider<?> provider =
-				rfStore().allRfProviders().get(providerId);
-
-		if (provider == null) {
-			result.setError("Нет такого провайдера: " + providerId);
-			resp.setStatus(SC_BAD_REQUEST);
-			return result;
-		}
-
-		final HttpRfServer server = httpRfManager().httpRfServer(address);
-		final HttpRfProfile<?> profile = server.profile(provider, profileId);
-
 		try {
 			profile.loadSettings();
 			result.setProfile(profile);
@@ -142,10 +129,56 @@ public class RcmController {
 
 			if (!id.isDefault()) {
 
-				final URL url = server.getAddress().clientURL(id);
+				final URL url = profile.getServer().getAddress().clientURL(id);
 
 				result.setReceiver(receiversByURL().get(url.toExternalForm()));
 			}
+		} catch (Exception e) {
+			handleError(e, result, resp);
+		}
+
+		return result;
+	}
+
+	@RequestMapping(
+			value = "/rcm/profile.json",
+			method = RequestMethod.DELETE,
+			params = "providerId")
+	@ResponseBody
+	public ResponseBean deleteProfile(
+			@RequestParam("server") String serverURL,
+			@RequestParam("providerId") String providerId,
+			@RequestParam("profileId") String profileId,
+			@RequestParam(value = "receiverId", required = false)
+			Integer receiverId,
+			HttpServletResponse resp) {
+
+		final ResponseBean result = new ResponseBean();
+		final HttpRfProfile<?> profile =
+				profile(serverURL, providerId, profileId, result, resp);
+
+		try {
+			profile.delete();
+			deleteReceiver(receiverId, result, resp);
+		} catch (Exception e) {
+			handleError(e, result, resp);
+		}
+
+		return result;
+	}
+
+	@RequestMapping(
+			value = "/rcm/profile.json",
+			method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseBean deleteReceiver(
+			@RequestParam("receiverId") int receiverId,
+			HttpServletResponse resp) {
+
+		final ResponseBean result = new ResponseBean();
+
+		try {
+			deleteReceiver(receiverId, result, resp);
 		} catch (Exception e) {
 			handleError(e, result, resp);
 		}
@@ -290,6 +323,42 @@ public class RcmController {
 		uiController.init(context);
 	}
 
+	private HttpRfProfile<?> profile(
+			String serverURL,
+			String providerId,
+			String profileId,
+			ErrorBean result,
+			HttpServletResponse resp) {
+
+		final HttpRfServer server = server(serverURL, result, resp);
+
+		if (server == null) {
+			return null;
+		}
+
+		final RfProvider<?> provider = provider(providerId, result, resp);
+
+		if (provider == null) {
+			return null;
+		}
+
+		return server.profile(provider, profileId);
+	}
+
+	private HttpRfServer server(
+			String serverURL,
+			ErrorBean result,
+			HttpServletResponse resp) {
+
+		final ClrAddress address = address(serverURL, resp, result);
+
+		if (address == null) {
+			return null;
+		}
+
+		return httpRfManager().httpRfServer(address);
+	}
+
 	private ClrAddress address(
 			String server,
 			HttpServletResponse resp,
@@ -301,6 +370,42 @@ public class RcmController {
 			resp.setStatus(SC_BAD_REQUEST);
 			return null;
 		}
+	}
+
+	private RfProvider<?> provider(
+			String providerId,
+			ErrorBean result,
+			HttpServletResponse resp) {
+
+		final RfProvider<?> provider =
+				rfStore().allRfProviders().get(providerId);
+
+		if (provider == null) {
+			result.setError("Нет такого провайдера: " + providerId);
+			resp.setStatus(SC_BAD_REQUEST);
+		}
+
+		return provider;
+	}
+
+	private void deleteReceiver(
+			Integer receiverId,
+			ErrorBean result,
+			HttpServletResponse resp) {
+		if (receiverId == null) {
+			return;
+		}
+
+		final RfReceiver<?> receiver =
+				rfStore().rfReceiverById(receiverId);
+
+		if (receiver == null) {
+			result.setError("Нет такого приёмника: " + receiverId);
+			resp.setStatus(SC_BAD_REQUEST);
+			return;
+		}
+
+		receiver.delete(false);
 	}
 
 	private static String errorMessage(HttpRfServerException ex) {

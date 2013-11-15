@@ -135,7 +135,7 @@ angular.module(
 			var i2 = 0;
 			for (;;) {
 				if (i2 >= len2) {
-					receivers.list.splice(i1, len2 - i1);
+					receivers.list.splice(i1, len1 - i1);
 					break;
 				}
 				var r2 = list[i2];
@@ -147,7 +147,7 @@ angular.module(
 				}
 				var r1 = receivers.list[i1];
 				if (r1.id < r2.id) {
-					receiver.list.splice(i1, 1);
+					receivers.list.splice(i1, 1);
 					--len1;
 					continue;
 				}
@@ -213,14 +213,13 @@ angular.module(
 		$scope.receiver.save(endUpdate, endUpdate);
 	};
 	$scope.configure = function() {
+		var receiver = $scope.receiver;
 		$rcm.editProfile({
-			serverURL: $scope.receiver.remoteURL,
-			providerId: $scope.receiver.providerId,
-			profileId: $scope.receiver.profileId
+			serverURL: receiver.remoteURL,
+			providerId: receiver.providerId,
+			profileId: receiver.profileId,
+			receiver: receiver
 		});
-	};
-	$scope.del = function() {
-		$scope.receiver.del();
 	};
 })
 .controller("AddRfReceiverCtrl", function($scope, $modal) {
@@ -249,6 +248,9 @@ angular.module(
 	}
 	Profile.prototype.update = function(profile) {
 		angular.copy(profile, this);
+		this.updateLabel();
+	};
+	Profile.prototype.updateLabel = function() {
 		if (!this.settings) {
 			this.label = null;
 			return;
@@ -270,6 +272,10 @@ angular.module(
 		} else {
 			this.label = name;
 		}
+	};
+	Profile.prototype.removeReceiver = function() {
+		this.receiver = null;
+		this.updateLabel();
 	};
 
 	function Profiles() {
@@ -306,6 +312,11 @@ angular.module(
 		var index = this.list.indexOf(this.selected);
 		this.list.splice(index, 0, profile);
 		this.selected = profile;
+	};
+	Profiles.prototype.removeSelected = function() {
+		var index = this.list.indexOf(this.selected);
+		this.list.splice(index, 1);
+		this.selected = this.list[index];
 	};
 
 	var profiles = $scope.profiles = new Profiles();
@@ -451,12 +462,27 @@ angular.module(
 		$rcm.editProfile(
 				{
 					serverURL: profiles.collectorURL,
-					allProfiles: profiles.list
+					allProfiles: profiles.list,
+					receiver: selected.receiver
 				},
 				angular.copy(selected.settings))
 		.result.then(
 				function(profile) {
 					selected.update(profile);
+				});
+	};
+	SelectedProfile.prototype.del = function() {
+		var selected = profiles.selected;
+		$rcm.deleteProfile(
+				{
+					serverURL: profiles.collectorURL,
+					receiver: selected.receiver
+				},
+				angular.copy(selected.settings))
+		.result.then(
+				function(profileDeleted) {
+					if (profileDeleted) profiles.removeSelected();
+					else profiles.selected.removeReceiver();
 				});
 	};
 

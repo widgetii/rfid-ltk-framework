@@ -30,11 +30,11 @@
 
             <div class="pull-right" >
               <button
-                class="btn btn-primary"
-                ng-click="start()"
+                class="btn"
+                ng-click="configure()"
                 ng-disabled="updating"
-                ng-hide="receiver.active">
-                Запустить
+                ng-show="receiver.remoteURL && receiver.providerId">
+                Настроить
               </button>
               <button
                 class="btn btn-warning"
@@ -44,17 +44,11 @@
                 Остановить
               </button>
               <button
-                class="btn"
-                ng-click="configure()"
+                class="btn btn-primary"
+                ng-click="start()"
                 ng-disabled="updating"
-                ng-show="receiver.remoteURL && receiver.providerId">
-                Настроить
-              </button>
-              <button
-                class="btn btn-danger"
-                ng-click="del()"
-                ng-disabled="updating">
-               <i class="icon-remove icon-white"></i>&nbsp;Удалить
+                ng-hide="receiver.active">
+                Запустить
               </button>
             </div>
           </div>

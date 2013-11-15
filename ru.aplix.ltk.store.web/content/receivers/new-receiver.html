@@ -63,6 +63,13 @@
 
 <div class="modal-footer">
   <button
+      class="btn btn-danger"
+      ng-show="selectedProfile.configurable()"
+      ng-click="selectedProfile.del()"
+      ng-disabled="selectedProfile.updating">
+    <i class="icon-remove"></i>&nbsp;Удалить
+  </button>
+  <button
     class="btn"
     ng-show="selectedProfile.configurable()"
     ng-click="selectedProfile.configure()"

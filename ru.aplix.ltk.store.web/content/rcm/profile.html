@@ -76,6 +76,13 @@
 
 <div class="modal-footer">
   <button
+    class="btn btn-danger"
+    ng-click="profile.del()"
+    ng-hide="!config.receiver"
+    ng-disabled="profile.updating">
+    <span class="icon-remove"></span>&nbsp;Удалить
+  </button>
+  <button
     type="submit"
     class="btn btn-primary"
     ng-disabled="settingsForm.$invalid || profile.updating">

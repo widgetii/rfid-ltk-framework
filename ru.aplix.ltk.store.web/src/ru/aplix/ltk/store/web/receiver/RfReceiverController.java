@@ -80,11 +80,7 @@ public class RfReceiverController {
 				new URL(applicationURL(request) + "/clr-client"));
 		editor.setActive(true);
 
-		final RfReceiver<HttpRfSettings> receiver = editor.save();
-
-		bean.setId(receiver.getId());
-
-		return bean.update(receiver);
+		return bean.update(editor.save());
 	}
 
 	@RequestMapping(

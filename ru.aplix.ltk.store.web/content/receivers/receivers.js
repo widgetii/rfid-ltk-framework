@@ -245,8 +245,14 @@ angular.module(
 	$scope.receivers = $rfReceivers;
 
 	function Profile(profile) {
+		this.update(profile);
+	}
+	Profile.prototype.update = function(profile) {
 		angular.copy(profile, this);
-		if (!this.settings) return;
+		if (!this.settings) {
+			this.label = null;
+			return;
+		}
 		if (!this.settings.profileId) {
 			this.label = "<Новый профиль>";
 			return;
@@ -264,7 +270,7 @@ angular.module(
 		} else {
 			this.label = name;
 		}
-	}
+	};
 
 	function Profiles() {
 		this.reset();
@@ -300,15 +306,6 @@ angular.module(
 		var index = this.list.indexOf(this.selected);
 		this.list.splice(index, 0, profile);
 		this.selected = profile;
-	};
-	Profiles.prototype.creationMode = function() {
-		if (this.invalidServer) return "anyway";
-		var selected = this.selected;
-		if (!selected) return null;
-		if (!selected.settings) return selected.id ? "anyway" : null;
-		if (!selected.settings.profileId) return "new";
-		if (selected.receiver) return "again";
-		return "connect";
 	};
 
 	var profiles = $scope.profiles = new Profiles();
@@ -434,6 +431,32 @@ angular.module(
 				},
 				function() {
 					self.updating = false;
+				});
+	};
+	SelectedProfile.prototype.mode = function() {
+		if (profiles.invalidServer) return "anyway";
+		var selected = profiles.selected;
+		if (!selected) return null;
+		if (!selected.settings) return selected.id ? "anyway" : null;
+		if (!selected.settings.profileId) return "new";
+		if (selected.receiver) return "again";
+		return "connect";
+	};
+	SelectedProfile.prototype.configurable = function() {
+		var mode = this.mode();
+		return mode == "connect" || mode == "again";
+	};
+	SelectedProfile.prototype.configure = function() {
+		var selected = profiles.selected;
+		$rcm.editProfile(
+				{
+					serverURL: profiles.collectorURL,
+					allProfiles: profiles.list
+				},
+				angular.copy(selected.settings))
+		.result.then(
+				function(profile) {
+					selected.update(profile);
 				});
 	};
 

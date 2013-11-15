@@ -34,21 +34,8 @@ public class RfReceiverBean
 	}
 
 	public RfReceiverBean(RfReceiver<HttpRfSettings> receiver) {
-		super(receiver);
+		super(receiver, true);
 		update(receiver);
-
-		final String remoteURL = getRemoteURL();
-
-		if (remoteURL != null) {
-
-			final ClrAddress address = new ClrAddress(remoteURL);
-			final ClrProfileId profileId = address.getProfileId();
-
-			if (profileId != null) {
-				this.providerId = profileId.getProviderId();
-				this.profileId = profileId.getId();
-			}
-		}
 	}
 
 	public final String getProviderId() {
@@ -110,9 +97,28 @@ public class RfReceiverBean
 		editor.setActive(isActive());
 	}
 
-	public RfReceiverBean update(RfReceiver<?> receiver) {
+	public RfReceiverBean update(RfReceiver<HttpRfSettings> receiver) {
+		setId(receiver.getId());
+		updateRemoteURL(receiver);
 		setActive(receiver.isActive());
 		updateStatus(receiver);
+
+		this.profileId = null;
+		this.providerId = null;
+
+		final String remoteURL = getRemoteURL();
+
+		if (remoteURL != null) {
+
+			final ClrAddress address = new ClrAddress(remoteURL);
+			final ClrProfileId profileId = address.getProfileId();
+
+			if (profileId != null) {
+				this.providerId = profileId.getProviderId();
+				this.profileId = profileId.getId();
+			}
+		}
+
 		return this;
 	}
 

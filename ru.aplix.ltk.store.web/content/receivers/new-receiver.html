@@ -62,7 +62,14 @@
 </div>
 
 <div class="modal-footer">
-  <span ng-switch="profiles.creationMode()">
+  <button
+    class="btn"
+    ng-show="selectedProfile.configurable()"
+    ng-click="selectedProfile.configure()"
+    ng-disabled="selectedProfile.updating">
+    Настроить
+  </button>
+  <span ng-switch="selectedProfile.mode()">
     <button
       ng-switch-when="new"
       class="btn btn-primary"

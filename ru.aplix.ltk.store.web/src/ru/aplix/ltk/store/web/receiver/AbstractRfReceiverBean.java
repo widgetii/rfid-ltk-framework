@@ -15,10 +15,7 @@ public abstract class AbstractRfReceiverBean {
 
 	public AbstractRfReceiverBean(RfReceiver<HttpRfSettings> receiver) {
 		this(receiver, true);
-
-		final RfReceiverEditor<HttpRfSettings> editor = receiver.modify();
-
-		this.remoteURL = editor.getRfSettings().getCollectorURL().toString();
+		updateRemoteURL(receiver);
 	}
 
 	protected AbstractRfReceiverBean(
@@ -45,6 +42,13 @@ public abstract class AbstractRfReceiverBean {
 
 	public final void setRemoteURL(String remoteURL) {
 		this.remoteURL = remoteURL;
+	}
+
+	public void updateRemoteURL(RfReceiver<HttpRfSettings> receiver) {
+
+		final RfReceiverEditor<HttpRfSettings> editor = receiver.modify();
+
+		this.remoteURL = editor.getRfSettings().getCollectorURL().toString();
 	}
 
 }

@@ -16,6 +16,13 @@ import ru.aplix.ltk.core.RfSettings;
 public interface HttpRfProfile<S extends RfSettings> {
 
 	/**
+	 * Collector server this profile belongs to.
+	 *
+	 * @return collector server.
+	 */
+	HttpRfServer getServer();
+
+	/**
 	 * RFID provider this profile is using.
 	 *
 	 * @return RFID provider.

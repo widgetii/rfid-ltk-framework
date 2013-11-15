@@ -37,6 +37,7 @@ class HttpRfProfileImpl<S extends RfSettings> implements HttpRfProfile<S> {
 		this.settings = settings;
 	}
 
+	@Override
 	public final HttpRfServerImpl getServer() {
 		return this.server;
 	}

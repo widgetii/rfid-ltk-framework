@@ -32,7 +32,7 @@ public class ClrProfile<S extends RfSettings> {
 
 	public static String idByFileName(String fileName) {
 		try {
-			return URLDecoder.decode(fileName, fileName);
+			return URLDecoder.decode(fileName, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}

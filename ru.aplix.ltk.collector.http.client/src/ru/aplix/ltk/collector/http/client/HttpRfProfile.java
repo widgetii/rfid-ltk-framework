@@ -32,12 +32,28 @@ public interface HttpRfProfile<S extends RfSettings> {
 	/**
 	 * Profile settings.
 	 *
-	 * @return profile settings loaded from the server.
+	 * @return profile settings loaded from the server, or <code>null</code> if
+	 * settings not loaded yet.
 	 */
 	ClrProfileSettings<S> getSettings();
 
 	/**
+	 * Loads profile settings from collector server.
+	 *
+	 * <p>The {@link #getSettings()} method will return the loaded settings
+	 * after successful load.</p>
+	 *
+	 * @return loaded profile settings.
+	 *
+	 * @throws IOException in case of communication errors.
+	 */
+	ClrProfileSettings<S> loadSettings() throws IOException;
+
+	/**
 	 * Updates profile settings.
+	 *
+	 * <p>The {@link #getSettings()} method will return the new settings after
+	 * successful update.</p>
 	 *
 	 * @param settings profile settings to upload to server.
 	 *

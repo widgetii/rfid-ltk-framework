@@ -5,6 +5,8 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import ru.aplix.ltk.collector.http.ClrAddress;
+import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.collector.http.RemoteClrException;
 import ru.aplix.ltk.collector.http.client.HttpRfSettings;
 import ru.aplix.ltk.core.source.RfStatusMessage;
@@ -24,6 +26,8 @@ public class RfReceiverBean
 	private String status = INACTIVE_STATUS;
 	private String error;
 	private String cause;
+	private String providerId;
+	private String profileId;
 	private boolean active;
 
 	public RfReceiverBean() {
@@ -32,6 +36,35 @@ public class RfReceiverBean
 	public RfReceiverBean(RfReceiver<HttpRfSettings> receiver) {
 		super(receiver);
 		update(receiver);
+
+		final String remoteURL = getRemoteURL();
+
+		if (remoteURL != null) {
+
+			final ClrAddress address = new ClrAddress(remoteURL);
+			final ClrProfileId profileId = address.getProfileId();
+
+			if (profileId != null) {
+				this.providerId = profileId.getProviderId();
+				this.profileId = profileId.getId();
+			}
+		}
+	}
+
+	public final String getProviderId() {
+		return this.providerId;
+	}
+
+	public final void setProviderId(String providerId) {
+		this.providerId = providerId;
+	}
+
+	public final String getProfileId() {
+		return this.profileId;
+	}
+
+	public final void setProfileId(String profileId) {
+		this.profileId = profileId;
 	}
 
 	public boolean isActive() {

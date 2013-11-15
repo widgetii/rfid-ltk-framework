@@ -3,30 +3,41 @@ package ru.aplix.ltk.store.web.rcm;
 import static java.util.Collections.emptyMap;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static ru.aplix.ltk.store.web.receiver.RfReceiverDesc.rfReceiverDesc;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import ru.aplix.ltk.collector.http.*;
+import ru.aplix.ltk.collector.http.ClrAddress;
+import ru.aplix.ltk.collector.http.ClrError;
+import ru.aplix.ltk.collector.http.ClrProfileId;
 import ru.aplix.ltk.collector.http.client.*;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
+import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfStore;
+import ru.aplix.ltk.store.web.ErrorBean;
 import ru.aplix.ltk.store.web.rcm.ui.*;
+import ru.aplix.ltk.store.web.receiver.RfReceiverDesc;
 
 
 @Controller
 public class RcmController {
 
 	private static final String DEFAULT_PROVIDER_ID = "_";
+	private static final Logger log =
+			LoggerFactory.getLogger(RcmController.class);
 
 	@Autowired
 	private RfStore rfStore;
@@ -62,7 +73,7 @@ public class RcmController {
 			value = "/rcm/profiles.json",
 			method = RequestMethod.GET)
 	@ResponseBody
-	public HttpRfProfilesBean findProfiles(
+	public HttpRfProfilesBean profiles(
 			@RequestParam("server") String serverURL,
 			HttpServletResponse resp) {
 
@@ -83,17 +94,60 @@ public class RcmController {
 			if (profileId != null) {
 				result.setSelected(profileId.urlEncode());
 			}
-		} catch (InvalidHttpRfResponseException e) {
-			result.setError("Не похоже на сервер накопителя");
+		} catch (InvalidHttpRfResponseException | IOException e) {
+			handleError(e, result, resp);
 			result.setInvalidServer(true);
+		} catch (Exception e) {
+			handleError(e, result, resp);
+		}
+
+		return result;
+	}
+
+	@RequestMapping(
+			value = "/rcm/profile.json",
+			method = RequestMethod.GET)
+	@ResponseBody
+	public RcmUIResponseBean profile(
+			@RequestParam("server") String serverURL,
+			@RequestParam("providerId") String providerId,
+			@RequestParam("profileId") String profileId,
+			HttpServletResponse resp) {
+
+		final RcmUIResponseBean result = new RcmUIResponseBean();
+		final ClrAddress address = address(serverURL, resp, result);
+
+		if (address == null) {
+			return result;
+		}
+
+		final RfProvider<?> provider =
+				rfStore().allRfProviders().get(providerId);
+
+		if (provider == null) {
+			result.setError("Нет такого провайдера: " + providerId);
 			resp.setStatus(SC_BAD_REQUEST);
-		} catch (HttpRfServerException e) {
-			result.setError(errorMessage(e));
-			resp.setStatus(e.getStatusCode());
-		} catch (IOException e) {
-			result.setError(e.toString());
-			result.setInvalidServer(true);
-			resp.setStatus(SC_INTERNAL_SERVER_ERROR);
+			return result;
+		}
+
+		final HttpRfServer server = httpRfManager().httpRfServer(address);
+		final HttpRfProfile<?> profile = server.profile(provider, profileId);
+
+		try {
+			profile.loadSettings();
+			result.setProfile(profile);
+			result.setSettings(uiSettings(profile));
+
+			final ClrProfileId id = profile.getProfileId();
+
+			if (!id.isDefault()) {
+
+				final URL url = server.getAddress().clientURL(id);
+
+				result.setReceiver(receiversByURL().get(url.toExternalForm()));
+			}
+		} catch (Exception e) {
+			handleError(e, result, resp);
 		}
 
 		return result;
@@ -151,6 +205,65 @@ public class RcmController {
 				DEFAULT_PROVIDER_ID);
 	}
 
+	<S extends RfSettings, R extends RcmUISettings> R uiSettings(
+			HttpRfProfile<S> profile) {
+
+		@SuppressWarnings("unchecked")
+		final RcmUIController<S, R> uiController =
+				(RcmUIController<S, R>) uiController(
+						profile.getProfileId().getProviderId());
+
+		return uiController.uiSettings(profile);
+	}
+
+	Map<String, RfReceiverDesc> receiversByURL() {
+
+		final Collection<? extends RfReceiver<?>> list =
+				rfStore().allRfReceivers();
+		final HashMap<String, RfReceiverDesc> map =
+				new HashMap<>(list.size());
+
+		for (RfReceiver<?> receiver : list) {
+
+			final RfReceiverDesc desc = rfReceiverDesc(receiver);
+			final String url = desc.getRemoteURL();
+
+			if (url != null) {
+
+				final RfReceiverDesc old = map.put(url, desc);
+
+				if (old != null && old.getId() < desc.getId()) {
+					map.put(url, old);
+				}
+			}
+		}
+
+		return map;
+	}
+
+	static void handleError(
+			Exception e,
+			ErrorBean response,
+			HttpServletResponse resp) {
+		if (e instanceof InvalidHttpRfResponseException) {
+			response.setError("Не похоже на сервер накопителя");
+			resp.setStatus(SC_BAD_REQUEST);
+			return;
+		}
+		if (e instanceof HttpRfServerException) {
+
+			final HttpRfServerException ex = (HttpRfServerException) e;
+
+			response.setError(errorMessage(ex));
+			resp.setStatus(ex.getStatusCode());
+
+			return;
+		}
+		log.error("RCM error", e);
+		response.setError(e.toString());
+		resp.setStatus(SC_INTERNAL_SERVER_ERROR);
+	}
+
 	@Autowired(required = false)
 	@RcmUIQualifier
 	private void setUIControllers(RcmUIController<?, ?>[] uiControllers) {
@@ -180,7 +293,7 @@ public class RcmController {
 	private ClrAddress address(
 			String server,
 			HttpServletResponse resp,
-			HttpRfProfilesBean result) {
+			ErrorBean result) {
 		try {
 			return new ClrAddress(new URL(server));
 		} catch (Exception e) {
@@ -190,7 +303,7 @@ public class RcmController {
 		}
 	}
 
-	static String errorMessage(HttpRfServerException ex) {
+	private static String errorMessage(HttpRfServerException ex) {
 
 		final ClrError error = ex.getError();
 

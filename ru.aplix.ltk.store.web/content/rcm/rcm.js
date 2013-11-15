@@ -21,15 +21,48 @@ angular.module('rfid-tag-store.rcm', [])
 		}
 		return (largestId + 1).toString();
 	};
-	Rcm.prototype.editProfile = function(settings, config) {
+	Rcm.prototype.loadProfile = function(config, settings) {
+		config.loading = true;
+		$http.get(
+				"rcm/profile.json",
+				{params: {
+					server: config.serverURL,
+					providerId: config.providerId,
+					profileId: config.profileId
+				}})
+		.success(function(data) {
+			config.loading = false;
+			angular.copy(data.settings, settings);
+		})
+		.error(function(data, status) {
+			config.loading = false;
+			if (data.error) {
+				config.error = data.error;
+			} else {
+				config.error = "Ошибка " + status;
+			}
+		});
+	};
+	Rcm.prototype.editProfile = function(config, settings) {
+		if (!settings) {
+			settings = {};
+			this.loadProfile(config, settings);
+		} else if (!config.providerId) {
+			config.providerId = settings.providerId;
+		}
+		if (config.newProfile) {
+			if (!settings.profileId && config.allProfiles) {
+				settings.profileId = this.newProfileId(
+						config.allProfiles,
+						settings.providerId);
+			}
+		}
+
 		var scope = $rootScope.$new();
+
 		scope.settings = settings;
 		scope.config = config;
-		if (config.newProfile && !settings.profileId && config.allProfiles) {
-			settings.profileId = this.newProfileId(
-					config.allProfiles,
-					settings.providerId);
-		}
+
 		return $modal.open({
 			controller: "RfProfileCtrl",
 			scope: scope,
@@ -87,7 +120,7 @@ angular.module('rfid-tag-store.rcm', [])
 		$modalInstance,
 		$rcm,
 		$http) {
-	var ui = $scope.ui = $rcm.ui($scope.settings.providerId);
+	var ui = $scope.ui = $rcm.ui($scope.config.providerId);
 
 	function ProfileEditor() {
 		this.updating = false;

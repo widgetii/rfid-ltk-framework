@@ -26,9 +26,11 @@ public interface HttpRfServer {
 	/**
 	 * Creates HTTP RFID profile.
 	 *
-	 * <p>To actually create it on the server, invoke its
-	 * {@link HttpRfProfile#updateSettings(ClrProfileSettings)} method.
-	 * </p>
+	 * <p>The returned profile will be empty. To load its settings, invoke its
+	 * {@link HttpRfProfile#loadSettings()} method.</p>
+	 *
+	 * <p>To actually create the profile on the server, invoke its
+	 * {@link HttpRfProfile#updateSettings(ClrProfileSettings)} method.</p>
 	 *
 	 * @param provider RFID provider the profile should use. This provider
 	 * should exist at the server.

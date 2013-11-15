@@ -7,10 +7,16 @@
 
 <div class="modal-body">
 
-  <div class="alert alert-info" ng-show="ui.loading">Загрузка...</div>
   <div class="alert alert-block alert-error" ng-show="ui.error">
     <h4>Ошибка</h4>
     {{ui.error}}
+  </div>
+  <div class="alert alert-block alert-error" ng-show="config.error">
+    <h4>Не удалось получить настройки профиля</h4>
+    {{config.error}}
+  </div>
+  <div class="alert alert-info" ng-show="ui.loading || config.loading">
+    Загрузка...
   </div>
 
   <div class="alert alert-info" ng-show="profile.updating">
@@ -57,7 +63,7 @@
       <div class="controls">
         <label
           class="checkbox inline"
-          popover="Имеет смысл устанавливать лишь для логирующих провайдеров"
+          popover="Имеет смысл устанавливать лишь для логирующих провайдеров. Иначе будет создавать ненужную нагрузку на накопитель."
           popover-trigger="mouseenter">
           <input type="checkbox" ng-model="settings.autostart"/> Автозапуск
         </label>

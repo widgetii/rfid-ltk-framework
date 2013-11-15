@@ -180,7 +180,7 @@ angular.module(
 	$scope.receivers = $rfReceivers;
 	$scope.expanded = {};
 })
-.controller("RfReceiverCtrl", function($scope) {
+.controller("RfReceiverCtrl", function($scope, $rcm) {
 	$scope.updating = false;
 	function startUpdate() {
 		$scope.updating = true;
@@ -200,9 +200,6 @@ angular.module(
 			expanded[id] = true;
 		}
 	};
-	$scope.del = function() {
-		$scope.receiver.del();
-	};
 	$scope.start = function() {
 		$scope.receiver.active = true;
 		$scope.save();
@@ -214,6 +211,16 @@ angular.module(
 	$scope.save = function() {
 		startUpdate();
 		$scope.receiver.save(endUpdate, endUpdate);
+	};
+	$scope.configure = function() {
+		$rcm.editProfile({
+			serverURL: $scope.receiver.remoteURL,
+			providerId: $scope.receiver.providerId,
+			profileId: $scope.receiver.profileId
+		});
+	};
+	$scope.del = function() {
+		$scope.receiver.del();
 	};
 })
 .controller("AddRfReceiverCtrl", function($scope, $modal) {
@@ -414,12 +421,12 @@ angular.module(
 		this.updating = true;
 		var self = this;
 		$rcm.editProfile(
-				newSettings,
 				{
 					newProfile: true,
 					serverURL: profiles.collectorURL,
 					allProfiles: profiles.list
-				})
+				},
+				newSettings)
 		.result.then(
 				function(newProfile) {
 					self.updating = false;

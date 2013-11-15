@@ -1,11 +1,13 @@
 package ru.aplix.ltk.collector.http.client.impl.manager;
 
 import static ru.aplix.ltk.collector.http.client.impl.manager.HttpRfServerImpl.EMPTY_RESPONSE_HANDLER;
+import static ru.aplix.ltk.collector.http.client.impl.manager.HttpRfServerImpl.PARAMETERS_RESPONSE_HANDLER;
 
 import java.io.IOException;
 import java.net.URL;
 
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 
 import ru.aplix.ltk.collector.http.ClrProfileId;
@@ -14,6 +16,7 @@ import ru.aplix.ltk.collector.http.ParametersEntity;
 import ru.aplix.ltk.collector.http.client.HttpRfProfile;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
+import ru.aplix.ltk.core.util.Parameters;
 
 
 class HttpRfProfileImpl<S extends RfSettings> implements HttpRfProfile<S> {
@@ -55,6 +58,22 @@ class HttpRfProfileImpl<S extends RfSettings> implements HttpRfProfile<S> {
 
 	public URL profileURL() {
 		return getServer().getAddress().profileURL(getProfileId());
+	}
+
+	@Override
+	public ClrProfileSettings<S> loadSettings() throws IOException {
+
+		final HttpGet get = new HttpGet(profileURL().toExternalForm());
+		final Parameters parameters =
+				getServer().getManager().httpClient().execute(
+						get,
+						PARAMETERS_RESPONSE_HANDLER);
+		final ClrProfileSettings<S> settings =
+				new ClrProfileSettings<>(getProvider());
+
+		settings.read(parameters);
+
+		return this.settings = settings;
 	}
 
 	@Override

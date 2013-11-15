@@ -37,6 +37,17 @@ final class HttpRfServerImpl implements HttpRfServer {
 				}
 			};
 
+	public static final
+	ResponseHandler<Parameters> PARAMETERS_RESPONSE_HANDLER =
+			new ResponseHandler<Parameters>() {
+				@Override
+				public Parameters handleResponse(
+						HttpResponse response)
+				throws ClientProtocolException, IOException {
+					return parseResponse(response);
+				}
+			};
+
 	private final HttpRfManagerImpl manager;
 	private final ClrAddress address;
 
@@ -75,25 +86,15 @@ final class HttpRfServerImpl implements HttpRfServer {
 
 		final HttpGet get =
 				new HttpGet(getAddress().getProfilesURL().toExternalForm());
-		final ClrProfiles response = getManager().httpClient().execute(
+		final Parameters parameters = getManager().httpClient().execute(
 				get,
-				new ResponseHandler<ClrProfiles>() {
-					@Override
-					public ClrProfiles handleResponse(
-							HttpResponse response)
-					throws ClientProtocolException, IOException {
-						return parseProfiles(response);
-					}
-				});
+				PARAMETERS_RESPONSE_HANDLER);
 
-		return profilesMap(response);
+		return profilesMap(profiles(parameters));
 	}
 
-	private ClrProfiles parseProfiles(
-			HttpResponse response)
-	throws ClientProtocolException, IOException {
+	private ClrProfiles profiles(Parameters parameters) {
 
-		final Parameters parameters = parseResponse(response);
 		final ClrProfiles profiles = new ClrProfiles(getManager());
 
 		profiles.read(parameters);
@@ -129,7 +130,7 @@ final class HttpRfServerImpl implements HttpRfServer {
 				settings);
 	}
 
-	static Parameters parseResponse(
+	private static Parameters parseResponse(
 			HttpResponse response)
 	throws ClientProtocolException, IOException {
 		checkResponse(response);
@@ -156,7 +157,7 @@ final class HttpRfServerImpl implements HttpRfServer {
 		return parameters;
 	}
 
-	static void checkResponse(
+	private static void checkResponse(
 			HttpResponse response)
 	throws HttpResponseException, IOException {
 

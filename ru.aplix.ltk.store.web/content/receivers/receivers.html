@@ -28,27 +28,27 @@
               </dl>
             </p>
 
-            <div class="btn-group pull-right" ng-hide="receiver.active">
+            <div class="pull-right" >
               <button
                 class="btn btn-primary"
                 ng-click="start()"
-                ng-disabled="updating">
+                ng-disabled="updating"
+                ng-hide="receiver.active">
                 Запустить
               </button>
               <button
-                class="btn btn-danger"
-                ng-click="del()"
-                ng-disabled="updating">
-                <i class="icon-remove icon-white"></i>&nbsp;Удалить
-              </button>
-            </div>
-
-            <div class="btn-group pull-right" ng-show="receiver.active">
-              <button
                 class="btn btn-warning"
                 ng-click="stop()"
-                ng-disabled="updating">
+                ng-disabled="updating"
+                ng-show="receiver.active">
                 Остановить
+              </button>
+              <button
+                class="btn"
+                ng-click="configure()"
+                ng-disabled="updating || receiver.active"
+                ng-show="receiver.remoteURL && receiver.providerId">
+                Настроить
               </button>
               <button
                 class="btn btn-danger"

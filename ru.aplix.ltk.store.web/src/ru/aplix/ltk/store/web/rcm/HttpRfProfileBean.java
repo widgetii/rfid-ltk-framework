@@ -7,12 +7,19 @@ import ru.aplix.ltk.store.web.receiver.RfReceiverDesc;
 
 public class HttpRfProfileBean {
 
-	private final String id;
-	private final RfProviderDesc provider;
+	private String id;
+	private RfProviderDesc provider;
 	private RfReceiverDesc receiver;
 	private RcmUISettings settings;
 
+	public HttpRfProfileBean() {
+	}
+
 	public HttpRfProfileBean(HttpRfProfile<?> profile) {
+		setProfile(profile);
+	}
+
+	public void setProfile(HttpRfProfile<?> profile) {
 		this.id = profile.getProfileId().urlEncode();
 		this.provider = new RfProviderDesc(profile.getProvider());
 	}

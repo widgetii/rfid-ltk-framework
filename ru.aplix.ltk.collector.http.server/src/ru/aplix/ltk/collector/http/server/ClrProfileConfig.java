@@ -2,6 +2,7 @@ package ru.aplix.ltk.collector.http.server;
 
 import static ru.aplix.ltk.collector.http.ClrProfileSettings.AUTOSTART;
 import static ru.aplix.ltk.collector.http.ClrProfileSettings.PROFILE_NAME;
+import static ru.aplix.ltk.collector.http.server.ClrProfile.idByFileName;
 
 import java.io.*;
 import java.util.Properties;
@@ -93,9 +94,9 @@ final class ClrProfileConfig<S extends RfSettings> {
 	private static ClrProfileId profileId(RfProvider<?> provider, File config) {
 
 		final String name = config.getName();
-		final String id = name.substring(
+		final String id = idByFileName(name.substring(
 				0,
-				name.length() - PROPERTIES_SUFFIX.length());
+				name.length() - PROPERTIES_SUFFIX.length()));
 
 		return new ClrProfileId(provider.getId(), id);
 	}

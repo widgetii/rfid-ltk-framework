@@ -1,5 +1,6 @@
 package ru.aplix.ltk.collector.http.server;
 
+import static ru.aplix.ltk.collector.http.server.ClrProfile.fileNameById;
 import static ru.aplix.ltk.collector.http.server.ClrProfileConfig.PROFILES_FILTER;
 import static ru.aplix.ltk.collector.http.server.ClrProfileConfig.PROPERTIES_SUFFIX;
 
@@ -54,12 +55,13 @@ public final class ProviderClrProfiles<S extends RfSettings>
 		}
 	}
 
-
 	private File configDir(boolean createIfNotExist) {
 
 		final String providerId = getProvider().getId();
-		final File configDir =
-				new File(allProfiles().getConfigDir(), providerId);
+
+		final File configDir = new File(
+				allProfiles().getConfigDir(),
+				fileNameById(providerId));
 
 		if (!configDir.isDirectory()) {
 			if (createIfNotExist && !configDir.mkdirs()) {
@@ -85,7 +87,7 @@ public final class ProviderClrProfiles<S extends RfSettings>
 				getProvider(),
 				new File(
 						configDir(true),
-						profileId.getId() + PROPERTIES_SUFFIX));
+						fileNameById(profileId.getId()) + PROPERTIES_SUFFIX));
 
 		return new ClrProfile<>(this, config);
 	}

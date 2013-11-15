@@ -3,6 +3,9 @@ package ru.aplix.ltk.collector.http.server;
 import static java.util.Collections.synchronizedMap;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -18,6 +21,22 @@ import ru.aplix.ltk.osgi.Logger;
 
 
 public class ClrProfile<S extends RfSettings> {
+
+	public static String fileNameById(String id) {
+		try {
+			return URLEncoder.encode(id, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	public static String idByFileName(String fileName) {
+		try {
+			return URLDecoder.decode(fileName, fileName);
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException(e);
+		}
+	}
 
 	private final ProviderClrProfiles<S> providerProfiles;
 	private final ClrProfileConfig<S> config;

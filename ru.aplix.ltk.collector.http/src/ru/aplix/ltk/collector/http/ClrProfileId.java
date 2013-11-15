@@ -93,6 +93,10 @@ public final class ClrProfileId implements Comparable<ClrProfileId> {
 	 */
 	public ClrProfileId(String providerId, String id) {
 		requireNonNull(providerId, "RFID provider identifier not specified");
+		if (providerId.isEmpty()) {
+			throw new IllegalArgumentException(
+					"RFID provider identifier should not be empty");
+		}
 		this.providerId = providerId;
 		this.id = id != null ? id : "";
 	}

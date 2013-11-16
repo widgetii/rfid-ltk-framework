@@ -138,6 +138,15 @@ angular.module('rfid-tag-store.rcm', [])
 		$http) {
 	var ui = $scope.ui = $rcm.ui($scope.config.providerId);
 
+	$scope.desc = {
+		autostart:
+			"Имеет смысл устанавливать лишь для логирующих провайдеров. "
+			+ "Иначе будет создавать ненужную нагрузку на накопитель."
+	};
+	$scope.patterns = {
+		number: /^\d*$/
+	};
+
 	function ProfileEditor() {
 		this.updating = false;
 		this.error = null;

@@ -248,11 +248,11 @@ angular.module(
 	}
 	Profile.prototype.update = function(profile) {
 		angular.copy(profile, this);
-		this.updateLabel();
+		this.updateLabel(profile.label);
 	};
-	Profile.prototype.updateLabel = function() {
+	Profile.prototype.updateLabel = function(defaultLabel) {
 		if (!this.settings) {
-			this.label = null;
+			this.label = defaultLabel;
 			return;
 		}
 		if (!this.settings.profileId) {

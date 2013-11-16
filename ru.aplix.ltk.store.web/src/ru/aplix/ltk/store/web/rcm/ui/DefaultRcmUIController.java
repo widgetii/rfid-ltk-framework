@@ -20,6 +20,10 @@ public class DefaultRcmUIController<S extends RfSettings>
 			new String[] {"rcm/ui/default.js"};
 	private static final String[] ANGULAR_MODULE_IDS =
 			new String[] {"rfid-tag-store.rcm.ui.default"};
+	private static final RcmUIDesc DESC =
+			new RcmUIDesc()
+			.mapping("rcm/ui/default.json")
+			.settingsTemplateURL("rcm/ui/default.html");
 
 	@Autowired
 	private RfStore rfStore;
@@ -40,13 +44,8 @@ public class DefaultRcmUIController<S extends RfSettings>
 	}
 
 	@Override
-	public String getSettingsTemplateURL() {
-		return "rcm/ui/default.html";
-	}
-
-	@Override
-	public String getMapping() {
-		return "rcm/ui/default.json";
+	public RcmUIDesc getDesc() {
+		return DESC;
 	}
 
 	@RequestMapping(

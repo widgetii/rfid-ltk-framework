@@ -22,9 +22,7 @@ public abstract class RcmUIController<
 
 	public abstract String[] getAngularModuleIds();
 
-	public abstract String getSettingsTemplateURL();
-
-	public abstract String getMapping();
+	public abstract RcmUIDesc getDesc();
 
 	public abstract U uiSettings(HttpRfProfile<S> profile);
 

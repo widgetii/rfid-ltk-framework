@@ -37,6 +37,8 @@ import ru.aplix.ltk.store.web.receiver.RfReceiverDesc;
 public class RcmController {
 
 	private static final String DEFAULT_PROVIDER_ID = "_";
+	private static final String LOG_PROVIDER_ID_SUFFIX = "-log";
+
 	private static final Logger log =
 			LoggerFactory.getLogger(RcmController.class);
 
@@ -218,7 +220,15 @@ public class RcmController {
 
 		for (Map.Entry<String, RcmUIController<?, ?>> e :
 				this.uiControllers.entrySet()) {
-			uis.put(e.getKey(), new RcmUIDesc(e.getValue()));
+
+			final String providerId = e.getKey();
+			final RcmUIDesc desc = e.getValue().getDesc();
+
+			uis.put(providerId, desc);
+			if (providerId.equals(DEFAULT_PROVIDER_ID)
+					&& !providerId.endsWith(LOG_PROVIDER_ID_SUFFIX)) {
+				uis.put(providerId + LOG_PROVIDER_ID_SUFFIX, desc);
+			}
 		}
 
 		return uis;
@@ -226,9 +236,18 @@ public class RcmController {
 
 	@SuppressWarnings("unchecked")
 	public <S extends RfSettings, U extends RcmUISettings>
-	RcmUIController<S, U> uiController(String profileId) {
+	RcmUIController<S, U> uiController(String providerId) {
 
-		final RcmUIController<?, ?> found = this.uiControllers.get(profileId);
+		final String key;
+
+		if (!providerId.endsWith(LOG_PROVIDER_ID_SUFFIX)) {
+			key = providerId;
+		} else {
+			key = providerId.substring(
+					providerId.length() - LOG_PROVIDER_ID_SUFFIX.length());
+		}
+
+		final RcmUIController<?, ?> found = this.uiControllers.get(key);
 
 		if (found != null) {
 			return (RcmUIController<S, U>) found;

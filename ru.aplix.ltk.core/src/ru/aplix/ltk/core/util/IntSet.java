@@ -59,6 +59,9 @@ public final class IntSet {
 		if ("*".equals(in)) {
 			return FULL_INT_SET;
 		}
+		if ("-".equals(in)) {
+			return EMPTY_INT_SET;
+		}
 
 		int mask = 0;
 		int start = 0;

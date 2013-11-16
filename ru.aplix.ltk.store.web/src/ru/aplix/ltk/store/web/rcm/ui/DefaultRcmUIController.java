@@ -14,7 +14,7 @@ import ru.aplix.ltk.store.RfStore;
 
 @RcmUI
 public class DefaultRcmUIController<S extends RfSettings>
-		extends RcmUIController<S, DefaultRcmUISettings> {
+		extends RcmUIController<S, DefaultRcmUISettings<S>> {
 
 	private static final String[] SCRIPT_URLS =
 			new String[] {"rcm/ui/default.js"};
@@ -29,7 +29,7 @@ public class DefaultRcmUIController<S extends RfSettings>
 	private RfStore rfStore;
 
 	@Override
-	public RfProvider<?> getRfProvider() {
+	public RfProvider<S> getRfProvider() {
 		return null;
 	}
 
@@ -54,19 +54,19 @@ public class DefaultRcmUIController<S extends RfSettings>
 	@ResponseBody
 	public RcmUIResponseBean save(
 			@RequestParam("server") String serverURL,
-			@RequestBody DefaultRcmUISettings settings,
+			@RequestBody DefaultRcmUISettings<S> settings,
 			HttpServletResponse resp) {
 		return getContext().save(serverURL, settings, resp);
 	}
 
 	@Override
-	public DefaultRcmUISettings uiSettings(HttpRfProfile<S> profile) {
-		return new DefaultRcmUISettings(profile);
+	public DefaultRcmUISettings<S> uiSettings(HttpRfProfile<S> profile) {
+		return new DefaultRcmUISettings<>(profile);
 	}
 
 	@Override
 	public ClrProfileSettings<S> profileSettings(
-			DefaultRcmUISettings uiSettings) {
+			DefaultRcmUISettings<S> uiSettings) {
 
 		@SuppressWarnings("unchecked")
 		final RfProvider<S> provider =

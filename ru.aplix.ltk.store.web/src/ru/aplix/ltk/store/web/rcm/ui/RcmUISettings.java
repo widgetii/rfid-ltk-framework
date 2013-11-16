@@ -5,7 +5,7 @@ import ru.aplix.ltk.collector.http.client.HttpRfProfile;
 import ru.aplix.ltk.core.RfSettings;
 
 
-public abstract class RcmUISettings {
+public abstract class RcmUISettings<S extends RfSettings> {
 
 	private String providerId;
 	private String profileId;
@@ -15,11 +15,11 @@ public abstract class RcmUISettings {
 	public RcmUISettings() {
 	}
 
-	public RcmUISettings(HttpRfProfile<?> profile) {
+	public RcmUISettings(HttpRfProfile<S> profile) {
 		this.providerId = profile.getProfileId().getProviderId();
 		this.profileId = profile.getProfileId().getId();
 
-		final ClrProfileSettings<?> settings = profile.getSettings();
+		final ClrProfileSettings<S> settings = profile.getSettings();
 
 		this.profileName = settings.getProfileName();
 		this.autostart = settings.isAutostart();
@@ -57,11 +57,14 @@ public abstract class RcmUISettings {
 		this.autostart = autostart;
 	}
 
-	public final <S extends RfSettings> ClrProfileSettings<S> fill(
+	public final ClrProfileSettings<S> fill(
 			ClrProfileSettings<S> settings) {
 		settings.setProfileName(getProfileName());
 		settings.setAutostart(isAutostart());
+		fillSettings(settings.getSettings());
 		return settings;
 	}
+
+	protected abstract void fillSettings(S settings);
 
 }

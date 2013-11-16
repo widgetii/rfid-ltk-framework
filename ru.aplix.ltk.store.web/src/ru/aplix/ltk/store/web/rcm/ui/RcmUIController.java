@@ -8,7 +8,7 @@ import ru.aplix.ltk.core.RfSettings;
 
 public abstract class RcmUIController<
 		S extends RfSettings,
-		U extends RcmUISettings> {
+		U extends RcmUISettings<S>> {
 
 	private RcmUIContext<S, U> context;
 
@@ -16,7 +16,7 @@ public abstract class RcmUIController<
 		return this.context;
 	}
 
-	public abstract RfProvider<?> getRfProvider();
+	public abstract RfProvider<S> getRfProvider();
 
 	public abstract String[] getScriptURLs();
 
@@ -26,7 +26,9 @@ public abstract class RcmUIController<
 
 	public abstract U uiSettings(HttpRfProfile<S> profile);
 
-	public abstract ClrProfileSettings<S> profileSettings(U uiSettings);
+	public ClrProfileSettings<S> profileSettings(U uiSettings) {
+		return uiSettings.fill(new ClrProfileSettings<>(getRfProvider()));
+	}
 
 	public void init(RcmUIContext<S, U> context) {
 		this.context = context;

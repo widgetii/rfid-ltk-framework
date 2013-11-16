@@ -10,7 +10,7 @@ public class HttpRfProfileBean {
 	private String id;
 	private RfProviderDesc provider;
 	private RfReceiverDesc receiver;
-	private RcmUISettings settings;
+	private RcmUISettings<?> settings;
 
 	public HttpRfProfileBean() {
 	}
@@ -40,11 +40,11 @@ public class HttpRfProfileBean {
 		this.receiver = receiver;
 	}
 
-	public RcmUISettings getSettings() {
+	public RcmUISettings<?> getSettings() {
 		return this.settings;
 	}
 
-	public void setSettings(RcmUISettings settings) {
+	public void setSettings(RcmUISettings<?> settings) {
 		this.settings = settings;
 	}
 

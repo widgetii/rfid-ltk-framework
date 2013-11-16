@@ -235,7 +235,7 @@ public class RcmController {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <S extends RfSettings, U extends RcmUISettings>
+	public <S extends RfSettings, U extends RcmUISettings<S>>
 	RcmUIController<S, U> uiController(String providerId) {
 
 		final String key;
@@ -257,12 +257,12 @@ public class RcmController {
 				DEFAULT_PROVIDER_ID);
 	}
 
-	<S extends RfSettings, R extends RcmUISettings> R uiSettings(
+	<S extends RfSettings, U extends RcmUISettings<S>> U uiSettings(
 			HttpRfProfile<S> profile) {
 
 		@SuppressWarnings("unchecked")
-		final RcmUIController<S, R> uiController =
-				(RcmUIController<S, R>) uiController(
+		final RcmUIController<S, U> uiController =
+				(RcmUIController<S, U>) uiController(
 						profile.getProfileId().getProviderId());
 
 		return uiController.uiSettings(profile);
@@ -333,7 +333,7 @@ public class RcmController {
 		}
 	}
 
-	private <S extends RfSettings, U extends RcmUISettings> void initUI(
+	private <S extends RfSettings, U extends RcmUISettings<S>> void initUI(
 			RcmUIController<S, U> uiController) {
 
 		final RcmUIContextImpl<S, U> context =

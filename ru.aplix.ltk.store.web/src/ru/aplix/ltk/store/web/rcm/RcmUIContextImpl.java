@@ -14,7 +14,7 @@ import ru.aplix.ltk.store.web.rcm.ui.*;
 
 final class RcmUIContextImpl
 		<S extends RfSettings,
-		U extends RcmUISettings>
+		U extends RcmUISettings<S>>
 				implements RcmUIContext<S, U> {
 
 	private final RcmController controller;

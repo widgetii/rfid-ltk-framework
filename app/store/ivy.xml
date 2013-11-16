@@ -20,6 +20,10 @@
       rev="latest.integration"/>
     <dependency
       org="bundle"
+      name="ru.aplix.ltk.store.web.ctg"
+      rev="latest.integration"/>
+    <dependency
+      org="bundle"
       name="org.postgresql"
       rev="9.2.1003.jdbc4aplix"/>
     <dependency
@@ -32,12 +36,6 @@
       name="ru.aplix.ltk.driver.log"
       rev="latest.integration"
       conf="runtime->@"/>
-    <dependency
-      org="bundle"
-      name="ru.aplix.ltk.driver.ctg"
-      rev="latest.integration"
-      conf="runtime->@"
-      transitive="false"/>
     <dependency
       org="bundle"
       name="ru.aplix.ltk.driver.blackbox"

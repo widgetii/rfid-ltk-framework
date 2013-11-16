@@ -2,14 +2,11 @@ package ru.aplix.ltk.store.web.rcm.ui;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import ru.aplix.ltk.collector.http.ClrProfileSettings;
 import ru.aplix.ltk.collector.http.client.HttpRfProfile;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.core.RfSettings;
-import ru.aplix.ltk.store.RfStore;
 
 
 @RcmUI
@@ -24,9 +21,6 @@ public class DefaultRcmUIController<S extends RfSettings>
 			new RcmUIDesc()
 			.mapping("rcm/ui/default.json")
 			.settingsTemplateURL("rcm/ui/default.html");
-
-	@Autowired
-	private RfStore rfStore;
 
 	@Override
 	public RfProvider<S> getRfProvider() {
@@ -62,23 +56,6 @@ public class DefaultRcmUIController<S extends RfSettings>
 	@Override
 	public DefaultRcmUISettings<S> uiSettings(HttpRfProfile<S> profile) {
 		return new DefaultRcmUISettings<>(profile);
-	}
-
-	@Override
-	public ClrProfileSettings<S> profileSettings(
-			DefaultRcmUISettings<S> uiSettings) {
-
-		@SuppressWarnings("unchecked")
-		final RfProvider<S> provider =
-				(RfProvider<S>) this.rfStore.allRfProviders().get(
-						uiSettings.getProviderId());
-
-		if (provider == null) {
-			throw new IllegalArgumentException(
-					"Unknown provider: " + uiSettings.getProviderId());
-		}
-
-		return uiSettings.fill(new ClrProfileSettings<>(provider));
 	}
 
 }

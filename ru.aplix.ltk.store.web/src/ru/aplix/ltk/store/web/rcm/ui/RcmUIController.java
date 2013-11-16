@@ -27,7 +27,16 @@ public abstract class RcmUIController<
 	public abstract U uiSettings(HttpRfProfile<S> profile);
 
 	public ClrProfileSettings<S> profileSettings(U uiSettings) {
-		return uiSettings.fill(new ClrProfileSettings<>(getRfProvider()));
+
+		final RfProvider<S> provider =
+				getContext().rfProviderById(uiSettings.getProviderId());
+
+		if (provider == null) {
+			throw new IllegalArgumentException(
+					"Unknown provider: " + uiSettings.getProviderId());
+		}
+
+		return uiSettings.fill(new ClrProfileSettings<>(provider));
 	}
 
 	public void init(RcmUIContext<S, U> context) {

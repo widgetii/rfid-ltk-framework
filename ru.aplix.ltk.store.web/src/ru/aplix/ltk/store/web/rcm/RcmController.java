@@ -220,15 +220,7 @@ public class RcmController {
 
 		for (Map.Entry<String, RcmUIController<?, ?>> e :
 				this.uiControllers.entrySet()) {
-
-			final String providerId = e.getKey();
-			final RcmUIDesc desc = e.getValue().getDesc();
-
-			uis.put(providerId, desc);
-			if (providerId.equals(DEFAULT_PROVIDER_ID)
-					&& !providerId.endsWith(LOG_PROVIDER_ID_SUFFIX)) {
-				uis.put(providerId + LOG_PROVIDER_ID_SUFFIX, desc);
-			}
+			uis.put(e.getKey(), e.getValue().getDesc());
 		}
 
 		return uis;
@@ -238,16 +230,7 @@ public class RcmController {
 	public <S extends RfSettings, U extends RcmUISettings<S>>
 	RcmUIController<S, U> uiController(String providerId) {
 
-		final String key;
-
-		if (!providerId.endsWith(LOG_PROVIDER_ID_SUFFIX)) {
-			key = providerId;
-		} else {
-			key = providerId.substring(
-					providerId.length() - LOG_PROVIDER_ID_SUFFIX.length());
-		}
-
-		final RcmUIController<?, ?> found = this.uiControllers.get(key);
+		final RcmUIController<?, ?> found = this.uiControllers.get(providerId);
 
 		if (found != null) {
 			return (RcmUIController<S, U>) found;
@@ -326,10 +309,19 @@ public class RcmController {
 
 			final RfProvider<?> rfProvider = uiController.getRfProvider();
 
-			this.uiControllers.put(
-					rfProvider != null
-					? rfProvider.getId() : DEFAULT_PROVIDER_ID,
-					uiController);
+			if (rfProvider == null) {
+				this.uiControllers.put(DEFAULT_PROVIDER_ID, uiController);
+				continue;
+			}
+
+			final String providerId = rfProvider.getId();
+
+			this.uiControllers.put(providerId, uiController);
+			if (!providerId.endsWith(LOG_PROVIDER_ID_SUFFIX)) {
+				this.uiControllers.put(
+						providerId + LOG_PROVIDER_ID_SUFFIX,
+						uiController);
+			}
 		}
 	}
 

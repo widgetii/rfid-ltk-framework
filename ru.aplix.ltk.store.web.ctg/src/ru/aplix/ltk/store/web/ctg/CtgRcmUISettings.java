@@ -122,7 +122,7 @@ public class CtgRcmUISettings extends RcmUISettings<CtgRfSettings> {
 
 		final String antennas = getAntennas();
 
-		if (antennas == null) {
+		if (antennas == null || antennas.isEmpty()) {
 			settings.setAntennas(CTG_RF_ANTENNAS.getDefault());
 		} else {
 			settings.setAntennas(parseIntSet(antennas));

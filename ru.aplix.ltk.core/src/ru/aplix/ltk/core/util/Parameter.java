@@ -86,4 +86,16 @@ public final class Parameter<T> {
 		return new Parameter<>(this, defaults);
 	}
 
+	/**
+	 * Replaces null with default value.
+	 *
+	 * @param value value to check
+	 *
+	 * @return original {@code value}, or {@link #getDefault() default} one if
+	 * <code>null</code>
+	 */
+	public final T valueOrDefault(T value) {
+		return value != null ? value : getDefault();
+	}
+
 }

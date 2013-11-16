@@ -1,0 +1,137 @@
+<fieldset ng-controller="CtgRcmSettingsCtrl">
+
+<div
+  class="control-group"
+  ng-class="{error: !settingsForm.readerHost.$valid}">
+  <label class="control-label">Адрес ридера</label>
+  <div class="controls">
+    <input
+      type="text"
+      name="readerHost"
+      ng-model="settings.readerHost"
+      required/>
+  </div>
+</div>
+
+<div
+  class="control-group"
+  ng-class="{error: !settingsForm.readerPort.$valid}">
+  <label class="control-label">Порт ридера</label>
+  <div class="controls">
+    <input
+      type="text"
+      name="readerPort"
+      ng-model="settings.readerPort"
+      ng-pattern="patterns.number"
+      required/>
+  </div>
+</div>
+
+<div
+  class="control-group"
+  ng-class="{error: !settingsForm.roSpecId.$valid}">
+  <label class="control-label">Идентификатор клиента</label>
+  <div class="controls">
+    <input
+      type="text"
+      name="roSpecId"
+      ng-model="settings.roSpecId"
+      ng-patter="patterns.number"
+      required/>
+  </div>
+</div>
+
+<div class="control-group">
+  <div class="controls">
+    <label class="checkbox inline">
+      <input type="checkbox" ng-model="settings.exclusiveMode"/>
+      Монопольно
+    </label>
+  </div>
+</div>
+
+<div
+  class="control-group"
+  ng-class="{error: !settingsForm.antennas.$valid}">
+  <label class="control-label">Антенны</label>
+  <div class="controls">
+    <input
+      type="text"
+      name="antennas"
+      ng-model="settings.antennas"
+      popover-title="Примеры"
+      popover="{{desc.antennas}}"
+      popover-trigger="focus"
+      ng-pattern="patterns.antennas"/>
+  </div>
+</div>
+
+<div
+  class="control-group"
+  ng-class="{error: !settingsForm.connectionTimeout.$valid}">
+  <label class="control-label">Время ожидания соединения</label>
+  <div class="controls">
+    <div class="input-append">
+      <input
+        type="text"
+        name="connectionTimeout"
+        ng-model="settings.connectionTimeout"
+        ng-pattern="patterns.number"
+        required/>
+      <span class="add-on">мс</span>
+    </div>
+  </div>
+</div>
+
+<div
+  class="control-group"
+  ng-class="{error: !settingsForm.transactionTimeout.$valid}">
+  <label class="control-label">Время ожидания ответа</label>
+  <div class="controls">
+    <div class="input-append">
+      <input
+        type="text"
+        name="transactionTimeout"
+        ng-model="settings.transactionTimeout"
+        ng-pattern="patterns.number"
+        required/>
+      <span class="add-on">мс</span>
+    </div>
+  </div>
+</div>
+
+<div
+  class="control-group"
+  ng-class="{error: !settingsForm.reconnectionDelay.$valid}">
+  <label class="control-label">Задержка переподключения</label>
+  <div class="controls">
+    <div class="input-append">
+      <input
+        type="text"
+        name="reconnectionDelay"
+        ng-model="settings.reconnectionDelay"
+        ng-pattern="patterns.number"
+        required/>
+      <span class="add-on">мс</span>
+    </div>
+  </div>
+</div>
+
+<div
+  class="control-group"
+  ng-class="{error: !settingsForm.keepAliveRequestPeriod.$valid}">
+  <label class="control-label">Период запросов поддержки соединения</label>
+  <div class="controls">
+    <div class="input-append">
+      <input
+        type="text"
+        name="keepAliveRequestPeriod"
+        ng-model="settings.keepAliveRequestPeriod"
+        ng-pattern="patterns.number"
+        required/>
+      <span class="add-on">мс</span>
+    </div>
+  </div>
+</div>
+
+</fieldset>

@@ -1,14 +1,16 @@
 package ru.aplix.ltk.store.web.ctg;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.*;
 
 import ru.aplix.ltk.collector.http.client.HttpRfProfile;
 import ru.aplix.ltk.core.RfProvider;
 import ru.aplix.ltk.driver.ctg.CtgRfSettings;
-import ru.aplix.ltk.store.web.rcm.ui.RcmUI;
-import ru.aplix.ltk.store.web.rcm.ui.RcmUIController;
-import ru.aplix.ltk.store.web.rcm.ui.RcmUIDesc;
+import ru.aplix.ltk.store.web.rcm.ui.*;
+
 
 @RcmUI
 public class CtgRcmUIController
@@ -45,6 +47,17 @@ public class CtgRcmUIController
 	@Override
 	public RcmUIDesc getDesc() {
 		return DESC;
+	}
+
+	@RequestMapping(
+			value = "/rcm/ui/ctg.json",
+			method = RequestMethod.PUT)
+	@ResponseBody
+	public RcmUIResponseBean save(
+			@RequestParam("server") String serverURL,
+			@RequestBody CtgRcmUISettings settings,
+			HttpServletResponse resp) {
+		return getContext().save(serverURL, settings, resp);
 	}
 
 	@Override

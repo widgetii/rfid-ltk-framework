@@ -54,7 +54,7 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 		final int length;
 
 		if ((flags & EMBEDDED_LENGTH) != 0) {
-			length = 0xff & (flags >>> 4);
+			length = (0xff & flags) >>> 4;
 			this.antennas = intSetByMask(data.getShort() & 0xFFFF);
 		} else {
 			this.antennas = EMPTY_INT_SET;

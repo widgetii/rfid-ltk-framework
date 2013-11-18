@@ -81,6 +81,7 @@
       <tr>
         <th>Время</th>
         <th>Приёмник</th>
+        <th>Антенны</th>
         <th>Тег</th>
       </tr>
     </thead>
@@ -97,6 +98,7 @@
             ng-click="query.setReceiver(event.receiver.id)"
             ng-bind="receiverName(event.receiver)">
         </span></td>
+        <td ng-bind="event.antennas"></td>
         <td><span
           class="label clickable"
           ng-class="{'label-success': event.appeared, 'label-important': !event.appeared}"

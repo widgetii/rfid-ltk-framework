@@ -7,12 +7,14 @@ public class RfTagEventBean {
 
 	private final RfReceiverDesc receiver;
 	private final long timestamp;
+	private final String antennas;
 	private final String tag;
 	private final boolean appeared;
 
 	public RfTagEventBean(RfReceiverDesc receiver, RfTagEvent event) {
 		this.receiver = receiver;
 		this.timestamp = event.getTimestamp();
+		this.antennas = event.getAntennas().toString();
 		this.tag = event.getRfTag().toHexString();
 		this.appeared = event.getAppearance().isPresent();
 	}
@@ -23,6 +25,10 @@ public class RfTagEventBean {
 
 	public final long getTimestamp() {
 		return this.timestamp;
+	}
+
+	public final String getAntennas() {
+		return this.antennas;
 	}
 
 	public final String getTag() {

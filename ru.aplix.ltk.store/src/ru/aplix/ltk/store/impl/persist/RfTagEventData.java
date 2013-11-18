@@ -2,6 +2,7 @@ package ru.aplix.ltk.store.impl.persist;
 
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
+import static ru.aplix.ltk.core.util.IntSet.EMPTY_INT_SET;
 
 import java.sql.Timestamp;
 
@@ -10,6 +11,7 @@ import javax.persistence.*;
 import ru.aplix.ltk.core.collector.RfTagAppearance;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.core.source.RfTag;
+import ru.aplix.ltk.core.util.IntSet;
 import ru.aplix.ltk.store.RfReceiver;
 import ru.aplix.ltk.store.RfTagEvent;
 import ru.aplix.ltk.store.impl.RfStoreImpl;
@@ -122,6 +124,12 @@ public class RfTagEventData implements RfTagEvent {
 	@Override
 	public long getTimestamp() {
 		return getSqlTimestamp().getTime();
+	}
+
+	@Override
+	public IntSet getAntennas() {
+		// TODO Implement antenna identifiers persistence.
+		return EMPTY_INT_SET;
 	}
 
 	public String getTag() {

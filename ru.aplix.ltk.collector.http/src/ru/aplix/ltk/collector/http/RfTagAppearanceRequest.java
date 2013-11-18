@@ -4,6 +4,8 @@ import static ru.aplix.ltk.collector.http.RfStatusRequest.CLIENT;
 import static ru.aplix.ltk.collector.http.RfStatusRequest.TYPE;
 import static ru.aplix.ltk.collector.http.RfTagParameterType.RF_TAG_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
+import static ru.aplix.ltk.core.util.IntSet.EMPTY_INT_SET;
+import static ru.aplix.ltk.core.util.IntSet.INT_SET_PARAMATER_TYPE;
 import static ru.aplix.ltk.core.util.NumericParameterType.LONG_PARAMETER_TYPE;
 import static ru.aplix.ltk.core.util.ParameterType.BOOLEAN_PARAMETER_TYPE;
 import ru.aplix.ltk.core.collector.RfTagAppearance;
@@ -24,6 +26,9 @@ public class RfTagAppearanceRequest
 			BOOLEAN_PARAMETER_TYPE.parameter("initialEvent").byDefault(false);
 	private static final Parameter<Long> TIMESTAMP =
 			LONG_PARAMETER_TYPE.parameter("timestamp").byDefault(0L);
+	private static final Parameter<IntSet> ANTENNAS =
+			INT_SET_PARAMATER_TYPE.parameter("antennas")
+			.byDefault(EMPTY_INT_SET);
 	private static final Parameter<RfTag> RF_TAG =
 			RF_TAG_PARAMETER_TYPE.parameter("rfTag");
 	private static final Parameter<RfTagAppearance> APPEARANCE =
@@ -34,6 +39,7 @@ public class RfTagAppearanceRequest
 	private ClrClientId clientId;
 	private long eventId;
 	private long timestamp;
+	private IntSet antennas = ANTENNAS.getDefault();
 	private RfTag rfTag;
 	private RfTagAppearance appearance = APPEARANCE.getDefault();
 	private boolean initialEvent;
@@ -98,6 +104,15 @@ public class RfTagAppearanceRequest
 	}
 
 	@Override
+	public IntSet getAntennas() {
+		return this.antennas;
+	}
+
+	public void setAntennas(IntSet antennas) {
+		this.antennas = antennas != null ? antennas : EMPTY_INT_SET;
+	}
+
+	@Override
 	public RfTag getRfTag() {
 		return this.rfTag;
 	}
@@ -119,6 +134,7 @@ public class RfTagAppearanceRequest
 	public void read(Parameters params) {
 		this.eventId = params.valueOf(EVENT_ID, getEventId());
 		this.timestamp = params.valueOf(TIMESTAMP, getTimestamp());
+		this.antennas = params.valueOf(ANTENNAS, getAntennas());
 		this.rfTag = params.valueOf(RF_TAG, getRfTag());
 		this.appearance = params.valueOf(APPEARANCE, getAppearance());
 		this.initialEvent = params.valueOf(INITIAL_EVENT, isInitialEvent());
@@ -132,6 +148,7 @@ public class RfTagAppearanceRequest
 		params.set(TYPE, "tag")
 		.set(EVENT_ID, getEventId())
 		.set(TIMESTAMP, getTimestamp())
+		.set(ANTENNAS, getAntennas())
 		.set(RF_TAG, getRfTag())
 		.set(APPEARANCE, getAppearance());
 		if (isInitialEvent()) {

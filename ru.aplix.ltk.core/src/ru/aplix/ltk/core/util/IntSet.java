@@ -6,7 +6,7 @@ package ru.aplix.ltk.core.util;
  *
  * <p>This implementation supports values from 0 to 31.</p>
  *
- * <p>/An instances of this class are immutable.</p>
+ * <p>Instances of this class are immutable.</p>
  */
 public final class IntSet {
 
@@ -25,6 +25,29 @@ public final class IntSet {
 	 * Full set of integers, including values more than 31 and less than 0.
 	 */
 	public static final IntSet FULL_INT_SET = new IntSet(0xFFFFFFFF);
+
+	private static final IntSet[] SINGLETON_SETS = new IntSet[32];
+
+	static {
+		for (int i = 0; i < 32; ++i) {
+			SINGLETON_SETS[i] = new IntSet(1 << i);
+		}
+	}
+
+	/**
+	 * Creates a set containing a integer.
+	 *
+	 * @param value an integer the constructed set should contain.
+	 *
+	 * @return a set containing {@code value}, or {@link #EMPTY_INT_SET empty
+	 * set} if the given value is negative, or is greater than 31.
+	 */
+	public static final IntSet singletonIntSet(int value) {
+		if (value < 0 || value > 31) {
+			return EMPTY_INT_SET;
+		}
+		return SINGLETON_SETS[value];
+	}
 
 	/**
 	 * Restores a set of integers from its string representation.

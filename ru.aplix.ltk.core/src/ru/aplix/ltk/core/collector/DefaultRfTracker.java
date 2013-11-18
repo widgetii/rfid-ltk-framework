@@ -4,6 +4,8 @@ import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 import static ru.aplix.ltk.core.collector.DefaultRfTrackingPolicy.RF_INVALIDATION_TIMEOUT;
 import static ru.aplix.ltk.core.collector.DefaultRfTrackingPolicy.RF_TRANSACTION_TIMEOUT;
+import static ru.aplix.ltk.core.util.IntSet.EMPTY_INT_SET;
+import static ru.aplix.ltk.core.util.IntSet.singletonIntSet;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -14,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import ru.aplix.ltk.core.source.RfDataMessage;
 import ru.aplix.ltk.core.source.RfError;
 import ru.aplix.ltk.core.source.RfTag;
+import ru.aplix.ltk.core.util.IntSet;
 
 
 /**
@@ -52,7 +55,7 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 
 	private final ScheduledExecutorService executorService =
 			newSingleThreadScheduledExecutor();
-	private final HashMap<RfTag, Long> tags = new HashMap<>();
+	private final HashMap<RfTag, TagPresence> tags = new HashMap<>();
 	private ScheduledFuture<?> transactionChecker;
 	private long transactionTimeout = RF_TRANSACTION_TIMEOUT.getDefault();
 	private long invalidationTimeout = RF_INVALIDATION_TIMEOUT.getDefault();
@@ -123,8 +126,8 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 		final RfTag tag = dataMessage.getRfTag();
 		final long localTimeDiff = currentTimeMillis() - timestamp;
 		final boolean transactionEnd = dataMessage.isRfTransactionEnd();
-		HashSet<RfTag> obsoleteTags = null;
-		boolean tagAppeared = false;
+		HashMap<RfTag, TagPresence> obsoleteTags = null;
+		TagPresence tagAppeared = null;
 
 		synchronized (this) {
 			if (timestamp > this.lastTimestamp) {
@@ -143,17 +146,21 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 				if (obsoleteTags != null) {
 					obsoleteTags.remove(tag);
 				}
-				tagAppeared = cacheTag(tag, timestamp);
+				tagAppeared = cacheTag(
+						tag,
+						timestamp,
+						dataMessage.getAntennaId());
 			}
 			if (transactionEnd) {
 
-				final HashSet<RfTag> obsolete = endTransaction(timestamp);
+				final HashMap<RfTag, TagPresence> obsolete =
+						endTransaction(timestamp);
 
 				if (obsolete != null) {
 					if (obsoleteTags == null) {
 						obsoleteTags = obsolete;
 					} else {
-						obsoleteTags.addAll(obsolete);
+						obsoleteTags.putAll(obsolete);
 					}
 				}
 			}
@@ -161,8 +168,8 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 				startTransaction(timestamp, dataMessage);
 			}
 		}
-		if (tagAppeared) {
-			this.tracking.tagAppeared(tag);
+		if (tagAppeared != null) {
+			this.tracking.tagAppeared(tagAppeared.getAntennas(), tag);
 		}
 		if (obsoleteTags != null) {
 			tagsDisappeared(obsoleteTags);
@@ -179,7 +186,7 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 		try {
 
 			final long timestamp = currentTimeMillis() - this.localTimeDiff;
-			final HashSet<RfTag> obsoleteTags;
+			final HashMap<RfTag, TagPresence> obsoleteTags;
 
 			synchronized (this) {
 				obsoleteTags = removeObsoleteTags(timestamp);
@@ -209,22 +216,27 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 		return timestamp - this.transactionStart >= getTransactionTimeout();
 	}
 
-	private boolean cacheTag(RfTag tag, long timestamp) {
+	private TagPresence cacheTag(RfTag tag, long timestamp, int antennaId) {
 
-		final Long last = this.tags.put(tag, timestamp);
+		final TagPresence presence =
+				new TagPresence(timestamp, singletonIntSet(antennaId));
+		final TagPresence last = this.tags.put(tag, presence);
 
 		if (last == null) {
-			return true;// New tag.
+			return presence;// New tag.
 		}
-		if (last.longValue() > timestamp) {
+		if (last.getLastAppearance() > timestamp) {
 			// Event in the past.
+			last.addAntennas(presence.getAntennas());
 			this.tags.put(tag, last);
+		} else {
+			presence.addAntennas(last.getAntennas());
 		}
 
-		return false;
+		return null;
 	}
 
-	private HashSet<RfTag> endTransaction(long timestamp) {
+	private HashMap<RfTag, TagPresence> endTransaction(long timestamp) {
 		stopTransaction();
 		return removeObsoleteTags(timestamp);
 	}
@@ -246,7 +258,7 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 				TimeUnit.MILLISECONDS);
 	}
 
-	private HashSet<RfTag> removeObsoleteTags(long timestamp) {
+	private HashMap<RfTag, TagPresence> removeObsoleteTags(long timestamp) {
 
 		final int size = this.tags.size();
 
@@ -255,36 +267,62 @@ public class DefaultRfTracker implements RfTracker, Runnable {
 		}
 
 		int index = 0;
-		HashSet<RfTag> obsoleteTags = null;
+		HashMap<RfTag, TagPresence> obsoleteTags = null;
 		final long timeout = getInvalidationTimeout();
-		final Iterator<Entry<RfTag, Long>> it =
+		final Iterator<Entry<RfTag, TagPresence>> it =
 				this.tags.entrySet().iterator();
 
 		while (it.hasNext()) {
 
-			final Map.Entry<RfTag, Long> e = it.next();
+			final Map.Entry<RfTag, TagPresence> e = it.next();
 			final RfTag tag = e.getKey();
-			final Long lastAppearance = e.getValue();
+			final TagPresence presence = e.getValue();
 
-			if (timestamp - lastAppearance.longValue() < timeout) {
+			if (timestamp - presence.getLastAppearance() < timeout) {
 				++index;
 				continue;
 			}
 
 			it.remove();
 			if (obsoleteTags == null) {
-				obsoleteTags = new HashSet<>(size - index);
+				obsoleteTags = new HashMap<>(size - index);
 			}
-			obsoleteTags.add(tag);
+			obsoleteTags.put(tag, presence);
 		}
 
 		return obsoleteTags;
 	}
 
-	private void tagsDisappeared(HashSet<RfTag> obsoleteTags) {
-		for (RfTag tag : obsoleteTags) {
-			this.tracking.tagDisappeared(tag);
+	private void tagsDisappeared(HashMap<RfTag, TagPresence> obsoleteTags) {
+		for (Map.Entry<RfTag, TagPresence> e : obsoleteTags.entrySet()) {
+			this.tracking.tagDisappeared(
+					e.getValue().getAntennas(),
+					e.getKey());
 		}
+	}
+
+	private static final class TagPresence {
+
+		private final long lastAppearance;
+		private IntSet antennas;
+
+		TagPresence(long lastAppearance, IntSet antennas) {
+			this.lastAppearance = lastAppearance;
+			this.antennas = antennas != null ? antennas : EMPTY_INT_SET;
+		}
+
+		public final long getLastAppearance() {
+			return this.lastAppearance;
+		}
+
+		public final IntSet getAntennas() {
+			return this.antennas;
+		}
+
+		public final void addAntennas(IntSet antennas) {
+			this.antennas = this.antennas.union(antennas);
+		}
+
 	}
 
 }

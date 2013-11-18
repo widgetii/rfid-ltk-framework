@@ -5,6 +5,7 @@ import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
 import ru.aplix.ltk.core.source.RfStatusMessage;
 import ru.aplix.ltk.core.source.RfStatusUpdater;
 import ru.aplix.ltk.core.source.RfTag;
+import ru.aplix.ltk.core.util.IntSet;
 
 
 /**
@@ -51,10 +52,13 @@ public final class RfTracking implements RfStatusUpdater {
 	 * <p>This method consults {@link #nextEventIsInitial()} method to set the
 	 * {@link RfTagAppearanceMessage#isInitialEvent() initial event flag}.</p>
 	 *
+	 * @param antennas antenna identifiers set the tag is appeared in, or
+	 * <code>null</code> for empty set.
 	 * @param tag appeared RFID tag.
 	 */
-	public final void tagAppeared(RfTag tag) {
+	public final void tagAppeared(IntSet antennas, RfTag tag) {
 		updateTagAppearance(new RfTagAppearanceMessageImpl(
+				antennas,
 				tag,
 				RF_TAG_APPEARED,
 				nextEventIsInitial()));
@@ -79,13 +83,17 @@ public final class RfTracking implements RfStatusUpdater {
 	 * <p>This method consults {@link #nextEventIsInitial()} method to set the
 	 * {@link RfTagAppearanceMessage#isInitialEvent() initial event flag}, but
 	 * this is not generally required, as the first message after tracking start
-	 * will be most probably a {@link #tagAppeared(RfTag) tag appearance} one.
-	 * </p>
+	 * will be most probably a {@link #tagAppeared(IntSet, RfTag) tag
+	 * appearance} one.</p>
 	 *
+	 * @param antennas antenna identifiers set the tag has been reported by
+	 * since it first appeared, or <code>null</code> for empty set.
+	 * <code>null</code> for empty set.
 	 * @param tag disappeared RFID tag.
 	 */
-	public final void tagDisappeared(RfTag tag) {
+	public final void tagDisappeared(IntSet antennas, RfTag tag) {
 		updateTagAppearance(new RfTagAppearanceMessageImpl(
+				antennas,
 				tag,
 				RF_TAG_DISAPPEARED,
 				nextEventIsInitial()));

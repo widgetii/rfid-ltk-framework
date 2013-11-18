@@ -3,12 +3,14 @@ package ru.aplix.ltk.driver.log.impl;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
 import static ru.aplix.ltk.core.util.CRC8.calcCRC8;
+import static ru.aplix.ltk.core.util.IntSet.EMPTY_INT_SET;
 
 import java.nio.ByteBuffer;
 
 import ru.aplix.ltk.core.collector.RfTagAppearance;
 import ru.aplix.ltk.core.collector.RfTagAppearanceMessage;
 import ru.aplix.ltk.core.source.RfTag;
+import ru.aplix.ltk.core.util.IntSet;
 
 
 final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
@@ -55,6 +57,12 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 	@Override
 	public final long getTimestamp() {
 		return this.timestamp;
+	}
+
+	@Override
+	public IntSet getAntennas() {
+		// TODO Implement antenna identifiers logging.
+		return EMPTY_INT_SET;
 	}
 
 	@Override

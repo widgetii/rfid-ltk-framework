@@ -1,6 +1,7 @@
 package ru.aplix.ltk.core.collector;
 
 import ru.aplix.ltk.core.source.RfTag;
+import ru.aplix.ltk.core.util.IntSet;
 
 
 /**
@@ -42,6 +43,20 @@ public interface RfTagAppearanceMessage {
 	 * @return UNIX time of event.
 	 */
 	long getTimestamp();
+
+	/**
+	 * Identifiers of antennas this event occurred in.
+	 *
+	 * <p>For tag appearance messages it contain an antenna number the tag is
+	 * first appeared in. For tag disappearance messages it may contain all
+	 * identifiers the tag has reported by since it first appeared.</p>
+	 *
+	 * <p>This may be an empty set if collector does not support antenna
+	 * identifiers reporting.</p>
+	 *
+	 * @return a set of antenna identifiers.
+	 */
+	IntSet getAntennas();
 
 	/**
 	 * RFID tag, which appearance has changed.

@@ -63,6 +63,7 @@ public class RfTagAppearanceRequest
 		this.eventId = message.getEventId();
 		this.initialEvent = message.isInitialEvent();
 		this.timestamp = message.getTimestamp();
+		this.antennas = message.getAntennas();
 		this.rfTag = message.getRfTag();
 		this.appearance = message.getAppearance();
 	}

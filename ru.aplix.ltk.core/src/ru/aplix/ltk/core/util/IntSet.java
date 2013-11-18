@@ -50,6 +50,19 @@ public final class IntSet {
 	}
 
 	/**
+	 * Construct a set of integers by binary mask.
+	 *
+	 * @param mask binary mask, with each bit corresponding to integer present in th
+	 *
+	 * @return new set of integers.
+	 *
+	 * @see #toMask()
+	 */
+	public static final IntSet intSetByMask(int mask) {
+		return mask == 0 ? EMPTY_INT_SET : new IntSet(mask);
+	}
+
+	/**
 	 * Restores a set of integers from its string representation.
 	 *
 	 * <p>A string representation is a comma-separated list of integers or
@@ -257,6 +270,19 @@ public final class IntSet {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Converts this set to binary mask.
+	 *
+	 * <p>Each bit set in the target mask corresponds to integer this set
+	 * contains. A {@link #FULL_INT_SET full set of integers}' mask has all
+	 * bits set to ones.</p>
+	 *
+	 * @return binary mask.
+	 */
+	public final int toMask() {
+		return this.mask;
 	}
 
 	@Override

@@ -2,7 +2,7 @@ package ru.aplix.ltk.store.impl.persist;
 
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
-import static ru.aplix.ltk.core.util.IntSet.EMPTY_INT_SET;
+import static ru.aplix.ltk.core.util.IntSet.intSetByMask;
 
 import java.sql.Timestamp;
 
@@ -71,6 +71,9 @@ public class RfTagEventData implements RfTagEvent {
 	@Column(name = "timestamp", nullable = false, updatable = false)
 	private Timestamp timestamp;
 
+	@Column(name = "antennas_mask", nullable = false, updatable = false)
+	private int antennasMask;
+
 	@Column(name = "appeared", nullable = false, updatable = false)
 	private boolean appeared;
 
@@ -90,6 +93,7 @@ public class RfTagEventData implements RfTagEvent {
 		this.rfTag = message.getRfTag();
 		this.tag = this.rfTag.toHexString();
 		this.timestamp = new Timestamp(message.getTimestamp());
+		this.antennasMask = message.getAntennas().toMask();
 		this.appeared = message.getAppearance().isPresent();
 	}
 
@@ -128,8 +132,7 @@ public class RfTagEventData implements RfTagEvent {
 
 	@Override
 	public IntSet getAntennas() {
-		// TODO Implement antenna identifiers persistence.
-		return EMPTY_INT_SET;
+		return intSetByMask(this.antennasMask);
 	}
 
 	public String getTag() {

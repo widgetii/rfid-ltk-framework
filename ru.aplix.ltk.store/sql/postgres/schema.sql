@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS rfstore.tag_event (
 	initial_event boolean NOT NULL DEFAULT false,
 	tag text NOT NULL,
 	timestamp timestamp with time zone NOT NULL,
+	antennas_mask int NOT NULL DEFAULT 0,
 	appeared boolean NOT NULL
 ) WITHOUT OIDS;
 

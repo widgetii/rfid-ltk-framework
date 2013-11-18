@@ -4,6 +4,7 @@ import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_APPEARED;
 import static ru.aplix.ltk.core.collector.RfTagAppearance.RF_TAG_DISAPPEARED;
 import static ru.aplix.ltk.core.util.CRC8.calcCRC8;
 import static ru.aplix.ltk.core.util.IntSet.EMPTY_INT_SET;
+import static ru.aplix.ltk.core.util.IntSet.intSetByMask;
 
 import java.nio.ByteBuffer;
 
@@ -17,9 +18,17 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 
 	private static final byte PRESENCE_FLAG = 1;
 	private static final byte INITIAL_EVENT_FLAG = 2;
+	/**
+	 * If set, the tag length is embedded into flags as four upper bits, and
+	 * antenna identifiers mask is present as two bytes after flags.
+	 * Otherwise, the length is one byte after flags, and antenna identifiers
+	 * are absent (legacy mode).
+	 */
+	private static final byte EMBEDDED_LENGTH = 4;
 
 	private final long eventId;
 	private final long timestamp;
+	private final IntSet antennas;
 	private final RfTag rfTag;
 	private final RfTagAppearance appearance;
 	private final boolean initialEvent;
@@ -27,6 +36,7 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 	RfTagAppearanceRecord(long eventId, RfTagAppearanceMessage message) {
 		this.eventId = eventId;
 		this.timestamp = message.getTimestamp();
+		this.antennas = message.getAntennas();
 		this.rfTag = message.getRfTag();
 		this.appearance = message.getAppearance();
 		this.initialEvent = message.isInitialEvent();
@@ -40,7 +50,17 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 
 		this.appearance = appearanceByFlags(flags);
 		this.initialEvent = (flags & INITIAL_EVENT_FLAG) != 0;
-		this.rfTag = readTag(data);
+
+		final int length;
+
+		if ((flags & EMBEDDED_LENGTH) != 0) {
+			length = flags >>> 4;
+			this.antennas = intSetByMask(data.getShort() & 0xFFFF);
+		} else {
+			this.antennas = EMPTY_INT_SET;
+			length = data.get();
+		}
+		this.rfTag = readTag(data, length);
 		checkCRC(data);
 	}
 
@@ -61,8 +81,7 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 
 	@Override
 	public IntSet getAntennas() {
-		// TODO Implement antenna identifiers logging.
-		return EMPTY_INT_SET;
+		return this.antennas;
 	}
 
 	@Override
@@ -78,12 +97,19 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 	public void write(ByteBuffer out) {
 		out.putLong(getEventId());
 		out.putLong(getTimestamp());
-		out.put(flags());
-		writeTag(out);
+
+		final byte[] tagData = getRfTag().getData();
+
+		out.put(flags(tagData.length));
+		out.putShort((short) getAntennas().toMask());
+		out.put(tagData);
 		writeCRC(out);
 	}
 
-	private byte flags() {
+	private byte flags(int length) {
+		if (length > 12) {
+			throw new IllegalStateException("Tag is too long: " + getRfTag());
+		}
 
 		byte flags = 0;
 
@@ -98,6 +124,8 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 		if (isInitialEvent()) {
 			flags |= INITIAL_EVENT_FLAG;
 		}
+		flags |= EMBEDDED_LENGTH;
+		flags |= length << 4;
 
 		return flags;
 	}
@@ -109,21 +137,7 @@ final class RfTagAppearanceRecord implements RfTagAppearanceMessage {
 		return RF_TAG_DISAPPEARED;
 	}
 
-	private void writeTag(ByteBuffer out) {
-
-		final byte[] tagData = getRfTag().getData();
-
-		if (tagData.length > 12) {
-			throw new IllegalStateException("Tag is too long: " + getRfTag());
-		}
-		out.put((byte) tagData.length);
-		out.put(tagData);
-	}
-
-	private static RfTag readTag(ByteBuffer data) {
-
-		final int length = data.get();
-
+	private static RfTag readTag(ByteBuffer data, int length) {
 		if (length > 12) {
 			throw new IllegalStateException("Tag data is too long: " + length);
 		}

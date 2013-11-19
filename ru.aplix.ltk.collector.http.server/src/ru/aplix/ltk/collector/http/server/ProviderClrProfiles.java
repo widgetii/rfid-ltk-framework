@@ -64,13 +64,15 @@ public final class ProviderClrProfiles<S extends RfSettings>
 				fileNameById(providerId));
 
 		if (!configDir.isDirectory()) {
-			if (createIfNotExist && !configDir.mkdirs()) {
+			if (!createIfNotExist) {
+				log().debug("Provider directory does not exist " + providerId);
+				// No profiles for this provider.
+				return null;
+			}
+			if (!configDir.mkdirs()) {
 				throw new IllegalStateException(
 						"Failed to create directory " + configDir);
 			}
-			log().debug("Provider directory does not exist " + providerId);
-			// No profiles for this provider.
-			return null;
 		}
 
 		return configDir;

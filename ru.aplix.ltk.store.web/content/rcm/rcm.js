@@ -177,9 +177,13 @@ angular.module('rfid-tag-store.rcm', [])
 		this.updating = true;
 		this.error = null;
 		var self = this;
+		var settings = $scope.settings;
+		var tp = settings.trackingPolicy;
+		if (tp.transactionTimeout == "") tp.transactionTimeout = null;
+		if (tp.invalidationTimeout == "") tp.invalidationTimeout = null;
 		$http.put(
 				ui.mapping,
-				$scope.settings,
+				settings,
 				{params: {server: $scope.config.serverURL}})
 		.success(function(data) {
 			self.updating = false;

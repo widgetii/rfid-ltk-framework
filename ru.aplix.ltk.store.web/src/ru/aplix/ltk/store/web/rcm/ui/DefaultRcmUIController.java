@@ -10,8 +10,8 @@ import ru.aplix.ltk.core.RfSettings;
 
 
 @RcmUI
-public class DefaultRcmUIController<S extends RfSettings>
-		extends RcmUIController<S, DefaultRcmUISettings<S>> {
+public class DefaultRcmUIController
+		extends RcmUIController<RfSettings, DefaultRcmUISettings> {
 
 	private static final String[] SCRIPT_URLS =
 			new String[] {"rcm/ui/default.js"};
@@ -23,7 +23,7 @@ public class DefaultRcmUIController<S extends RfSettings>
 			.settingsTemplateURL("rcm/ui/default.html");
 
 	@Override
-	public RfProvider<S> getRfProvider() {
+	public RfProvider<RfSettings> getRfProvider() {
 		return null;
 	}
 
@@ -48,14 +48,14 @@ public class DefaultRcmUIController<S extends RfSettings>
 	@ResponseBody
 	public RcmUIResponseBean save(
 			@RequestParam("server") String serverURL,
-			@RequestBody DefaultRcmUISettings<S> settings,
+			@RequestBody DefaultRcmUISettings settings,
 			HttpServletResponse resp) {
 		return getContext().save(serverURL, settings, resp);
 	}
 
 	@Override
-	public DefaultRcmUISettings<S> uiSettings(HttpRfProfile<S> profile) {
-		return new DefaultRcmUISettings<>(profile);
+	public DefaultRcmUISettings uiSettings(HttpRfProfile<RfSettings> profile) {
+		return new DefaultRcmUISettings(profile);
 	}
 
 }

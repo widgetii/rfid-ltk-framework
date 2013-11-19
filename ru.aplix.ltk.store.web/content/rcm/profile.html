@@ -60,6 +60,70 @@
 
     <ng-include src="ui.settingsTemplateURL"></ng-include>
 
+    <fieldset ng-show="settings.trackingPolicy.id">
+
+      <div class="control-group">
+        <label class="control-label">
+          Отслеживание тегов
+        </label>
+        <div class="controls">
+          <label class="radio inline">
+            По умолчанию
+            <input
+              type="radio"
+              value="default"
+              ng-model="settings.trackingPolicy.id"/>
+          </label>
+          <label class="radio inline">
+            Ручные настройки
+            <input
+              type="radio"
+              value="custom"
+              ng-model="settings.trackingPolicy.id"/>
+          </label>
+        </div>
+      </div>
+      
+      <div
+        class="control-group" ng-show="settings.trackingPolicy.id == 'custom'"
+        ng-class="{error: !settingsForm.trackingPolicyTransactionTimeout.$valid}">
+        <label class="control-label">
+          Период проверки исчезновения тегов
+        </label>
+        <div class="controls">
+          <div class="input-append">
+            <input
+              type="text"
+              name="trackingPolicyTransactionTimeout"
+              class="input-small"
+              ng-model="settings.trackingPolicy.transactionTimeout"
+              ng-pattern="patterns.number"/>
+            <span class="add-on">мс</span>
+          </div>
+        </div>
+      </div>
+  
+      <div
+        class="control-group" ng-show="settings.trackingPolicy.id == 'custom'"
+        ng-class="{error: !settingsForm.trackingPolicyInvalidationTimeout.$valid}">
+        <label class="control-label">
+          Задержка исчезновения тега
+        </label>
+        <div class="controls">
+          <div class="input-append">
+            <input
+              type="text"
+              name="trackingPolicyInvalidationTimeout"
+              class="input-small"
+              ng-model="settings.trackingPolicy.invalidationTimeout"
+              ng-pattern="patterns.number"/>
+            <span class="add-on">мс</span>
+          </div>
+        </div>
+      </div>
+
+    </fieldset>
+
     <div class="control-group">
       <div class="controls">
         <label

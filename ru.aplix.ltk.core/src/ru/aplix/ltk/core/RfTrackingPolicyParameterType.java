@@ -53,22 +53,22 @@ final class RfTrackingPolicyParameterType
 			String name,
 			RfTrackingPolicy[] values) {
 
-		final Parameters tcParams = params.sub("trackingPolicy");
+		final Parameters tpParams = params.sub("trackingPolicy");
 		final RfTrackingPolicy tp = values[0];
 
 		if (tp == null) {
 			return;
 		}
 		if (tp == DEFAULT_TRACKING_POLICY) {
-			tcParams.set("", "default");
+			tpParams.set("", "default");
 			return;
 		}
 		if (tp.getClass() == DefaultRfTrackingPolicy.class) {
-			tcParams.set("", "custom");
+			tpParams.set("", "custom");
 		} else {
-			tcParams.set("", tp.getClass().getName());
+			tpParams.set("", tp.getClass().getName());
 		}
-		tp.write(tcParams);
+		tp.write(tpParams);
 	}
 
 	private RfTrackingPolicy createTrackingPolicy(String className) {

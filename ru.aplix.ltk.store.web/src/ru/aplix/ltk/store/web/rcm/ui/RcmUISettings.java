@@ -10,6 +10,8 @@ public abstract class RcmUISettings<S extends RfSettings> {
 	private String providerId;
 	private String profileId;
 	private String profileName;
+	private RcmUITrackingPolicy trackingPolicy =
+			new RcmUITrackingPolicy();
 	private boolean autostart;
 
 	public RcmUISettings() {
@@ -22,6 +24,7 @@ public abstract class RcmUISettings<S extends RfSettings> {
 		final ClrProfileSettings<S> settings = profile.getSettings();
 
 		this.profileName = settings.getProfileName();
+		this.trackingPolicy.set(settings.getSettings().getTrackingPolicy());
 		this.autostart = settings.isAutostart();
 	}
 
@@ -49,6 +52,16 @@ public abstract class RcmUISettings<S extends RfSettings> {
 		this.profileName = profileName;
 	}
 
+	public RcmUITrackingPolicy getTrackingPolicy() {
+		return this.trackingPolicy;
+	}
+
+	public void setTrackingPolicy(RcmUITrackingPolicy trackingPolicy) {
+		this.trackingPolicy =
+				trackingPolicy != null
+				? trackingPolicy : new RcmUITrackingPolicy();
+	}
+
 	public boolean isAutostart() {
 		return this.autostart;
 	}
@@ -61,6 +74,7 @@ public abstract class RcmUISettings<S extends RfSettings> {
 			ClrProfileSettings<S> settings) {
 		settings.setProfileName(getProfileName());
 		settings.setAutostart(isAutostart());
+		getTrackingPolicy().fill(settings.getSettings());
 		fillSettings(settings.getSettings());
 		return settings;
 	}

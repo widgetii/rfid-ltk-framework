@@ -1,6 +1,7 @@
 package ru.aplix.ltk.store.web.rcm;
 
 import ru.aplix.ltk.collector.http.client.HttpRfProfile;
+import ru.aplix.ltk.store.web.rcm.ui.DefaultRcmUISettings;
 import ru.aplix.ltk.store.web.rcm.ui.RcmUISettings;
 import ru.aplix.ltk.store.web.receiver.RfReceiverDesc;
 
@@ -10,7 +11,7 @@ public class HttpRfProfileBean {
 	private String id;
 	private RfProviderDesc provider;
 	private RfReceiverDesc receiver;
-	private RcmUISettings<?> settings;
+	private RcmUISettings<?> settings = new DefaultRcmUISettings();
 
 	public HttpRfProfileBean() {
 	}
@@ -45,7 +46,8 @@ public class HttpRfProfileBean {
 	}
 
 	public void setSettings(RcmUISettings<?> settings) {
-		this.settings = settings;
+		this.settings =
+				settings != null ? settings : new DefaultRcmUISettings();
 	}
 
 }
